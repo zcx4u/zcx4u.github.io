@@ -301,7 +301,7 @@
                   <i class="fa fa-comment-o"></i>
                 </span>
                 <a href="/2019/02/13/hello-world/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/02/13/hello-world/" itemprop="commentCount"></span>
+                  <span class="post-comments-count gitment-comments-count" data-xid="/2019/02/13/hello-world/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -396,12 +396,9 @@
 
   
     <div class="comments" id="comments">
-      <div id="disqus_thread">
-        <noscript>
-          Please enable JavaScript to view the
-          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
-        </noscript>
-      </div>
+      
+        <div id="gitment-container"></div>
+      
     </div>
 
   
@@ -685,26 +682,6 @@
 
   
 
-    
-      <script id="dsq-count-scr" src="https://zcx.disqus.com/count.js" async></script>
-    
-
-    
-      <script type="text/javascript">
-        var disqus_config = function () {
-          this.page.url = 'http://yoursite.com/2019/02/13/hello-world/';
-          this.page.identifier = '2019/02/13/hello-world/';
-          this.page.title = 'Hello World';
-        };
-        var d = document, s = d.createElement('script');
-        s.src = 'https://zcx.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', '' + +new Date());
-        (d.head || d.body).appendChild(s);
-      </script>
-    
-
-  
-
 
 
 
@@ -720,8 +697,49 @@
 
 
 
+  
 
 
+
+
+
+
+
+<!-- LOCAL: You can save these files to your site and update links -->
+    
+        
+        <link rel="stylesheet" href="https://aimingoo.github.io/gitmint/style/default.css">
+        <script src="https://aimingoo.github.io/gitmint/dist/gitmint.browser.js"></script>
+    
+<!-- END LOCAL -->
+
+    
+
+    
+      <script type="text/javascript">
+      function renderGitment(){
+        var gitment = new Gitmint({
+            id: window.location.pathname, 
+            owner: 'zcx4u',
+            repo: 'https://zcx4u.github.io/',
+            
+            lang: "" || navigator.language || navigator.systemLanguage || navigator.userLanguage,
+            
+            oauth: {
+            
+            
+                client_secret: 'e5c94c309da55fd7f82dfb09768a7685ce1021a1',
+            
+                client_id: '1ce46427a2d389bf0f0a'
+            }});
+        gitment.render('gitment-container');
+      }
+
+      
+      renderGitment();
+      
+      </script>
+    
 
 
 
