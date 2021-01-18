@@ -94,7 +94,7 @@
 <meta property="og:site_name" content="Bruin&#39;sBlog">
 <meta property="og:description" content="从一个问题开始Runloop 和线程有什么关系？ Runloop 和 线程是密不可分的，可以说Runloop是为线程而生的。线程和runloop是一一对应的，我们只可以在当前线程内操控当前线程对应的Runloop。 Runloop是懒加载的在线程第一次获取他的时候创建，在线程结束的时候销毁。 主线程的runloop是默认启动的，因为主线程需要一直监听事件。子线程的Runloop默认是不启动的，需要">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2020-09-23T16:53:13.475Z">
+<meta property="og:updated_time" content="2021-01-18T08:48:04.769Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="runloop 学习笔记">
 <meta name="twitter:description" content="从一个问题开始Runloop 和线程有什么关系？ Runloop 和 线程是密不可分的，可以说Runloop是为线程而生的。线程和runloop是一一对应的，我们只可以在当前线程内操控当前线程对应的Runloop。 Runloop是懒加载的在线程第一次获取他的时候创建，在线程结束的时候销毁。 主线程的runloop是默认启动的，因为主线程需要一直监听事件。子线程的Runloop默认是不启动的，需要">
@@ -364,6 +364,7 @@
 <p><code>Runloop</code> 和 <code>线程</code>是密不可分的，可以说Runloop是为线程而生的。线程和runloop是<code>一一对应的</code>，我们只可以在当前线程内操控当前线程对应的Runloop。</p>
 <p>Runloop是懒加载的在线程<code>第一次</code>获取他的时候创建，在线程<code>结束</code>的时候销毁。</p>
 <p>主线程的runloop是默认启动的，因为主线程需要一直监听事件。子线程的Runloop默认是不启动的，需要手动开启循环。</p>
+<a id="more"></a>
 <h3 id="Runloop-的作用？"><a href="#Runloop-的作用？" class="headerlink" title="Runloop 的作用？"></a>Runloop 的作用？</h3><p>保持程序的运行，主线程的runloop使得APP不会退出</p>
 <p>响应并处理APP中的事件，用户交互、定时任务等</p>
 <p>节省cpu资源，按需运行，提升程序性能</p>

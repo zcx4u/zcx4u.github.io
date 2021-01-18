@@ -362,33 +362,17 @@
 
       
         
-          
-            <h3 id="从一个问题开始"><a href="#从一个问题开始" class="headerlink" title="从一个问题开始"></a>从一个问题开始</h3><p>Runloop 和线程有什么关系？</p>
+          <h3 id="从一个问题开始"><a href="#从一个问题开始" class="headerlink" title="从一个问题开始"></a>从一个问题开始</h3><p>Runloop 和线程有什么关系？</p>
 <p><code>Runloop</code> 和 <code>线程</code>是密不可分的，可以说Runloop是为线程而生的。线程和runloop是<code>一一对应的</code>，我们只可以在当前线程内操控当前线程对应的Runloop。</p>
 <p>Runloop是懒加载的在线程<code>第一次</code>获取他的时候创建，在线程<code>结束</code>的时候销毁。</p>
 <p>主线程的runloop是默认启动的，因为主线程需要一直监听事件。子线程的Runloop默认是不启动的，需要手动开启循环。</p>
-<h3 id="Runloop-的作用？"><a href="#Runloop-的作用？" class="headerlink" title="Runloop 的作用？"></a>Runloop 的作用？</h3><p>保持程序的运行，主线程的runloop使得APP不会退出</p>
-<p>响应并处理APP中的事件，用户交互、定时任务等</p>
-<p>节省cpu资源，按需运行，提升程序性能</p>
-<h3 id="Runloop的运行过程"><a href="#Runloop的运行过程" class="headerlink" title="Runloop的运行过程"></a>Runloop的运行过程</h3><p>Run Loop本质是一个处理事件源的循环。我们对Run Loop的运行时具有控制权，如果当前没有时间发生，Run Loop会让当前线程进入睡眠模式，来减轻CPU压力。如果有事件发生，Run Loop就处理事件并通知相关的Observer。具体的顺序如下:</p>
-<p>1) Run Loop进入的时候，会通知Observer</p>
-<p>2) Timer即将被触发时，会通知Observer</p>
-<p>3) 有其它非Port-Based Input Source即将被触发时，会通知Observer</p>
-<p>4) 启动非Port-Based Input Source的事件源</p>
-<p>5) 如果基于Port的Input Source事件源即将触发时，立即处理该事件，并跳转到9</p>
-<p>6) 通知Observer当前线程进入睡眠状态</p>
-<p>7) 将线程置入睡眠状态直到有以下事件发生：1. Port-Based Input Source被触发。2.Timer被触发。 3.Run Loop设置的时间已经超时。 4.Run Loop被显式唤醒。</p>
-<p>8) 通知Observer线程将要被唤醒</p>
-<p>9) 处理被触发的事件：1. 如果是用户自定义的Timer，处理Timer事件后重启Run Loop并直接进入步骤2。 2.如果线程被显示唤醒又没有超时，那么进入步骤2。 3.如果是其他Input Source事件源有事件发生，直接传递这个消息。</p>
-<p>10) 通知Observer Run Loop结束，Run Loop退出。</p>
-<h3 id="Runloop的mode"><a href="#Runloop的mode" class="headerlink" title="Runloop的mode"></a>Runloop的mode</h3><p>runloop有下可以有多个模式，但是同一时间只能有一个模式在运行；</p>
-<p>常用的模式有以下3种:</p>
-<p>1) NSDefaultRunLoopMode: 大多数工作中默认的运行方式。</p>
-<p>2) UITrackingRunLoopMode: 使用这个Mode去跟踪来自用户交互的事件（比如UITableView上下滑动）。</p>
-<p>3) NSRunLoopCommonModes: 这是一个伪模式，其为一组run loop mode的集合。如果将Input source加入此模式，意味着关联Input source到Common Modes中包含的所有模式下。在iOS系统中NSRunLoopCommonMode包含NSDefaultRunLoopMode、UITrackingRunLoopMode.</p>
-<p>runloop运行在某一指定模式下，就意味着input源或者time源只能在该模式下运行</p>
-
-          
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2020/09/25/runloop/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
