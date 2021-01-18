@@ -75,7 +75,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT">
+  <meta name="keywords" content="学习笔记,">
 
 
 
@@ -86,16 +86,18 @@
 
 
 
-<meta name="description" content="你好呀，我的朋友！">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Bruin&#39;sBlog">
-<meta property="og:url" content="http://yoursite.com/archives/2020/09/index.html">
+<meta name="description" content="从一个问题开始Runloop 和线程有什么关系？ Runloop 和 线程是密不可分的，可以说Runloop是为线程而生的。线程和runloop是一一对应的，我们只可以在当前线程内操控当前线程对应的Runloop。 Runloop是懒加载的在线程第一次获取他的时候创建，在线程结束的时候销毁。 主线程的runloop是默认启动的，因为主线程需要一直监听事件。子线程的Runloop默认是不启动的，需要">
+<meta name="keywords" content="学习笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="runloop 学习笔记">
+<meta property="og:url" content="http://yoursite.com/2020/09/25/runloop/index.html">
 <meta property="og:site_name" content="Bruin&#39;sBlog">
-<meta property="og:description" content="你好呀，我的朋友！">
+<meta property="og:description" content="从一个问题开始Runloop 和线程有什么关系？ Runloop 和 线程是密不可分的，可以说Runloop是为线程而生的。线程和runloop是一一对应的，我们只可以在当前线程内操控当前线程对应的Runloop。 Runloop是懒加载的在线程第一次获取他的时候创建，在线程结束的时候销毁。 主线程的runloop是默认启动的，因为主线程需要一直监听事件。子线程的Runloop默认是不启动的，需要">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2020-09-23T16:53:13.475Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Bruin&#39;sBlog">
-<meta name="twitter:description" content="你好呀，我的朋友！">
+<meta name="twitter:title" content="runloop 学习笔记">
+<meta name="twitter:description" content="从一个问题开始Runloop 和线程有什么关系？ Runloop 和 线程是密不可分的，可以说Runloop是为线程而生的。线程和runloop是一一对应的，我们只可以在当前线程内操控当前线程对应的Runloop。 Runloop是懒加载的在线程第一次获取他的时候创建，在线程结束的时候销毁。 主线程的runloop是默认启动的，因为主线程需要一直监听事件。子线程的Runloop默认是不启动的，需要">
 
 
 
@@ -125,13 +127,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/archives/2020/09/">
+  <link rel="canonical" href="http://yoursite.com/2020/09/25/runloop/">
 
 
 
 
 
-  <title>归档 | Bruin'sBlog</title>
+  <title>runloop 学习笔记 | Bruin'sBlog</title>
   
 
 
@@ -150,7 +152,7 @@
     
   
 
-  <div class="container sidebar-position-left page-archive">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
@@ -244,142 +246,229 @@
           <div id="content" class="content">
             
 
-  
-  
-  
-  <div class="post-block archive">
-    <div id="posts" class="posts-collapse">
-      <span class="archive-move-on"></span>
+  <div id="posts" class="posts-expand">
+    
 
-      <span class="archive-page-counter">
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/25/runloop/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="小二">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Bruin'sBlog">
+    </span>
+
+    
+      <header class="post-header">
+
         
         
+          <h1 class="post-title" itemprop="name headline">runloop 学习笔记</h1>
         
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-09-25T00:00:00+08:00">
+                2020-09-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
           
-        
-        嗯..! 目前共计 3 篇日志。 继续努力。
-      </span>
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
 
-      
-
-        
-        
-        
-
-        
+                
+                
+              
+            </span>
           
-          <div class="collection-title">
-            <h1 class="archive-year" id="archive-year-2020">2020</h1>
-          </div>
-        
-        
 
-        
+          
+            
+          
 
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-    <header class="post-header">
+          
+          
+             <span id="/2020/09/25/runloop/" class="leancloud_visitors" data-flag-title="runloop 学习笔记">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
 
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2020/09/25/runloop/" itemprop="url">
-              
-                <span itemprop="name">runloop 学习笔记</span>
-              
-            </a>
-        
-      </h2>
+          
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2020-09-25T00:00:00+08:00" content="2020-09-25">
-          09-25
-        </time>
-      </div>
+          
 
-    </header>
-  </article>
+          
 
+        </div>
+      </header>
+    
 
-
-      
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2020/09/23/block/" itemprop="url">
-              
-                <span itemprop="name">__block 关键字探究</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2020-09-23T00:00:00+08:00" content="2020-09-23">
-          09-23
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2020/09/22/GCD/" itemprop="url">
-              
-                <span itemprop="name">GCD相关知识学习笔记</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2020-09-22T00:00:00+08:00" content="2020-09-22">
-          09-22
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
       
 
+      
+        <h3 id="从一个问题开始"><a href="#从一个问题开始" class="headerlink" title="从一个问题开始"></a>从一个问题开始</h3><p>Runloop 和线程有什么关系？</p>
+<p><code>Runloop</code> 和 <code>线程</code>是密不可分的，可以说Runloop是为线程而生的。线程和runloop是<code>一一对应的</code>，我们只可以在当前线程内操控当前线程对应的Runloop。</p>
+<p>Runloop是懒加载的在线程<code>第一次</code>获取他的时候创建，在线程<code>结束</code>的时候销毁。</p>
+<p>主线程的runloop是默认启动的，因为主线程需要一直监听事件。子线程的Runloop默认是不启动的，需要手动开启循环。</p>
+<h3 id="Runloop-的作用？"><a href="#Runloop-的作用？" class="headerlink" title="Runloop 的作用？"></a>Runloop 的作用？</h3><p>保持程序的运行，主线程的runloop使得APP不会退出</p>
+<p>响应并处理APP中的事件，用户交互、定时任务等</p>
+<p>节省cpu资源，按需运行，提升程序性能</p>
+<h3 id="Runloop的运行过程"><a href="#Runloop的运行过程" class="headerlink" title="Runloop的运行过程"></a>Runloop的运行过程</h3><p>Run Loop本质是一个处理事件源的循环。我们对Run Loop的运行时具有控制权，如果当前没有时间发生，Run Loop会让当前线程进入睡眠模式，来减轻CPU压力。如果有事件发生，Run Loop就处理事件并通知相关的Observer。具体的顺序如下:</p>
+<p>1) Run Loop进入的时候，会通知Observer</p>
+<p>2) Timer即将被触发时，会通知Observer</p>
+<p>3) 有其它非Port-Based Input Source即将被触发时，会通知Observer</p>
+<p>4) 启动非Port-Based Input Source的事件源</p>
+<p>5) 如果基于Port的Input Source事件源即将触发时，立即处理该事件，并跳转到9</p>
+<p>6) 通知Observer当前线程进入睡眠状态</p>
+<p>7) 将线程置入睡眠状态直到有以下事件发生：1. Port-Based Input Source被触发。2.Timer被触发。 3.Run Loop设置的时间已经超时。 4.Run Loop被显式唤醒。</p>
+<p>8) 通知Observer线程将要被唤醒</p>
+<p>9) 处理被触发的事件：1. 如果是用户自定义的Timer，处理Timer事件后重启Run Loop并直接进入步骤2。 2.如果线程被显示唤醒又没有超时，那么进入步骤2。 3.如果是其他Input Source事件源有事件发生，直接传递这个消息。</p>
+<p>10) 通知Observer Run Loop结束，Run Loop退出。</p>
+<h3 id="Runloop的mode"><a href="#Runloop的mode" class="headerlink" title="Runloop的mode"></a>Runloop的mode</h3><p>runloop有下可以有多个模式，但是同一时间只能有一个模式在运行；</p>
+<p>常用的模式有以下3种:</p>
+<p>1) NSDefaultRunLoopMode: 大多数工作中默认的运行方式。</p>
+<p>2) UITrackingRunLoopMode: 使用这个Mode去跟踪来自用户交互的事件（比如UITableView上下滑动）。</p>
+<p>3) NSRunLoopCommonModes: 这是一个伪模式，其为一组run loop mode的集合。如果将Input source加入此模式，意味着关联Input source到Common Modes中包含的所有模式下。在iOS系统中NSRunLoopCommonMode包含NSDefaultRunLoopMode、UITrackingRunLoopMode.</p>
+<p>runloop运行在某一指定模式下，就意味着input源或者time源只能在该模式下运行</p>
+
+      
     </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/学习笔记/" rel="tag"># 学习笔记</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/09/23/block/" rel="next" title="__block 关键字探究">
+                <i class="fa fa-chevron-left"></i> __block 关键字探究
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+<span class="jiathis_txt">分享到：</span>
+<a class="jiathis_button_fav">收藏夹</a>
+<a class="jiathis_button_copy">复制网址</a>
+<a class="jiathis_button_email">邮件</a>
+<a class="jiathis_button_weixin">微信</a>
+<a class="jiathis_button_qzone">QQ空间</a>
+<a class="jiathis_button_tqq">腾讯微博</a>
+<a class="jiathis_button_douban">豆瓣</a>
+<a class="jiathis_button_share">一键分享</a>
+
+<a href="http://www.jiathis.com/share?uid=2140465" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript">
+var jiathis_config={
+  data_track_clickback:true,
+  summary:"",
+  shortUrl:false,
+  hideMore:false
+}
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+      
+    </div>
+  </div>
 
 
           </div>
@@ -387,6 +476,13 @@
 
 
           
+
+  
+    <div id="gitalk-container"></div>
+
+  
+
+
 
         </div>
         
@@ -407,8 +503,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
             
@@ -512,6 +617,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#从一个问题开始"><span class="nav-number">1.</span> <span class="nav-text">从一个问题开始</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Runloop-的作用？"><span class="nav-number">2.</span> <span class="nav-text">Runloop 的作用？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Runloop的运行过程"><span class="nav-number">3.</span> <span class="nav-text">Runloop的运行过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Runloop的mode"><span class="nav-number">4.</span> <span class="nav-text">Runloop的mode</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -656,6 +777,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
@@ -696,6 +821,21 @@
 
 
 
+
+  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+   <script type="text/javascript">
+        var gitalk = new Gitalk({
+          clientID: '1ce46427a2d389bf0f0a',
+          clientSecret: 'e5c94c309da55fd7f82dfb09768a7685ce1021a1',
+          repo: 'zcx4u.github.io',
+          owner: 'zcx4u',
+          admin: ['zcx4u'],
+          id: location.pathname,
+          distractionFreeMode: 'true'
+        })
+        gitalk.render('gitalk-container')           
+       </script>
 
   
 
