@@ -75,7 +75,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT">
+  <meta name="keywords" content="有用的,">
 
 
 
@@ -86,16 +86,18 @@
 
 
 
-<meta name="description" content="你好呀，我的朋友！">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Bruin&#39;sBlog">
-<meta property="og:url" content="http://yoursite.com/index.html">
+<meta name="description" content="APP内部代理 wifi的代理配置不会自动保存？使用iphone的大概都遇见过这种事情： 每次需要给app抓包的时候都需要到设置-wifi-下手动配置代理，然而当我们连着代理的时候无法访问App Store或其他禁止代理的服务，这个时候我们会把wifi的代理给关闭。 弄完杂七杂八的东西之后回到抓包调试，打开wifi设置页，手动配置代理… ？？？ 我刚才填的本机IP和端口呢？我还得再输一次？WTF！">
+<meta name="keywords" content="有用的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="APP内部代理">
+<meta property="og:url" content="http://yoursite.com/2021/01/18/APP代理/index.html">
 <meta property="og:site_name" content="Bruin&#39;sBlog">
-<meta property="og:description" content="你好呀，我的朋友！">
+<meta property="og:description" content="APP内部代理 wifi的代理配置不会自动保存？使用iphone的大概都遇见过这种事情： 每次需要给app抓包的时候都需要到设置-wifi-下手动配置代理，然而当我们连着代理的时候无法访问App Store或其他禁止代理的服务，这个时候我们会把wifi的代理给关闭。 弄完杂七杂八的东西之后回到抓包调试，打开wifi设置页，手动配置代理… ？？？ 我刚才填的本机IP和端口呢？我还得再输一次？WTF！">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2021-01-18T10:05:03.231Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Bruin&#39;sBlog">
-<meta name="twitter:description" content="你好呀，我的朋友！">
+<meta name="twitter:title" content="APP内部代理">
+<meta name="twitter:description" content="APP内部代理 wifi的代理配置不会自动保存？使用iphone的大概都遇见过这种事情： 每次需要给app抓包的时候都需要到设置-wifi-下手动配置代理，然而当我们连着代理的时候无法访问App Store或其他禁止代理的服务，这个时候我们会把wifi的代理给关闭。 弄完杂七杂八的东西之后回到抓包调试，打开wifi设置页，手动配置代理… ？？？ 我刚才填的本机IP和端口呢？我还得再输一次？WTF！">
 
 
 
@@ -125,13 +127,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/">
+  <link rel="canonical" href="http://yoursite.com/2021/01/18/APP代理/">
 
 
 
 
 
-  <title>Bruin'sBlog</title>
+  <title>APP内部代理 | Bruin'sBlog</title>
   
 
 
@@ -150,8 +152,7 @@
     
   
 
-  <div class="container sidebar-position-left 
-  page-home">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
@@ -244,9 +245,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
 
@@ -276,9 +277,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/01/18/APP代理/" itemprop="url">APP内部代理</a></h1>
+          <h1 class="post-title" itemprop="name headline">APP内部代理</h1>
         
 
         <div class="post-meta">
@@ -361,21 +360,37 @@
       
 
       
-        
-          <h3 id="APP内部代理"><a href="#APP内部代理" class="headerlink" title="APP内部代理"></a>APP内部代理</h3><hr>
+        <h3 id="APP内部代理"><a href="#APP内部代理" class="headerlink" title="APP内部代理"></a>APP内部代理</h3><hr>
 <h5 id="wifi的代理配置不会自动保存？"><a href="#wifi的代理配置不会自动保存？" class="headerlink" title="wifi的代理配置不会自动保存？"></a>wifi的代理配置不会自动保存？</h5><p>使用iphone的大概都遇见过这种事情：</p>
 <p>每次需要给app抓包的时候都需要到设置-wifi-下手动配置代理，然而当我们连着代理的时候无法访问App Store或其他禁止代理的服务，这个时候我们会把wifi的代理给关闭。</p>
 <p>弄完杂七杂八的东西之后回到抓包调试，打开wifi设置页，手动配置代理…</p>
 <p>？？？</p>
 <p>我刚才填的本机IP和端口呢？我还得再输一次？WTF！</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2021/01/18/APP代理/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
+<a id="more"></a>
+<hr>
+<h5 id="解决方案一"><a href="#解决方案一" class="headerlink" title="解决方案一"></a>解决方案一</h5><p>弄两个wifi信号，一个挂笔记本的代理不关，另一个正常联网，需要切换代理的时候切换wifi。</p>
+<p>说实话操作起来挺麻烦的，并且公司只有一个公用的wifi信号，想弄一个新的信号还需要运维小伙伴来搞，难顶。</p>
+<hr>
+<h5 id="解决方案二"><a href="#解决方案二" class="headerlink" title="解决方案二"></a>解决方案二</h5><p>安装VPN软件，配置本地代理规则，需要抓包的时候打开网络代理。</p>
+<p>小火箭之类好用的软件需要美区账号安装，每个测试机都可能会有这个需求，不可能每个测试机都这么操作一遍。</p>
+<hr>
+<p>#####解决方案三</p>
+<p>APP内部通过代码设置代理，只在APP内部生效，开发环境使用，可持久化配置文件。</p>
+<p>去goole了一圈，发现<code>URLSessionConfiguration</code> 中有个字典专门保存代理信息<code>connectionProxyDictionary</code> </p>
+<p>官方这么说的：</p>
+<blockquote>
+<p>This property controls which proxy tasks within sessions based on this configuration use when connecting to remote hosts.<br>The default value is NULL, which means that tasks use the default system settings.</p>
+</blockquote>
+<p>也就是说默认NULL的时候是走系统的代理设置，如果我们自定义的话就走我们APP内部自定义的代理设置咯。</p>
+<p>同理如果我们强制将这个值置空就能够避免我们的请求走隧道也能防止别人抓包辣！</p>
+<hr>
+<p>#####动动小手试试效果</p>
+<p>我们工程中使用了<code>Moya</code>来做网络封装，<code>Moya</code>内部使用<code>Alamofire</code>来请求网络，不论是<code>Moya</code> 还是<code>Alamofire</code>都不影响实际的代码效果。因为他们都使用了<code>URLSessionConfiguration</code>的单例，只需要在构建网络请求的时候添加上对应的代理信息即可。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> alamofireConfiguration: <span class="type">URLSessionConfiguration</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> configuration = <span class="type">URLSessionConfiguration</span>.<span class="keyword">default</span></span><br><span class="line">        #<span class="keyword">if</span> <span class="type">DEBUG</span></span><br><span class="line">        configuration.timeoutIntervalForRequest = <span class="number">30</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">let</span> proxyHost: <span class="type">String</span> = <span class="type">UserDefaultManager</span>.object(forKey: <span class="type">UserDefaultsKeys</span>.<span class="type">Test</span>.proxyHost),</span><br><span class="line">           <span class="keyword">let</span> proxyPort: <span class="type">Int64</span> = <span class="type">UserDefaultManager</span>.object(forKey: <span class="type">UserDefaultsKeys</span>.<span class="type">Test</span>.proxyPort) &#123;</span><br><span class="line">            <span class="keyword">var</span> proxyConfiguration = [<span class="type">AnyHashable</span>:<span class="type">Any</span>]()</span><br><span class="line">            <span class="comment">//HTTP</span></span><br><span class="line">            proxyConfiguration.updateValue(<span class="number">1</span> <span class="keyword">as</span> <span class="type">AnyObject</span>, forKey: <span class="string">"HTTPEnable"</span>)</span><br><span class="line">            proxyConfiguration.updateValue(proxyHost <span class="keyword">as</span> <span class="type">AnyObject</span>, forKey: <span class="string">"HTTPProxy"</span>)</span><br><span class="line">            proxyConfiguration.updateValue(proxyPort <span class="keyword">as</span> <span class="type">AnyObject</span>, forKey: <span class="string">"HTTPPort"</span>)</span><br><span class="line">            <span class="comment">//HTTPS</span></span><br><span class="line">            proxyConfiguration.updateValue(<span class="number">1</span> <span class="keyword">as</span> <span class="type">AnyObject</span>, forKey: <span class="string">"HTTPSEnable"</span>)</span><br><span class="line">            proxyConfiguration.updateValue(proxyHost <span class="keyword">as</span> <span class="type">AnyObject</span>, forKey: <span class="string">"HTTPSProxy"</span>)</span><br><span class="line">            proxyConfiguration.updateValue(proxyPort <span class="keyword">as</span> <span class="type">AnyObject</span>, forKey: <span class="string">"HTTPSPort"</span>)</span><br><span class="line">            configuration.connectionProxyDictionary = proxyConfiguration</span><br><span class="line">        &#125;</span><br><span class="line">        #<span class="keyword">else</span></span><br><span class="line">        configuration.timeoutIntervalForRequest = <span class="number">10</span></span><br><span class="line">        #endif</span><br><span class="line">        <span class="keyword">return</span> configuration</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>最后再做个保存设置功能之类的东东就大功告成了！</p>
+<p>使用起来十分舒服，再也不用老去WIFI设置页去填自己电脑的IP和端口了，在APP内部设置然后持久化一下就可以抓包分析而且不担心影响其他APP了。</p>
+<p>当然要记得控制好开发环境，不要影响线上业务哦！</p>
+
       
     </div>
     
@@ -390,337 +405,36 @@
 
     <footer class="post-footer">
       
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/25/runloop/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="zcx">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Bruin'sBlog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/09/25/runloop/" itemprop="url">runloop 学习笔记</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-09-25T00:00:00+08:00">
-                2020-09-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
+        <div class="post-tags">
           
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
+            <a href="/tags/有用的/" rel="tag"># 有用的</a>
           
-
-          
-            
-          
-
-          
-          
-             <span id="/2020/09/25/runloop/" class="leancloud_visitors" data-flag-title="runloop 学习笔记">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">阅读次数&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
         </div>
-      </header>
-    
+      
 
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
+      
       
       
 
       
-        
-          <h3 id="从一个问题开始"><a href="#从一个问题开始" class="headerlink" title="从一个问题开始"></a>从一个问题开始</h3><p>Runloop 和线程有什么关系？</p>
-<p><code>Runloop</code> 和 <code>线程</code>是密不可分的，可以说Runloop是为线程而生的。线程和runloop是<code>一一对应的</code>，我们只可以在当前线程内操控当前线程对应的Runloop。</p>
-<p>Runloop是懒加载的在线程<code>第一次</code>获取他的时候创建，在线程<code>结束</code>的时候销毁。</p>
-<p>主线程的runloop是默认启动的，因为主线程需要一直监听事件。子线程的Runloop默认是不启动的，需要手动开启循环。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2020/09/25/runloop/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/09/25/runloop/" rel="next" title="runloop 学习笔记">
+                <i class="fa fa-chevron-left"></i> runloop 学习笔记
+              </a>
+            
           </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
 
-    
+          <span class="post-nav-divider"></span>
 
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/23/block/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="zcx">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Bruin'sBlog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/09/23/block/" itemprop="url">__block 关键字探究</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
+          <div class="post-nav-prev post-nav-item">
             
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-09-23T00:00:00+08:00">
-                2020-09-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/2020/09/23/block/" class="leancloud_visitors" data-flag-title="__block 关键字探究">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">阅读次数&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
+          </div>
         </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
       
 
       
-        
-          <h3 id="block-是干什么用的"><a href="#block-是干什么用的" class="headerlink" title="__block 是干什么用的"></a>__block 是干什么用的</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">int val = 10;   </span><br><span class="line">MyBlock block = ^&#123;</span><br><span class="line">    NSLog(@&quot;val = %d&quot;,val);</span><br><span class="line">&#125;;</span><br><span class="line">block();</span><br><span class="line">//输出</span><br><span class="line">2020-09-22 14:24:47.018497+0800 MyDemo[2987:2658512] val = 10</span><br></pre></td></tr></table></figure>
-<p>从一段简单的<code>code</code>说起，在<code>block</code>中修改val的值该怎么办呢？</p>
-<p>直接在<code>block</code>中修改会报编译错误<code>Variable is not assignable (missing __block type specifier)</code> </p>
-<p>显而易见我们只需要在<code>val</code>变量前加<code>__block</code>关键字即可。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">__block int val = 10;</span><br><span class="line">MyBlock block = ^&#123;</span><br><span class="line">    val += 10;</span><br><span class="line">    NSLog(@&quot;val = %d&quot;,val);</span><br><span class="line">&#125;;</span><br><span class="line">block();</span><br><span class="line">//输出</span><br><span class="line">2020-09-22 14:29:38.065700+0800 MyDemo[2991:2660066] val = 20</span><br></pre></td></tr></table></figure>
-<p>现在我们简单的在<code>block</code>中修改了<code>val</code>的值。</p>
-<h3 id="block-原理思考推测"><a href="#block-原理思考推测" class="headerlink" title="__block 原理思考推测"></a>__block 原理思考推测</h3><p>so why？现在到了探究其所以然的时候了。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2020/09/23/block/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </div>
@@ -730,171 +444,37 @@
   </article>
 
 
-    
+
+    <div class="post-spread">
       
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+<span class="jiathis_txt">分享到：</span>
+<a class="jiathis_button_fav">收藏夹</a>
+<a class="jiathis_button_copy">复制网址</a>
+<a class="jiathis_button_email">邮件</a>
+<a class="jiathis_button_weixin">微信</a>
+<a class="jiathis_button_qzone">QQ空间</a>
+<a class="jiathis_button_tqq">腾讯微博</a>
+<a class="jiathis_button_douban">豆瓣</a>
+<a class="jiathis_button_share">一键分享</a>
 
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/22/GCD/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="zcx">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Bruin'sBlog">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/09/22/GCD/" itemprop="url">GCD相关知识学习笔记</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-09-22T00:00:00+08:00">
-                2020-09-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/2020/09/22/GCD/" class="leancloud_visitors" data-flag-title="GCD相关知识学习笔记">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">阅读次数&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>致未来的我：你是不是有点忘记了GCD的一些知识？恰巧这几天我有看这些，让我给你讲讲吧？<br>GCD是基于C语言的API，开发者只需要将任务放在block内，并指定好追加的队列，就可以完成多线程开发.</p>
-<h2 id="知识点速览"><a href="#知识点速览" class="headerlink" title="知识点速览"></a>知识点速览</h2><p>1.队列： 串行队列、并发队列</p>
-<p>2.任务： 同步任务、异步任务</p>
-<p>3.队列和任务的交叉组合使用</p>
-<p>4.死锁的产生和预防</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2020/09/22/GCD/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
+<a href="http://www.jiathis.com/share?uid=2140465" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript">
+var jiathis_config={
+  data_track_clickback:true,
+  summary:"",
+  shortUrl:false,
+  hideMore:false
+}
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=" charset="utf-8"></script>
+<!-- JiaThis Button END -->
       
     </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
   </div>
-  
-  
-  
-  </article>
-
-
-    
-  </section>
-
-  
 
 
           </div>
@@ -902,6 +482,13 @@
 
 
           
+
+  
+    <div id="gitalk-container"></div>
+
+  
+
+
 
         </div>
         
@@ -922,8 +509,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
             
@@ -1027,6 +623,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#APP内部代理"><span class="nav-number">1.</span> <span class="nav-text">APP内部代理</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#wifi的代理配置不会自动保存？"><span class="nav-number">1.0.1.</span> <span class="nav-text">wifi的代理配置不会自动保存？</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#解决方案一"><span class="nav-number">1.0.2.</span> <span class="nav-text">解决方案一</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#解决方案二"><span class="nav-number">1.0.3.</span> <span class="nav-text">解决方案二</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -1171,6 +783,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
@@ -1211,6 +827,21 @@
 
 
 
+
+  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+   <script type="text/javascript">
+        var gitalk = new Gitalk({
+          clientID: '1ce46427a2d389bf0f0a',
+          clientSecret: 'e5c94c309da55fd7f82dfb09768a7685ce1021a1',
+          repo: 'zcx4u.github.io',
+          owner: 'zcx4u',
+          admin: ['zcx4u'],
+          id: location.pathname,
+          distractionFreeMode: 'true'
+        })
+        gitalk.render('gitalk-container')           
+       </script>
 
   
 
