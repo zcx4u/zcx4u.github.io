@@ -362,7 +362,13 @@
 
       
         
-          <h1 id="Characters-and-Grapheme-Clusters"><a href="#Characters-and-Grapheme-Clusters" class="headerlink" title="Characters and Grapheme Clusters"></a>Characters and Grapheme Clusters</h1><h2 id="字符和字素簇定义说明"><a href="#字符和字素簇定义说明" class="headerlink" title="字符和字素簇定义说明"></a>字符和字素簇定义说明</h2><hr>
+          <h2 id="一个小问题引起的思考"><a href="#一个小问题引起的思考" class="headerlink" title="一个小问题引起的思考"></a>一个小问题引起的思考</h2><p>最近做一个输入框粘贴插入文字的需求时遇到了一个问题：</p>
+<p>输入框中输入了文字和表情符😃😃😃（emoji）计算出的光标location和实际感官上的字符个数不一致，最后导致文字插入的位置不对。</p>
+<p>这是为什么呢？</p>
+<p>查阅资料发现是Unicode编码和UTF-16编码的设计特点导致的此现象。</p>
+<h2 id="字符和字素簇定义说明"><a href="#字符和字素簇定义说明" class="headerlink" title="字符和字素簇定义说明"></a>字符和字素簇定义说明</h2><blockquote>
+<p>Characters and Grapheme Clusters</p>
+</blockquote>
 <blockquote>
 <p>It’s common to think of a string as a sequence of characters, but when working with <code>NSString</code> objects, or with Unicode strings in general, in most cases it is better to deal with substrings rather than with individual characters. The reason for this is that what the user perceives as a character in text may in many cases be represented by multiple characters in the string. <code>NSString</code> has a large inventory of methods for properly handling Unicode strings, which in general make Unicode compliance easy, but there are a few precautions you should observe.</p>
 </blockquote>
