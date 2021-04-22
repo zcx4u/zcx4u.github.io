@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link href="/lib/pace/pace-theme-center-atom.min.css?v=1.0.2" rel="stylesheet">
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="多读文档,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Characters and Grapheme Clusters字符和字素簇定义说明  It’s common to think of a string as a sequence of characters, but when working with NSString objects, or with Unicode strings in general, in most cases it i">
+<meta name="keywords" content="多读文档">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS字符串安全截取及任意位置插入">
+<meta property="og:url" content="http://yoursite.com/2021/04/22/iOS字符和字素簇/index.html">
+<meta property="og:site_name" content="Bruin&#39;sBlog">
+<meta property="og:description" content="Characters and Grapheme Clusters字符和字素簇定义说明  It’s common to think of a string as a sequence of characters, but when working with NSString objects, or with Unicode strings in general, in most cases it i">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2021-04-22T06:39:18.424Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS字符串安全截取及任意位置插入">
+<meta name="twitter:description" content="Characters and Grapheme Clusters字符和字素簇定义说明  It’s common to think of a string as a sequence of characters, but when working with NSString objects, or with Unicode strings in general, in most cases it i">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2021/04/22/iOS字符和字素簇/">
+
+
+
+
+
+  <title>iOS字符串安全截取及任意位置插入 | Bruin'sBlog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+  
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Bruin'sBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/04/22/iOS字符和字素簇/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="zcx">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Bruin'sBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">iOS字符串安全截取及任意位置插入</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-04-22T00:00:00+08:00">
+                2021-04-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2021/04/22/iOS字符和字素簇/" class="leancloud_visitors" data-flag-title="iOS字符串安全截取及任意位置插入">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Characters-and-Grapheme-Clusters"><a href="#Characters-and-Grapheme-Clusters" class="headerlink" title="Characters and Grapheme Clusters"></a>Characters and Grapheme Clusters</h1><h2 id="字符和字素簇定义说明"><a href="#字符和字素簇定义说明" class="headerlink" title="字符和字素簇定义说明"></a>字符和字素簇定义说明</h2><hr>
+<blockquote>
+<p>It’s common to think of a string as a sequence of characters, but when working with <code>NSString</code> objects, or with Unicode strings in general, in most cases it is better to deal with substrings rather than with individual characters. The reason for this is that what the user perceives as a character in text may in many cases be represented by multiple characters in the string. <code>NSString</code> has a large inventory of methods for properly handling Unicode strings, which in general make Unicode compliance easy, but there are a few precautions you should observe.</p>
+</blockquote>
+<p>我们通常将<code>String</code>视为<code>Characters</code>序列，用户能看到的文本中的<code>String</code>可能由字符串中的多个<code>Characters</code>表示，所以在处理<code>NSString</code>对象或一般的<code>Unicode</code>字符串时，处理子字符串大多数情况下比处理单个字符更好。尽管<code>NSString</code>有大量正确处理<code>Unicode</code>字符串的方法清单，但是仍有一些你需要注意的预防措施。</p>
+<a id="more"></a>
+<hr>
+<blockquote>
+<p><code>NSString</code> objects are conceptually UTF-16 with platform endianness. That doesn’t necessarily imply anything about their internal storage mechanism; what it means is that <code>NSString</code> lengths, character indexes, and ranges are expressed in terms of UTF-16 units, and that the term “character” in <code>NSString</code> method names refers to 16-bit platform-endian UTF-16 units. This is a common convention for string objects. In most cases, clients don’t need to be overly concerned with this; as long as you are dealing with substrings, the precise interpretation of the range indexes is not necessarily significant.</p>
+</blockquote>
+<p>从概念上讲<code>NSString</code>是<code>UTF-16</code>平台字节序编码,但这并不一定意味着其内部存储机制。这意味着<strong><code>NSString</code>长度，字符索引和范围以<code>UTF-16</code>单位表示</strong>，<code>NSString</code>方法名称中的<code>“character”</code>一词是指16位平台字节序的<code>UTF-16</code>单位。这是字符串对象的通用约定。在大多数情况下不必对此太在意，只要您正在处理子字符串，范围索引的精确解释就不一定很重要。(精确索引常用在处理emoji相关，常规一个字符型对应的长度是1，emoji不同的表情对应的是2或3)</p>
+<hr>
+<blockquote>
+<p>The vast majority of Unicode code points used for writing living languages are represented by single UTF-16 units. However, some less common Unicode code points are represented in UTF-16 by surrogate pairs. A surrogate pair is a sequence of two UTF-16 units, taken from specific reserved ranges, that together represent a single Unicode code point. CFString has functions for converting between surrogate pairs and the UTF-32 representation of the corresponding Unicode code point. When dealing with <code>NSString</code> objects, one constraint is that substring boundaries usually should not separate the two halves of a surrogate pair. This is generally automatic for ranges returned from most Cocoa methods, but if you are constructing substring ranges yourself you should keep this in mind. However, this is not the only constraint you should consider.</p>
+</blockquote>
+<blockquote>
+<p>名词解释</p>
+<p><strong>surrogate pairs: 代理对</strong></p>
+<p>UTF-16是早期Unicode遗留下的历史产物，原本被设计成具有固定宽度的16位编码格式。为支持超过U+FFFF的增补字符，设立了代理机制</p>
+<p>在BMP内的字符，仍然按照<a href="https://baike.baidu.com/item/UTF-16" target="_blank" rel="noopener">UTF-16</a>的编码规则，使用两个字符来表示。 [1] （注：BMP内的字符编码，不包含从U+D800到U+DFFF的预留码位。这些预留码位就恰好用于扩展字符编码）</p>
+<p>增补字符的编码值已经超过了BMP的编码范围，所以，需要使用一对UTF-16字符来表示一个字符。UTF-16编码以16位无符号整数为单位。我们把Unicode编码记作U。编码规则如下：</p>
+<ul>
+<li><p>如果U&lt;0x10000，U的UTF-16编码就是U对应的16位无符号整数。</p>
+</li>
+<li><p>如果U≥0x10000，</p>
+</li>
+<li><ul>
+<li>我们先计算U’=U-0x10000，</li>
+<li>然后将U’写成二进制形式：yyyy yyyy yyxx xxxx xxxx，</li>
+<li>U的UTF-16编码（二进制）就是：110110yyyyyyyyyy 110111xxxxxxxxxx。</li>
+</ul>
+</li>
+</ul>
+<p>这两个字符就称为surrogate pair（代理对）。第一个代理字符为16位编码，范围为U+D800到U+DFFF，第二个代理字符也是一个16位编码，范围为U+DC00 to U+DFFF。</p>
+</blockquote>
+<p>世界上存在的语言中绝大多数的<code>Unicode</code>编码都由单个<code>UTF-16</code>单元表示，但是仍然有少部分<code>Unicode</code>编码是使用代理对<code>surrogate pairs</code>来表示。代理对是从特定保留范围中提取的两个<code>UTF-16</code>单元的序列，它们一起代表一个<code>Unicode</code>代码点。<code>CFString</code>具有在代理对和相应<code>Unicode</code>代码点的<code>UTF-32</code>表示之间进行转换的功能。处理<code>NSString</code>时，子字符串边界不应将代理对的两半分开，<strong>大多数<code>Cocoa</code>方法会自动返回正确的<code>Range</code></strong>，但是如果您自己构造子字符串范围，则应牢记这一点。但是，这不是您应该考虑的唯一约束。</p>
+<hr>
+<blockquote>
+<p>In many writing systems, a single character may be composed of a base letter plus an accent or other decoration. The number of possible letters and accents precludes Unicode from representing each combination as a single code point, so in general such combinations are represented by a base character followed by one or more combining marks. For compatibility reasons, Unicode does have single code points for a number of the most common combinations; these are referred to as precomposed forms, and Unicode normalization transformations can be used to convert between precomposed and decomposed representations. However, even if a string is fully precomposed, there are still many combinations that must be represented using a base character and combining marks. For most text processing, substring ranges should be arranged so that their boundaries do not separate a base character from its associated combining marks.</p>
+</blockquote>
+<p>在许多书写系统中，单个字符可以由一个基本字母加上一个重音符号或其他装饰组成。可能的字母和重音的数量使Unicode无法将每个组合表示为单个代码点，因此，通常，此类组合用基本字符表示，后跟一个或多个组合标记。出于兼容性原因，Unicode确实为许多最常见的组合提供了单个代码点。这些被称为预组合形式，并且Unicode规范化转换可用于在预组合和分解表示之间进行转换。但是，即使完全预先组成了字符串，对于大多数文本处理，<strong>也应该使子字符串范围的边界不会将基字符与其相关的组合标记分开</strong>。</p>
+<hr>
+<blockquote>
+<p>In addition, there are writing systems in which characters represent a combination of parts that are more complicated than accent marks. In Korean, for example, a single Hangul syllable can be composed of two or three subparts known as jamo. In the Indic and Indic-influenced writing systems common throughout South and Southeast Asia, single written characters often represent combinations of consonants, vowels, and marks such as viramas, and the Unicode representations of these writing systems often use code points for these individual parts, so that a single character may be composed of multiple code points. For most text processing, substring ranges should also be arranged so that their boundaries do not separate the jamo in a single Hangul syllable, or the components of an Indic consonant cluster.</p>
+</blockquote>
+<p>此外，有些书写系统中，字符代表的是比重音符号更复杂的部分的组合。例如，在韩语中，一个单字音节可以由两个或三个被称为jamo的子音节组成。在遍及南亚和东南亚的印度语和受印度语影响的书写系统中，单个书写字符通常代表辅音、元音和诸如viramas等标记的组合，而这些书写系统的Unicode表示通常使用代码点来表示这些单独的部分，使单个字符可以由多个代码点组成。对于大多数文本处理，还应该使子字符串范围的边界不会将jamo分隔在单个韩文音节中，也不会将印度语辅音集群的组成部分分开。<strong>（相对于重音符号还有更复杂的编码结构，例如韩文和印度文，对于这些更复杂的结构也应该保持代理对不能被拆分）</strong></p>
+<hr>
+<p>In general, these combinations—surrogate pairs, base characters plus combining marks, Hangul jamo, and Indic consonant clusters—are referred to as grapheme clusters. In order to take them into account, you can use <code>NSString</code>’s <code>rangeOfComposedCharacterSequencesForRange:</code> or <code>rangeOfComposedCharacterSequenceAtIndex:</code> methods, or <code>CFStringGetRangeOfComposedCharactersAtIndex</code>. These can be used to adjust string indexes or substring ranges so that they fall on grapheme cluster boundaries, taking into account all of the constraints mentioned above. These methods should be the default choice for programmatically determining the boundaries of user-perceived characters.:</p>
+<p>通常，这些组合（代理对，基本字符加组合标记，Hangul jamo和印度辅音簇）被称为字素簇。为了将它们考虑在内，您可以使用<code>NSString</code>的<a href="https://developer.apple.com/documentation/foundation/nsstring/1410993-rangeofcomposedcharactersequence" target="_blank" rel="noopener"><code>rangeOfComposedCharacterSequencesForRange:</code></a>或<code>rangeOfComposedCharacterSequenceAtIndex:</code>方法，或<code>CFStringGetRangeOfComposedCharactersAtIndex</code>。考虑到上述所有约束，这些可用于调整字符串索引或子字符串范围，使它们落在字素簇边界上。这些方法应该是通过编程确定用户感知字符边界的默认选择。</p>
+<hr>
+<blockquote>
+<p>In some cases, Unicode algorithms deal with multiple characters in ways that go beyond even grapheme cluster boundaries. Unicode casing algorithms may convert a single character into multiple characters when going from lowercase to uppercase; for example, the standard uppercase equivalent of the German character “ß” is the two-letter sequence “SS”. Localized collation algorithms in many languages consider multiple-character sequences as single units; for example, the sequence “ch” is treated as a single letter for sorting purposes in some European languages. In order to deal properly with cases like these, it is important to use standard <code>NSString</code> methods for such operations as casing, sorting, and searching, and to use them on the entire string to which they are to apply. Use <code>NSString</code> methods such as <code>lowercaseString</code>, <code>uppercaseString</code>, <code>capitalizedString</code>, <code>compare:</code> and its variants, <code>rangeOfString:</code> and its variants, and <code>rangeOfCharacterFromSet:</code> and its variants, or their CFString equivalents. These all take into account the complexities of Unicode string processing, and the searching and sorting methods in particular have many options to control the types of equivalences they are to recognize.</p>
+</blockquote>
+<p>在某些情况下，Unicode算法以甚至超出字素簇边界的方式处理多个字符。从小写变为大写时，Unicode大小写算法可以将单个字符转换为多个字符。例如，德语字符“ß”的标准大写字母等同于两个字母的序列“ SS”。</p>
+<p>许多语言中的本地化排序规则算法将多字符序列视为单个单元。例如在某些欧洲语言中，出于排序目的，序列“ ch”被视为单个字母。</p>
+<p>在整个字符串上使用标准<code>NSString</code>方法进行诸如大小写，排序和搜索之类的操作可以正确处理此类情况。使用<code>NSString</code>方法，如<code>lowercaseString</code>，<code>uppercaseString</code>，<code>capitalizedString</code>，<code>compare:</code>和其变体，<code>rangeOfString:</code>和其变体，和<code>rangeOfCharacterFromSet:</code>其变体，或它们的等价CFString字符串方法。</p>
+<p>所有这些都考虑到了Unicode字符串处理的复杂性，特别是搜索和排序方法具有许多选项来控制它们要识别的等价类型。</p>
+<hr>
+<blockquote>
+<p>In some less common cases, it may be necessary to tailor the definition of grapheme clusters to a particular need. The issues involved in determining and tailoring grapheme cluster boundaries are covered in detail in <a href="http://unicode.org/reports/tr29/" target="_blank" rel="noopener">Unicode Standard Annex #29</a>, which gives a number of examples and some algorithms. The Unicode standard in general is the best source for information about Unicode algorithms and the considerations involved in processing Unicode strings.</p>
+<p>If you are interested in grapheme cluster boundaries from the point of view of cursor movement and insertion point positioning, and you are using the Cocoa text system, you should know that on OS X v10.5 and later, <code>NSLayoutManager</code> has API support for determining insertion point positions within a line of text as it is laid out. Note that insertion point boundaries are not identical to glyph boundaries; a ligature glyph in some cases, such as an “fi” ligature in Latin script, may require an internal insertion point on a user-perceived character boundary. See <em><a href="https://developer.apple.com/library/archive/documentation/TextFonts/Conceptual/CocoaTextArchitecture/Introduction/Introduction.html#//apple_ref/doc/uid/TP40009459" target="_blank" rel="noopener">Cocoa Text Architecture Guide</a></em> for more information.</p>
+</blockquote>
+<p>在一些不太常见的情况下，可能有必要根据特定需要定制字素簇的定义。<a href="http://unicode.org/reports/tr29/" target="_blank" rel="noopener">Unicode标准附件＃29</a>中详细介绍了确定和调整字素簇边界的问题，该<a href="http://unicode.org/reports/tr29/" target="_blank" rel="noopener">附件</a>提供了许多示例和一些算法。通常，Unicode标准是有关Unicode算法以及处理Unicode字符串所涉及的注意事项的最佳信息来源。</p>
+<p>如果您从光标移动和插入点定位的角度对字形簇边界感兴趣，并且您正在使用Cocoa文本系统，则应该知道在OS X v10.5和更高版本中，<code>NSLayoutManager</code>API支持确定插入点布置在一行文本中的位置。请注意，插入点边界与字形边界不同；在某些情况下，连字字形（例如拉丁语脚本中的“ fi”连字）可能需要在用户感知的字符边界上的内部插入点。有关更多信息，请参见《<em><a href="https://developer.apple.com/library/archive/documentation/TextFonts/Conceptual/CocoaTextArchitecture/Introduction/Introduction.html#//apple_ref/doc/uid/TP40009459" target="_blank" rel="noopener">Cocoa文本体系结构指南》</a></em>。</p>
+<h2 id="一种安全截取的方法"><a href="#一种安全截取的方法" class="headerlink" title="一种安全截取的方法"></a>一种安全截取的方法</h2><p>由上文可知 String 提供系统方法来识别完整的可见字符</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">rangeOfComposedCharacterSequencesForRange:</span><br><span class="line">rangeOfComposedCharacterSequenceAtIndex:</span><br><span class="line">这两个方法返回了给定range内包含的完整字符的索引地址</span><br><span class="line">给定初始 range = <span class="number">0</span> <span class="number">0</span>（location = <span class="number">0</span>， length = <span class="number">0</span>）</span><br><span class="line">“hello” 返回 <span class="number">0</span> <span class="number">1</span> 截取为 “h”</span><br><span class="line">“😀hello” 返回 <span class="number">0</span> <span class="number">2</span> 截取为 “😀”</span><br></pre></td></tr></table></figure>
+<p><strong>字符串截取或者在光标处插入字符应默认使用这两个方法来获取可视字符边界来避免代理对被拆开导致的显示bug</strong></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// 在字符串中光标位置插入子字符串的方法 </span></span><br><span class="line"><span class="comment">/// - Parameters:</span></span><br><span class="line"><span class="comment">///   - baseString: 被插入的字符串</span></span><br><span class="line"><span class="comment">///   - location: 光标位置 selectedRange.location</span></span><br><span class="line"><span class="comment">///   - insertString: 要插入的字符串</span></span><br><span class="line"><span class="comment">/// - Returns: 插入后完整字符串</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">insertStringTo</span><span class="params">(baseString: String, location: Int, insertString: String)</span></span> -&gt; <span class="type">String</span> &#123;</span><br><span class="line">        <span class="keyword">var</span> leadingString = <span class="string">""</span></span><br><span class="line">        <span class="keyword">var</span> trailingString = <span class="string">""</span></span><br><span class="line">        <span class="keyword">var</span> range = <span class="type">NSRange</span>(location: <span class="number">0</span>, length: <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">while</span> range.length &lt; baseString.<span class="built_in">count</span> &#123;</span><br><span class="line">            <span class="keyword">let</span> r = baseString.rangeOfComposedCharacterSequence(at: baseString.index(baseString.startIndex,</span><br><span class="line">                                                                                     offsetBy: range.length))</span><br><span class="line">            leadingString = <span class="type">String</span>(baseString[..&lt;r.upperBound])</span><br><span class="line">            trailingString = <span class="type">String</span>(baseString[r.upperBound...])  </span><br><span class="line">            <span class="keyword">if</span> location &lt;= leftString.<span class="built_in">count</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="string">"\(leadingString)\(insertString)\(trailingString)"</span></span><br><span class="line">            &#125;</span><br><span class="line">            range = <span class="type">NSRange</span>(location: <span class="number">0</span>, length: leadingString.unicodeScalars.<span class="built_in">count</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">""</span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="相关链接及资料"><a href="#相关链接及资料" class="headerlink" title="相关链接及资料"></a>相关链接及资料</h2><p><a href="https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Strings/Articles/stringsClusters.html" target="_blank" rel="noopener">原文链接字符和字素簇</a></p>
+<p><a href="https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Strings/introStrings.html#//apple_ref/doc/uid/10000035-SW1" target="_blank" rel="noopener">字符串编程指南</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/多读文档/" rel="tag"># 多读文档</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/04/20/NSCache/" rel="next" title="NSCache">
+                <i class="fa fa-chevron-left"></i> NSCache
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+<span class="jiathis_txt">分享到：</span>
+<a class="jiathis_button_fav">收藏夹</a>
+<a class="jiathis_button_copy">复制网址</a>
+<a class="jiathis_button_email">邮件</a>
+<a class="jiathis_button_weixin">微信</a>
+<a class="jiathis_button_qzone">QQ空间</a>
+<a class="jiathis_button_tqq">腾讯微博</a>
+<a class="jiathis_button_douban">豆瓣</a>
+<a class="jiathis_button_share">一键分享</a>
+
+<a href="http://www.jiathis.com/share?uid=2140465" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript">
+var jiathis_config={
+  data_track_clickback:true,
+  summary:"",
+  shortUrl:false,
+  hideMore:false
+}
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div id="gitalk-container"></div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.jpeg" alt="zcx">
+            
+              <p class="site-author-name" itemprop="name">zcx</p>
+              <p class="site-description motion-element" itemprop="description">你好呀，我的朋友！</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/zcx4u" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://plus.google.com/zcx940518" target="_blank" title="Google">
+                      
+                        <i class="fa fa-fw fa-google"></i>Google</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:zcx_bruin@foxmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/6995445360/profile?topnav=1&wvr=6" target="_blank" title="微博">
+                      
+                        <i class="fa fa-fw fa-weibo"></i>微博</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://macshuo.com/" title="MacTalk" target="_blank">MacTalk</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Characters-and-Grapheme-Clusters"><span class="nav-number">1.</span> <span class="nav-text">Characters and Grapheme Clusters</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#字符和字素簇定义说明"><span class="nav-number">1.1.</span> <span class="nav-text">字符和字素簇定义说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一种安全截取的方法"><span class="nav-number">1.2.</span> <span class="nav-text">一种安全截取的方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#相关链接及资料"><span class="nav-number">1.3.</span> <span class="nav-text">相关链接及资料</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">zcx</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Action speak louder than words.</div>
+
+
+
+  <span class="post-meta-divider"></span>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+   <script type="text/javascript">
+        var gitalk = new Gitalk({
+          clientID: '1ce46427a2d389bf0f0a',
+          clientSecret: 'e5c94c309da55fd7f82dfb09768a7685ce1021a1',
+          repo: 'zcx4u.github.io',
+          owner: 'zcx4u',
+          admin: ['zcx4u'],
+          id: location.pathname,
+          distractionFreeMode: 'true'
+        })
+        gitalk.render('gitalk-container')           
+       </script>
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("MUoigkFJVBIC84KJ66GDdRzg-gzGzoHsz", "7BcnpnTmmpl7LlKmrROjroPk");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
