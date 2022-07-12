@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link href="/lib/pace/pace-theme-center-atom.min.css?v=1.0.2" rel="stylesheet">
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="一键唤起," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Bruin'sBlog" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="iOS 一键唤起APP方案参考移动端业务发展过程中，几乎每个公司都会有活动宣传或者运营引流的需求。这些需求的实现不外乎开发一些吸引人的HTML页面，在页面的某些事件的响应中引导用户下载APP或者打开已经下载的APP。 基本流程为：  策划运营投放活动链接（新用户送红包或者PDD砍一刀）  用户点击活动链接进入活动页面  用户被吸引或诱导点击某个按钮触发事件  H5页面调起相关APP  APP响应调">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS 一键唤起APP方案参考">
+<meta property="og:url" content="http://yoursite.com/2021/12/06/iOS%20Web%E5%94%A4%E8%B5%B7APP%E6%96%B9%E6%A1%88%E5%8F%82%E8%80%83/index.html">
+<meta property="og:site_name" content="Bruin&#39;sBlog">
+<meta property="og:description" content="iOS 一键唤起APP方案参考移动端业务发展过程中，几乎每个公司都会有活动宣传或者运营引流的需求。这些需求的实现不外乎开发一些吸引人的HTML页面，在页面的某些事件的响应中引导用户下载APP或者打开已经下载的APP。 基本流程为：  策划运营投放活动链接（新用户送红包或者PDD砍一刀）  用户点击活动链接进入活动页面  用户被吸引或诱导点击某个按钮触发事件  H5页面调起相关APP  APP响应调">
+<meta property="og:locale">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gv92vcxu6jj60u206ewex02.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gvw7qzmkjdj30zn07lglw.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gw4bj7l2lej31280u0411.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gw7uwunklrj31da0u0n07.jpg">
+<meta property="article:published_time" content="2021-12-05T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-07-12T06:44:55.015Z">
+<meta property="article:author" content="zcx">
+<meta property="article:tag" content="一键唤起">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gv92vcxu6jj60u206ewex02.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2021/12/06/iOS Web唤起APP方案参考/"/>
+
+
+
+
+
+  <title>iOS 一键唤起APP方案参考 | Bruin'sBlog</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.2.0"></head>
+  
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Bruin'sBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/12/06/iOS%20Web%E5%94%A4%E8%B5%B7APP%E6%96%B9%E6%A1%88%E5%8F%82%E8%80%83/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Bruin'sBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">iOS 一键唤起APP方案参考</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-12-06T00:00:00+08:00">
+                2021-12-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2021/12/06/iOS%20Web%E5%94%A4%E8%B5%B7APP%E6%96%B9%E6%A1%88%E5%8F%82%E8%80%83/" class="leancloud_visitors" data-flag-title="iOS 一键唤起APP方案参考">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="iOS-一键唤起APP方案参考"><a href="#iOS-一键唤起APP方案参考" class="headerlink" title="iOS 一键唤起APP方案参考"></a>iOS 一键唤起APP方案参考</h2><p>移动端业务发展过程中，几乎每个公司都会有活动宣传或者运营引流的需求。这些需求的实现不外乎开发一些吸引人的HTML页面，在页面的某些事件的响应中引导用户下载APP或者打开已经下载的APP。</p>
+<p>基本流程为：</p>
+<ol>
+<li><p>策划运营投放活动链接（新用户送红包或者PDD砍一刀）</p>
+</li>
+<li><p>用户点击活动链接进入活动页面</p>
+</li>
+<li><p>用户被吸引或诱导点击某个按钮触发事件</p>
+</li>
+<li><p>H5页面调起相关APP</p>
+</li>
+<li><p>APP响应调起并接力打开对应页面</p>
+</li>
+</ol>
+<p>我们这里主要说一说4、5两步其中的细节处理，也是对最近相关的业务的一个总结。</p>
+<span id="more"></span>
+
+<h3 id="DeepLink技术"><a href="#DeepLink技术" class="headerlink" title="DeepLink技术"></a>DeepLink技术</h3><p>在<code>iOS9</code>之前只有通过<code>URL Scheme</code>能够唤起一个APP。</p>
+<p><code>Scheme</code>可以理解为一个APP的名字，因为是<code>URL Scheme</code>所以遵循URL的书写格式，类比于<code>http://www.baidu.com</code>，其中<code>http</code>就是它的<code>Scheme</code>。</p>
+<p>每个APP可以设置自己的Scheme，即给自己起个名字，方便”别人“叫我的时候我可以听得懂。</p>
+<p>例如我们起了个<code>Scheme</code>叫<code>kr</code>，那么在H5页面内可以通过 <code>openURL()</code>的方式打开 <code>kr://testPage</code>链接调起我们的APP，当然如果你知道别人的<code>Scheme</code>就可以调起他的APP。</p>
+<p>这个时候就需要H5和APP约定好连接的<code>path</code>和<code>parameter</code>，APP端根据调起的链接中的<code>Path</code>来确定要跳转的目的页，根据传参来获取需要的数据比如文章ID、用户ID等，然后根据参数加载原生页面。这样就完成了从H5到原生APP的接力跳转。</p>
+<hr>
+<h4 id="如何给自己的APP”起名”？"><a href="#如何给自己的APP”起名”？" class="headerlink" title="如何给自己的APP”起名”？"></a>如何给自己的APP”起名”？</h4><p>注册URL Scheme，即配置info.plist 文件</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gv92vcxu6jj60u206ewex02.jpg"></p>
+<h4 id="如何响应被调用的跳转"><a href="#如何响应被调用的跳转" class="headerlink" title="如何响应被调用的跳转"></a>如何响应被调用的跳转</h4><p>检测到H5向自己发起了调用请求，我们需要对请求进行响应。在AppDelegate类中通过系统预留方法进行处理。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// iOS9之前使用这个方法处理外部URL调用 </span></span><br><span class="line"><span class="keyword">func</span> <span class="title function_">application</span>(<span class="keyword">_</span> <span class="params">application</span>: <span class="type">UIApplication</span>, <span class="params">handleOpen</span> <span class="params">url</span>: <span class="type">URL</span>) -&gt; <span class="type">Bool</span> &#123;</span><br><span class="line">     </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>iOS9之后使用这个方法处理外部URL调用，示例代码中展示了若干个可以调起APP的途径，根据具体的路径和参数来处理不同的逻辑。 </p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">func</span> <span class="title function_">application</span>(<span class="keyword">_</span> <span class="params">app</span>: <span class="type">UIApplication</span>, <span class="params">open</span> <span class="params">url</span>: <span class="type">URL</span>, <span class="params">options</span>: [<span class="type">UIApplication</span>.<span class="params">OpenURLOptionsKey</span> : <span class="keyword">Any</span>]) -&gt; <span class="type">Bool</span> &#123;</span><br><span class="line">  <span class="comment">// 三方登录回调</span></span><br><span class="line">  <span class="keyword">if</span> <span class="type">LoginSettings</span>.handleOpenURL(url) <span class="operator">??</span> <span class="literal">false</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 神策SDK回调</span></span><br><span class="line">  <span class="keyword">if</span> <span class="keyword">let</span> sensor <span class="operator">=</span> <span class="type">SensorsAnalyticsSDK</span>.sharedInstance(), sensor.handleSchemeUrl(url) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// zfb支付回调</span></span><br><span class="line">  <span class="keyword">if</span> url.host <span class="operator">==</span> <span class="type">Constants</span>.<span class="type">KrOpenAppSource</span>.<span class="type">AliPayHost</span> &#123;</span><br><span class="line">      <span class="type">KrThirdPayManager</span>.default.processOrderWithZfbPaymentResult(url: url)</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// Today小组件点击</span></span><br><span class="line">  <span class="keyword">if</span> url.host <span class="operator">==</span> <span class="type">Constants</span>.<span class="type">KrOpenAppSource</span>.<span class="type">TodayExtensionHost</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> <span class="keyword">let</span> queryItems <span class="operator">=</span> url.queryItems, <span class="operator">!</span>queryItems.isEmpty &#123;</span><br><span class="line">          <span class="keyword">if</span> <span class="keyword">let</span> query <span class="operator">=</span> url.queryItems<span class="operator">?</span>.first &#123;</span><br><span class="line">              <span class="keyword">if</span> <span class="keyword">let</span> route <span class="operator">=</span> query.value, query.name <span class="operator">==</span> <span class="type">Constants</span>.<span class="type">KrOpenAppSource</span>.<span class="type">TodayExtensionQueryNews</span> &#123;</span><br><span class="line">                  <span class="type">Router2</span>.pushURL(route, <span class="type">TrackInfo</span>(source: <span class="type">TrackSource</span>.todayExtension))</span><br><span class="line">              &#125;</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// widget小组件点击</span></span><br><span class="line">  <span class="keyword">if</span> url.host <span class="operator">==</span> <span class="type">Constants</span>.<span class="type">KrOpenAppSource</span>.<span class="type">WidgetExtensionHost</span> &#123;</span><br><span class="line">      <span class="type">Router2</span>.pushURL(urlStr, <span class="type">TrackInfo</span>(source: <span class="type">TrackSource</span>.widgetExtension))</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// URL Scheme 唤起app</span></span><br><span class="line">  <span class="keyword">if</span> canAppHandleURL(url) &#123;</span><br><span class="line">      <span class="keyword">let</span> urlString <span class="operator">=</span> url.description</span><br><span class="line">      <span class="keyword">let</span> tempArray <span class="operator">=</span> urlString.components(separatedBy: <span class="string">&quot;route/&quot;</span>)</span><br><span class="line">      <span class="keyword">if</span> <span class="operator">!</span>tempArray.isEmpty, tempArray.count <span class="operator">&gt;</span> <span class="number">0</span> &#123;</span><br><span class="line">          <span class="keyword">let</span> route <span class="operator">=</span> tempArray[<span class="number">1</span>]</span><br><span class="line">          <span class="type">Router2</span>.pushURL(route, <span class="type">TrackInfo</span>(source: <span class="type">TrackSource</span>.linkedMe))</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// app store 唤起</span></span><br><span class="line">  <span class="keyword">if</span> <span class="keyword">let</span> sourceApp <span class="operator">=</span> options[<span class="type">UIApplication</span>.<span class="type">OpenURLOptionsKey</span>.sourceApplication] <span class="keyword">as?</span> <span class="type">String</span>,</span><br><span class="line">     sourceApp <span class="operator">==</span> <span class="type">Constants</span>.<span class="type">KrOpenAppSource</span>.<span class="type">AppStore</span> &#123;</span><br><span class="line">      <span class="type">TrackManager</span>.track(event: .appLaunch)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 处理旧版微信通过URL启动App时传递的数据</span></span><br><span class="line">  <span class="keyword">if</span> url.scheme <span class="operator">==</span> <span class="type">ShareManager</span>.<span class="type">Wechat</span>.appID &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="type">WXApi</span>.handleOpen(url, delegate:<span class="keyword">self</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="DeepLink的局限性"><a href="#DeepLink的局限性" class="headerlink" title="DeepLink的局限性"></a>DeepLink的局限性</h4><h5 id="无法检测目标APP是否安装"><a href="#无法检测目标APP是否安装" class="headerlink" title="无法检测目标APP是否安装"></a>无法检测目标APP是否安装</h5><blockquote>
+<p>我知道你叫什么就可以调起你，但是我不知道你在不在。</p>
+</blockquote>
+<p>H5无法获取APP是否已经安装过，所以大部分的处理方案是在发起调用APP的链接之后几秒直接跳转到对应APP的下载页面。</p>
+<p>即如果能够调起APP，用户就不会再关注H5页面， H5页面跳到哪里用户也看不见。</p>
+<p>反之就稍等一下跳转到APP的下载页面引导用户下载。</p>
+<h5 id="Scheme冲突"><a href="#Scheme冲突" class="headerlink" title="Scheme冲突"></a>Scheme冲突</h5><blockquote>
+<p>和你叫周杰伦我也叫周杰伦一样，大家都是周杰伦。</p>
+<p>当周杰伦真正回应你的呼唤的时候你才知道你调起的是哪个周杰伦，真~薛定谔的周杰伦…</p>
+</blockquote>
+<p>由于每家的APP都自己注册自己的URL Scheme，所以有可能出现两家APP的URL Scheme注册的一样的情况。当两个APP都安装之后就会出现问题，不确定调起的是哪个APP。</p>
+<h5 id="调起流程冗余且可能被阻断"><a href="#调起流程冗余且可能被阻断" class="headerlink" title="调起流程冗余且可能被阻断"></a>调起流程冗余且可能被阻断</h5><blockquote>
+<p>将在xxx中打开页面，是否继续？</p>
+</blockquote>
+<p>由于是使用js方法openURL来调起的APP，在调起之前系统会询问你是否在xxxAPP中打开连接。</p>
+<p>这个询问是一个比较突兀的alert弹窗，所以在不知情的用户看来可能会认为存在一定的风险从而取消打开导致唤起APP中断。如果在这里中断则用户极有可能会直接返回上一页或者直接取消整个操作，前功尽弃！</p>
+<h3 id="UniversalLink技术"><a href="#UniversalLink技术" class="headerlink" title="UniversalLink技术"></a>UniversalLink技术</h3><blockquote>
+<p>Seamlessly link to content inside your app, or on your website in iOS 9 or later. With universal links, you can always give users the most integrated mobile experience, even when your app isn’t installed on their device.</p>
+<p>苹果开发文档</p>
+</blockquote>
+<p><code>UniversalLink </code>技术是苹果在<code>iOS9</code>之后推出的一种使用<code>HTTPS</code>协议的，可以方便得使用已经存在的链接同时打开网址和唤起APP的新功能。</p>
+<p>相对于DeepLink技术来说，UniversalLink在使用体验上是类似的。明显区别在于用户点击了支持的通用链接后会直接调起APP，进入APP内部处理逻辑，而不会再弹起提示信息弹窗以达到从H5页面无缝衔接到APP内部的效果。（可能会在第一次使用UniversalLink时还会弹窗，但是授权之后就不再弹出了）</p>
+<h4 id="UniversalLink的优点"><a href="#UniversalLink的优点" class="headerlink" title="UniversalLink的优点"></a>UniversalLink的优点</h4><p>但是相对于<code>DeepLink</code>技术，<code>UniversalLink</code>技术还具有着以下优点：</p>
+<p><strong>唯一</strong>：与自定义<code>URL</code>方案不同，其他应用无法声明通用链接，因为通用链接使用的是指向您网站的标准<code>HTTP</code>或<code>HTTPS</code>链接</p>
+<blockquote>
+<ul>
+<li><strong>Unique.</strong> Unlike custom URL schemes, universal links can’t be claimed by other apps, because they use standard HTTP or HTTPS links to your website.</li>
+</ul>
+</blockquote>
+<p>每个APP控制自身可以支持的通用链接的域名，由于域名的注册和解析都具有唯一性，通用链支持的域名一定不会出现和别家APP重复的情况。</p>
+<hr>
+<p><strong>安全</strong>：当用户安装您的应用程序时，iOS会检查您已上传到Web服务器的文件，以确保您的网站允许您的应用程序代表其打开URL。只有您可以创建和上传此文件，因此您的网站与应用程序的关联是安全的。</p>
+<blockquote>
+<ul>
+<li><strong>Secure.</strong> When users install your app, iOS checks a file that you’ve uploaded to your web server to make sure that your website allows your app to open URLs on its behalf. Only you can create and upload this file, so the association of your website with your app is secure.</li>
+</ul>
+</blockquote>
+<p>通用链接的域名配置写在项目中且每个可以支持通用链的域名都需要上传一份提供判断是否满足通用链接对应的配置文件。</p>
+<p>配置文件规定了支持通用链功能的域名后的path和可以调起的APP，比如配置文件中规定了<code>www.abc.com/app/UniversalLink/*</code>这个路径可以打开<code>abcAPP</code>，那么只有访问对应的链接才能调起对应的APP。</p>
+<hr>
+<p><strong>灵活</strong>：即使未安装您的应用程序，通用链接也可以使用。如果未安装您的应用程序，点击指向您网站的链接可在Safari中打开内容。</p>
+<blockquote>
+<ul>
+<li><strong>Flexible.</strong> Universal links work even when your app is not installed. When your app isn’t installed, tapping a link to your website opens the content in Safari, as users expect.</li>
+</ul>
+</blockquote>
+<p>不用管用户是否安装了对应的APP，如果没有安装对应的APP，用户点击的链接也是一个有效的页面地址，会在浏览器中继续打开所点击的链接呈现出对应的内容。</p>
+<p>常规的做法是在某个通用链链接的地址上放APP的下载引导页，如果用户未安装APP而点击了通用链接就会直接跳转到下载页。</p>
+<p>对于iOS用户来说这个下载页也可以尝试重定向到<code>App Store</code>的通用链接。<code>App Store</code>对每个APP的下载页面都提供了可用的通用链接，重定向到<code>App Store</code>通用链会直接调起应用商店且打开APP下载页。</p>
+<hr>
+<p><strong>简单</strong>：一个URL既适用于您的网站，也适用于您的应用程序。</p>
+<blockquote>
+<ul>
+<li><strong>Simple.</strong> One URL works for both your website and your app.</li>
+</ul>
+</blockquote>
+<p>一个正常使用的URL即可当做通用链功能进行配置，同时不影响其本身的页面和功能。</p>
+<hr>
+<p><strong>私有</strong>：其他应用程序可以与您的应用程序通信，而无需知道您的应用程序是否已安装。</p>
+<blockquote>
+<ul>
+<li><strong>Private.</strong> Other apps can communicate with your app without needing to know whether your app is installed.</li>
+</ul>
+</blockquote>
+<p>通用链可以暴露给别的应用程序使用，像打开普通的webview一样的方式调起APP，而不用关心你是否真正下载了APP。你的通用链的功能和设置对其他APP来说是透明的。</p>
+<hr>
+<p><strong>短信、备忘录、邮件内部均可使用</strong>：</p>
+<blockquote>
+<p>使用通用链的一大优势。</p>
+</blockquote>
+<p>在iOS系统自带的短信、备忘录甚至邮件内的网页链接的点击也可以正常调起APP，这样发送给用户的引流短信或者邮件中均可附带对应活动的链接，如果用户有安装我们的APP，在点击链接时可以直接导向到APP内部对应的活动页面，不再需要Safari做中间人角色。如果用户未安装APP则跳到对应的活动页面，然后重定向到App Store的下载页。</p>
+<hr>
+<h4 id="如何配置UniversalLink"><a href="#如何配置UniversalLink" class="headerlink" title="如何配置UniversalLink"></a>如何配置UniversalLink</h4><p>网上很多朋友都分享了他们配置UniversalLink的过程，但是我还是建议去苹果官网上按照最新的文档说明进行配置。</p>
+<p><a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/xcode/supporting-associated-domains">Support Universal Links</a></p>
+<blockquote>
+<ul>
+<li>Create an <code>apple-app-site-association</code> file that contains JSON data about the URLs that your app can handle.</li>
+<li>Upload the <code>apple-app-site-association</code> file to your HTTPS web server. You can place the file at the root of your server or in the <code>.well-known</code> subdirectory.</li>
+<li>Prepare your app to handle universal links.</li>
+</ul>
+</blockquote>
+<p>大体上分为三个步骤:</p>
+<ol>
+<li><p>在xcode的Associated Domains配置项中添加你需要映射的链接</p>
+<p>一般需要先去开发者账号的管理网站上为APP根证书开通这个功能，然后在XCode上进行域名配置。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gvw7qzmkjdj30zn07lglw.jpg"></p>
+</li>
+<li><p>创建<code>apple-app-site-association</code>文件并编辑配置</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;applinks&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;apps&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;details&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">            <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;appID&quot;</span><span class="punctuation">:</span> <span class="string">&quot;9JA89QQLNQ.com.apple.wwdc&quot;</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;paths&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span> <span class="string">&quot;/wwdc/news/&quot;</span><span class="punctuation">,</span> <span class="string">&quot;/videos/wwdc/2015/*&quot;</span><span class="punctuation">]</span></span><br><span class="line">            <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;appID&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ABCD1234.com.apple.wwdc&quot;</span><span class="punctuation">,</span></span><br><span class="line">                <span class="attr">&quot;paths&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span> <span class="string">&quot;*&quot;</span> <span class="punctuation">]</span></span><br><span class="line">            <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">]</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>The <code>appIDs</code> and <code>apps</code> keys specify the application identifiers for the apps that are available for use on this website along with their service types. Use the following format for the values in these keys:</p>
+<p><Application Identifier Prefix>.<Bundle Identifier></p>
+<p>前缀使用APPId 可以在 App Store Connect网站上找到APP的id，后面是APP的Bundle ID，可以在Xcode签名管理的地方找</p>
+</blockquote>
+</li>
+<li><p>将<code>apple-app-site-association</code>文件放在链接的域名服务根目录下</p>
+<p>这个文件使用json格式但是并不能设置.json扩展名，仅仅作为纯文本文件放在对应链接域名下的根目录或者<code>.well-known</code>目录下，以方便系统访问到配置。</p>
+<p>比如你关联的域名为 <a target="_blank" rel="noopener" href="http://www.test.com/">www.test.com</a> ，就需要把<code>apple-app-site-association</code>文件放在服务器的根目录下，在浏览器访问</p>
+<p><a target="_blank" rel="noopener" href="https://www.test.com/apple-app-site-association">https://www.test.com/apple-app-site-association</a> 链接可以下载此文件或者直接打开此文件。</p>
+</li>
+</ol>
+<h4 id="配置UniversalLink需要注意的问题"><a href="#配置UniversalLink需要注意的问题" class="headerlink" title="配置UniversalLink需要注意的问题"></a>配置UniversalLink需要注意的问题</h4><ol>
+<li>配置<code>apple-app-site-association</code>的域名必须支持HTTPS，且访问的链接没有被重定向</li>
+<li>每个被链接的域名下都要有自身的配置<code>apple-app-site-association</code>文件，**<code>www.test.com</code>和 <code>test.com</code> 不是同一个域名<strong>，如果需要每个域名都需要通用链接功能则需要每个域名下都配置一个对应的文件。</strong>如果这两个域名有重写规则且属于同一台服务器则会优先生效<code>www.test.com</code>而忽略<code>test.com</code>**。（虽然大部分公司都是将test.com重写为<a target="_blank" rel="noopener" href="http://www.test.com,但是也有为了seo反向重写的例子)/">www.test.com，但是也有为了SEO反向重写的例子）</a></li>
+<li>从 macOS 11 和 iOS 14 开始，应用程序不再直接向您的网络服务器请求<code>apple-app-site-association</code>文件。相反，他们将这些请求发送到专用于关联域的 Apple 管理的内容交付网络 (CDN)。所以在APP启动阶段不会抓到对应域名和路径的请求了。</li>
+<li>第一次安装APP的时候苹果CDN服务会在24 小时内为您的域请求<code>apple-app-site-association</code>文件进行配置，非第一次安装时每周检查一次通用链配置更新。</li>
+</ol>
+<h3 id="特殊的微信环境"><a href="#特殊的微信环境" class="headerlink" title="特殊的微信环境"></a>特殊的微信环境</h3><p>鉴于国内的网络社交大环境基本以微信为中心，所以每个APP的引流都绕不开微信生态环境。</p>
+<p>而微信属于应用层APP，并不能像操作系统一样开放，基于安全性考虑，微信针对Deeplink和UniversalLink均做了不同程度的屏蔽。</p>
+<h4 id="安全域名回调"><a href="#安全域名回调" class="headerlink" title="安全域名回调"></a>安全域名回调</h4><p>在微信内部浏览器中是无法直接调起Deeplink的，一般通过微信分享出链接卡片，打开目的页面后再通过微信开放平台提供的安全域名功能来做Deeplink调用。</p>
+<p>js调用安全域名下的DeepLink后会通过微信的onReq回调来接收请求，然后解析传递的数据进而做出页面跳转功能。</p>
+<p>大体的逻辑如下</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gw4bj7l2lej31280u0411.jpg" alt="微信环境下使用DeepLink流程"></p>
+<h4 id="通用链跳转"><a href="#通用链跳转" class="headerlink" title="通用链跳转"></a>通用链跳转</h4><p>而针对UniversalLink的屏蔽则表现为无法通过UniversalLink调起APP，只能打开对应的落地页。不过最近由于某些政策的调整，微信针对UniversalLink的屏蔽已经被放开了。目前可以正常在微信环境内使用通用链跳转功能（只要你要跳转的目的链接和当前链接是跨域的并且正确安装配置了对应的通用链的APP）。</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gw7uwunklrj31da0u0n07.jpg"></p>
+<h4 id="屏蔽链接分享"><a href="#屏蔽链接分享" class="headerlink" title="屏蔽链接分享"></a>屏蔽链接分享</h4><p>鉴于对UniversalLink的放开，微信对某些竞争对手做出了限制链接分享的功能。比如某多多和某宝是无法使用微信卡片分享的，所以针对这种场景他们做出了分享文字到微信的功能，即发送常一大串带标识码的文本到微信，然后通过系统粘贴板作为中转到APP内（常见的“复制这段话到xxxAPP打开即可获得xxx红包”）。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>不论是DeepLink技术 还是UniversalLink技术，都可以实现我们的需求。</p>
+<p>在使用体验上来说还是UniversalLink技术更胜一筹。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E4%B8%80%E9%94%AE%E5%94%A4%E8%B5%B7/" rel="tag"># 一键唤起</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/09/18/iOS%E7%BC%96%E8%AF%91%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%E6%8E%A2%E7%B4%A2%E4%B8%8E%E5%AE%9E%E8%B7%B5-%E7%BB%84%E4%BB%B6%E7%AF%87/" rel="next" title="iOS编译优化方案探索与实践-组件篇">
+                <i class="fa fa-chevron-left"></i> iOS编译优化方案探索与实践-组件篇
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/02/28/XCUITest%E6%8E%A2%E7%B4%A2/" rel="prev" title="XCUITest iOS自动化UI测试框架">
+                XCUITest iOS自动化UI测试框架 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+<span class="jiathis_txt">分享到：</span>
+<a class="jiathis_button_fav">收藏夹</a>
+<a class="jiathis_button_copy">复制网址</a>
+<a class="jiathis_button_email">邮件</a>
+<a class="jiathis_button_weixin">微信</a>
+<a class="jiathis_button_qzone">QQ空间</a>
+<a class="jiathis_button_tqq">腾讯微博</a>
+<a class="jiathis_button_douban">豆瓣</a>
+<a class="jiathis_button_share">一键分享</a>
+
+<a href="http://www.jiathis.com/share?uid=2140465" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+var jiathis_config={
+  data_track_clickback:true,
+  summary:"",
+  shortUrl:false,
+  hideMore:false
+}
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div id="gitalk-container"></div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpeg"
+                alt="" />
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/zcx4u" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://plus.google.com/zcx940518" target="_blank" title="Google">
+                      
+                        <i class="fa fa-fw fa-google"></i>Google</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:zcx_bruin@foxmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/6995445360/profile?topnav=1&wvr=6" target="_blank" title="微博">
+                      
+                        <i class="fa fa-fw fa-weibo"></i>微博</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://macshuo.com/" title="MacTalk" target="_blank">MacTalk</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#iOS-%E4%B8%80%E9%94%AE%E5%94%A4%E8%B5%B7APP%E6%96%B9%E6%A1%88%E5%8F%82%E8%80%83"><span class="nav-number">1.</span> <span class="nav-text">iOS 一键唤起APP方案参考</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#DeepLink%E6%8A%80%E6%9C%AF"><span class="nav-number">1.1.</span> <span class="nav-text">DeepLink技术</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E7%BB%99%E8%87%AA%E5%B7%B1%E7%9A%84APP%E2%80%9D%E8%B5%B7%E5%90%8D%E2%80%9D%EF%BC%9F"><span class="nav-number">1.1.1.</span> <span class="nav-text">如何给自己的APP”起名”？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%93%8D%E5%BA%94%E8%A2%AB%E8%B0%83%E7%94%A8%E7%9A%84%E8%B7%B3%E8%BD%AC"><span class="nav-number">1.1.2.</span> <span class="nav-text">如何响应被调用的跳转</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DeepLink%E7%9A%84%E5%B1%80%E9%99%90%E6%80%A7"><span class="nav-number">1.1.3.</span> <span class="nav-text">DeepLink的局限性</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%97%A0%E6%B3%95%E6%A3%80%E6%B5%8B%E7%9B%AE%E6%A0%87APP%E6%98%AF%E5%90%A6%E5%AE%89%E8%A3%85"><span class="nav-number">1.1.3.1.</span> <span class="nav-text">无法检测目标APP是否安装</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Scheme%E5%86%B2%E7%AA%81"><span class="nav-number">1.1.3.2.</span> <span class="nav-text">Scheme冲突</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%B0%83%E8%B5%B7%E6%B5%81%E7%A8%8B%E5%86%97%E4%BD%99%E4%B8%94%E5%8F%AF%E8%83%BD%E8%A2%AB%E9%98%BB%E6%96%AD"><span class="nav-number">1.1.3.3.</span> <span class="nav-text">调起流程冗余且可能被阻断</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UniversalLink%E6%8A%80%E6%9C%AF"><span class="nav-number">1.2.</span> <span class="nav-text">UniversalLink技术</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#UniversalLink%E7%9A%84%E4%BC%98%E7%82%B9"><span class="nav-number">1.2.1.</span> <span class="nav-text">UniversalLink的优点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E9%85%8D%E7%BD%AEUniversalLink"><span class="nav-number">1.2.2.</span> <span class="nav-text">如何配置UniversalLink</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%85%8D%E7%BD%AEUniversalLink%E9%9C%80%E8%A6%81%E6%B3%A8%E6%84%8F%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.2.3.</span> <span class="nav-text">配置UniversalLink需要注意的问题</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E6%AE%8A%E7%9A%84%E5%BE%AE%E4%BF%A1%E7%8E%AF%E5%A2%83"><span class="nav-number">1.3.</span> <span class="nav-text">特殊的微信环境</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%89%E5%85%A8%E5%9F%9F%E5%90%8D%E5%9B%9E%E8%B0%83"><span class="nav-number">1.3.1.</span> <span class="nav-text">安全域名回调</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%80%9A%E7%94%A8%E9%93%BE%E8%B7%B3%E8%BD%AC"><span class="nav-number">1.3.2.</span> <span class="nav-text">通用链跳转</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B1%8F%E8%94%BD%E9%93%BE%E6%8E%A5%E5%88%86%E4%BA%AB"><span class="nav-number">1.3.3.</span> <span class="nav-text">屏蔽链接分享</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.4.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">zcx</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Action speak louder than words.</div>
+
+
+
+  <span class="post-meta-divider"></span>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+   <script type="text/javascript">
+        var gitalk = new Gitalk({
+          clientID: '1ce46427a2d389bf0f0a',
+          clientSecret: 'e5c94c309da55fd7f82dfb09768a7685ce1021a1',
+          repo: 'zcx4u.github.io',
+          owner: 'zcx4u',
+          admin: ['zcx4u'],
+          id: location.pathname,
+          distractionFreeMode: 'true'
+        })
+        gitalk.render('gitalk-container')           
+       </script>
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("MUoigkFJVBIC84KJ66GDdRzg-gzGzoHsz", "7BcnpnTmmpl7LlKmrROjroPk");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
