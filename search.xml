@@ -63,35 +63,6 @@
       </tags>
   </entry>
   <entry>
-    <title>NSCache</title>
-    <url>/2021/04/20/NSCache/</url>
-    <content><![CDATA[<h2 id="NSCache"><a href="#NSCache" class="headerlink" title="NSCache"></a>NSCache</h2><h3 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h3><blockquote>
-<p>A mutable collection you use to temporarily store transient key-value pairs that are subject to eviction when resources are low.</p>
-</blockquote>
-<p>一种用于临时存储临时键值对的可变集合，在资源不足时容易被回收。</p>
-<span id="more"></span>
-
-<blockquote>
-<p>Cache objects differ from other mutable collections in a few ways:<br>The NSCache class incorporates various auto-eviction policies, which ensure that a cache doesn’t use too much of the system’s memory. If memory is needed by other applications, these policies remove some items from the cache, minimizing its memory footprint.<br>You can add, remove, and query items in the cache from different threads without having to lock the cache yourself.<br>Unlike an NSMutableDictionary object, a cache does not copy the key objects that are put into it.<br>You typically use NSCache objects to temporarily store objects with transient data that are expensive to create. Reusing these objects can provide performance benefits, because their values do not have to be recalculated. However, the objects are not critical to the application and can be discarded if memory is tight. If discarded, their values will have to be recomputed again when needed.<br>Objects that have subcomponents that can be discarded when not being used can adopt the NSDiscardableContent protocol to improve cache eviction behavior. By default, NSDiscardableContent objects in a cache are automatically removed if their content is discarded, although this automatic removal policy can be changed. If an NSDiscardableContent object is put into the cache, the cache calls discardContentIfPossible() on it upon its removal.</p>
-</blockquote>
-<p>缓存对象与其他可变集合在以下几个方面有所不同:</p>
-<p><strong>自动回收</strong>： NSCache类包含各种自动回收策略，这些策略确保缓存不会使用太多的系统内存。如果其他应用程序需要内存，这些策略会从缓存中删除一些项，从而最小化其内存占用。</p>
-<p><strong>线程安全</strong>：可以从不同的线程在缓存中添加、删除和查询项，而不必自己锁定缓存。</p>
-<p><strong>Key无需实现NSCopying</strong>：与NSMutableDictionary对象不同，缓存不会复制放入其中的key对象，降低内存占用。</p>
-<p><strong>不能长久储存数据</strong>： 您通常使用NSCache对象来临时存储带有临时数据的对象，这些数据的创建成本很高。重用这些对象可以提供性能优势，因为它们的值不必重新计算。但是，这些对象对应用程序并不重要，如果内存紧张，可以丢弃这些对象。如果丢弃，它们的值将不得不在需要时重新计算。</p>
-<p><strong>NSDiscardableContent 在NSCache中不会强引用</strong>：具有子组件的对象在不使用时可以被丢弃，可以采用NSDiscardableContent 协议来改进缓存回收行为。默认情况下，如果缓存中的NSDiscardableContent 对象的内容被丢弃，那么它们将被自动删除，尽管这个自动删除策略可以更改。如果一个NSDiscardableContent 对象被放入缓存，缓存在它被删除时调用discardContentIfPossible()。</p>
-<p>（一般不用可丢弃对象包裹，直接使用方法保存原始obj就行）</p>
-<h3 id="Values-Methods"><a href="#Values-Methods" class="headerlink" title="Values &amp; Methods"></a>Values &amp; Methods</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#import &lt;Foundation/NSObject.h&gt;</span><br><span class="line"></span><br><span class="line">@class NSString;</span><br><span class="line">@protocol NSCacheDelegate;</span><br><span class="line"></span><br><span class="line">NS_ASSUME_NONNULL_BEGIN</span><br><span class="line"></span><br><span class="line">API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0))</span><br><span class="line">@interface NSCache &lt;KeyType, ObjectType&gt; : NSObject &#123;</span><br><span class="line">@private</span><br><span class="line">    id _delegate;</span><br><span class="line">    void *_private[5];</span><br><span class="line">    void *_reserved;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@property (copy) NSString *name; // 用来管理区分cache对象的名字</span><br><span class="line"></span><br><span class="line">@property (nullable, assign) id&lt;NSCacheDelegate&gt; delegate;</span><br><span class="line"></span><br><span class="line">- (nullable ObjectType)objectForKey:(KeyType)key; // 取数据</span><br><span class="line">- (void)setObject:(ObjectType)obj forKey:(KeyType)key; // 0 cost 缓存数据</span><br><span class="line">- (void)setObject:(ObjectType)obj forKey:(KeyType)key cost:(NSUInteger)g; // 缓存数据 cost值设置的消耗内存大小</span><br><span class="line">- (void)removeObjectForKey:(KeyType)key;// 移除数据</span><br><span class="line"></span><br><span class="line">- (void)removeAllObjects;// 移除所有数据</span><br><span class="line"></span><br><span class="line">@property NSUInteger totalCostLimit;	// limits are imprecise/not strict 限制缓存数量</span><br><span class="line">@property NSUInteger countLimit;	// limits are imprecise/not strict 限制缓存保存数大小（cost）</span><br><span class="line">@property BOOL evictsObjectsWithDiscardedContent; // 是否自动回收</span><br><span class="line"></span><br><span class="line">@end</span><br><span class="line"></span><br><span class="line">@protocol NSCacheDelegate &lt;NSObject&gt;</span><br><span class="line">@optional</span><br><span class="line">- (void)cache:(NSCache *)cache willEvictObject:(id)obj; // 回收内存的时候调用代理的方法</span><br><span class="line">@end</span><br><span class="line"></span><br><span class="line">NS_ASSUME_NONNULL_END</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>iOS</category>
-      </categories>
-      <tags>
-        <tag>学习笔记</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>GCD相关知识学习笔记</title>
     <url>/2020/09/22/GCD/</url>
     <content><![CDATA[<p>致未来的我：你是不是有点忘记了GCD的一些知识？恰巧这几天我有看这些，让我给你讲讲吧？<br>GCD是基于C语言的API，开发者只需要将任务放在block内，并指定好追加的队列，就可以完成多线程开发.</p>
@@ -161,6 +132,35 @@
 <p>为了方便程序员的使用,苹果提供了全局队列:dispatch_get_global_queue(0, 0)<br>全局队列是一个并发队列(concurrent)<br>在使用多线程开发时,如果对队列没有特殊需求,在执行异步任务时,可以直接使用全局队列</p>
 <p>队列相当于一个线程的调度器 串行队列总是在当前线程去进行任务调度 并发队列会对异步任务开启新线程</p>
 <h2 id="感悟"><a href="#感悟" class="headerlink" title="感悟"></a>感悟</h2><p>通过我今天对GCD的学习，我觉得之前总是有许多自己给自己设置的学习障碍，一个大概只需要两个小时就能搞明白的知识为什么不静下心来去看看呢？<br>不会的技术并不是难以跨越的大山，只要用心钻研，就一定会有所收获。<br>好了，看到这里了，未来的我有什么要给我补充的吗？</p>
+]]></content>
+      <categories>
+        <category>iOS</category>
+      </categories>
+      <tags>
+        <tag>学习笔记</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>NSCache</title>
+    <url>/2021/04/20/NSCache/</url>
+    <content><![CDATA[<h2 id="NSCache"><a href="#NSCache" class="headerlink" title="NSCache"></a>NSCache</h2><h3 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h3><blockquote>
+<p>A mutable collection you use to temporarily store transient key-value pairs that are subject to eviction when resources are low.</p>
+</blockquote>
+<p>一种用于临时存储临时键值对的可变集合，在资源不足时容易被回收。</p>
+<span id="more"></span>
+
+<blockquote>
+<p>Cache objects differ from other mutable collections in a few ways:<br>The NSCache class incorporates various auto-eviction policies, which ensure that a cache doesn’t use too much of the system’s memory. If memory is needed by other applications, these policies remove some items from the cache, minimizing its memory footprint.<br>You can add, remove, and query items in the cache from different threads without having to lock the cache yourself.<br>Unlike an NSMutableDictionary object, a cache does not copy the key objects that are put into it.<br>You typically use NSCache objects to temporarily store objects with transient data that are expensive to create. Reusing these objects can provide performance benefits, because their values do not have to be recalculated. However, the objects are not critical to the application and can be discarded if memory is tight. If discarded, their values will have to be recomputed again when needed.<br>Objects that have subcomponents that can be discarded when not being used can adopt the NSDiscardableContent protocol to improve cache eviction behavior. By default, NSDiscardableContent objects in a cache are automatically removed if their content is discarded, although this automatic removal policy can be changed. If an NSDiscardableContent object is put into the cache, the cache calls discardContentIfPossible() on it upon its removal.</p>
+</blockquote>
+<p>缓存对象与其他可变集合在以下几个方面有所不同:</p>
+<p><strong>自动回收</strong>： NSCache类包含各种自动回收策略，这些策略确保缓存不会使用太多的系统内存。如果其他应用程序需要内存，这些策略会从缓存中删除一些项，从而最小化其内存占用。</p>
+<p><strong>线程安全</strong>：可以从不同的线程在缓存中添加、删除和查询项，而不必自己锁定缓存。</p>
+<p><strong>Key无需实现NSCopying</strong>：与NSMutableDictionary对象不同，缓存不会复制放入其中的key对象，降低内存占用。</p>
+<p><strong>不能长久储存数据</strong>： 您通常使用NSCache对象来临时存储带有临时数据的对象，这些数据的创建成本很高。重用这些对象可以提供性能优势，因为它们的值不必重新计算。但是，这些对象对应用程序并不重要，如果内存紧张，可以丢弃这些对象。如果丢弃，它们的值将不得不在需要时重新计算。</p>
+<p><strong>NSDiscardableContent 在NSCache中不会强引用</strong>：具有子组件的对象在不使用时可以被丢弃，可以采用NSDiscardableContent 协议来改进缓存回收行为。默认情况下，如果缓存中的NSDiscardableContent 对象的内容被丢弃，那么它们将被自动删除，尽管这个自动删除策略可以更改。如果一个NSDiscardableContent 对象被放入缓存，缓存在它被删除时调用discardContentIfPossible()。</p>
+<p>（一般不用可丢弃对象包裹，直接使用方法保存原始obj就行）</p>
+<h3 id="Values-Methods"><a href="#Values-Methods" class="headerlink" title="Values &amp; Methods"></a>Values &amp; Methods</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#import &lt;Foundation/NSObject.h&gt;</span><br><span class="line"></span><br><span class="line">@class NSString;</span><br><span class="line">@protocol NSCacheDelegate;</span><br><span class="line"></span><br><span class="line">NS_ASSUME_NONNULL_BEGIN</span><br><span class="line"></span><br><span class="line">API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0))</span><br><span class="line">@interface NSCache &lt;KeyType, ObjectType&gt; : NSObject &#123;</span><br><span class="line">@private</span><br><span class="line">    id _delegate;</span><br><span class="line">    void *_private[5];</span><br><span class="line">    void *_reserved;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@property (copy) NSString *name; // 用来管理区分cache对象的名字</span><br><span class="line"></span><br><span class="line">@property (nullable, assign) id&lt;NSCacheDelegate&gt; delegate;</span><br><span class="line"></span><br><span class="line">- (nullable ObjectType)objectForKey:(KeyType)key; // 取数据</span><br><span class="line">- (void)setObject:(ObjectType)obj forKey:(KeyType)key; // 0 cost 缓存数据</span><br><span class="line">- (void)setObject:(ObjectType)obj forKey:(KeyType)key cost:(NSUInteger)g; // 缓存数据 cost值设置的消耗内存大小</span><br><span class="line">- (void)removeObjectForKey:(KeyType)key;// 移除数据</span><br><span class="line"></span><br><span class="line">- (void)removeAllObjects;// 移除所有数据</span><br><span class="line"></span><br><span class="line">@property NSUInteger totalCostLimit;	// limits are imprecise/not strict 限制缓存数量</span><br><span class="line">@property NSUInteger countLimit;	// limits are imprecise/not strict 限制缓存保存数大小（cost）</span><br><span class="line">@property BOOL evictsObjectsWithDiscardedContent; // 是否自动回收</span><br><span class="line"></span><br><span class="line">@end</span><br><span class="line"></span><br><span class="line">@protocol NSCacheDelegate &lt;NSObject&gt;</span><br><span class="line">@optional</span><br><span class="line">- (void)cache:(NSCache *)cache willEvictObject:(id)obj; // 回收内存的时候调用代理的方法</span><br><span class="line">@end</span><br><span class="line"></span><br><span class="line">NS_ASSUME_NONNULL_END</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
 ]]></content>
       <categories>
         <category>iOS</category>
@@ -568,6 +568,46 @@
       </tags>
   </entry>
   <entry>
+    <title>Xcode代码块云同步+本地安装脚本</title>
+    <url>/2021/08/25/Xcode%E4%BB%A3%E7%A0%81%E5%9D%97%E4%BA%91%E5%90%8C%E6%AD%A5+%E6%9C%AC%E5%9C%B0%E5%AE%89%E8%A3%85%E8%84%9A%E6%9C%AC/</url>
+    <content><![CDATA[<p>今天整理了最近半年内使用频率高的一些代码，做了一些代码块<code>codesnippet</code>使用，并在github上创建了一个私有仓库用来云端维护和同步，写了一个脚本进行代码块下载和合并。</p>
+<span id="more"></span>
+
+<p>创建方式：</p>
+<ol>
+<li><p>选中要创建的代码块，右键选择Create Code Snippte</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gtt9tybj9gj611y0q8djc02.jpg"></p>
+</li>
+<li><p>右上角<code>+</code>框快速查看系统和自定义代码块</p>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gtt9ty5ejxj61gj0u043502.jpg"></p>
+</li>
+<li><p>填写代码块描述，以及快捷方式，修改代码块</p>
+</li>
+</ol>
+<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gtt9txvjapj61c50u00wu02.jpg"></p>
+<p>xcode中用户自定义的 代码块保存在~&#x2F;Library&#x2F;Developer&#x2F;Xcode&#x2F;UserData&#x2F;CodeSnippets路径下，每个代码块都是一个.codesnippet格式的配置文件。</p>
+<figure class="highlight ruby"><table><tr><td class="code"><pre><span class="line">~<span class="regexp">/Library/</span><span class="title class_">Developer</span>/<span class="title class_">Xcode</span>/<span class="title class_">UserData</span>/<span class="title class_">CodeSnippets</span><span class="variable">$:</span> ls -l</span><br><span class="line">total <span class="number">72</span></span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1008</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">19</span><span class="symbol">:</span><span class="number">36</span> 1BF011CF-<span class="number">9292</span>-4B72-9D44-<span class="variable constant_">F7C3BC89AFE0</span>.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1036</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">16</span><span class="symbol">:</span><span class="number">03</span> 28DDA843-<span class="variable constant_">AD69</span>-4A09-87C4-3D1DB320EDB5.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff   <span class="number">864</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">16</span><span class="symbol">:</span><span class="number">37</span> 8BEF45E5-0B98-4CC5-9CB8-86203CA29A69.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1699</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">19</span><span class="symbol">:</span><span class="number">37</span> <span class="variable constant_">B42EC618</span>-1BF8-<span class="number">4E30</span>-<span class="variable constant_">AC73</span>-12E1282FEAFC.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff   <span class="number">994</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> <span class="variable constant_">BA1B105B</span>-<span class="variable constant_">F02A</span>-<span class="number">4925</span>-<span class="variable constant_">A7FD</span>-<span class="variable constant_">B7E6081438E2</span>.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1099</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">15</span><span class="symbol">:</span><span class="number">30</span> <span class="variable constant_">BB31C5F1</span>-<span class="variable constant_">D74A</span>-4CD4-968D-<span class="variable constant_">F707DADF07C1</span>.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1144</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> <span class="variable constant_">DDA53283</span>-7F1F-49EC-9D76-87D876EA67FC.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1557</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> <span class="variable constant_">E12D24FC</span>-<span class="number">2098</span>-413F-<span class="variable constant_">B12E</span>-<span class="variable constant_">CBB79181EBDA</span>.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1085</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> <span class="variable constant_">E7CFEE5D</span>-<span class="variable constant_">D2F0</span>-42D7-<span class="variable constant_">AD6E</span>-258BC0A67D75.codesnippet</span><br></pre></td></tr></table></figure>
+
+
+
+<p>所以对个人的代码块的维护方式也显而易见变成了对此文件夹内的文件的维护。</p>
+<hr>
+<p><a href="https://github.com/zcx4u/XCode_CodeSnippet">创建私有库用来保存创建的代码块</a></p>
+<p>每次下载过文件之后再手动批量向本地复制粘贴挺麻烦（主要是懒…）所以通过脚本命令进行合并再好不过了！</p>
+<figure class="highlight ruby"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/bin/bash</span></span><br><span class="line"><span class="comment"># GitHub: https://github.com/zcx4u/XCode_CodeSnippet</span></span><br><span class="line"><span class="comment"># 将代码块到本地并安装到xcode</span></span><br><span class="line"></span><br><span class="line"><span class="variable constant_">SRC_HOME</span>=<span class="string">`pwd`</span></span><br><span class="line">echo <span class="string">&quot;备份旧代码块~/Library/Developer/Xcode/UserData/CodeSnippets_Backup.zip&quot;</span></span><br><span class="line">cd ~<span class="regexp">/Library/</span><span class="title class_">Developer</span>/<span class="title class_">Xcode</span>/<span class="title class_">UserData</span></span><br><span class="line">zip -r <span class="title class_">CodeSnippets</span>_Backup.zip <span class="title class_">CodeSnippets</span></span><br><span class="line">echo <span class="string">&quot;合并代码块&quot;</span></span><br><span class="line">ditto -V <span class="variable">$&#123;</span><span class="variable constant_">SRC_HOME</span>&#125;/<span class="title class_">CodeSnippets</span> ~<span class="regexp">/Library/</span><span class="title class_">Developer</span>/<span class="title class_">Xcode</span>/<span class="title class_">UserData</span>/<span class="title class_">CodeSnippets</span></span><br><span class="line">echo <span class="string">&quot;done&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p> 记得先备份旧的文件夹以防不测😄 </p>
+<p>以前也零零碎碎的增加过代码块，但是换工作换电脑后就清空了，客户端业务变化较大重复性的编码还是比较多。</p>
+<p>积累一些使用的顺手的工具和方法能有效提升效率，高效完成coding早点homing可以gaming还能shopping，岂不美哉！</p>
+]]></content>
+      <categories>
+        <category>iOS</category>
+      </categories>
+      <tags>
+        <tag>效率</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>XCUITest iOS自动化UI测试框架</title>
     <url>/2022/02/28/XCUITest%E6%8E%A2%E7%B4%A2/</url>
     <content><![CDATA[<h1 id="XCUITest-iOS自动化UI测试框架"><a href="#XCUITest-iOS自动化UI测试框架" class="headerlink" title="XCUITest iOS自动化UI测试框架"></a><em>XCUITest</em> iOS自动化UI测试框架</h1><h2 id="XCUITest简介"><a href="#XCUITest简介" class="headerlink" title="XCUITest简介"></a>XCUITest简介</h2><p>XCUITest是Apple提供的内嵌到xcode中的一套UI自动化测试框架。</p>
@@ -607,46 +647,6 @@
       </categories>
       <tags>
         <tag>技术调研</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Xcode代码块云同步+本地安装脚本</title>
-    <url>/2021/08/25/Xcode%E4%BB%A3%E7%A0%81%E5%9D%97%E4%BA%91%E5%90%8C%E6%AD%A5+%E6%9C%AC%E5%9C%B0%E5%AE%89%E8%A3%85%E8%84%9A%E6%9C%AC/</url>
-    <content><![CDATA[<p>今天整理了最近半年内使用频率高的一些代码，做了一些代码块<code>codesnippet</code>使用，并在github上创建了一个私有仓库用来云端维护和同步，写了一个脚本进行代码块下载和合并。</p>
-<span id="more"></span>
-
-<p>创建方式：</p>
-<ol>
-<li><p>选中要创建的代码块，右键选择Create Code Snippte</p>
-<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gtt9tybj9gj611y0q8djc02.jpg"></p>
-</li>
-<li><p>右上角<code>+</code>框快速查看系统和自定义代码块</p>
-<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gtt9ty5ejxj61gj0u043502.jpg"></p>
-</li>
-<li><p>填写代码块描述，以及快捷方式，修改代码块</p>
-</li>
-</ol>
-<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gtt9txvjapj61c50u00wu02.jpg"></p>
-<p>xcode中用户自定义的 代码块保存在~&#x2F;Library&#x2F;Developer&#x2F;Xcode&#x2F;UserData&#x2F;CodeSnippets路径下，每个代码块都是一个.codesnippet格式的配置文件。</p>
-<figure class="highlight ruby"><table><tr><td class="code"><pre><span class="line">~<span class="regexp">/Library/</span><span class="title class_">Developer</span>/<span class="title class_">Xcode</span>/<span class="title class_">UserData</span>/<span class="title class_">CodeSnippets</span><span class="variable">$:</span> ls -l</span><br><span class="line">total <span class="number">72</span></span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1008</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">19</span><span class="symbol">:</span><span class="number">36</span> 1BF011CF-<span class="number">9292</span>-4B72-9D44-<span class="variable constant_">F7C3BC89AFE0</span>.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1036</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">16</span><span class="symbol">:</span><span class="number">03</span> 28DDA843-<span class="variable constant_">AD69</span>-4A09-87C4-3D1DB320EDB5.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff   <span class="number">864</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">16</span><span class="symbol">:</span><span class="number">37</span> 8BEF45E5-0B98-4CC5-9CB8-86203CA29A69.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1699</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">19</span><span class="symbol">:</span><span class="number">37</span> <span class="variable constant_">B42EC618</span>-1BF8-<span class="number">4E30</span>-<span class="variable constant_">AC73</span>-12E1282FEAFC.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff   <span class="number">994</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> <span class="variable constant_">BA1B105B</span>-<span class="variable constant_">F02A</span>-<span class="number">4925</span>-<span class="variable constant_">A7FD</span>-<span class="variable constant_">B7E6081438E2</span>.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1099</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">15</span><span class="symbol">:</span><span class="number">30</span> <span class="variable constant_">BB31C5F1</span>-<span class="variable constant_">D74A</span>-4CD4-968D-<span class="variable constant_">F707DADF07C1</span>.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1144</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> <span class="variable constant_">DDA53283</span>-7F1F-49EC-9D76-87D876EA67FC.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1557</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> <span class="variable constant_">E12D24FC</span>-<span class="number">2098</span>-413F-<span class="variable constant_">B12E</span>-<span class="variable constant_">CBB79181EBDA</span>.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1085</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> <span class="variable constant_">E7CFEE5D</span>-<span class="variable constant_">D2F0</span>-42D7-<span class="variable constant_">AD6E</span>-258BC0A67D75.codesnippet</span><br></pre></td></tr></table></figure>
-
-
-
-<p>所以对个人的代码块的维护方式也显而易见变成了对此文件夹内的文件的维护。</p>
-<hr>
-<p><a href="https://github.com/zcx4u/XCode_CodeSnippet">创建私有库用来保存创建的代码块</a></p>
-<p>每次下载过文件之后再手动批量向本地复制粘贴挺麻烦（主要是懒…）所以通过脚本命令进行合并再好不过了！</p>
-<figure class="highlight ruby"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/bin/bash</span></span><br><span class="line"><span class="comment"># GitHub: https://github.com/zcx4u/XCode_CodeSnippet</span></span><br><span class="line"><span class="comment"># 将代码块到本地并安装到xcode</span></span><br><span class="line"></span><br><span class="line"><span class="variable constant_">SRC_HOME</span>=<span class="string">`pwd`</span></span><br><span class="line">echo <span class="string">&quot;备份旧代码块~/Library/Developer/Xcode/UserData/CodeSnippets_Backup.zip&quot;</span></span><br><span class="line">cd ~<span class="regexp">/Library/</span><span class="title class_">Developer</span>/<span class="title class_">Xcode</span>/<span class="title class_">UserData</span></span><br><span class="line">zip -r <span class="title class_">CodeSnippets</span>_Backup.zip <span class="title class_">CodeSnippets</span></span><br><span class="line">echo <span class="string">&quot;合并代码块&quot;</span></span><br><span class="line">ditto -V <span class="variable">$&#123;</span><span class="variable constant_">SRC_HOME</span>&#125;/<span class="title class_">CodeSnippets</span> ~<span class="regexp">/Library/</span><span class="title class_">Developer</span>/<span class="title class_">Xcode</span>/<span class="title class_">UserData</span>/<span class="title class_">CodeSnippets</span></span><br><span class="line">echo <span class="string">&quot;done&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p> 记得先备份旧的文件夹以防不测😄 </p>
-<p>以前也零零碎碎的增加过代码块，但是换工作换电脑后就清空了，客户端业务变化较大重复性的编码还是比较多。</p>
-<p>积累一些使用的顺手的工具和方法能有效提升效率，高效完成coding早点homing可以gaming还能shopping，岂不美哉！</p>
-]]></content>
-      <categories>
-        <category>iOS</category>
-      </categories>
-      <tags>
-        <tag>效率</tag>
       </tags>
   </entry>
   <entry>
@@ -721,24 +721,6 @@
       <tags>
         <tag>学习笔记</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>Hello World</title>
-    <url>/2025/03/11/hello-world/</url>
-    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-]]></content>
   </entry>
   <entry>
     <title>iOS 一键唤起APP方案参考</title>
@@ -1162,7 +1144,7 @@
 
 <p>坑点：cocoapods-imy-bin配置私有源时只支持ssh，因此要修改以前的https的源，对ssh操作不熟练的需要google出现的问题及解决方案。</p>
 <blockquote>
-<p><a href="mailto:&#x67;&#105;&#116;&#x40;&#x78;&#120;&#x78;&#46;&#99;&#111;&#x6d;">git@xxx.com</a> ssh一直报错，之前的公钥有密码,通过ssh连接私有库的时候一直报错让输入密码，但是输入之后还是不行,报错无授权,重新生成rsa秘钥对之后尝试还是不行，报同样的错误。最后发现是git地址没有给对，从cocoapods file中拷贝出来的时候带了一个source字符串，所以ssh授权一直失败（地址都错了授权肯定失败啊）</p>
+<p><a href="mailto:&#103;&#x69;&#x74;&#x40;&#120;&#120;&#x78;&#x2e;&#x63;&#111;&#x6d;">git@xxx.com</a> ssh一直报错，之前的公钥有密码,通过ssh连接私有库的时候一直报错让输入密码，但是输入之后还是不行,报错无授权,重新生成rsa秘钥对之后尝试还是不行，报同样的错误。最后发现是git地址没有给对，从cocoapods file中拷贝出来的时候带了一个source字符串，所以ssh授权一直失败（地址都错了授权肯定失败啊）</p>
 </blockquote>
 <p>创建repo不能仅仅拉一个git仓库就行了，还得找一个已有的仓库进行.podspec文件push ，否则添加此源之后 执行pod repo update 会一直失败。</p>
 <blockquote>
@@ -1270,60 +1252,6 @@
       </categories>
       <tags>
         <tag>Xcode</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>runloop 学习笔记</title>
-    <url>/2020/09/25/runloop/</url>
-    <content><![CDATA[<h3 id="从一个问题开始"><a href="#从一个问题开始" class="headerlink" title="从一个问题开始"></a>从一个问题开始</h3><p>Runloop 和线程有什么关系？</p>
-<p><code>Runloop</code> 和 <code>线程</code>是密不可分的，可以说Runloop是为线程而生的。线程和runloop是<code>一一对应的</code>，我们只可以在当前线程内操控当前线程对应的Runloop。</p>
-<p>Runloop是懒加载的在线程<code>第一次</code>获取他的时候创建，在线程<code>结束</code>的时候销毁。</p>
-<p>主线程的runloop是默认启动的，因为主线程需要一直监听事件。子线程的Runloop默认是不启动的，需要手动开启循环。</p>
-<span id="more"></span>
-
-<h3 id="Runloop-的作用？"><a href="#Runloop-的作用？" class="headerlink" title="Runloop 的作用？"></a>Runloop 的作用？</h3><p>保持程序的运行，主线程的runloop使得APP不会退出</p>
-<p>响应并处理APP中的事件，用户交互、定时任务等</p>
-<p>节省cpu资源，按需运行，提升程序性能</p>
-<h3 id="Runloop的运行过程"><a href="#Runloop的运行过程" class="headerlink" title="Runloop的运行过程"></a>Runloop的运行过程</h3><p>Run Loop本质是一个处理事件源的循环。我们对Run Loop的运行时具有控制权，如果当前没有时间发生，Run Loop会让当前线程进入睡眠模式，来减轻CPU压力。如果有事件发生，Run Loop就处理事件并通知相关的Observer。具体的顺序如下:</p>
-<ol>
-<li><p>Run Loop进入的时候，会通知Observer</p>
-</li>
-<li><p>Timer即将被触发时，会通知Observer</p>
-</li>
-<li><p>有其它非Port-Based Input Source即将被触发时，会通知Observer</p>
-</li>
-<li><p>启动非Port-Based Input Source的事件源</p>
-</li>
-<li><p>如果基于Port的Input Source事件源即将触发时，立即处理该事件，并跳转到9</p>
-</li>
-<li><p>通知Observer当前线程进入睡眠状态</p>
-</li>
-<li><p>将线程置入睡眠状态直到有以下事件发生：1. Port-Based Input Source被触发。2.Timer被触发。 3.Run Loop设置的时间已经超时。 4.Run Loop被显式唤醒。</p>
-</li>
-<li><p>通知Observer线程将要被唤醒</p>
-</li>
-<li><p>处理被触发的事件：1. 如果是用户自定义的Timer，处理Timer事件后重启Run Loop并直接进入步骤2。 2.如果线程被显示唤醒又没有超时，那么进入步骤2。 3.如果是其他Input Source事件源有事件发生，直接传递这个消息。</p>
-</li>
-<li><p>通知Observer Run Loop结束，Run Loop退出。</p>
-</li>
-</ol>
-<h3 id="Runloop的mode"><a href="#Runloop的mode" class="headerlink" title="Runloop的mode"></a>Runloop的mode</h3><p>runloop有下可以有多个模式，但是同一时间只能有一个模式在运行；</p>
-<p>常用的模式有以下3种:</p>
-<ol>
-<li><p>NSDefaultRunLoopMode: 大多数工作中默认的运行方式。</p>
-</li>
-<li><p>UITrackingRunLoopMode: 使用这个Mode去跟踪来自用户交互的事件（比如UITableView上下滑动）。</p>
-</li>
-<li><p>NSRunLoopCommonModes: 这是一个伪模式，其为一组run loop mode的集合。如果将Input source加入此模式，意味着关联Input source到Common Modes中包含的所有模式下。在iOS系统中NSRunLoopCommonMode包含NSDefaultRunLoopMode、UITrackingRunLoopMode.</p>
-</li>
-</ol>
-<p>runloop运行在某一指定模式下，就意味着input源或者time源只能在该模式下运行</p>
-]]></content>
-      <categories>
-        <category>iOS</category>
-      </categories>
-      <tags>
-        <tag>学习笔记</tag>
       </tags>
   </entry>
   <entry>
@@ -1480,6 +1408,60 @@
       </categories>
       <tags>
         <tag>小组件</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>runloop 学习笔记</title>
+    <url>/2020/09/25/runloop/</url>
+    <content><![CDATA[<h3 id="从一个问题开始"><a href="#从一个问题开始" class="headerlink" title="从一个问题开始"></a>从一个问题开始</h3><p>Runloop 和线程有什么关系？</p>
+<p><code>Runloop</code> 和 <code>线程</code>是密不可分的，可以说Runloop是为线程而生的。线程和runloop是<code>一一对应的</code>，我们只可以在当前线程内操控当前线程对应的Runloop。</p>
+<p>Runloop是懒加载的在线程<code>第一次</code>获取他的时候创建，在线程<code>结束</code>的时候销毁。</p>
+<p>主线程的runloop是默认启动的，因为主线程需要一直监听事件。子线程的Runloop默认是不启动的，需要手动开启循环。</p>
+<span id="more"></span>
+
+<h3 id="Runloop-的作用？"><a href="#Runloop-的作用？" class="headerlink" title="Runloop 的作用？"></a>Runloop 的作用？</h3><p>保持程序的运行，主线程的runloop使得APP不会退出</p>
+<p>响应并处理APP中的事件，用户交互、定时任务等</p>
+<p>节省cpu资源，按需运行，提升程序性能</p>
+<h3 id="Runloop的运行过程"><a href="#Runloop的运行过程" class="headerlink" title="Runloop的运行过程"></a>Runloop的运行过程</h3><p>Run Loop本质是一个处理事件源的循环。我们对Run Loop的运行时具有控制权，如果当前没有时间发生，Run Loop会让当前线程进入睡眠模式，来减轻CPU压力。如果有事件发生，Run Loop就处理事件并通知相关的Observer。具体的顺序如下:</p>
+<ol>
+<li><p>Run Loop进入的时候，会通知Observer</p>
+</li>
+<li><p>Timer即将被触发时，会通知Observer</p>
+</li>
+<li><p>有其它非Port-Based Input Source即将被触发时，会通知Observer</p>
+</li>
+<li><p>启动非Port-Based Input Source的事件源</p>
+</li>
+<li><p>如果基于Port的Input Source事件源即将触发时，立即处理该事件，并跳转到9</p>
+</li>
+<li><p>通知Observer当前线程进入睡眠状态</p>
+</li>
+<li><p>将线程置入睡眠状态直到有以下事件发生：1. Port-Based Input Source被触发。2.Timer被触发。 3.Run Loop设置的时间已经超时。 4.Run Loop被显式唤醒。</p>
+</li>
+<li><p>通知Observer线程将要被唤醒</p>
+</li>
+<li><p>处理被触发的事件：1. 如果是用户自定义的Timer，处理Timer事件后重启Run Loop并直接进入步骤2。 2.如果线程被显示唤醒又没有超时，那么进入步骤2。 3.如果是其他Input Source事件源有事件发生，直接传递这个消息。</p>
+</li>
+<li><p>通知Observer Run Loop结束，Run Loop退出。</p>
+</li>
+</ol>
+<h3 id="Runloop的mode"><a href="#Runloop的mode" class="headerlink" title="Runloop的mode"></a>Runloop的mode</h3><p>runloop有下可以有多个模式，但是同一时间只能有一个模式在运行；</p>
+<p>常用的模式有以下3种:</p>
+<ol>
+<li><p>NSDefaultRunLoopMode: 大多数工作中默认的运行方式。</p>
+</li>
+<li><p>UITrackingRunLoopMode: 使用这个Mode去跟踪来自用户交互的事件（比如UITableView上下滑动）。</p>
+</li>
+<li><p>NSRunLoopCommonModes: 这是一个伪模式，其为一组run loop mode的集合。如果将Input source加入此模式，意味着关联Input source到Common Modes中包含的所有模式下。在iOS系统中NSRunLoopCommonMode包含NSDefaultRunLoopMode、UITrackingRunLoopMode.</p>
+</li>
+</ol>
+<p>runloop运行在某一指定模式下，就意味着input源或者time源只能在该模式下运行</p>
+]]></content>
+      <categories>
+        <category>iOS</category>
+      </categories>
+      <tags>
+        <tag>学习笔记</tag>
       </tags>
   </entry>
   <entry>

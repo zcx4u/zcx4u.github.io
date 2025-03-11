@@ -190,15 +190,6 @@
     <priority>0.6</priority>
   </url>
   
-  <url>
-    <loc>https://zcx4u.github.io/2025/03/11/hello-world/</loc>
-    
-    <lastmod>2025-03-11</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
 
   <url>
     <loc>https://zcx4u.github.io/</loc>
@@ -230,14 +221,14 @@
   </url>
   
   <url>
-    <loc>https://zcx4u.github.io/tags/%E6%8A%80%E6%9C%AF%E8%B0%83%E7%A0%94/</loc>
+    <loc>https://zcx4u.github.io/tags/%E6%95%88%E7%8E%87/</loc>
     <lastmod>2025-03-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://zcx4u.github.io/tags/%E6%95%88%E7%8E%87/</loc>
+    <loc>https://zcx4u.github.io/tags/%E6%8A%80%E6%9C%AF%E8%B0%83%E7%A0%94/</loc>
     <lastmod>2025-03-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
