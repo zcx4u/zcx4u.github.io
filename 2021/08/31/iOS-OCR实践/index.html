@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zcx4u.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="需求背景近期老板提出了某些需求可能需要借助OCR能力来进行图片到文本的转换。 以下几种方案是对当前可用的免费的OCR的调研。 Vision Vision 是 Apple 在 WWDC 2017 推出的图像识别框架，它基于 Core ML，所以可以理解成 Apple 的工程师设计了一种算法模型，然后利用 Core ML 训练，最后整合成一个新的框架，相比开源模型然后让开发者自己整合起来，这种方式更安">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS-OCR实践">
+<meta property="og:url" content="https://zcx4u.github.io/2021/08/31/iOS-OCR%E5%AE%9E%E8%B7%B5/index.html">
+<meta property="og:site_name" content="我的博客">
+<meta property="og:description" content="需求背景近期老板提出了某些需求可能需要借助OCR能力来进行图片到文本的转换。 以下几种方案是对当前可用的免费的OCR的调研。 Vision Vision 是 Apple 在 WWDC 2017 推出的图像识别框架，它基于 Core ML，所以可以理解成 Apple 的工程师设计了一种算法模型，然后利用 Core ML 训练，最后整合成一个新的框架，相比开源模型然后让开发者自己整合起来，这种方式更安">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-08-30T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-03-11T09:55:34.995Z">
+<meta property="article:author" content="bruin">
+<meta property="article:tag" content="技术调研">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://zcx4u.github.io/2021/08/31/iOS-OCR%E5%AE%9E%E8%B7%B5/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zcx4u.github.io/2021/08/31/iOS-OCR%E5%AE%9E%E8%B7%B5/","path":"2021/08/31/iOS-OCR实践/","title":"iOS-OCR实践"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>iOS-OCR实践 | 我的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="我的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">我的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">个人技术博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9C%80%E6%B1%82%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">需求背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Vision"><span class="nav-number">2.</span> <span class="nav-text">Vision</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Overview"><span class="nav-number">2.1.</span> <span class="nav-text">Overview</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Demo"><span class="nav-number">2.2.</span> <span class="nav-text">Demo</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">2.3.</span> <span class="nav-text">优缺点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Tesseract"><span class="nav-number">3.</span> <span class="nav-text">Tesseract</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Tesseract-OCR-iOS"><span class="nav-number">3.1.</span> <span class="nav-text">Tesseract-OCR-iOS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Useage"><span class="nav-number">3.2.</span> <span class="nav-text">Useage</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E7%BC%BA%E7%82%B9-1"><span class="nav-number">3.3.</span> <span class="nav-text">优缺点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#OnLine-OCR"><span class="nav-number">4.</span> <span class="nav-text">OnLine OCR</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%93%E8%AE%BA"><span class="nav-number">5.</span> <span class="nav-text">结论</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">bruin</p>
+  <div class="site-description" itemprop="description">分享技术文章和学习心得</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/" title="GitHub → https:&#x2F;&#x2F;github.com" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zcx4u.github.io/2021/08/31/iOS-OCR%E5%AE%9E%E8%B7%B5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="bruin">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我的博客">
+      <meta itemprop="description" content="分享技术文章和学习心得">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="iOS-OCR实践 | 我的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          iOS-OCR实践
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-08-31 00:00:00" itemprop="dateCreated datePublished" datetime="2021-08-31T00:00:00+08:00">2021-08-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-03-11 17:55:34" itemprop="dateModified" datetime="2025-03-11T17:55:34+08:00">2025-03-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="需求背景"><a href="#需求背景" class="headerlink" title="需求背景"></a>需求背景</h2><p>近期老板提出了某些需求可能需要借助OCR能力来进行图片到文本的转换。</p>
+<p>以下几种方案是对当前可用的免费的OCR的调研。</p>
+<h2 id="Vision"><a href="#Vision" class="headerlink" title="Vision"></a>Vision</h2><blockquote>
+<p>Vision 是 Apple 在 WWDC 2017 推出的图像识别框架，它基于 Core ML，所以可以理解成 Apple 的工程师设计了一种算法模型，然后利用 Core ML 训练，最后整合成一个新的框架，相比开源模型然后让开发者自己整合起来，这种方式更安全也更方便我们使用。</p>
+</blockquote>
+<span id="more"></span>
+
+<h3 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h3><blockquote>
+<p>The Vision framework performs face and face landmark detection, text detection, barcode recognition, image registration, and general feature tracking. Vision also allows the use of custom Core ML models for tasks like classification or object detection.</p>
+</blockquote>
+<p>从官方文档中可以得到Vision框架能做的事情</p>
+<table>
+<thead>
+<tr>
+<th align="left"></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Face Detection and Recognition</td>
+<td>面部检测</td>
+</tr>
+<tr>
+<td align="left">Machine Learning Image Analysis</td>
+<td>机器学习图像分析</td>
+</tr>
+<tr>
+<td align="left">Barcode Detection</td>
+<td>矩阵码&#x2F;条形码检测</td>
+</tr>
+<tr>
+<td align="left">Image Alignment Analysis</td>
+<td>图像对齐分析</td>
+</tr>
+<tr>
+<td align="left">Text Detection</td>
+<td>文字检测</td>
+</tr>
+<tr>
+<td align="left">Horizon Detection</td>
+<td>水平面检测</td>
+</tr>
+<tr>
+<td align="left">Object Detection and Tracking</td>
+<td>物体检测和追踪</td>
+</tr>
+</tbody></table>
+<h3 id="Demo"><a href="#Demo" class="headerlink" title="Demo"></a>Demo</h3><p>对于我们需要的OCR功能，Text Detection就可以满足我们的需求，至于别的功能有兴趣的可以试一下。</p>
+<p>Demo中的代码也比较简单就实现了功能</p>
+<ol>
+<li>创建一个<code>VNImageRequestHandler</code>来持有传入的图片</li>
+<li>创建一个<code>VNRecognizeTextRequest</code>请求&#x2F;请求队列</li>
+<li>创建一个<code>VNRequestCompletionHandler</code>函数指针&#x2F;block处理识别成功的回调</li>
+<li>Perform the text-recognition request. 执行请求</li>
+</ol>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//public typealias VNRequestCompletionHandler = (VNRequest, Error?) -&gt; Void</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/// 苹果原生识别 准确率高 速度快</span></span><br><span class="line"><span class="keyword">@objc</span> <span class="keyword">private</span> <span class="keyword">func</span> <span class="title function_">ocrAction</span>() &#123;</span><br><span class="line">    <span class="keyword">guard</span> <span class="keyword">let</span> path <span class="operator">=</span> <span class="keyword">self</span>.path, <span class="keyword">let</span> img <span class="operator">=</span> <span class="type">UIImage</span>(contentsOfFile: path) <span class="keyword">else</span> &#123; <span class="keyword">return</span> &#125;</span><br><span class="line">    <span class="keyword">guard</span> <span class="keyword">let</span> cgImage <span class="operator">=</span> img.cgImage <span class="keyword">else</span> &#123; <span class="keyword">return</span> &#125;</span><br><span class="line">    <span class="comment">// 需要注意的写法</span></span><br><span class="line">    <span class="keyword">let</span> requestHandler <span class="operator">=</span> <span class="type">VNImageRequestHandler</span>(cgImage: cgImage)</span><br><span class="line">    <span class="comment">// 参数是一个函数指针/block</span></span><br><span class="line">    <span class="keyword">let</span> request <span class="operator">=</span> <span class="type">VNRecognizeTextRequest</span>(completionHandler: recognizeTextHandler)</span><br><span class="line">    <span class="comment">// 只有ios14以上支持中文识别</span></span><br><span class="line">    request.recognitionLanguages <span class="operator">=</span> [<span class="string">&quot;zh-Hans&quot;</span>,<span class="string">&quot;zh-Hant&quot;</span>,<span class="string">&quot;en-US&quot;</span>]</span><br><span class="line">    <span class="keyword">do</span> &#123;</span><br><span class="line">        <span class="comment">// Perform the text-recognition request.</span></span><br><span class="line">        <span class="keyword">try</span> requestHandler.perform([request])</span><br><span class="line">    &#125; <span class="keyword">catch</span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Unable to perform the requests: <span class="subst">\(error)</span>.&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/// 识别成功的回调 </span></span><br><span class="line"><span class="keyword">func</span> <span class="title function_">recognizeTextHandler</span>(<span class="params">request</span>: <span class="type">VNRequest</span>, <span class="params">error</span>: <span class="type">Error</span>?) &#123;</span><br><span class="line">    <span class="keyword">guard</span> <span class="keyword">let</span> observations <span class="operator">=</span> request.results <span class="keyword">as?</span> [<span class="type">VNRecognizedTextObservation</span>] <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">let</span> recognizedStrings <span class="operator">=</span> observations.compactMap &#123; observation <span class="keyword">in</span></span><br><span class="line">        <span class="comment">// Return the string of the top VNRecognizedText instance.</span></span><br><span class="line">        <span class="keyword">return</span> observation.topCandidates(<span class="number">1</span>).first<span class="operator">?</span>.string</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Process the recognized strings.</span></span><br><span class="line"> 	 	<span class="keyword">var</span> res <span class="operator">=</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="keyword">for</span> str <span class="keyword">in</span> recognizedStrings &#123;</span><br><span class="line">        res  <span class="operator">=</span> <span class="string">&quot;<span class="subst">\(res)</span><span class="subst">\(str)</span>&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">    resultLabel.text <span class="operator">=</span> res</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h3><p>优点：</p>
+<ol>
+<li>iOS系统内置的API，无需引入多余文件直接调用。</li>
+<li>API使用比较简单，不用考虑多线程切换，成功回调已经全部回到了主线程。</li>
+<li>实测识别准确度还是比较高的。</li>
+</ol>
+<p>缺点：</p>
+<p>只有iOS14以上的系统版本支持设置识别中文。</p>
+<p>可以使用这个方法来判断这个API所支持识别的语言。<code>request.recognitionLanguages</code>属性支持设置ISO标准语言代码。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">     @brief Returns all the supported languages for a given text recognition level. Note that a language supported in one recognition level might not be available in another.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">open</span> <span class="keyword">class</span> <span class="keyword">func</span> <span class="title function_">supportedRecognitionLanguages</span>(<span class="keyword">for</span> recognitionLevel: <span class="type">VNRequestTextRecognitionLevel</span>, revision requestRevision: <span class="type">Int</span>) <span class="keyword">throws</span> -&gt; [<span class="type">String</span>]</span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/vision/recognizing_text_in_images">更多Vision识别文字相关文档可参考：Recognizing Text in Images</a></p>
+<h2 id="Tesseract"><a href="#Tesseract" class="headerlink" title="Tesseract"></a>Tesseract</h2><blockquote>
+<p>Tesseract 是一个 OCR 库,目前由 Google 赞助(Google 也是一家以 OCR 和机器学习技术闻名于世的公司)。Tesseract 是目前公认最优秀、最精确的开源 OCR 系统，除了极高的精确度，Tesseract 也具有很高的灵活性。它可以通过训练识别出任何字体，也可以识别出任何 Unicode 字符。Tesseract OCR 该软件包包含一个 OCR 引擎 – libtesseract 和一个命令行程序 – tesseract。 Tesseract 4 增加了一个基于 OCR 引擎的新神经网络（LSTM），该引擎专注于线路识别，但仍然支持 Tesseract 3 的传统 Tesseract OCR 引擎，该引擎通过识别字符模式来工作。通过使用 Legacy OCR Engine 模式（–oem 0）启用与 Tesseract 3 的兼容性。它还需要训练有素的数据文件，这些文件支持传统引擎，例如来自 tessdata 存储库的文件。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/tesseract-ocr/tesseract">GitHub Address</a></p>
+</blockquote>
+<h3 id="Tesseract-OCR-iOS"><a href="#Tesseract-OCR-iOS" class="headerlink" title="Tesseract-OCR-iOS"></a>Tesseract-OCR-iOS</h3><blockquote>
+<p>Tesseract-OCR-iOS 是由<code>gali8</code>使用<code>Objective-C</code>封装的基于<code>Tesseract 3.03-rc1</code>的iOS版本库。<br><a target="_blank" rel="noopener" href="https://github.com/gali8/Tesseract-OCR-iOS">GitHub Address</a></p>
+</blockquote>
+<h3 id="Useage"><a href="#Useage" class="headerlink" title="Useage"></a>Useage</h3><ol>
+<li>通过<code>cocopods</code>可以直接引入此库。</li>
+</ol>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#PodFile</span></span><br><span class="line">pod <span class="string">&#x27;TesseractOCRiOS&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><p>桌面创建一个<code>tessdata</code>文件夹</p>
+</li>
+<li><p>将训练好的中文语言文字数据集<code>chi_sim.traineddata</code>放入<code>tessdata</code>文件夹</p>
+</li>
+<li><p>将tessdata文件夹拖到项目根目录，<code>Added folders</code> 选择 <code>Create folder references</code>创建索引关系</p>
+<blockquote>
+<p>之所以创建索引，是因为Tesseract内部是使用静态路径访问的语言资源文件</p>
+</blockquote>
+</li>
+<li><p>使用中文语言创建<code>G8Tesseract</code></p>
+</li>
+<li><p>设置<code>G8Tesseract</code>需要识别的<code>image</code></p>
+</li>
+<li><p>调用<code>recognize()</code>方法，同步方法，会阻塞进程</p>
+</li>
+<li><p>读取<code>recognizedText</code>属性字段</p>
+</li>
+</ol>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// google Tesseract识别</span></span><br><span class="line"><span class="keyword">@objc</span> <span class="keyword">private</span> <span class="keyword">func</span> <span class="title function_">ocrActionTesseract</span>() &#123;</span><br><span class="line">    <span class="keyword">guard</span> <span class="keyword">let</span> path <span class="operator">=</span> <span class="keyword">self</span>.path, <span class="keyword">let</span> img <span class="operator">=</span> <span class="type">UIImage</span>(contentsOfFile: path) <span class="keyword">else</span> &#123; <span class="keyword">return</span> &#125;</span><br><span class="line">    <span class="keyword">let</span> g8Rec <span class="operator">=</span> <span class="type">G8Tesseract</span>(language: <span class="string">&quot;chi_sim&quot;</span>)</span><br><span class="line">    g8Rec<span class="operator">?</span>.image <span class="operator">=</span> img</span><br><span class="line">    g8Rec<span class="operator">?</span>.engineMode <span class="operator">=</span> .tesseractOnly</span><br><span class="line">    g8Rec<span class="operator">?</span>.pageSegmentationMode <span class="operator">=</span> .autoOnly</span><br><span class="line">    g8Rec<span class="operator">?</span>.recognize()</span><br><span class="line">    resultLabel.text <span class="operator">=</span> g8Rec<span class="operator">?</span>.recognizedText</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>集成过程中可能遇到的问题：</p>
+<ol>
+<li><p><code>actual_tessdata_num_entries_ &lt;= TESSDATA_NUM_ENTRIES:Error: Assert failed: in file ..\..\ccutil\tes...</code></p>
+<p>原因：训练数据和sdk版本号不一致<br>解决方法：去 <a target="_blank" rel="noopener" href="https://github.com/tesseract-ocr/tessdoc/blob/master/tess3/Data-Files.md#data-files-for-version-302">v3.0.2版本训练数据</a>下载对应版本的训练数据</p>
+</li>
+<li><p><code>setenv(&quot;TESSDATA_PREFIX&quot;, [_absoluteDataPath stringByAppendingString:@&quot;/&quot;].fileSystemRepresentation, 1);</code> 处崩溃</p>
+<p>原因：未知，可能是代码BUG<br>解决方法：不使用作者提供的SwiftDemo中的<code>OperationQueue</code>直接使用<code>G8Tesseract</code>类</p>
+</li>
+</ol>
+<h3 id="优缺点-1"><a href="#优缺点-1" class="headerlink" title="优缺点"></a>优缺点</h3><p>优点：</p>
+<ol>
+<li>Tesseract 可以支持自定义训练数据，可以根据自身的需求进行数据训练。可以实现手写字体或其他不规则字体的识别。</li>
+<li>识别准确率参照训练结果，在大量业务数据的支持下可能会达到较高的准确率。</li>
+<li>无iOS系统版本要求，或基本满足低版本要求</li>
+</ol>
+<p>缺点：</p>
+<ol>
+<li><code>Tesseract-OCR-iOS</code> 库不再维护和更新，代码BUG无人解决，<code>Tesseract</code>版本依旧停留在3.0版本，限制使用3.0版本的训练数据集。若不自行训练，低版本训练数据比较难找。自行fork进行二次开发学习成本较高。</li>
+<li><code>Tesseract-OCR-iOS</code>库自行测试结果对简体中文的识别准确率稍低，可能是因为<code>Tesseract</code>版本过低。</li>
+<li>引入此三方库的成本过高，基本的简体中文训练数据集大小就为40+MB，引入工程内会显著增加IPA包体积大小，影响APP下载和分发</li>
+</ol>
+<h2 id="OnLine-OCR"><a href="#OnLine-OCR" class="headerlink" title="OnLine OCR"></a>OnLine OCR</h2><p>服务商较多，也有免费试用版，可衡量业务与需求选择。</p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>如果OCR不是App的核心功能还是尽量选择<code>Vision</code>，<code>Apple</code>马上要更新<code>iOS15</code>版本，随着时间发展<code>iOS14</code>以上的用户数量会越来越多，相信系统版本限制不会永远是APP功能发展的瓶颈。</p>
+<p>如果OCR是APP的核心功能或业务相关，建议自行对最新的<code>Tesseract</code> 进行c++接口封装或者对<code>Tesseract-OCR-iOS</code>库二次开发更新版本并进行维护。</p>
+<p>或者选择使用收费在线业务，大部分场景下花钱都能解决技术问题。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%8A%80%E6%9C%AF%E8%B0%83%E7%A0%94/" rel="tag"># 技术调研</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/08/25/AVPlayer%E7%9B%B8%E5%85%B3BUG%E8%AE%B0%E5%BD%95/" rel="prev" title="AVPlayer相关BUG记录">
+                  <i class="fa fa-angle-left"></i> AVPlayer相关BUG记录
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/09/09/module-importing%20failed-invalid%20pathname/" rel="next" title="module importing failed invalid pathname 问题解决">
+                  module importing failed invalid pathname 问题解决 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">bruin</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

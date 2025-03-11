@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zcx4u.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="XCUITest iOS自动化UI测试框架XCUITest简介XCUITest是Apple提供的内嵌到xcode中的一套UI自动化测试框架。  UI测试依赖于两项核心技术:XCTest框架和Accessibility。 XCTest提供了UI测试功能的框架，与Xcode集成在一起。创建和使用UI测试扩展了您对使用XCTest和创建单元测试的了解。您创建了一个UI测试目标，并将创建UI测试类和UI测">
+<meta property="og:type" content="article">
+<meta property="og:title" content="XCUITest iOS自动化UI测试框架">
+<meta property="og:url" content="https://zcx4u.github.io/2022/02/28/XCUITest%E6%8E%A2%E7%B4%A2/index.html">
+<meta property="og:site_name" content="我的博客">
+<meta property="og:description" content="XCUITest iOS自动化UI测试框架XCUITest简介XCUITest是Apple提供的内嵌到xcode中的一套UI自动化测试框架。  UI测试依赖于两项核心技术:XCTest框架和Accessibility。 XCTest提供了UI测试功能的框架，与Xcode集成在一起。创建和使用UI测试扩展了您对使用XCTest和创建单元测试的了解。您创建了一个UI测试目标，并将创建UI测试类和UI测">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/e6c9d24ely1gzt95s1si1j20kq0eodge.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/e6c9d24ely1gzt95u7e5qj20ea0ajjrx.jpg">
+<meta property="article:published_time" content="2022-02-27T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-03-11T09:55:35.088Z">
+<meta property="article:author" content="bruin">
+<meta property="article:tag" content="技术调研">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/e6c9d24ely1gzt95s1si1j20kq0eodge.jpg">
+
+
+<link rel="canonical" href="https://zcx4u.github.io/2022/02/28/XCUITest%E6%8E%A2%E7%B4%A2/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zcx4u.github.io/2022/02/28/XCUITest%E6%8E%A2%E7%B4%A2/","path":"2022/02/28/XCUITest探索/","title":"XCUITest iOS自动化UI测试框架"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>XCUITest iOS自动化UI测试框架 | 我的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="我的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">我的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">个人技术博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#XCUITest-iOS%E8%87%AA%E5%8A%A8%E5%8C%96UI%E6%B5%8B%E8%AF%95%E6%A1%86%E6%9E%B6"><span class="nav-number">1.</span> <span class="nav-text">XCUITest iOS自动化UI测试框架</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#XCUITest%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.</span> <span class="nav-text">XCUITest简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0target"><span class="nav-number">1.2.</span> <span class="nav-text">添加target</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E5%86%99%E6%B5%8B%E8%AF%95%E4%BB%A3%E7%A0%81"><span class="nav-number">1.3.</span> <span class="nav-text">编写测试代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BD%95%E5%88%B6%E6%B5%8B%E8%AF%95%E4%BB%A3%E7%A0%81"><span class="nav-number">1.4.</span> <span class="nav-text">录制测试代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%A7%E8%A1%8C%E6%B5%8B%E8%AF%95%E8%84%9A%E6%9C%AC"><span class="nav-number">1.5.</span> <span class="nav-text">执行测试脚本</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">bruin</p>
+  <div class="site-description" itemprop="description">分享技术文章和学习心得</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/" title="GitHub → https:&#x2F;&#x2F;github.com" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zcx4u.github.io/2022/02/28/XCUITest%E6%8E%A2%E7%B4%A2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="bruin">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我的博客">
+      <meta itemprop="description" content="分享技术文章和学习心得">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="XCUITest iOS自动化UI测试框架 | 我的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          XCUITest iOS自动化UI测试框架
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-02-28 00:00:00" itemprop="dateCreated datePublished" datetime="2022-02-28T00:00:00+08:00">2022-02-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-03-11 17:55:35" itemprop="dateModified" datetime="2025-03-11T17:55:35+08:00">2025-03-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="XCUITest-iOS自动化UI测试框架"><a href="#XCUITest-iOS自动化UI测试框架" class="headerlink" title="XCUITest iOS自动化UI测试框架"></a><em>XCUITest</em> iOS自动化UI测试框架</h1><h2 id="XCUITest简介"><a href="#XCUITest简介" class="headerlink" title="XCUITest简介"></a>XCUITest简介</h2><p>XCUITest是Apple提供的内嵌到xcode中的一套UI自动化测试框架。</p>
+<blockquote>
+<p>UI测试依赖于两项核心技术:XCTest框架和Accessibility。</p>
+<p>XCTest提供了UI测试功能的框架，与Xcode集成在一起。创建和使用UI测试扩展了您对使用XCTest和创建单元测试的了解。您创建了一个UI测试目标，并将创建UI测试类和UI测试方法作为项目的一部分。您可以使用XCTest断言来验证预期结果是否为真。你也可以通过Xcode Server和xcodebuild实现持续集成。XCTest与Objective-C和Swift完全兼容。</p>
+<p>Accessibility是一项核心技术，它允许残疾用户获得与其他用户相同的iOS和macOS丰富体验。它包含了一组丰富的UI语义数据，用户可以使用它来指导他们使用你的应用。可访问性集成了UIKit和AppKit，并有api允许你调整行为和对外公开的使用。UI测试使用这些数据来执行其功能。</p>
+<p>在源代码中创建UI测试类似于创建单元测试。你为你的应用创建一个UI测试目标;然后Xcode为你创建一个默认的UI测试组和实现文件，在实现文件中有一个示例测试方法模板。在创建UI测试目标时，可以指定测试要处理的应用程序。</p>
+</blockquote>
+<span id="more"></span>
+
+<p><a target="_blank" rel="noopener" href="https://developer.apple.com/library/archive/documentation/DeveloperTools/Conceptual/testing_with_xcode/chapters/09-ui_testing.html#//apple_ref/doc/uid/TP40014132-CH13-DontLinkElementID_8">User Interface Testing</a></p>
+<p><a target="_blank" rel="noopener" href="https://onevcat.com/2015/09/ui-testing/">WWDC15 Session笔记 - Xcode 7 UI 测试初窥</a></p>
+<h2 id="添加target"><a href="#添加target" class="headerlink" title="添加target"></a>添加target</h2><p>以前在新建项目的时候可以看到自带单元测试和UI测试。新版本的XCode新建项目的时候可以看到Incloud Tests的选项，勾中这个选项就可以创建出来带单元测试和UI测试的target。</p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24ely1gzt95s1si1j20kq0eodge.jpg"></p>
+<p><img src="https://tva1.sinaimg.cn/large/e6c9d24ely1gzt95u7e5qj20ea0ajjrx.jpg" alt="自动创建了test有关的Target"></p>
+<p>当然如果是以前就创建的项目也可以单独添加UI Test的Target。</p>
+<h2 id="编写测试代码"><a href="#编写测试代码" class="headerlink" title="编写测试代码"></a>编写测试代码</h2><blockquote>
+<p>UI 测试在基本方面不同于单元测试。单元测试使您能够在应用程序的范围内工作，并允许您在完全访问应用程序变量和状态的情况下练习函数和方法。UI 测试以与用户在不访问应用程序的内部方法、函数和变量的情况下执行相同的方式来测试应用程序的 UI。这使您的测试能够以与用户相同的方式查看应用程序，从而暴露用户遇到的 UI 问题。</p>
+<p>您的测试代码作为一个单独的进程运行，综合应用程序中的 UI 响应的事件。</p>
+</blockquote>
+<p>编写测试代码不是一件容易的事情，由于UITest不能侵入代码逻辑，仅仅使用识别界面上的控件后发送事件来驱动APP，所以测试代码的编写逻辑趋向于查询屏幕上显示的控件，找到满足条件的控件，发送控件支持的事件，等待事件响应后使用断言或者期望断言来判断是否达到了预期的测试结果。</p>
+<p>以36氪直播间内预约直播的过程为例：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">func</span> <span class="title function_">testSubscribeLiveInLiveHome</span>() &#123;</span><br><span class="line">  	<span class="comment">//获取APP实例</span></span><br><span class="line">    <span class="keyword">let</span> app <span class="operator">=</span> <span class="type">XCUIApplication</span>()</span><br><span class="line"> 		<span class="comment">//启动APP</span></span><br><span class="line">    app.launch()</span><br><span class="line">  	<span class="comment">//这里延迟了1s来等待APP启动项配置加载</span></span><br><span class="line">    sleep(<span class="number">1</span>)</span><br><span class="line">  	<span class="comment">//查询所有tabbar，筛选包含直播文字的底导，点击</span></span><br><span class="line">    app.tabBars[<span class="string">&quot;标签页栏&quot;</span>].buttons[<span class="string">&quot;直播&quot;</span>].tap()</span><br><span class="line">  	<span class="comment">//查询APP上显示的scrollViews上的控件</span></span><br><span class="line">    <span class="keyword">let</span> elementsQuery <span class="operator">=</span> app.scrollViews.otherElements </span><br><span class="line">  	<span class="comment">//点击包含直播文字的按钮 </span></span><br><span class="line">    elementsQuery.staticTexts[<span class="string">&quot;直播&quot;</span>].tap()</span><br><span class="line"> 	 	<span class="comment">//查询并点击APP上显示collectionViews中包含即将开播文字的按钮</span></span><br><span class="line">    elementsQuery.collectionViews.staticTexts[<span class="string">&quot;即将开播&quot;</span>].tap()</span><br><span class="line"> 	 	<span class="comment">//延迟1s等待APP加载即将开播列表</span></span><br><span class="line">    sleep(<span class="number">1</span>)</span><br><span class="line">  	<span class="comment">//找到第一个包含预约文字的cell，这里如果已经预约则不显示预约文字</span></span><br><span class="line">    app.collectionViews.cells.otherElements.containing(.staticText, identifier:<span class="string">&quot;预约&quot;</span>).element(boundBy: <span class="number">0</span>).tap()</span><br><span class="line">  	<span class="comment">//延迟1s等待APP加载直播间</span></span><br><span class="line">    sleep(<span class="number">1</span>)</span><br><span class="line"> 	 <span class="comment">//查询并点击包含预约直播文字的按钮</span></span><br><span class="line">    elementsQuery.staticTexts[<span class="string">&quot;预约直播&quot;</span>].tap()</span><br><span class="line"> 	 <span class="comment">//创建期望断言判断已预约文案是否存在，预约成功会修改按钮文案</span></span><br><span class="line">    <span class="keyword">let</span> result <span class="operator">=</span> app.staticTexts[<span class="string">&quot;已预约&quot;</span>]</span><br><span class="line">    expectation(for: <span class="type">NSPredicate</span>(format: <span class="string">&quot;exists &gt;= 1&quot;</span>), evaluatedWith: result, handler: <span class="literal">nil</span>)</span><br><span class="line">    waitForExpectations(timeout: <span class="number">3</span>, handler: <span class="literal">nil</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样就写好了一个直播间预约的测试流程。</p>
+<p>可以看出测试代码的编写还是很繁琐的，写功能的同时几乎没有足够的时间再编写一套对应的测试代码。而且功能还会随着项目的迭代不断变化，同时维护功能代码和测试代码的成本是巨大的。</p>
+<p>但是一些变化概率低的核心路径还是建议使用自动化测试来解放双手降低重复工作量。</p>
+<h2 id="录制测试代码"><a href="#录制测试代码" class="headerlink" title="录制测试代码"></a>录制测试代码</h2><p>有时候不知道怎么查询具体某个控件的时候可以借用XCode上的录制功能。</p>
+<p>把光标移入测试代码方法大括号内部空白处可以看到左下角有个红色圆点亮了起来，点击红色圆点及开启录制功能。</p>
+<p>录制功能可以记录你手动点击的路径和流程，自动计算出操作路径的代码。但是计算结果可能不是一个通用的路径，所以还需要开发者自行调整。</p>
+<h2 id="执行测试脚本"><a href="#执行测试脚本" class="headerlink" title="执行测试脚本"></a>执行测试脚本</h2><p>执行上面的测试方法，xcode会自动编译、运行你的APP，并会输出具体的测试结果。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Test</span> <span class="type">Case</span> &#x27;<span class="operator">-</span>[<span class="type">ClientUITests</span>.<span class="type">ClientUITestsLaunchTests</span> testSubscribeLiveInLiveHome]&#x27; started.</span><br><span class="line">    t <span class="operator">=</span>     <span class="number">0</span>.00s <span class="type">Setting</span> appearance mode to <span class="type">Light</span></span><br><span class="line">    t <span class="operator">=</span>     <span class="number">2</span>.08s     <span class="type">Wait</span> <span class="keyword">for</span> com.apple.springboard to idle</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">62</span>.18s <span class="type">Start</span> <span class="type">Test</span> at <span class="number">2022</span><span class="operator">-</span><span class="number">02</span><span class="operator">-</span><span class="number">25</span> <span class="number">15</span>:<span class="number">18</span>:<span class="number">37.506</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">62</span>.27s <span class="type">Set</span> <span class="type">Up</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">62</span>.28s <span class="type">Open</span> com.zcx.iosclient</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">62</span>.35s     <span class="type">Launch</span> com.zcx.iosclient</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">66</span>.50s         <span class="type">Setting</span> up automation session</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">67</span>.71s         <span class="type">Wait</span> <span class="keyword">for</span> com.zcx.iosclient to idle</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">70</span>.00s <span class="type">Tap</span> <span class="string">&quot;直播&quot;</span> <span class="type">Button</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">70</span>.00s     <span class="type">Wait</span> <span class="keyword">for</span> com.zcx.iosclient to idle</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">71</span>.77s     <span class="type">Find</span> the <span class="string">&quot;直播&quot;</span> <span class="type">Button</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">72</span>.10s     <span class="type">Check</span> <span class="keyword">for</span> interrupting elements affecting <span class="string">&quot;直播&quot;</span> <span class="type">Button</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">72</span>.14s     <span class="type">Synthesize</span> event</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">72</span>.30s     <span class="type">Wait</span> <span class="keyword">for</span> com.zcx.iosclient to idle</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">72</span>.42s <span class="type">Tap</span> <span class="string">&quot;直播&quot;</span> <span class="type">StaticText</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">72</span>.42s     <span class="type">Wait</span> <span class="keyword">for</span> com.zcx.iosclient to idle</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">72</span>.49s     <span class="type">Find</span> the <span class="string">&quot;直播&quot;</span> <span class="type">StaticText</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">72</span>.52s     <span class="type">Check</span> <span class="keyword">for</span> interrupting elements affecting <span class="string">&quot;直播&quot;</span> <span class="type">StaticText</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">72</span>.53s     <span class="type">Synthesize</span> event</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">72</span>.67s     <span class="type">Wait</span> <span class="keyword">for</span> com.zcx.iosclient to idle</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">72</span>.75s <span class="type">Tap</span> <span class="string">&quot;即将开播&quot;</span> <span class="type">StaticText</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">72</span>.75s     <span class="type">Wait</span> <span class="keyword">for</span> com.zcx.iosclient to idle</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">72</span>.81s     <span class="type">Find</span> the <span class="string">&quot;即将开播&quot;</span> <span class="type">StaticText</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">73</span>.85s         <span class="type">Find</span> the <span class="string">&quot;即将开播&quot;</span> <span class="type">StaticText</span> (retry <span class="number">1</span>)</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">73</span>.91s     <span class="type">Check</span> <span class="keyword">for</span> interrupting elements affecting <span class="string">&quot;即将开播&quot;</span> <span class="type">StaticText</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">73</span>.93s     <span class="type">Synthesize</span> event</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">74</span>.07s     <span class="type">Wait</span> <span class="keyword">for</span> com.zcx.iosclient to idle</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">75</span>.66s <span class="type">Tap</span> <span class="type">Other</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">75</span>.66s     <span class="type">Wait</span> <span class="keyword">for</span> com.zcx.iosclient to idle</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">75</span>.74s     <span class="type">Find</span> the <span class="type">Other</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">75</span>.81s     <span class="type">Check</span> <span class="keyword">for</span> interrupting elements affecting <span class="type">Other</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">75</span>.83s     <span class="type">Synthesize</span> event</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">75</span>.98s     <span class="type">Wait</span> <span class="keyword">for</span> com.zcx.iosclient to idle</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">77</span>.58s <span class="type">Tap</span> <span class="string">&quot;预约直播&quot;</span> <span class="type">StaticText</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">77</span>.58s     <span class="type">Wait</span> <span class="keyword">for</span> com.zcx.iosclient to idle</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">77</span>.68s     <span class="type">Find</span> the <span class="string">&quot;预约直播&quot;</span> <span class="type">StaticText</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">77</span>.78s     <span class="type">Check</span> <span class="keyword">for</span> interrupting elements affecting <span class="string">&quot;预约直播&quot;</span> <span class="type">StaticText</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">77</span>.81s     <span class="type">Synthesize</span> event</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">77</span>.97s     <span class="type">Wait</span> <span class="keyword">for</span> com.zcx.iosclient to idle</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">79</span>.10s <span class="type">Checking</span> `<span class="type">Expect</span> predicate `exists <span class="operator">&gt;=</span> <span class="number">1</span>` <span class="keyword">for</span> object <span class="string">&quot;已预约&quot;</span> <span class="type">StaticText</span>`</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">79</span>.10s     <span class="type">Checking</span> existence of `<span class="string">&quot;已预约&quot;</span> <span class="type">StaticText</span>`</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">79</span>.17s <span class="type">Tear</span> <span class="type">Down</span></span><br><span class="line"><span class="type">Test</span> <span class="type">Case</span> &#x27;<span class="operator">-</span>[<span class="type">ClientUITests</span>.<span class="type">ClientUITestsLaunchTests</span> testSubscribeLiveInLiveHome]&#x27; passed (<span class="number">79.370</span> seconds).</span><br><span class="line"><span class="type">Test</span> <span class="type">Case</span> &#x27;<span class="operator">-</span>[<span class="type">ClientUITests</span>.<span class="type">ClientUITestsLaunchTests</span> testSubscribeLiveInLiveHome]&#x27; started.</span><br><span class="line">    t <span class="operator">=</span>     <span class="number">0</span>.00s <span class="type">Setting</span> appearance mode to <span class="type">Dark</span></span><br><span class="line">    t <span class="operator">=</span>     <span class="number">2</span>.10s     <span class="type">Wait</span> <span class="keyword">for</span> com.zcx.iosclient to idle</span><br><span class="line">    t <span class="operator">=</span>     <span class="number">2</span>.19s <span class="type">Start</span> <span class="type">Test</span> at <span class="number">2022</span><span class="operator">-</span><span class="number">02</span><span class="operator">-</span><span class="number">25</span> <span class="number">15</span>:<span class="number">18</span>:<span class="number">56.883</span></span><br><span class="line">    t <span class="operator">=</span>     <span class="number">2</span>.26s <span class="type">Set</span> <span class="type">Up</span></span><br><span class="line">    t <span class="operator">=</span>     <span class="number">2</span>.26s <span class="type">Open</span> com.zcx.iosclient</span><br><span class="line">    t <span class="operator">=</span>     <span class="number">2</span>.33s     <span class="type">Launch</span> com.zcx.iosclient</span><br><span class="line">    t <span class="operator">=</span>     <span class="number">2</span>.33s         <span class="type">Terminate</span> com.zcx.iosclient:<span class="number">21694</span></span><br><span class="line">    t <span class="operator">=</span>     <span class="number">4</span>.44s         <span class="type">Setting</span> up automation session</span><br><span class="line">    t <span class="operator">=</span>     <span class="number">5</span>.53s         <span class="type">Wait</span> <span class="keyword">for</span> com.zcx.iosclient to idle</span><br><span class="line">    t <span class="operator">=</span>     <span class="number">7</span>.76s <span class="type">Tap</span> <span class="string">&quot;直播&quot;</span> <span class="type">Button</span></span><br><span class="line">    t <span class="operator">=</span>     <span class="number">7</span>.76s     <span class="type">Wait</span> <span class="keyword">for</span> com.zcx.iosclient to idle</span><br><span class="line">    t <span class="operator">=</span>     <span class="number">9</span>.30s     <span class="type">Find</span> the <span class="string">&quot;直播&quot;</span> <span class="type">Button</span></span><br><span class="line">    t <span class="operator">=</span>     <span class="number">9</span>.53s     <span class="type">Check</span> <span class="keyword">for</span> interrupting elements affecting <span class="string">&quot;直播&quot;</span> <span class="type">Button</span></span><br><span class="line">    t <span class="operator">=</span>     <span class="number">9</span>.57s     <span class="type">Synthesize</span> event</span><br><span class="line">    t <span class="operator">=</span>     <span class="number">9</span>.72s     <span class="type">Wait</span> <span class="keyword">for</span> com.zcx.iosclient to idle</span><br><span class="line">    t <span class="operator">=</span>     <span class="number">9</span>.86s <span class="type">Tap</span> <span class="string">&quot;直播&quot;</span> <span class="type">StaticText</span></span><br><span class="line">    t <span class="operator">=</span>     <span class="number">9</span>.86s     <span class="type">Wait</span> <span class="keyword">for</span> com.zcx.iosclient to idle</span><br><span class="line">    t <span class="operator">=</span>     <span class="number">9</span>.94s     <span class="type">Find</span> the <span class="string">&quot;直播&quot;</span> <span class="type">StaticText</span></span><br><span class="line">    t <span class="operator">=</span>     <span class="number">9</span>.96s     <span class="type">Check</span> <span class="keyword">for</span> interrupting elements affecting <span class="string">&quot;直播&quot;</span> <span class="type">StaticText</span></span><br><span class="line">    t <span class="operator">=</span>     <span class="number">9</span>.97s     <span class="type">Synthesize</span> event</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">10</span>.12s     <span class="type">Wait</span> <span class="keyword">for</span> com.zcx.iosclient to idle</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">10</span>.21s <span class="type">Tap</span> <span class="string">&quot;即将开播&quot;</span> <span class="type">StaticText</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">10</span>.21s     <span class="type">Wait</span> <span class="keyword">for</span> com.zcx.iosclient to idle</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">10</span>.27s     <span class="type">Find</span> the <span class="string">&quot;即将开播&quot;</span> <span class="type">StaticText</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">11</span>.29s         <span class="type">Find</span> the <span class="string">&quot;即将开播&quot;</span> <span class="type">StaticText</span> (retry <span class="number">1</span>)</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">11</span>.39s     <span class="type">Check</span> <span class="keyword">for</span> interrupting elements affecting <span class="string">&quot;即将开播&quot;</span> <span class="type">StaticText</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">11</span>.42s     <span class="type">Synthesize</span> event</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">11</span>.57s     <span class="type">Wait</span> <span class="keyword">for</span> com.zcx.iosclient to idle</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">13</span>.18s <span class="type">Tap</span> <span class="type">Other</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">13</span>.18s     <span class="type">Wait</span> <span class="keyword">for</span> com.zcx.iosclient to idle</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">13</span>.26s     <span class="type">Find</span> the <span class="type">Other</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">13</span>.33s     <span class="type">Check</span> <span class="keyword">for</span> interrupting elements affecting <span class="type">Other</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">13</span>.35s     <span class="type">Synthesize</span> event</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">13</span>.51s     <span class="type">Wait</span> <span class="keyword">for</span> com.zcx.iosclient to idle</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">15</span>.09s <span class="type">Tap</span> <span class="string">&quot;预约直播&quot;</span> <span class="type">StaticText</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">15</span>.09s     <span class="type">Wait</span> <span class="keyword">for</span> com.zcx.iosclient to idle</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">15</span>.29s     <span class="type">Find</span> the <span class="string">&quot;预约直播&quot;</span> <span class="type">StaticText</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">15</span>.39s     <span class="type">Check</span> <span class="keyword">for</span> interrupting elements affecting <span class="string">&quot;预约直播&quot;</span> <span class="type">StaticText</span></span><br><span class="line">    t <span class="operator">=</span>    <span class="number">15</span>.41s     <span class="type">Synthesize</span> event</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">15</span>.58s     <span class="type">Wait</span> <span class="keyword">for</span> com.zcx.iosclient to idle</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">16</span>.67s <span class="type">Checking</span> `<span class="type">Expect</span> predicate `exists <span class="operator">&gt;=</span> <span class="number">1</span>` <span class="keyword">for</span> object <span class="string">&quot;已预约&quot;</span> <span class="type">StaticText</span>`</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">16</span>.67s     <span class="type">Checking</span> existence of `<span class="string">&quot;已预约&quot;</span> <span class="type">StaticText</span>`</span><br><span class="line">    t <span class="operator">=</span>    <span class="number">16</span>.74s <span class="type">Tear</span> <span class="type">Down</span></span><br><span class="line"><span class="type">Test</span> <span class="type">Case</span> &#x27;<span class="operator">-</span>[<span class="type">ClientUITests</span>.<span class="type">ClientUITestsLaunchTests</span> testSubscribeLiveInLiveHome]&#x27; passed (<span class="number">16.947</span> seconds).</span><br><span class="line"></span><br><span class="line"><span class="type">Test</span> <span class="type">Suite</span> &#x27;<span class="type">ClientUITestsLaunchTests</span>&#x27; passed at <span class="number">2022</span><span class="operator">-</span><span class="number">02</span><span class="operator">-</span><span class="number">25</span> <span class="number">15</span>:<span class="number">19</span>:<span class="number">11.642</span>.</span><br><span class="line"><span class="type">Executed</span> <span class="number">2</span> tests, with <span class="number">0</span> failures (<span class="number">0</span> unexpected) <span class="keyword">in</span> <span class="number">96.317</span> (<span class="number">96.319</span>) seconds</span><br><span class="line"></span><br><span class="line"><span class="type">Test</span> <span class="type">Suite</span> &#x27;<span class="type">ClientUITests</span>.xctest&#x27; passed at <span class="number">2022</span><span class="operator">-</span><span class="number">02</span><span class="operator">-</span><span class="number">25</span> <span class="number">15</span>:<span class="number">19</span>:<span class="number">11.644</span>.</span><br><span class="line"><span class="type">Executed</span> <span class="number">2</span> tests, with <span class="number">0</span> failures (<span class="number">0</span> unexpected) <span class="keyword">in</span> <span class="number">96.317</span> (<span class="number">96.321</span>) seconds</span><br><span class="line"></span><br><span class="line"><span class="type">Test</span> <span class="type">Suite</span> &#x27;<span class="type">Selected</span> tests&#x27; passed at <span class="number">2022</span><span class="operator">-</span><span class="number">02</span><span class="operator">-</span><span class="number">25</span> <span class="number">15</span>:<span class="number">19</span>:<span class="number">11.647</span>.</span><br><span class="line"><span class="type">Executed</span> <span class="number">2</span> tests, with <span class="number">0</span> failures (<span class="number">0</span> unexpected) <span class="keyword">in</span> <span class="number">96.317</span> (<span class="number">96.324</span>) seconds</span><br><span class="line">     </span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%8A%80%E6%9C%AF%E8%B0%83%E7%A0%94/" rel="tag"># 技术调研</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/12/06/iOS%20Web%E5%94%A4%E8%B5%B7APP%E6%96%B9%E6%A1%88%E5%8F%82%E8%80%83/" rel="prev" title="iOS 一键唤起APP方案参考">
+                  <i class="fa fa-angle-left"></i> iOS 一键唤起APP方案参考
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/07/06/SwiftUI/" rel="next" title="SwiftUI">
+                  SwiftUI <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">bruin</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

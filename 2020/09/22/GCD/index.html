@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"zcx4u.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":true,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="致未来的我：你是不是有点忘记了GCD的一些知识？恰巧这几天我有看这些，让我给你讲讲吧？GCD是基于C语言的API，开发者只需要将任务放在block内，并指定好追加的队列，就可以完成多线程开发. 知识点速览1.队列： 串行队列、并发队列 2.任务： 同步任务、异步任务 3.队列和任务的交叉组合使用 4.死锁的产生和预防">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GCD相关知识学习笔记">
+<meta property="og:url" content="https://zcx4u.github.io/2020/09/22/GCD/index.html">
+<meta property="og:site_name" content="我的博客">
+<meta property="og:description" content="致未来的我：你是不是有点忘记了GCD的一些知识？恰巧这几天我有看这些，让我给你讲讲吧？GCD是基于C语言的API，开发者只需要将任务放在block内，并指定好追加的队列，就可以完成多线程开发. 知识点速览1.队列： 串行队列、并发队列 2.任务： 同步任务、异步任务 3.队列和任务的交叉组合使用 4.死锁的产生和预防">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-09-21T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-03-11T09:55:35.029Z">
+<meta property="article:author" content="bruin">
+<meta property="article:tag" content="学习笔记">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://zcx4u.github.io/2020/09/22/GCD/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://zcx4u.github.io/2020/09/22/GCD/","path":"2020/09/22/GCD/","title":"GCD相关知识学习笔记"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>GCD相关知识学习笔记 | 我的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="我的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">我的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">个人技术博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9%E9%80%9F%E8%A7%88"><span class="nav-number">1.</span> <span class="nav-text">知识点速览</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%9F%E5%88%97"><span class="nav-number">1.1.</span> <span class="nav-text">队列</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%BB%E5%8A%A1"><span class="nav-number">1.2.</span> <span class="nav-text">任务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%9F%E5%88%97%E5%92%8C%E4%BB%BB%E5%8A%A1%E7%9A%84%E7%BB%84%E5%90%88"><span class="nav-number">1.3.</span> <span class="nav-text">队列和任务的组合</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%BB%E9%94%81%E7%9A%84%E4%BA%A7%E7%94%9F%E5%92%8C%E9%A2%84%E9%98%B2"><span class="nav-number">1.4.</span> <span class="nav-text">死锁的产生和预防</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%85%E6%A0%8F%E4%BB%BB%E5%8A%A1%E5%92%8C%E5%BB%B6%E6%97%B6%E4%BB%BB%E5%8A%A1"><span class="nav-number">1.5.</span> <span class="nav-text">栅栏任务和延时任务</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">2.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%84%9F%E6%82%9F"><span class="nav-number">3.</span> <span class="nav-text">感悟</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">bruin</p>
+  <div class="site-description" itemprop="description">分享技术文章和学习心得</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/" title="GitHub → https:&#x2F;&#x2F;github.com" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://zcx4u.github.io/2020/09/22/GCD/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="bruin">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="我的博客">
+      <meta itemprop="description" content="分享技术文章和学习心得">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="GCD相关知识学习笔记 | 我的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          GCD相关知识学习笔记
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-09-22 00:00:00" itemprop="dateCreated datePublished" datetime="2020-09-22T00:00:00+08:00">2020-09-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-03-11 17:55:35" itemprop="dateModified" datetime="2025-03-11T17:55:35+08:00">2025-03-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>致未来的我：你是不是有点忘记了GCD的一些知识？恰巧这几天我有看这些，让我给你讲讲吧？<br>GCD是基于C语言的API，开发者只需要将任务放在block内，并指定好追加的队列，就可以完成多线程开发.</p>
+<h2 id="知识点速览"><a href="#知识点速览" class="headerlink" title="知识点速览"></a>知识点速览</h2><p>1.队列： 串行队列、并发队列</p>
+<p>2.任务： 同步任务、异步任务</p>
+<p>3.队列和任务的交叉组合使用</p>
+<p>4.死锁的产生和预防</p>
+<span id="more"></span>
+
+<h3 id="队列"><a href="#队列" class="headerlink" title="队列"></a>队列</h3><p>Dispatch Queue是执行处理的等待队列，按照任务（block）追加到队列里的顺序，先进先出执行处理。</p>
+<p>而等待队列有两种</p>
+<p>Serial Dispatch Queue：串行队列，等待当前执行任务处理结束的队列。</p>
+<p>Concurrent Dispatch Queue:并发队列，不等待当前执行任务处理结束的队列</p>
+<p>那么如何创建一个新队列呢</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//创建了串行队列</span><br><span class="line">dispatch_queue_t serailQueue = dispatch_queue_create(&quot;Test_SERIAL_GCD_Queue&quot;, DISPATCH_QUEUE_SERIAL);</span><br><span class="line">//创建了并行队列</span><br><span class="line">dispatch_queue_t concurrentQueue = dispatch_queue_create(&quot;Test_CONCURRENT_GCD_Queue&quot;, DISPATCH_QUEUE_CONCURRENT);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>另外系统自带的两个队列<br>主队列：mainqueen, APP启动随之启动的一个操作队列<br>全局队列：golobalQueue, Apple为开发者预设的一个全局并发队列，任务较为简单没有新建队列的需求的时候 可以直接在全局队列执行任务</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">//获取到了主队列</span><br><span class="line">dispatch_queue_t mainQueue = dispatch_get_main_queue();</span><br><span class="line">//获取到了全局队列 （默认优先级，第二个参数暂时没用）</span><br><span class="line">dispatch_queue_t golobalQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);</span><br></pre></td></tr></table></figure>
+<h3 id="任务"><a href="#任务" class="headerlink" title="任务"></a>任务</h3><p>GCD的任务是以封装好的block的形式来执行的<br>任务分为 同步任务和异步任务</p>
+<p>同步任务：一种追加到队列中按照追加顺序执行的任务，当前任务未执行完毕时会等待其执行完毕再开始自己的任务, 使用 dispatch_sync 来追加任务<br>例如 给全局队列追加一个同步任务：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dispatch_sync(golobalQueue, ^&#123;</span><br><span class="line">    [self logCurrentThreadNameWith:@&quot;我是golobalQueue的同步任务一&quot;];</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>异步任务：追加到队列中不再等待当前任务执行完毕而直接开始执行的任务，一般会开启一个新的线程，但是线程不会无限制的创建, 使用 dispatch_async 来追加任务<br>例如 给全局队列追加一个异步任务：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// 主队列异步会等待主队列的任务执行完了再执行</span><br><span class="line">dispatch_async(golobalQueue, ^&#123;</span><br><span class="line">    [self logCurrentThreadNameWith:@&quot;我是golobalQueue的异步任务一&quot;];</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h3 id="队列和任务的组合"><a href="#队列和任务的组合" class="headerlink" title="队列和任务的组合"></a>队列和任务的组合</h3><p>串行队列+同步任务</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">//给串行队列增加两个同步任务</span><br><span class="line">dispatch_sync(serailQueue, ^&#123;</span><br><span class="line">    [self logCurrentThreadNameWith:@&quot;我是串行队列serailQueue的同步任务一&quot;];</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">dispatch_sync(serailQueue, ^&#123;</span><br><span class="line">    [self logCurrentThreadNameWith:@&quot;我是串行队列serailQueue的同步任务二&quot;];</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>串行队列的同步任务会按照添加的次序在当前线程依次执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">2020-09-22 00:30:08.334655+0800 MyDemo[75669:3948525] 我是串行队列serailQueue的同步任务一当前线程: &lt;NSThread: 0x6000023ec780&gt;&#123;number = 1, name = main&#125;</span><br><span class="line">2020-09-22 00:30:08.335000+0800 MyDemo[75669:3948525] 我是串行队列serailQueue的同步任务二当前线程: &lt;NSThread: 0x6000023ec780&gt;&#123;number = 1, name = main&#125;</span><br></pre></td></tr></table></figure>
+<p>因为是在主线程给串行队列追加的同步任务，所以可以看到两个任务在主线程里依次执行</p>
+<p>串行队列+并行任务</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">//给串行队列增加两个异步任务</span><br><span class="line">dispatch_async(serailQueue, ^&#123;</span><br><span class="line">    [self logCurrentThreadNameWith:@&quot;我是串行队列serailQueue的异步任务一&quot;];</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">dispatch_async(serailQueue, ^&#123;</span><br><span class="line">    [self logCurrentThreadNameWith:@&quot;我是串行队列serailQueue的异步任务二&quot;];</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>串行队列的异步任务会新开一条线程然后按照添加的次序执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">2020-09-22 00:30:08.335765+0800 MyDemo[75669:3949753] 我是串行队列serailQueue的异步任务一当前线程: &lt;NSThread: 0x6000023d7980&gt;&#123;number = 11, name = (null)&#125;</span><br><span class="line">2020-09-22 00:30:08.336010+0800 MyDemo[75669:3949753] 我是串行队列serailQueue的异步任务二当前线程: &lt;NSThread: 0x6000023d7980&gt;&#123;number = 11, name = (null)&#125;</span><br></pre></td></tr></table></figure>
+<p>虽然在主线程追加的任务，但是异步任务会开启一条新线程执行，再看两次打印的线程地址相同，可得知串行队列的异步任务只会开启一条新线程执行异步任务</p>
+<p>并发队列+同步任务</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">//给并行队列增加两个同步任务</span><br><span class="line">dispatch_sync(concurrentQueue, ^&#123;</span><br><span class="line">    [self logCurrentThreadNameWith:@&quot;我是并行队列concurrentQueue的同步任务一&quot;];</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">dispatch_sync(concurrentQueue, ^&#123;</span><br><span class="line">    [self logCurrentThreadNameWith:@&quot;我是并行队列concurrentQueue的同步任务二&quot;];</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>并发队列的同步任务依旧会在当前线程按照添加次序执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">2020-09-22 00:30:08.335258+0800 MyDemo[75669:3948525] 我是并行队列concurrentQueue的同步任务一当前线程: &lt;NSThread: 0x6000023ec780&gt;&#123;number = 1, name = main&#125;</span><br><span class="line">2020-09-22 00:30:08.335446+0800 MyDemo[75669:3948525] 我是并行队列concurrentQueue的同步任务二当前线程: &lt;NSThread: 0x6000023ec780&gt;&#123;number = 1, name = main&#125;</span><br></pre></td></tr></table></figure>
+<p>因为是在主线程给并发队列追加的同步任务，所以可以看到两个任务在主线程里依次执行</p>
+<p>并发队列+异步任务</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">//给并行队列增加两个异步任务</span><br><span class="line">dispatch_async(concurrentQueue, ^&#123;</span><br><span class="line">    [self logCurrentThreadNameWith:@&quot;我是并行队列concurrentQueue的异步任务一&quot;];</span><br><span class="line">    [self logThreadRunSomeTimeWith:3 TaskName:@&quot;异步任务一&quot;];</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">dispatch_async(concurrentQueue, ^&#123;</span><br><span class="line">    [self logCurrentThreadNameWith:@&quot;我是并行队列concurrentQueue的异步任务二&quot;];</span><br><span class="line">    [self logThreadRunSomeTimeWith:2 TaskName:@&quot;异步任务二&quot;];</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">2020-09-22 00:37:23.038545+0800 MyDemo[75770:3956315] 我是并行队列concurrentQueue的异步任务一当前线程: &lt;NSThread: 0x600002a900c0&gt;&#123;number = 4, name = (null)&#125;</span><br><span class="line">2020-09-22 00:37:23.038552+0800 MyDemo[75770:3956312] 我是并行队列concurrentQueue的异步任务二当前线程: &lt;NSThread: 0x600002addf40&gt;&#123;number = 5, name = (null)&#125;</span><br></pre></td></tr></table></figure>
+
+<p>并发队列的异步任务会立即开启新线程执行，可以看到两个任务所在的线程是不一致的</p>
+<h3 id="死锁的产生和预防"><a href="#死锁的产生和预防" class="headerlink" title="死锁的产生和预防"></a>死锁的产生和预防</h3><p>死锁就是队列引起的循环等待</p>
+<p>一个最常见的例子：主队列追加同步任务</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">- (void)viewDidLoad &#123;</span><br><span class="line">    [super viewDidLoad];</span><br><span class="line">    </span><br><span class="line">    dispatch_sync(dispatch_get_main_queue(), ^&#123;</span><br><span class="line">       </span><br><span class="line">        NSLog(@&quot;deallock&quot;);</span><br><span class="line">    &#125;);</span><br><span class="line">    // Do any additional setup after loading the view, typically from a nib.</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在主线程中运用主队列同步，也就是把任务放到了主线程的队列中。<br>同步对于任务是立刻执行的，那么当把任务放进主队列时，它就会立马执行,只有执行完这个任务，viewDidLoad才会继续向下执行。<br>而viewDidLoad和任务都是在主队列上的，由于队列的先进先出原则，任务又需等待viewDidLoad执行完毕后才能继续执行，viewDidLoad和这个任务就形成了相互循环等待，就造成了死锁。<br>想避免这种死锁，可以将同步改成异步dispatch_async,或者将dispatch_get_main_queue换成其他串行或并行队列，都可以解决。</p>
+<p>复杂一点的例子: 串行队列异步任务中嵌套了同一个队列的同步任务</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">dispatch_queue_t serialQueue = dispatch_queue_create(&quot;Test_SERIAL_GCD_Queue&quot;, DISPATCH_QUEUE_SERIAL);</span><br><span class="line"></span><br><span class="line">dispatch_async(serialQueue, ^&#123;</span><br><span class="line">    </span><br><span class="line">    dispatch_sync(serialQueue, ^&#123;</span><br><span class="line">        </span><br><span class="line">        NSLog(@&quot;deadlock&quot;);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>外面的函数无论是同步还是异步都会造成死锁。<br>这是因为里面的任务和外面的任务都在同一个serialQueue队列内，又是同步，这就和上边主队列同步的例子一样造成了死锁<br>解决方法也和上边一样，将里面的同步改成异步dispatch_async,或者将serialQueue换成其他串行或并行队列，都可以解决</p>
+<p>而两个不同的串行队列嵌套则不会产生死锁，且两个队列追加的任务在同一个线程中执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">dispatch_queue_t serialQueueA= dispatch_queue_create(&quot;TestA_SERIAL_GCD_Queue&quot;, DISPATCH_QUEUE_SERIAL);</span><br><span class="line">dispatch_queue_t serialQueueB = dispatch_queue_create(&quot;TestB_SERIAL_GCD_Queue&quot;, DISPATCH_QUEUE_SERIAL);</span><br><span class="line"></span><br><span class="line">dispatch_async(serialQueueA, ^&#123;</span><br><span class="line">       </span><br><span class="line">    dispatch_sync(serialQueueB, ^&#123;</span><br><span class="line">        </span><br><span class="line">        NSLog(@&quot;deadlock&quot;);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h3 id="栅栏任务和延时任务"><a href="#栅栏任务和延时任务" class="headerlink" title="栅栏任务和延时任务"></a>栅栏任务和延时任务</h3><p>栅栏任务：等待栅栏之前的异步任务都执行完毕了之后再执行此任务<br>举个栗子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">//给并行队列增加两个异步任务</span><br><span class="line">dispatch_async(concurrentQueue, ^&#123;</span><br><span class="line">    [self logCurrentThreadNameWith:@&quot;我是并行队列concurrentQueue的异步任务一&quot;];</span><br><span class="line">    [self logThreadRunSomeTimeWith:3 TaskName:@&quot;异步任务一&quot;];</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">dispatch_async(concurrentQueue, ^&#123;</span><br><span class="line">    [self logCurrentThreadNameWith:@&quot;我是并行队列concurrentQueue的异步任务二&quot;];</span><br><span class="line">    [self logThreadRunSomeTimeWith:2 TaskName:@&quot;异步任务二&quot;];</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">//给并行队列增加栅栏任务 栅栏任务会等待之前所有的异步任务完成后才执行</span><br><span class="line">dispatch_barrier_async(concurrentQueue, ^&#123;</span><br><span class="line">    [self logCurrentThreadNameWith:@&quot;我是并行队列concurrentQueue的栅栏任务&quot;];</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">dispatch_async(concurrentQueue, ^&#123;</span><br><span class="line">    [self logCurrentThreadNameWith:@&quot;我是并行队列concurrentQueue的异步任务三&quot;];</span><br><span class="line">    dispatch_async(mainQueue, ^&#123;</span><br><span class="line">        [self logCurrentThreadNameWith:@&quot;concurrentQueue异步任务回到主队列追加任务&quot;];</span><br><span class="line">        [self logThreadRunSomeTimeWith:2 TaskName:@&quot;回到主队列的异步任务&quot;];</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">dispatch_async(concurrentQueue, ^&#123;</span><br><span class="line">    [self logCurrentThreadNameWith:@&quot;我是并行队列concurrentQueue的异步任务四&quot;];</span><br><span class="line">    [self logThreadRunSomeTimeWith:4 TaskName:@&quot;异步任务四&quot;];</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">2020-09-22 00:37:23.038545+0800 MyDemo[75770:3956315] 我是并行队列concurrentQueue的异步任务一当前线程: &lt;NSThread: 0x600002a900c0&gt;&#123;number = 4, name = (null)&#125;</span><br><span class="line">2020-09-22 00:37:23.038552+0800 MyDemo[75770:3956312] 我是并行队列concurrentQueue的异步任务二当前线程: &lt;NSThread: 0x600002addf40&gt;&#123;number = 5, name = (null)&#125;</span><br><span class="line">2020-09-22 00:37:26.045128+0800 MyDemo[75770:3956315] 我是并行队列concurrentQueue的栅栏任务当前线程: &lt;NSThread: 0x600002a900c0&gt;&#123;number = 4, name = (null)&#125;</span><br><span class="line">2020-09-22 00:37:26.045309+0800 MyDemo[75770:3956315] 我是并行队列concurrentQueue的异步任务三当前线程: &lt;NSThread: 0x600002a900c0&gt;&#123;number = 4, name = (null)&#125;</span><br><span class="line">2020-09-22 00:37:26.045323+0800 MyDemo[75770:3956312] 我是并行队列concurrentQueue的异步任务四当前线程: &lt;NSThread: 0x600002addf40&gt;&#123;number = 5, name = (null)&#125;</span><br></pre></td></tr></table></figure>
+<p>延时任务：使用GCD的延时任务比较简单</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), mainQueue, ^&#123;</span><br><span class="line">    [self logCurrentThreadNameWith:@&quot;2秒后异步追加的任务执行&quot;];</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>同步任务不具备开启新线程的能力 异步任务总是会开启新线程<br>串行队列中无论是否开启了新线程 都会按照指定的顺序执行</p>
+<p>如果执行同步任务则阻塞任务的线程 执行异步任务则不会阻塞任务所在的线程<br>串行队列中的异步任务即使开启了新线程也会因为队列的串行限制而一个一个按顺序执行，所以只需要开启一条新线程就能够满足需求<br>并发队列中的同步任务在当前线程去执行</p>
+<p>为了方便程序员的使用,苹果提供了全局队列:dispatch_get_global_queue(0, 0)<br>全局队列是一个并发队列(concurrent)<br>在使用多线程开发时,如果对队列没有特殊需求,在执行异步任务时,可以直接使用全局队列</p>
+<p>队列相当于一个线程的调度器 串行队列总是在当前线程去进行任务调度 并发队列会对异步任务开启新线程</p>
+<h2 id="感悟"><a href="#感悟" class="headerlink" title="感悟"></a>感悟</h2><p>通过我今天对GCD的学习，我觉得之前总是有许多自己给自己设置的学习障碍，一个大概只需要两个小时就能搞明白的知识为什么不静下心来去看看呢？<br>不会的技术并不是难以跨越的大山，只要用心钻研，就一定会有所收获。<br>好了，看到这里了，未来的我有什么要给我补充的吗？</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag"># 学习笔记</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/09/23/block/" rel="next" title="__block 关键字探究">
+                  __block 关键字探究 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">bruin</span>
+  </div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script><script src="/js/bookmark.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
