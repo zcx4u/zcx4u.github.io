@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+
+
+<html theme="dark" showBanner="true" hasBanner="true" > 
+<link href="https://cdn.staticfile.org/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet">
+<link href="https://cdn.staticfile.org/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet">
+<link href="https://cdn.staticfile.org/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet">
+<script src="/js/color.global.min.js" ></script>
+<script src="/js/load-settings.js" ></script>
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+
+  
+  <title>iOS签名机制 | 我的博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <link rel="preload" href="/css/fonts/Roboto-Regular.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+  <link rel="preload" href="/css/fonts/Roboto-Bold.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+
+  <meta name="description" content="iOS签名机制概要背景在iOS开发中，配置证书总是一件繁琐的工作，网上的教程有很多，基本都是手把手的教操作，但是如果不了解为什么要配置这些东西，对配置流程就不会有深刻的印象。 配置证书最大的作用就是保证安全性，安全性主要表现在以下的几个方面： 1.保证苹果手机下载的App是从苹果官网认证的途径下载 2.保证App在苹果官方注册过的设备上运行 3.保证App在特定的设备中运行（开发需要） 技术支持苹">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS签名机制">
+<meta property="og:url" content="https://zcx4u.github.io/2022/11/05/iOS%E7%AD%BE%E5%90%8D%E6%9C%BA%E5%88%B6/index.html">
+<meta property="og:site_name" content="我的博客">
+<meta property="og:description" content="iOS签名机制概要背景在iOS开发中，配置证书总是一件繁琐的工作，网上的教程有很多，基本都是手把手的教操作，但是如果不了解为什么要配置这些东西，对配置流程就不会有深刻的印象。 配置证书最大的作用就是保证安全性，安全性主要表现在以下的几个方面： 1.保证苹果手机下载的App是从苹果官网认证的途径下载 2.保证App在苹果官方注册过的设备上运行 3.保证App在特定的设备中运行（开发需要） 技术支持苹">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.zcx.info/1553500434698-48c63da0-2fac-490f-9b24-a5944fb17ae8.png">
+<meta property="og:image" content="https://cdn.zcx.info/202302211647247.png">
+<meta property="article:published_time" content="2022-11-04T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-03-12T11:44:57.427Z">
+<meta property="article:author" content="bruin">
+<meta property="article:tag" content="学习笔记">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.zcx.info/1553500434698-48c63da0-2fac-490f-9b24-a5944fb17ae8.png">
+  
+    <link rel="alternate" href="/atom.xml" title="我的博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" media="(prefers-color-scheme: light)" href="/images/favicon-light-32.png" sizes="32x32">
+    <link rel="icon" media="(prefers-color-scheme: light)" href="/images/favicon-light-128.png" sizes="128x128">
+    <link rel="icon" media="(prefers-color-scheme: light)" href="/images/favicon-light-180.png" sizes="180x180">
+    <link rel="icon" media="(prefers-color-scheme: light)" href="/images/favicon-light-192.png" sizes="192x192">
+    <link rel="icon" media="(prefers-color-scheme: dark)" href="/images/favicon-dark-32.png" sizes="32x32">
+    <link rel="icon" media="(prefers-color-scheme: dark)" href="/images/favicon-dark-128.png" sizes="128x128">
+    <link rel="icon" media="(prefers-color-scheme: dark)" href="/images/favicon-dark-180.png" sizes="180x180">
+    <link rel="icon" media="(prefers-color-scheme: dark)" href="/images/favicon-dark-192.png" sizes="192x192">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  
+  
+    
+<div id="banner" class="">
+  <img src="/images/banner.webp" itemprop="image">
+  <div id="banner-dim"></div>
+</div>
+ 
+   
+  <div id="main-grid" class="  ">
+    <div id="nav" class=""  >
+      <navbar id="navbar">
+  <nav id="title-nav">
+    <a href="/">
+      <div id="vivia-logo">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+      <div>我的博客 </div>
+    </a>
+  </nav>
+  <nav id="main-nav">
+    
+      <a class="main-nav-link" href="/">Home</a>
+    
+      <a class="main-nav-link" href="/archives">Archives</a>
+    
+      <a class="main-nav-link" href="/categories">Categories</a>
+    
+      <a class="main-nav-link" href="/tags">Tags</a>
+    
+      <a class="main-nav-link" href="/about">About</a>
+    
+  </nav>
+  <nav id="sub-nav">
+    <a id="theme-btn" class="nav-icon">
+      <span class="light-mode-icon"><svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="M438.5-829.913v-48q0-17.452 11.963-29.476 11.964-12.024 29.326-12.024 17.363 0 29.537 12.024t12.174 29.476v48q0 17.452-11.963 29.476-11.964 12.024-29.326 12.024-17.363 0-29.537-12.024T438.5-829.913Zm0 747.826v-48q0-17.452 11.963-29.476 11.964-12.024 29.326-12.024 17.363 0 29.537 12.024t12.174 29.476v48q0 17.452-11.963 29.476-11.964 12.024-29.326 12.024-17.363 0-29.537-12.024T438.5-82.087ZM877.913-438.5h-48q-17.452 0-29.476-11.963-12.024-11.964-12.024-29.326 0-17.363 12.024-29.537t29.476-12.174h48q17.452 0 29.476 11.963 12.024 11.964 12.024 29.326 0 17.363-12.024 29.537T877.913-438.5Zm-747.826 0h-48q-17.452 0-29.476-11.963-12.024-11.964-12.024-29.326 0-17.363 12.024-29.537T82.087-521.5h48q17.452 0 29.476 11.963 12.024 11.964 12.024 29.326 0 17.363-12.024 29.537T130.087-438.5Zm660.174-290.87-34.239 32q-12.913 12.674-29.565 12.174-16.653-.5-29.327-13.174-12.674-12.673-12.554-28.826.12-16.152 12.794-28.826l33-35q12.913-12.674 30.454-12.674t30.163 12.847q12.709 12.846 12.328 30.826-.38 17.98-13.054 30.653ZM262.63-203.978l-32 34q-12.913 12.674-30.454 12.674t-30.163-12.847q-12.709-12.846-12.328-30.826.38-17.98 13.054-30.653l33.239-31q12.913-12.674 29.565-12.174 16.653.5 29.327 13.174 12.674 12.673 12.554 28.826-.12 16.152-12.794 28.826Zm466.74 33.239-32-33.239q-12.674-12.913-12.174-29.565.5-16.653 13.174-29.327 12.673-12.674 28.826-13.054 16.152-.38 28.826 12.294l35 33q12.674 12.913 12.674 30.454t-12.847 30.163q-12.846 12.709-30.826 12.328-17.98-.38-30.653-13.054ZM203.978-697.37l-34-33q-12.674-12.913-13.174-29.945-.5-17.033 12.174-29.707t31.326-13.293q18.653-.62 31.326 13.054l32 34.239q11.674 12.913 11.174 29.565-.5 16.653-13.174 29.327-12.673 12.674-28.826 12.554-16.152-.12-28.826-12.794ZM480-240q-100 0-170-70t-70-170q0-100 70-170t170-70q100 0 170 70t70 170q0 100-70 170t-170 70Zm-.247-82q65.703 0 111.475-46.272Q637-414.544 637-480.247t-45.525-111.228Q545.95-637 480.247-637t-111.475 45.525Q323-545.95 323-480.247t45.525 111.975Q414.05-322 479.753-322ZM481-481Z"/></svg></span>
+      <span class="dark-mode-icon"><svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="M480.239-116.413q-152.63 0-258.228-105.478Q116.413-327.37 116.413-480q0-130.935 77.739-227.435t206.304-125.043q43.022-9.631 63.87 10.869t3.478 62.805q-8.891 22.043-14.315 44.463-5.424 22.42-5.424 46.689 0 91.694 64.326 155.879 64.325 64.186 156.218 64.186 24.369 0 46.978-4.946 22.609-4.945 44.413-14.076 42.826-17.369 62.967 1.142 20.142 18.511 10.511 61.054Q807.174-280 712.63-198.206q-94.543 81.793-232.391 81.793Zm0-95q79.783 0 143.337-40.217 63.554-40.218 95.793-108.283-15.608 4.044-31.097 5.326-15.49 1.283-31.859.805-123.706-4.066-210.777-90.539-87.071-86.473-91.614-212.092-.24-16.369.923-31.978 1.164-15.609 5.446-30.978-67.826 32.478-108.282 96.152Q211.652-559.543 211.652-480q0 111.929 78.329 190.258 78.329 78.329 190.258 78.329ZM466.13-465.891Z"/></svg></span>
+    </a>
+    
+      <a id="nav-rss-link" class="nav-icon mobile-hide" href="/atom.xml" title="RSS 订阅">
+        <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="M198-120q-25.846 0-44.23-18.384-18.384-18.385-18.384-44.23 0-25.846 18.384-44.23 18.384-18.385 44.23-18.385 25.846 0 44.23 18.385 18.384 18.384 18.384 44.23 0 25.845-18.384 44.23Q223.846-120 198-120Zm538.385 0q-18.846 0-32.923-13.769-14.076-13.769-15.922-33.23-8.692-100.616-51.077-188.654-42.385-88.039-109.885-155.539-67.5-67.501-155.539-109.885Q283-663.462 182.385-672.154q-19.461-1.846-33.23-16.23-13.769-14.385-13.769-33.846t14.076-32.922q14.077-13.461 32.923-12.23 120.076 8.692 226.038 58.768 105.961 50.077 185.73 129.846 79.769 79.769 129.846 185.731 50.077 105.961 58.769 226.038 1.231 18.846-12.538 32.922Q756.461-120 736.385-120Zm-252 0q-18.231 0-32.423-13.461t-18.653-33.538Q418.155-264.23 348.886-333.5q-69.27-69.27-166.501-84.423-20.077-4.462-33.538-18.961-13.461-14.5-13.461-33.346 0-19.076 13.884-33.23 13.884-14.153 33.115-10.922 136.769 15.384 234.384 112.999 97.615 97.615 112.999 234.384 3.231 19.23-10.538 33.115Q505.461-120 484.385-120Z"/></svg>
+      </a>
+    
+    <div id="nav-menu-btn" class="nav-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="M177.37-252.282q-17.453 0-29.477-11.964-12.024-11.963-12.024-29.326t12.024-29.537q12.024-12.174 29.477-12.174h605.26q17.453 0 29.477 11.964 12.024 11.963 12.024 29.326t-12.024 29.537q-12.024 12.174-29.477 12.174H177.37Zm0-186.218q-17.453 0-29.477-11.963-12.024-11.964-12.024-29.326 0-17.363 12.024-29.537T177.37-521.5h605.26q17.453 0 29.477 11.963 12.024 11.964 12.024 29.326 0 17.363-12.024 29.537T782.63-438.5H177.37Zm0-186.217q-17.453 0-29.477-11.964-12.024-11.963-12.024-29.326t12.024-29.537q12.024-12.174 29.477-12.174h605.26q17.453 0 29.477 11.964 12.024 11.963 12.024 29.326t-12.024 29.537q-12.024 12.174-29.477 12.174H177.37Z"/></svg>
+    </div>
+  </nav>
+</navbar>
+<div id="nav-dropdown" class="hidden">
+  <div id="dropdown-link-list">
+    
+      <a class="nav-dropdown-link" href="/">Home</a>
+    
+      <a class="nav-dropdown-link" href="/archives">Archives</a>
+    
+      <a class="nav-dropdown-link" href="/categories">Categories</a>
+    
+      <a class="nav-dropdown-link" href="/tags">Tags</a>
+    
+      <a class="nav-dropdown-link" href="/about">About</a>
+    
+    
+      <a class="nav-dropdown-link" href="/atom.xml" title="RSS 订阅">RSS</a>
+     
+    </div>
+</div>
+<script>
+  let dropdownBtn = document.getElementById("nav-menu-btn");
+  let dropdownEle = document.getElementById("nav-dropdown");
+  dropdownBtn.onclick = function() {
+    dropdownEle.classList.toggle("hidden");
+  }
+</script>
+    </div>
+    <div id="sidebar-wrapper">
+      <sidebar id="sidebar">
+  
+    <div class="widget-wrap">
+  <div class="info-card">
+    <div class="avatar">
+      
+        <image src=/images/avatar.jpeg></image>
+      
+      <div class="img-dim"></div>
+    </div>
+    <div class="info">
+      <div class="username">bruin </div>
+      <div class="dot"></div>
+      <div class="subtitle">个人技术博客 </div>
+      <div class="link-list">
+        
+          <a class="link-btn" target="_blank" rel="noopener" href="https://github.com/zcx4u" title="GitHub"><i class="fa-brands fa-github"></i></a>
+        
+          <a class="link-btn" href="mailto:your-email@example.com" title="Email"><i class="fa-solid fa-envelope"></i></a>
+         
+      </div>  
+    </div>
+  </div>
+</div>
+
+  
+  <div class="sticky">
+    
+      
+
+
+  <div class="widget-wrap">
+    <div class="widget">
+      <h3 class="widget-title">分类</h3>
+      <div class="category-box">
+            <a class="category-link" href="/categories/iOS/">
+                iOS
+                <div class="category-count">19</div>
+            </a>
+        
+            <a class="category-link" href="/categories/%E6%8A%80%E6%9C%AF/">
+                技术
+                <div class="category-count">3</div>
+            </a>
+        </div>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget-wrap">
+    <div class="widget">
+      <h3 class="widget-title">标签</h3>
+      <ul class="widget-tag-list" itemprop="keywords"><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/BUG%E8%AE%B0%E5%BD%95%E5%92%8C%E7%BB%8F%E9%AA%8C%E6%94%B6%E9%9B%86/" rel="tag">BUG记录和经验收集</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/Xcode/" rel="tag">Xcode</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/ios/" rel="tag">iOS</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E4%B8%80%E9%94%AE%E5%94%A4%E8%B5%B7/" rel="tag">一键唤起</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%A4%9A%E8%AF%BB%E6%96%87%E6%A1%A3/" rel="tag">多读文档</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%B7%AF%E5%BE%84/" rel="tag">学习路径</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%B0%8F%E7%BB%84%E4%BB%B6/" rel="tag">小组件</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%8A%80%E6%9C%AF%E8%B0%83%E7%A0%94/" rel="tag">技术调研</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%95%88%E7%8E%87/" rel="tag">效率</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%9C%89%E7%94%A8%E7%9A%84/" rel="tag">有用的</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E7%9F%A5%E8%AF%86%E7%82%B9/" rel="tag">知识点</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E7%BB%8F%E9%AA%8C%E8%AE%B0%E5%BD%95/" rel="tag">经验记录</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E8%81%8C%E4%B8%9A%E5%8F%91%E5%B1%95/" rel="tag">职业发展</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E8%B0%83%E8%AF%95/" rel="tag">调试</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86/" rel="tag">错误处理</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95/" rel="tag">面试</a></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget-wrap">
+    <div class="widget">
+      <h3 class="widget-title">归档</h3>
+      
+      
+        <a class="archive-link" href="/archives/2025/03 ">
+          三月 2025 
+          <div class="archive-count">2 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2024/01 ">
+          一月 2024 
+          <div class="archive-count">3 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2022/11 ">
+          十一月 2022 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2022/07 ">
+          七月 2022 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2022/02 ">
+          二月 2022 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/12 ">
+          十二月 2021 
+          <div class="archive-count">2 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/09 ">
+          九月 2021 
+          <div class="archive-count">2 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/08 ">
+          八月 2021 
+          <div class="archive-count">3 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/04 ">
+          四月 2021 
+          <div class="archive-count">2 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/02 ">
+          二月 2021 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/01 ">
+          一月 2021 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2020/09 ">
+          九月 2020 
+          <div class="archive-count">3 </div>
+        </a>
+      
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget-wrap">
+    <div class="widget">
+      <h3 class="widget-title">最新文章</h3>
+      <ul>
+        
+          <a class="recent-link" href="/2025/03/12/iOSCrash%E7%B1%BB%E5%9E%8B/" title="iOS Crash类型总结" >
+            <div class="recent-link-text">
+              iOS Crash类型总结
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/03/12/iOS%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B%E6%8C%87%E5%8D%97/" title="iOS文件系统编程指南" >
+            <div class="recent-link-text">
+              iOS文件系统编程指南
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2024/01/01/%E7%AE%97%E6%B3%95/" title="常见算法考题列表（2025 年整理）" >
+            <div class="recent-link-text">
+              常见算法考题列表（2025 年整理）
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2024/01/01/%E6%8A%80%E6%9C%AF%E8%B7%AF%E7%BA%BF%E5%9B%BE/" title="iOS 开发者技术路线图（2025 年）" >
+            <div class="recent-link-text">
+              iOS 开发者技术路线图（2025 年）
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2024/01/01/%E9%AB%98%E9%A2%91%E9%97%AE%E9%A2%98/" title="iOS 面试高频问题总结（2025 最新版）" >
+            <div class="recent-link-text">
+              iOS 面试高频问题总结（2025 最新版）
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2022/11/05/iOS%E7%AD%BE%E5%90%8D%E6%9C%BA%E5%88%B6/" title="iOS签名机制" >
+            <div class="recent-link-text">
+              iOS签名机制
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2022/07/06/SwiftUI/" title="SwiftUI 从入门到放弃" >
+            <div class="recent-link-text">
+              SwiftUI 从入门到放弃
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2022/02/28/XCUITest%E6%8E%A2%E7%B4%A2/" title="XCUITest iOS自动化UI测试框架" >
+            <div class="recent-link-text">
+              XCUITest iOS自动化UI测试框架
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/12/06/iOS%20Web%E5%94%A4%E8%B5%B7APP%E6%96%B9%E6%A1%88%E5%8F%82%E8%80%83/" title="iOS 一键唤起APP方案参考" >
+            <div class="recent-link-text">
+              iOS 一键唤起APP方案参考
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/12/06/%E4%BF%A1%E6%81%AF%E6%B5%81GIF%E8%BD%AE%E6%92%AD%E6%A1%86%E6%9E%B6/" title="iOS 如何做一个九宫格GIF播放器" >
+            <div class="recent-link-text">
+              iOS 如何做一个九宫格GIF播放器
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/09/18/iOS%E7%BC%96%E8%AF%91%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%E6%8E%A2%E7%B4%A2%E4%B8%8E%E5%AE%9E%E8%B7%B5-%E7%BB%84%E4%BB%B6%E7%AF%87/" title="iOS编译优化方案探索与实践-组件篇" >
+            <div class="recent-link-text">
+              iOS编译优化方案探索与实践-组件篇
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/09/09/module-importing%20failed-invalid%20pathname/" title="module importing failed invalid pathname 问题解决" >
+            <div class="recent-link-text">
+              module importing failed invalid pathname 问题解决
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/08/31/iOS-OCR%E5%AE%9E%E8%B7%B5/" title="iOS-OCR实践" >
+            <div class="recent-link-text">
+              iOS-OCR实践
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/08/25/AVPlayer%E7%9B%B8%E5%85%B3BUG%E8%AE%B0%E5%BD%95/" title="AVPlayer相关BUG记录" >
+            <div class="recent-link-text">
+              AVPlayer相关BUG记录
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/08/25/Xcode%E4%BB%A3%E7%A0%81%E5%9D%97%E4%BA%91%E5%90%8C%E6%AD%A5+%E6%9C%AC%E5%9C%B0%E5%AE%89%E8%A3%85%E8%84%9A%E6%9C%AC/" title="Xcode代码块云同步+本地安装脚本" >
+            <div class="recent-link-text">
+              Xcode代码块云同步+本地安装脚本
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/04/22/iOS%E5%AD%97%E7%AC%A6%E5%92%8C%E5%AD%97%E7%B4%A0%E7%B0%87/" title="iOS字符串安全截取及任意位置插入" >
+            <div class="recent-link-text">
+              iOS字符串安全截取及任意位置插入
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/04/20/NSCache/" title="NSCache" >
+            <div class="recent-link-text">
+              NSCache
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/02/23/%E4%B8%80%E5%B8%96%E7%9C%8B%E9%80%8FiOS14%20%E5%B0%8F%E7%BB%84%E4%BB%B6/" title="一帖看透iOS14 小组件" >
+            <div class="recent-link-text">
+              一帖看透iOS14 小组件
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/01/18/APP%E4%BB%A3%E7%90%86/" title="APP内部代理" >
+            <div class="recent-link-text">
+              APP内部代理
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2020/09/25/runloop/" title="runloop 学习笔记" >
+            <div class="recent-link-text">
+              runloop 学习笔记
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2020/09/23/block/" title="__block 关键字探究" >
+            <div class="recent-link-text">
+              __block 关键字探究
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2020/09/22/GCD/" title="GCD相关知识学习笔记" >
+            <div class="recent-link-text">
+              GCD相关知识学习笔记
+            </div>
+          </a>
+        
+      </ul>
+    </div>
+  </div>
+
+    
+  </div>
+</sidebar>
+    </div>
+    <div id="content-body">
+       
+
+
+<article id="post-iOS签名机制" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+    
+   
+  <div class="article-inner">
+    <div class="article-main">
+      <header class="article-header">
+        
+<div class="main-title-bar">
+  <div class="main-title-dot"></div>
+  
+    
+      <h1 class="p-name article-title" itemprop="headline name">
+        iOS签名机制
+      </h1>
+    
+  
+</div>
+
+        <div class='meta-info-bar'>
+          <div class="meta-info">
+  <time class="dt-published" datetime="2022-11-04T16:00:00.000Z" itemprop="datePublished">2022-11-05</time>
+</div>
+          <div class="need-seperator meta-info">
+            <div class="meta-cate-flex">
+  
+  <a class="meta-cate-link" href="/categories/iOS/">iOS</a>
+   
+</div>
+  
+          </div>
+          <div class="wordcount need-seperator meta-info">
+            2.6k 词 
+          </div>
+        </div>
+        
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a></li></ul>
+
+      </header>
+      <div class="e-content article-entry" itemprop="articleBody">
+        
+          <h1 id="iOS签名机制"><a href="#iOS签名机制" class="headerlink" title="iOS签名机制"></a>iOS签名机制</h1><h2 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>在iOS开发中，配置证书总是一件繁琐的工作，网上的教程有很多，基本都是手把手的教操作，但是如果不了解为什么要配置这些东西，对配置流程就不会有深刻的印象。</p>
+<p>配置证书最大的作用就是保证安全性，安全性主要表现在以下的几个方面：</p>
+<p>1.保证苹果手机下载的App是从<strong>苹果官网认证</strong>的途径下载</p>
+<p>2.保证App在苹果官方注册过的设备上运行</p>
+<p>3.保证App在特定的设备中运行（开发需要）</p>
+<h3 id="技术支持"><a href="#技术支持" class="headerlink" title="技术支持"></a>技术支持</h3><p>苹果采用的是<strong>数字签名</strong>进行加密，它是基于<strong>非对称加密算法和摘要算法</strong>实现的，和对称加密算法不同的是**，**对称加密通过同一份密钥加密和解密数据，而非对称加密有两个密钥，分别是公钥和私钥，用公钥加密的数据，要用私钥才能解密；用私钥加密的数据，要用公钥才能解密。这里的非对称加密就是我们熟知的RSA，想要深入理解的童鞋可以自主了解。</p>
+<p>为了更好的理解非对称加密的好处，我举一个场景例子：A要发送邮件给B，这个过程中要确保在传输中邮件内容没有被篡改，也就是只有B可以查看邮件的内容；还要确保这个邮件是A发送过来的，不是其他人发送的。我们用非对称加密的方式来处理：首先存A和B各有一对公私钥，A持有他自己的私钥和B的公钥，B持有A的公钥和B的私钥，公钥一般是给别人的，私钥在自己手里。A先用B的公钥给邮件加密，这样这个邮件只能被B的私钥解开，保证在传输过程中不会被篡改；A用自己的私钥将邮件加密，B要用A的公钥将邮件解密，来确保这是A发送过来的。这就是双向验证。</p>
+<h2 id="基于iOS开发的签名机制"><a href="#基于iOS开发的签名机制" class="headerlink" title="基于iOS开发的签名机制"></a>基于iOS开发的签名机制</h2><h3 id="从App-Store安装App"><a href="#从App-Store安装App" class="headerlink" title="从App Store安装App"></a>从App Store安装App</h3><p>这个签名的方式相对简单，只需要验证App是从AppStore上下载的即可。苹果官方生成一对公私钥，在苹果设备上内置一个公钥，私钥由后台保管，我们上传App到AppStore时，苹果后台用私钥对App进行签名，设备在在App包后，用内置公钥验证签名。</p>
+<p>思考：每个设备和苹果后台都有对应的一对公私钥还是只有一对公私钥，每个设备的公钥都是一样的，如果是前者，给App用私钥加密的时候是什么时候？</p>
+<p><strong>结论：所有苹果设备上的公钥都是一样的。</strong></p>
+<h3 id="其他方式安装App"><a href="#其他方式安装App" class="headerlink" title="其他方式安装App"></a>其他方式安装App</h3><ul>
+<li>通过Xcode将App运行在设备上，调试用</li>
+<li>企业内部分发，可以直接安装企业证书签名后的App</li>
+<li>AD-Hoc相当于企业分发的限制版，限制安装设备数量</li>
+</ul>
+<p>以上几种场景就比较复杂了，我们需要确保这个App包的来源是苹果官方认证的，还要指定设备信息（不能随便的苹果设备都可以运行）。在了解这些场景的签名过程之前我们先思考一些问题：</p>
+<p>1.App包不能上传到App Store上进行私钥加密了，需要通过其他介质间接验证；</p>
+<p>2.iPhone上只有一个公钥可用，如何验证这么多信息；</p>
+<p>3.如何限制设备、权限等额外信息。</p>
+<p>我们需要除了App包以外的信息来进行验证，就是各种加密之后的文件，所以我们需要配置很多的证书。</p>
+<h3 id="加密流程"><a href="#加密流程" class="headerlink" title="加密流程"></a>加密流程</h3><p>1.在mac上生成一对公私钥，公钥M，私钥M，苹果后台和苹果设备有一对公私钥，公钥A，私钥A。</p>
+<p>2.将公钥M上传到苹果后台，用苹果后台的私钥A签名公钥M得到了公钥M的签名，代称hashM(私A)，hashM(私A)和公钥M组成的数据称为<strong>证书</strong>。（证书携带苹果官方认证信息，需要和App到达设备上）</p>
+<p>3.开发完成后，用私钥M对App进行签名，同时将证书一起打包进App中，安装到手机。</p>
+<p>4.安装时，iOS系统获得证书，用公钥A验证hashM(私A），得到的信息和证书中的公钥是否一致。</p>
+<p><strong>以上的流程可以完成验证App是否经过了苹果官方认可的需求，没有解决滥用的问题。<strong>这里的滥用问题包括任何App都可以用这个证书在任何设备上安装运行，这是不允许的。我们可以把这些限制信息如AppID、设备ID等和证书</strong>再用私钥A进行加密</strong>，在最后的iOS系统验证的时候就可以判断这些限制数据是否符合要求。可以理解为又进行了一次加密。得到的数据就是我们知道的<strong>Provisioning file</strong>，Provisioning file里面就包含了证书和以上提到的额外信息，以及所有信息的签名。</p>
+<p>在编译一个App后，用本地的的私钥M对这个App进行签名，同时把Provisioning file文件打包到App中，文件名为embeded.mobileprovision，把App安装到手机上。以上的过程就是加密的过程，看起来加密了很多层，让我们来梳理一下：</p>
+<p><img src="https://cdn.zcx.info/1553500434698-48c63da0-2fac-490f-9b24-a5944fb17ae8.png"></p>
+<h2 id="配置证书简要流程"><a href="#配置证书简要流程" class="headerlink" title="配置证书简要流程"></a>配置证书简要流程</h2><h3 id="请求根证书"><a href="#请求根证书" class="headerlink" title="请求根证书"></a>请求根证书</h3><p>在mac上生成一对公私钥，并将公钥上传到苹果后台，用苹果后台的私钥加密mac公钥，得到证书</p>
+<p>CSR生成一对公私钥，私钥始终在Mac OS的Keychain Access中，用于签名（CodeSign）对外发布的App，公钥一般随着证书（随Provisioning Profile，随App）散布出去，对App签名进行校验认证。用户要保护好本地Keychain中的private key。</p>
+<p>创建CSR文件：打开钥匙串-&gt;证书助理-&gt;从证书颁发机构请求证书。注：CRS文件是Cerificate Signing Request的英文缩写，即证书请求文件，<strong>CerificateSigningRequest就是本地公钥，.p12就是本地私钥，可以导入其他电脑，同时其他电脑也应该安装下载下来的证书。所以这一步团队开发人员很少操作。</strong></p>
+<h3 id="添加设备"><a href="#添加设备" class="headerlink" title="添加设备"></a>添加设备</h3><p>苹果严格限制了真机调试的设备，如果需要真机调试需要在<a target="_blank" rel="noopener" href="https://developer.apple.com/account/resources/devices/list">开发者后台</a>添加测试机的UDID</p>
+<p><img src="https://cdn.zcx.info/202302211647247.png"></p>
+<h3 id="新增描述文件"><a href="#新增描述文件" class="headerlink" title="新增描述文件"></a>新增描述文件</h3><p>描述文件(Provisioning Profile)是一个记录了你这个App的功能和权限的证书。</p>
+<p>一般会用到以下三种：</p>
+<p><strong>develop:调试证书，包含调试信息，安装时需要证书已加入设备UDID或者越狱设备才能安装。</strong></p>
+<p><strong>distribution：正式证书，屏蔽了调试信息，发布到AppStore所用。</strong></p>
+<p><strong>ad-hoc：测试证书，需要给别人测试用到，允许用户从第三方下载应用，如蒲公英。</strong></p>
+<h2 id="刷新证书及描述文件"><a href="#刷新证书及描述文件" class="headerlink" title="刷新证书及描述文件"></a>刷新证书及描述文件</h2><p>一般在重新请求根证书之后需要更新所有的描述文件内的根证书配置。</p>
+<p>根证书和证书对应的私钥都需要有人进行维护(或者使用fastlane维护)，在团队新增成员、设备时需发放到对应的机器中的钥匙串内，否则无法进行构建和上传IPA。</p>
+<p>描述文件更新后需要在Xcode的User设置中找到开发者刷新一下Profile，或者到Profile的保存文件夹内清空重新下载，以避免描述文件更新不及时问题导致CI&#x2F;CD构建失败。</p>
+
+        
+      </div>
+
+         
+    </div>
+    
+     
+  </div>
+  
+    
+<nav id="article-nav">
+  <a class="article-nav-btn left "
+    
+      href="/2024/01/01/%E9%AB%98%E9%A2%91%E9%97%AE%E9%A2%98/"
+      title="iOS 面试高频问题总结（2025 最新版）"
+     >
+    <i class="fa-solid fa-angle-left"></i>
+    <p class="title-text">
+      
+        iOS 面试高频问题总结（2025 最新版）
+        
+    </p>
+  </a>
+  <a class="article-nav-btn right "
+    
+      href="/2022/07/06/SwiftUI/"
+      title="SwiftUI 从入门到放弃"
+     >
+
+    <p class="title-text">
+      
+        SwiftUI 从入门到放弃
+        
+    </p>
+    <i class="fa-solid fa-angle-right"></i>
+  </a>
+</nav>
+
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div id="footer-wrapper">
+      <footer id="footer">
+  
+  <div id="footer-info" class="inner">
+    
+    &copy; 2025 bruin<br>
+    Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & Theme <a target="_blank" rel="noopener" href="https://github.com/saicaca/hexo-theme-vivia">Vivia</a>
+  </div>
+</footer>
+
+    </div>
+    <div class="back-to-top-wrapper">
+    <button id="back-to-top-btn" class="back-to-top-btn hide" onclick="topFunction()">
+        <i class="fa-solid fa-angle-up"></i>
+    </button>
+</div>
+
+<script>
+    function topFunction() {
+        window.scroll({ top: 0, behavior: 'smooth' });
+    }
+    let btn = document.getElementById('back-to-top-btn');
+    function scrollFunction() {
+        if (document.body.scrollTop > 600 || document.documentElement.scrollTop > 600) {
+            btn.classList.remove('hide')
+        } else {
+            btn.classList.add('hide')
+        }
+    }
+    window.onscroll = function() {
+        scrollFunction();
+    }
+</script>
+
+  </div>
+  <script src="/js/light-dark-switch.js"></script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>

@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+
+
+<html theme="dark" showBanner="true" hasBanner="true" > 
+<link href="https://cdn.staticfile.org/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet">
+<link href="https://cdn.staticfile.org/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet">
+<link href="https://cdn.staticfile.org/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet">
+<script src="/js/color.global.min.js" ></script>
+<script src="/js/load-settings.js" ></script>
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+
+  
+  <title>iOS Crash类型总结 | 我的博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <link rel="preload" href="/css/fonts/Roboto-Regular.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+  <link rel="preload" href="/css/fonts/Roboto-Bold.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+
+  <meta name="description" content="iOS Crash类型总结iOS APP系统crash主要分两类：一类是Objective-C Exception，一类是Unix Signal Exception。下面详细介绍。  崩溃日志路径：~&#x2F;Library&#x2F;Logs&#x2F;CrashReporter&#x2F;MobileDevice  一、Objective-C Exception例如NSDictionary加">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS Crash类型总结">
+<meta property="og:url" content="https://zcx4u.github.io/2025/03/12/iOSCrash%E7%B1%BB%E5%9E%8B/index.html">
+<meta property="og:site_name" content="我的博客">
+<meta property="og:description" content="iOS Crash类型总结iOS APP系统crash主要分两类：一类是Objective-C Exception，一类是Unix Signal Exception。下面详细介绍。  崩溃日志路径：~&#x2F;Library&#x2F;Logs&#x2F;CrashReporter&#x2F;MobileDevice  一、Objective-C Exception例如NSDictionary加">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-03-11T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-03-12T11:51:01.586Z">
+<meta property="article:author" content="bruin">
+<meta property="article:tag" content="iOS">
+<meta property="article:tag" content="调试">
+<meta property="article:tag" content="错误处理">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="我的博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" media="(prefers-color-scheme: light)" href="/images/favicon-light-32.png" sizes="32x32">
+    <link rel="icon" media="(prefers-color-scheme: light)" href="/images/favicon-light-128.png" sizes="128x128">
+    <link rel="icon" media="(prefers-color-scheme: light)" href="/images/favicon-light-180.png" sizes="180x180">
+    <link rel="icon" media="(prefers-color-scheme: light)" href="/images/favicon-light-192.png" sizes="192x192">
+    <link rel="icon" media="(prefers-color-scheme: dark)" href="/images/favicon-dark-32.png" sizes="32x32">
+    <link rel="icon" media="(prefers-color-scheme: dark)" href="/images/favicon-dark-128.png" sizes="128x128">
+    <link rel="icon" media="(prefers-color-scheme: dark)" href="/images/favicon-dark-180.png" sizes="180x180">
+    <link rel="icon" media="(prefers-color-scheme: dark)" href="/images/favicon-dark-192.png" sizes="192x192">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  
+  
+    
+<div id="banner" class="">
+  <img src="/images/banner.webp" itemprop="image">
+  <div id="banner-dim"></div>
+</div>
+ 
+   
+  <div id="main-grid" class="  ">
+    <div id="nav" class=""  >
+      <navbar id="navbar">
+  <nav id="title-nav">
+    <a href="/">
+      <div id="vivia-logo">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+      <div>我的博客 </div>
+    </a>
+  </nav>
+  <nav id="main-nav">
+    
+      <a class="main-nav-link" href="/">Home</a>
+    
+      <a class="main-nav-link" href="/archives">Archives</a>
+    
+      <a class="main-nav-link" href="/categories">Categories</a>
+    
+      <a class="main-nav-link" href="/tags">Tags</a>
+    
+      <a class="main-nav-link" href="/about">About</a>
+    
+  </nav>
+  <nav id="sub-nav">
+    <a id="theme-btn" class="nav-icon">
+      <span class="light-mode-icon"><svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="M438.5-829.913v-48q0-17.452 11.963-29.476 11.964-12.024 29.326-12.024 17.363 0 29.537 12.024t12.174 29.476v48q0 17.452-11.963 29.476-11.964 12.024-29.326 12.024-17.363 0-29.537-12.024T438.5-829.913Zm0 747.826v-48q0-17.452 11.963-29.476 11.964-12.024 29.326-12.024 17.363 0 29.537 12.024t12.174 29.476v48q0 17.452-11.963 29.476-11.964 12.024-29.326 12.024-17.363 0-29.537-12.024T438.5-82.087ZM877.913-438.5h-48q-17.452 0-29.476-11.963-12.024-11.964-12.024-29.326 0-17.363 12.024-29.537t29.476-12.174h48q17.452 0 29.476 11.963 12.024 11.964 12.024 29.326 0 17.363-12.024 29.537T877.913-438.5Zm-747.826 0h-48q-17.452 0-29.476-11.963-12.024-11.964-12.024-29.326 0-17.363 12.024-29.537T82.087-521.5h48q17.452 0 29.476 11.963 12.024 11.964 12.024 29.326 0 17.363-12.024 29.537T130.087-438.5Zm660.174-290.87-34.239 32q-12.913 12.674-29.565 12.174-16.653-.5-29.327-13.174-12.674-12.673-12.554-28.826.12-16.152 12.794-28.826l33-35q12.913-12.674 30.454-12.674t30.163 12.847q12.709 12.846 12.328 30.826-.38 17.98-13.054 30.653ZM262.63-203.978l-32 34q-12.913 12.674-30.454 12.674t-30.163-12.847q-12.709-12.846-12.328-30.826.38-17.98 13.054-30.653l33.239-31q12.913-12.674 29.565-12.174 16.653.5 29.327 13.174 12.674 12.673 12.554 28.826-.12 16.152-12.794 28.826Zm466.74 33.239-32-33.239q-12.674-12.913-12.174-29.565.5-16.653 13.174-29.327 12.673-12.674 28.826-13.054 16.152-.38 28.826 12.294l35 33q12.674 12.913 12.674 30.454t-12.847 30.163q-12.846 12.709-30.826 12.328-17.98-.38-30.653-13.054ZM203.978-697.37l-34-33q-12.674-12.913-13.174-29.945-.5-17.033 12.174-29.707t31.326-13.293q18.653-.62 31.326 13.054l32 34.239q11.674 12.913 11.174 29.565-.5 16.653-13.174 29.327-12.673 12.674-28.826 12.554-16.152-.12-28.826-12.794ZM480-240q-100 0-170-70t-70-170q0-100 70-170t170-70q100 0 170 70t70 170q0 100-70 170t-170 70Zm-.247-82q65.703 0 111.475-46.272Q637-414.544 637-480.247t-45.525-111.228Q545.95-637 480.247-637t-111.475 45.525Q323-545.95 323-480.247t45.525 111.975Q414.05-322 479.753-322ZM481-481Z"/></svg></span>
+      <span class="dark-mode-icon"><svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="M480.239-116.413q-152.63 0-258.228-105.478Q116.413-327.37 116.413-480q0-130.935 77.739-227.435t206.304-125.043q43.022-9.631 63.87 10.869t3.478 62.805q-8.891 22.043-14.315 44.463-5.424 22.42-5.424 46.689 0 91.694 64.326 155.879 64.325 64.186 156.218 64.186 24.369 0 46.978-4.946 22.609-4.945 44.413-14.076 42.826-17.369 62.967 1.142 20.142 18.511 10.511 61.054Q807.174-280 712.63-198.206q-94.543 81.793-232.391 81.793Zm0-95q79.783 0 143.337-40.217 63.554-40.218 95.793-108.283-15.608 4.044-31.097 5.326-15.49 1.283-31.859.805-123.706-4.066-210.777-90.539-87.071-86.473-91.614-212.092-.24-16.369.923-31.978 1.164-15.609 5.446-30.978-67.826 32.478-108.282 96.152Q211.652-559.543 211.652-480q0 111.929 78.329 190.258 78.329 78.329 190.258 78.329ZM466.13-465.891Z"/></svg></span>
+    </a>
+    
+      <a id="nav-rss-link" class="nav-icon mobile-hide" href="/atom.xml" title="RSS 订阅">
+        <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="M198-120q-25.846 0-44.23-18.384-18.384-18.385-18.384-44.23 0-25.846 18.384-44.23 18.384-18.385 44.23-18.385 25.846 0 44.23 18.385 18.384 18.384 18.384 44.23 0 25.845-18.384 44.23Q223.846-120 198-120Zm538.385 0q-18.846 0-32.923-13.769-14.076-13.769-15.922-33.23-8.692-100.616-51.077-188.654-42.385-88.039-109.885-155.539-67.5-67.501-155.539-109.885Q283-663.462 182.385-672.154q-19.461-1.846-33.23-16.23-13.769-14.385-13.769-33.846t14.076-32.922q14.077-13.461 32.923-12.23 120.076 8.692 226.038 58.768 105.961 50.077 185.73 129.846 79.769 79.769 129.846 185.731 50.077 105.961 58.769 226.038 1.231 18.846-12.538 32.922Q756.461-120 736.385-120Zm-252 0q-18.231 0-32.423-13.461t-18.653-33.538Q418.155-264.23 348.886-333.5q-69.27-69.27-166.501-84.423-20.077-4.462-33.538-18.961-13.461-14.5-13.461-33.346 0-19.076 13.884-33.23 13.884-14.153 33.115-10.922 136.769 15.384 234.384 112.999 97.615 97.615 112.999 234.384 3.231 19.23-10.538 33.115Q505.461-120 484.385-120Z"/></svg>
+      </a>
+    
+    <div id="nav-menu-btn" class="nav-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="M177.37-252.282q-17.453 0-29.477-11.964-12.024-11.963-12.024-29.326t12.024-29.537q12.024-12.174 29.477-12.174h605.26q17.453 0 29.477 11.964 12.024 11.963 12.024 29.326t-12.024 29.537q-12.024 12.174-29.477 12.174H177.37Zm0-186.218q-17.453 0-29.477-11.963-12.024-11.964-12.024-29.326 0-17.363 12.024-29.537T177.37-521.5h605.26q17.453 0 29.477 11.963 12.024 11.964 12.024 29.326 0 17.363-12.024 29.537T782.63-438.5H177.37Zm0-186.217q-17.453 0-29.477-11.964-12.024-11.963-12.024-29.326t12.024-29.537q12.024-12.174 29.477-12.174h605.26q17.453 0 29.477 11.964 12.024 11.963 12.024 29.326t-12.024 29.537q-12.024 12.174-29.477 12.174H177.37Z"/></svg>
+    </div>
+  </nav>
+</navbar>
+<div id="nav-dropdown" class="hidden">
+  <div id="dropdown-link-list">
+    
+      <a class="nav-dropdown-link" href="/">Home</a>
+    
+      <a class="nav-dropdown-link" href="/archives">Archives</a>
+    
+      <a class="nav-dropdown-link" href="/categories">Categories</a>
+    
+      <a class="nav-dropdown-link" href="/tags">Tags</a>
+    
+      <a class="nav-dropdown-link" href="/about">About</a>
+    
+    
+      <a class="nav-dropdown-link" href="/atom.xml" title="RSS 订阅">RSS</a>
+     
+    </div>
+</div>
+<script>
+  let dropdownBtn = document.getElementById("nav-menu-btn");
+  let dropdownEle = document.getElementById("nav-dropdown");
+  dropdownBtn.onclick = function() {
+    dropdownEle.classList.toggle("hidden");
+  }
+</script>
+    </div>
+    <div id="sidebar-wrapper">
+      <sidebar id="sidebar">
+  
+    <div class="widget-wrap">
+  <div class="info-card">
+    <div class="avatar">
+      
+        <image src=/images/avatar.jpeg></image>
+      
+      <div class="img-dim"></div>
+    </div>
+    <div class="info">
+      <div class="username">bruin </div>
+      <div class="dot"></div>
+      <div class="subtitle">个人技术博客 </div>
+      <div class="link-list">
+        
+          <a class="link-btn" target="_blank" rel="noopener" href="https://github.com/zcx4u" title="GitHub"><i class="fa-brands fa-github"></i></a>
+        
+          <a class="link-btn" href="mailto:your-email@example.com" title="Email"><i class="fa-solid fa-envelope"></i></a>
+         
+      </div>  
+    </div>
+  </div>
+</div>
+
+  
+  <div class="sticky">
+    
+      
+
+
+  <div class="widget-wrap">
+    <div class="widget">
+      <h3 class="widget-title">分类</h3>
+      <div class="category-box">
+            <a class="category-link" href="/categories/iOS/">
+                iOS
+                <div class="category-count">19</div>
+            </a>
+        
+            <a class="category-link" href="/categories/%E6%8A%80%E6%9C%AF/">
+                技术
+                <div class="category-count">3</div>
+            </a>
+        </div>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget-wrap">
+    <div class="widget">
+      <h3 class="widget-title">标签</h3>
+      <ul class="widget-tag-list" itemprop="keywords"><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/BUG%E8%AE%B0%E5%BD%95%E5%92%8C%E7%BB%8F%E9%AA%8C%E6%94%B6%E9%9B%86/" rel="tag">BUG记录和经验收集</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/Xcode/" rel="tag">Xcode</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/ios/" rel="tag">iOS</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E4%B8%80%E9%94%AE%E5%94%A4%E8%B5%B7/" rel="tag">一键唤起</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%A4%9A%E8%AF%BB%E6%96%87%E6%A1%A3/" rel="tag">多读文档</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%B7%AF%E5%BE%84/" rel="tag">学习路径</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%B0%8F%E7%BB%84%E4%BB%B6/" rel="tag">小组件</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%8A%80%E6%9C%AF%E8%B0%83%E7%A0%94/" rel="tag">技术调研</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%95%88%E7%8E%87/" rel="tag">效率</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%9C%89%E7%94%A8%E7%9A%84/" rel="tag">有用的</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E7%9F%A5%E8%AF%86%E7%82%B9/" rel="tag">知识点</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E7%BB%8F%E9%AA%8C%E8%AE%B0%E5%BD%95/" rel="tag">经验记录</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E8%81%8C%E4%B8%9A%E5%8F%91%E5%B1%95/" rel="tag">职业发展</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E8%B0%83%E8%AF%95/" rel="tag">调试</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86/" rel="tag">错误处理</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95/" rel="tag">面试</a></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget-wrap">
+    <div class="widget">
+      <h3 class="widget-title">归档</h3>
+      
+      
+        <a class="archive-link" href="/archives/2025/03 ">
+          三月 2025 
+          <div class="archive-count">2 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2024/01 ">
+          一月 2024 
+          <div class="archive-count">3 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2022/11 ">
+          十一月 2022 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2022/07 ">
+          七月 2022 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2022/02 ">
+          二月 2022 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/12 ">
+          十二月 2021 
+          <div class="archive-count">2 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/09 ">
+          九月 2021 
+          <div class="archive-count">2 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/08 ">
+          八月 2021 
+          <div class="archive-count">3 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/04 ">
+          四月 2021 
+          <div class="archive-count">2 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/02 ">
+          二月 2021 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/01 ">
+          一月 2021 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2020/09 ">
+          九月 2020 
+          <div class="archive-count">3 </div>
+        </a>
+      
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget-wrap">
+    <div class="widget">
+      <h3 class="widget-title">最新文章</h3>
+      <ul>
+        
+          <a class="recent-link" href="/2025/03/12/iOSCrash%E7%B1%BB%E5%9E%8B/" title="iOS Crash类型总结" >
+            <div class="recent-link-text">
+              iOS Crash类型总结
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/03/12/iOS%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B%E6%8C%87%E5%8D%97/" title="iOS文件系统编程指南" >
+            <div class="recent-link-text">
+              iOS文件系统编程指南
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2024/01/01/%E7%AE%97%E6%B3%95/" title="常见算法考题列表（2025 年整理）" >
+            <div class="recent-link-text">
+              常见算法考题列表（2025 年整理）
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2024/01/01/%E6%8A%80%E6%9C%AF%E8%B7%AF%E7%BA%BF%E5%9B%BE/" title="iOS 开发者技术路线图（2025 年）" >
+            <div class="recent-link-text">
+              iOS 开发者技术路线图（2025 年）
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2024/01/01/%E9%AB%98%E9%A2%91%E9%97%AE%E9%A2%98/" title="iOS 面试高频问题总结（2025 最新版）" >
+            <div class="recent-link-text">
+              iOS 面试高频问题总结（2025 最新版）
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2022/11/05/iOS%E7%AD%BE%E5%90%8D%E6%9C%BA%E5%88%B6/" title="iOS签名机制" >
+            <div class="recent-link-text">
+              iOS签名机制
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2022/07/06/SwiftUI/" title="SwiftUI 从入门到放弃" >
+            <div class="recent-link-text">
+              SwiftUI 从入门到放弃
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2022/02/28/XCUITest%E6%8E%A2%E7%B4%A2/" title="XCUITest iOS自动化UI测试框架" >
+            <div class="recent-link-text">
+              XCUITest iOS自动化UI测试框架
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/12/06/iOS%20Web%E5%94%A4%E8%B5%B7APP%E6%96%B9%E6%A1%88%E5%8F%82%E8%80%83/" title="iOS 一键唤起APP方案参考" >
+            <div class="recent-link-text">
+              iOS 一键唤起APP方案参考
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/12/06/%E4%BF%A1%E6%81%AF%E6%B5%81GIF%E8%BD%AE%E6%92%AD%E6%A1%86%E6%9E%B6/" title="iOS 如何做一个九宫格GIF播放器" >
+            <div class="recent-link-text">
+              iOS 如何做一个九宫格GIF播放器
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/09/18/iOS%E7%BC%96%E8%AF%91%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%E6%8E%A2%E7%B4%A2%E4%B8%8E%E5%AE%9E%E8%B7%B5-%E7%BB%84%E4%BB%B6%E7%AF%87/" title="iOS编译优化方案探索与实践-组件篇" >
+            <div class="recent-link-text">
+              iOS编译优化方案探索与实践-组件篇
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/09/09/module-importing%20failed-invalid%20pathname/" title="module importing failed invalid pathname 问题解决" >
+            <div class="recent-link-text">
+              module importing failed invalid pathname 问题解决
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/08/31/iOS-OCR%E5%AE%9E%E8%B7%B5/" title="iOS-OCR实践" >
+            <div class="recent-link-text">
+              iOS-OCR实践
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/08/25/AVPlayer%E7%9B%B8%E5%85%B3BUG%E8%AE%B0%E5%BD%95/" title="AVPlayer相关BUG记录" >
+            <div class="recent-link-text">
+              AVPlayer相关BUG记录
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/08/25/Xcode%E4%BB%A3%E7%A0%81%E5%9D%97%E4%BA%91%E5%90%8C%E6%AD%A5+%E6%9C%AC%E5%9C%B0%E5%AE%89%E8%A3%85%E8%84%9A%E6%9C%AC/" title="Xcode代码块云同步+本地安装脚本" >
+            <div class="recent-link-text">
+              Xcode代码块云同步+本地安装脚本
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/04/22/iOS%E5%AD%97%E7%AC%A6%E5%92%8C%E5%AD%97%E7%B4%A0%E7%B0%87/" title="iOS字符串安全截取及任意位置插入" >
+            <div class="recent-link-text">
+              iOS字符串安全截取及任意位置插入
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/04/20/NSCache/" title="NSCache" >
+            <div class="recent-link-text">
+              NSCache
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/02/23/%E4%B8%80%E5%B8%96%E7%9C%8B%E9%80%8FiOS14%20%E5%B0%8F%E7%BB%84%E4%BB%B6/" title="一帖看透iOS14 小组件" >
+            <div class="recent-link-text">
+              一帖看透iOS14 小组件
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/01/18/APP%E4%BB%A3%E7%90%86/" title="APP内部代理" >
+            <div class="recent-link-text">
+              APP内部代理
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2020/09/25/runloop/" title="runloop 学习笔记" >
+            <div class="recent-link-text">
+              runloop 学习笔记
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2020/09/23/block/" title="__block 关键字探究" >
+            <div class="recent-link-text">
+              __block 关键字探究
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2020/09/22/GCD/" title="GCD相关知识学习笔记" >
+            <div class="recent-link-text">
+              GCD相关知识学习笔记
+            </div>
+          </a>
+        
+      </ul>
+    </div>
+  </div>
+
+    
+  </div>
+</sidebar>
+    </div>
+    <div id="content-body">
+       
+
+
+<article id="post-iOSCrash类型" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+    
+   
+  <div class="article-inner">
+    <div class="article-main">
+      <header class="article-header">
+        
+<div class="main-title-bar">
+  <div class="main-title-dot"></div>
+  
+    
+      <h1 class="p-name article-title" itemprop="headline name">
+        iOS Crash类型总结
+      </h1>
+    
+  
+</div>
+
+        <div class='meta-info-bar'>
+          <div class="meta-info">
+  <time class="dt-published" datetime="2025-03-11T16:00:00.000Z" itemprop="datePublished">2025-03-12</time>
+</div>
+          <div class="need-seperator meta-info">
+            <div class="meta-cate-flex">
+  
+  <a class="meta-cate-link" href="/categories/iOS/">iOS</a>
+   
+</div>
+  
+          </div>
+          <div class="wordcount need-seperator meta-info">
+            4.5k 词 
+          </div>
+        </div>
+        
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ios/" rel="tag">iOS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%B0%83%E8%AF%95/" rel="tag">调试</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86/" rel="tag">错误处理</a></li></ul>
+
+      </header>
+      <div class="e-content article-entry" itemprop="articleBody">
+        
+          <h1 id="iOS-Crash类型总结"><a href="#iOS-Crash类型总结" class="headerlink" title="iOS Crash类型总结"></a>iOS Crash类型总结</h1><p>iOS APP系统crash主要分两类：一类是Objective-C Exception，一类是Unix Signal Exception。下面详细介绍。</p>
+<blockquote>
+<p>崩溃日志路径：~&#x2F;Library&#x2F;Logs&#x2F;CrashReporter&#x2F;MobileDevice</p>
+</blockquote>
+<h2 id="一、Objective-C-Exception"><a href="#一、Objective-C-Exception" class="headerlink" title="一、Objective-C Exception"></a>一、Objective-C Exception</h2><p>例如NSDictionary加入nil、数组访问越界等。主要有如下类型：</p>
+<h3 id="1-NSInvalidArgumentException"><a href="#1-NSInvalidArgumentException" class="headerlink" title="1. NSInvalidArgumentException"></a>1. NSInvalidArgumentException</h3><p>非法参数异常(NSInvalidArgumentException)是Objective-C代码最常出现的错误。平时在写代码时需要多加注意，加强对参数的检查，避免传入非法参数导致异常，其中尤以nil参数为甚。</p>
+<p>主要场景包括：</p>
+<h4 id="1-1-集合数据的参数传递"><a href="#1-1-集合数据的参数传递" class="headerlink" title="1.1 集合数据的参数传递"></a>1.1 集合数据的参数传递</h4><p>比如NSMutableArray、NSMutableDictionary的数据操作：</p>
+<ul>
+<li>NSDictionary不能删除nil的key</li>
+<li>NSDictionary不能添加nil的对象</li>
+<li>不能插入nil的对象</li>
+<li>其他一些nil参数</li>
+</ul>
+<h4 id="1-2-其他API的使用"><a href="#1-2-其他API的使用" class="headerlink" title="1.2 其他API的使用"></a>1.2 其他API的使用</h4><p>APP一般都会有网络操作，免不了使用网络相关接口，比如NSURL的初始化，不能传入nil的http地址。</p>
+<h4 id="1-3-未实现的方法"><a href="#1-3-未实现的方法" class="headerlink" title="1.3 未实现的方法"></a>1.3 未实现的方法</h4><ul>
+<li>.h文件里函数名，却忘了修改.m文件里对应的函数名</li>
+<li>使用第三方库时，没有添加”-ObjC” flag</li>
+<li>MRC时，大部分情况下是因为对象被提前release了，在你心里不希望他release的情况下，指针还在，对象已经不在了</li>
+</ul>
+<h3 id="2-NSRangeException"><a href="#2-NSRangeException" class="headerlink" title="2. NSRangeException"></a>2. NSRangeException</h3><p>越界异常(NSRangeException)也是比较常出现的异常，有如下几种类型：</p>
+<ol>
+<li>数组最大下标处理错误<ul>
+<li>比如数组长度count，index的下标范围[0, count-1]，在开发时，可能index的最大值超过数组的范围</li>
+</ul>
+</li>
+<li>下标的值是其他变量赋值<ul>
+<li>这样会有很大的不确定性，可能是一个很大的整数值</li>
+</ul>
+</li>
+<li>使用空数组<ul>
+<li>如果一个数组刚刚初始化，还是空的，就对它进行相关操作</li>
+</ul>
+</li>
+</ol>
+<blockquote>
+<p>为了避免NSRangeException的发生，必须对传入的index参数进行合法性检查，是否在集合数据的个数范围内。</p>
+</blockquote>
+<h3 id="3-NSGenericException"><a href="#3-NSGenericException" class="headerlink" title="3. NSGenericException"></a>3. NSGenericException</h3><p>NSGenericException这个异常最容易出现在foreach操作中。在for-in循环中如果修改所遍历的数组，无论你是add或remove，都会出错。”for-in”的内部遍历使用了类似Iterator进行迭代遍历，一旦元素变动，之前的元素全部被失效。</p>
+<blockquote>
+<p>在foreach的循环当中，最好不要去进行元素的修改动作，若需要修改，循环改为for遍历，由于内部机制不同，不会产生修改后结果失效的问题。</p>
+</blockquote>
+<h3 id="4-NSInternalInconsistencyException"><a href="#4-NSInternalInconsistencyException" class="headerlink" title="4. NSInternalInconsistencyException"></a>4. NSInternalInconsistencyException</h3><p>不一致导致出现的异常，例如：</p>
+<ul>
+<li>NSDictionary当做NSMutableDictionary来使用，从他们内部的机理来说，就会产生一些错误</li>
+</ul>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">NSMutableDictionary</span> *info = method <span class="keyword">return</span> to <span class="built_in">NSDictionary</span> type;</span><br><span class="line">[info setObject:<span class="string">@&quot;sxm&quot;</span> forKey:<span class="string">@&quot;name&quot;</span>];</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>xib界面使用或者约束设置不当</li>
+</ul>
+<h3 id="5-NSFileHandleOperationException"><a href="#5-NSFileHandleOperationException" class="headerlink" title="5. NSFileHandleOperationException"></a>5. NSFileHandleOperationException</h3><p>处理文件时的一些异常，最常见的还是存储空间不足的问题，比如应用频繁的保存文档，缓存资料或者处理比较大的数据。</p>
+<blockquote>
+<p>在文件处理里，需要考虑到手机存储空间的问题。</p>
+</blockquote>
+<h3 id="6-NSMallocException"><a href="#6-NSMallocException" class="headerlink" title="6. NSMallocException"></a>6. NSMallocException</h3><p>这也是内存不足的问题，无法分配足够的内存空间。</p>
+<h3 id="7-其他常见Crash"><a href="#7-其他常见Crash" class="headerlink" title="7. 其他常见Crash"></a>7. 其他常见Crash</h3><ul>
+<li>KVO相关Crash<ul>
+<li>移除未注册的观察者</li>
+<li>重复移除观察者</li>
+<li>添加了观察者但是没有实现 <code>-observeValueForKeyPath:ofObject:change:context:</code>方法</li>
+<li>添加移除keypath&#x3D;nil</li>
+<li>添加移除observer&#x3D;nil</li>
+</ul>
+</li>
+<li>unrecognized selector sent to instance（这种也经常是野指针问题）</li>
+</ul>
+<h2 id="二、Unix-Signal-Exception"><a href="#二、Unix-Signal-Exception" class="headerlink" title="二、Unix Signal Exception"></a>二、Unix Signal Exception</h2><h3 id="常见信号类型"><a href="#常见信号类型" class="headerlink" title="常见信号类型"></a>常见信号类型</h3><ol>
+<li><p><strong>SIGHUP</strong></p>
+<ul>
+<li>本信号在用户终端连接(正常或非正常)结束时发出</li>
+<li>通常是在终端的控制进程结束时，通知同一session内的各个作业</li>
+</ul>
+</li>
+<li><p><strong>SIGINT</strong></p>
+<ul>
+<li>程序终止(interrupt)信号</li>
+<li>在用户键入INTR字符(通常是Ctrl-C)时发出，用于通知前台进程组终止进程</li>
+</ul>
+</li>
+<li><p><strong>SIGQUIT</strong></p>
+<ul>
+<li>类似SIGINT，但由QUIT字符(通常是Ctrl-)来控制</li>
+<li>进程在因收到SIGQUIT退出时会产生core文件</li>
+</ul>
+</li>
+<li><p><strong>SIGABRT</strong></p>
+<ul>
+<li>调用abort函数生成的信号</li>
+</ul>
+</li>
+<li><p><strong>SIGBUS</strong></p>
+<ul>
+<li>非法地址，包括内存地址对齐(alignment)出错</li>
+<li>与SIGSEGV的区别在于后者是由于对合法存储地址的非法访问触发的</li>
+</ul>
+</li>
+<li><p><strong>SIGFPE</strong></p>
+<ul>
+<li>致命的算术运算错误信号</li>
+<li>包括浮点运算错误、溢出及除数为0等</li>
+</ul>
+</li>
+<li><p><strong>SIGKILL</strong></p>
+<ul>
+<li>用来立即结束程序的运行</li>
+<li>本信号不能被阻塞、处理和忽略</li>
+</ul>
+</li>
+<li><p><strong>SIGSEGV</strong></p>
+<ul>
+<li>试图访问未分配给自己的内存</li>
+<li>试图往没有写权限的内存地址写数据</li>
+</ul>
+</li>
+<li><p><strong>SIGPIPE</strong></p>
+<ul>
+<li>管道破裂</li>
+<li>通常在进程间通信产生</li>
+</ul>
+</li>
+</ol>
+<h3 id="iOS中常见的系统信号"><a href="#iOS中常见的系统信号" class="headerlink" title="iOS中常见的系统信号"></a>iOS中常见的系统信号</h3><p>在iOS crash中主要是SIGKILL、SIGSEGV、SIGABRT、SIGTRAP，引起系统信号crash主要有内存泄露、野指针等。</p>
+<h3 id="特殊类型Crash"><a href="#特殊类型Crash" class="headerlink" title="特殊类型Crash"></a>特殊类型Crash</h3><table>
+<thead>
+<tr>
+<th>错误码</th>
+<th>含义</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0x8badf00d</td>
+<td>“ate bad food”</td>
+<td>在启动、终止应用或响应系统事件花费过长时间</td>
+</tr>
+<tr>
+<td>0xdeadfa11</td>
+<td>“dead fall”</td>
+<td>用户强制退出（系统无响应时，用户按电源开关和HOME）</td>
+</tr>
+<tr>
+<td>0xbaaaaaad</td>
+<td>-</td>
+<td>用户按住Home键和音量键，获取当前内存状态，不代表崩溃</td>
+</tr>
+<tr>
+<td>0xbad22222</td>
+<td>-</td>
+<td>VoIP应用因为恢复得太频繁导致crash</td>
+</tr>
+<tr>
+<td>0xc00010ff</td>
+<td>“cool off”</td>
+<td>因为太烫了被干掉</td>
+</tr>
+<tr>
+<td>0xdead10cc</td>
+<td>“dead lock”</td>
+<td>因为在后台时仍然占据系统资源（比如通讯录）被干掉</td>
+</tr>
+</tbody></table>
+<h2 id="三、Crash解决方案"><a href="#三、Crash解决方案" class="headerlink" title="三、Crash解决方案"></a>三、Crash解决方案</h2><h3 id="1-Objective-C-Exception处理"><a href="#1-Objective-C-Exception处理" class="headerlink" title="1. Objective-C Exception处理"></a>1. Objective-C Exception处理</h3><p>NSInvalidArgumentException、NSRangeException这一类很好重现，能够复现定位就好解决。需要写代码的时候多做验证，也可以把一些验证写出category，统一使用。</p>
+<p>例如数组访问安全封装：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="type">id</span>)safeObjectAtIndex:(<span class="built_in">NSUInteger</span>)index &#123;</span><br><span class="line">    <span class="keyword">if</span> (index &lt; <span class="keyword">self</span>.count) &#123;</span><br><span class="line">        <span class="keyword">return</span> [<span class="keyword">self</span> objectAtIndex:index];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="type">void</span>)safeAddObject:(<span class="type">id</span>)object &#123;</span><br><span class="line">    <span class="keyword">if</span> (object) &#123;</span><br><span class="line">        [<span class="keyword">self</span> addObject:object];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样代码统一使用，可以避免一些问题。还可以在有异常的时候加入日志或者上报。</p>
+<h3 id="2-信号类Crash处理"><a href="#2-信号类Crash处理" class="headerlink" title="2. 信号类Crash处理"></a>2. 信号类Crash处理</h3><ul>
+<li>主要通过分析是否是系统crash，还是内存泄露、多线程问题等</li>
+<li>内存泄露可以通过instrument定位，也可以在Xcode开启zombie选项定位</li>
+<li>retain-cycle可以使用第三方工具检测</li>
+</ul>
+<h3 id="3-Crash上报机制"><a href="#3-Crash上报机制" class="headerlink" title="3. Crash上报机制"></a>3. Crash上报机制</h3><p>实际项目中通常会接入crash上报工具，如腾讯Bugly。这些上报原理是注册对应的处理handleUncaughtException和信号handle：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 异常处理</span></span><br><span class="line"><span class="type">void</span> InstallUncaughtExceptionHandler(<span class="type">void</span>) &#123;</span><br><span class="line">    <span class="built_in">NSSetUncaughtExceptionHandler</span>(&amp;handleUncaughtException);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> handleUncaughtException(<span class="built_in">NSException</span> *exception) &#123;</span><br><span class="line">    <span class="built_in">NSString</span> *crashInfo = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;Exception name：%@\nException reason：%@\nException stack：%@&quot;</span>,</span><br><span class="line">                          [exception name], </span><br><span class="line">                          [exception reason], </span><br><span class="line">                          [exception callStackSymbols]];</span><br><span class="line">    [CrashReporter saveCrash:crashInfo];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 信号监听</span></span><br><span class="line"><span class="type">void</span> InstallSignalHandler(<span class="type">void</span>) &#123;</span><br><span class="line">    signal(SIGHUP, handleSignalException);</span><br><span class="line">    signal(SIGINT, handleSignalException);</span><br><span class="line">    signal(SIGQUIT, handleSignalException);</span><br><span class="line">    signal(SIGABRT, handleSignalException);</span><br><span class="line">    signal(SIGILL, handleSignalException);</span><br><span class="line">    signal(SIGSEGV, handleSignalException);</span><br><span class="line">    signal(SIGFPE, handleSignalException);</span><br><span class="line">    signal(SIGBUS, handleSignalException);</span><br><span class="line">    signal(SIGPIPE, handleSignalException);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> handleSignalException(<span class="type">int</span> signal) &#123;</span><br><span class="line">    <span class="built_in">NSMutableString</span> *crashInfo = [[<span class="built_in">NSMutableString</span> alloc] init];</span><br><span class="line">    [crashInfo appendString:[<span class="built_in">NSString</span> stringWithFormat:<span class="string">@&quot;signal:%d\n&quot;</span>, signal]];</span><br><span class="line">    [crashInfo appendString:<span class="string">@&quot;Stack:\n&quot;</span>];</span><br><span class="line">  </span><br><span class="line">    <span class="type">void</span> *callstack[<span class="number">128</span>];</span><br><span class="line">    <span class="type">int</span> frames = backtrace(callstack, <span class="number">128</span>);</span><br><span class="line">    <span class="type">char</span> **strs = backtrace_symbols(callstack, frames);</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; frames; ++i) &#123;</span><br><span class="line">        [crashInfo appendFormat:<span class="string">@&quot;%s\n&quot;</span>, strs[i]];</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">    [CrashReporter saveCrash:crashInfo];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样crash的时候存储crash信息，然后再次启动对应上报。</p>
+<blockquote>
+<p>注意：还有一些激进的处理方法，hook系统对应函数不让app crash。但即便不crash，出了问题app体验也不好了，也可能用不了了。建议谨慎使用这种方案。</p>
+</blockquote>
+
+        
+      </div>
+
+         
+    </div>
+    
+     
+  </div>
+  
+    
+<nav id="article-nav">
+  <a class="article-nav-btn left  disabled "
+     >
+    <i class="fa-solid fa-angle-left"></i>
+    <p class="title-text">
+        
+    </p>
+  </a>
+  <a class="article-nav-btn right "
+    
+      href="/2025/03/12/iOS%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B%E6%8C%87%E5%8D%97/"
+      title="iOS文件系统编程指南"
+     >
+
+    <p class="title-text">
+      
+        iOS文件系统编程指南
+        
+    </p>
+    <i class="fa-solid fa-angle-right"></i>
+  </a>
+</nav>
+
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div id="footer-wrapper">
+      <footer id="footer">
+  
+  <div id="footer-info" class="inner">
+    
+    &copy; 2025 bruin<br>
+    Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & Theme <a target="_blank" rel="noopener" href="https://github.com/saicaca/hexo-theme-vivia">Vivia</a>
+  </div>
+</footer>
+
+    </div>
+    <div class="back-to-top-wrapper">
+    <button id="back-to-top-btn" class="back-to-top-btn hide" onclick="topFunction()">
+        <i class="fa-solid fa-angle-up"></i>
+    </button>
+</div>
+
+<script>
+    function topFunction() {
+        window.scroll({ top: 0, behavior: 'smooth' });
+    }
+    let btn = document.getElementById('back-to-top-btn');
+    function scrollFunction() {
+        if (document.body.scrollTop > 600 || document.documentElement.scrollTop > 600) {
+            btn.classList.remove('hide')
+        } else {
+            btn.classList.add('hide')
+        }
+    }
+    window.onscroll = function() {
+        scrollFunction();
+    }
+</script>
+
+  </div>
+  <script src="/js/light-dark-switch.js"></script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>

@@ -27,19 +27,19 @@
 <meta property="og:site_name" content="我的博客">
 <meta property="og:description" content="iOS编译优化方案探索与实践-组件篇序言目前主流的项目构建方案中几乎都使用cocoapods进行组件库管理，不论是第三方开源库还是自研的私有库，都会生成.podspec文件使用cocoapods工具进行维护。 为了便于进行调试，第三方开源库或私有代码库 我们都以源码的方式进行引入。 每次在本机进行全量编译或者ci机器进行打包的时候都会先编译pod仓库中的源代码，然后链接到主项目中。 这个流程没有问">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gukuhvxnh2j613i0u0gr602.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gukvojcuwpj60u015rjxk02.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gukvrtyptvj61h30u0td202.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gukw1ce7iej60kq0fmq3x02.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gukw4a4ri8j61tc0lijvv02.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gukw3brvajj60x0038gly02.jpg">
-<meta property="og:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gukw38z5bdj60nu05eq3w02.jpg">
+<meta property="og:image" content="https://cdn.zcx.info/008i3skNly1gukuhvxnh2j613i0u0gr602.jpg">
+<meta property="og:image" content="https://cdn.zcx.info/008i3skNly1gukvojcuwpj60u015rjxk02.jpg">
+<meta property="og:image" content="https://cdn.zcx.info/008i3skNly1gukvrtyptvj61h30u0td202.jpg">
+<meta property="og:image" content="https://cdn.zcx.info/008i3skNly1gukw1ce7iej60kq0fmq3x02.jpg">
+<meta property="og:image" content="https://cdn.zcx.info/008i3skNly1gukw4a4ri8j61tc0lijvv02.jpg">
+<meta property="og:image" content="https://cdn.zcx.info/008i3skNly1gukw3brvajj60x0038gly02.jpg">
+<meta property="og:image" content="https://cdn.zcx.info/008i3skNly1gukw38z5bdj60nu05eq3w02.jpg">
 <meta property="article:published_time" content="2021-09-17T16:00:00.000Z">
-<meta property="article:modified_time" content="2025-03-11T09:55:35.043Z">
+<meta property="article:modified_time" content="2025-03-12T11:44:57.414Z">
 <meta property="article:author" content="bruin">
 <meta property="article:tag" content="技术调研">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://tva1.sinaimg.cn/large/008i3skNly1gukuhvxnh2j613i0u0gr602.jpg">
+<meta name="twitter:image" content="https://cdn.zcx.info/008i3skNly1gukuhvxnh2j613i0u0gr602.jpg">
   
     <link rel="alternate" href="/atom.xml" title="我的博客" type="application/atom+xml">
   
@@ -143,6 +143,8 @@
   <div class="info-card">
     <div class="avatar">
       
+        <image src=/images/avatar.jpeg></image>
+      
       <div class="img-dim"></div>
     </div>
     <div class="info">
@@ -151,7 +153,9 @@
       <div class="subtitle">个人技术博客 </div>
       <div class="link-list">
         
-          <a class="link-btn" target="_blank" rel="noopener" href="https://github.com" title="GitHub"><i class="fa-brands fa-github"></i></a>
+          <a class="link-btn" target="_blank" rel="noopener" href="https://github.com/zcx4u" title="GitHub"><i class="fa-brands fa-github"></i></a>
+        
+          <a class="link-btn" href="mailto:your-email@example.com" title="Email"><i class="fa-solid fa-envelope"></i></a>
          
       </div>  
     </div>
@@ -170,7 +174,7 @@
       <div class="category-box">
             <a class="category-link" href="/categories/iOS/">
                 iOS
-                <div class="category-count">15</div>
+                <div class="category-count">19</div>
             </a>
         
             <a class="category-link" href="/categories/%E6%8A%80%E6%9C%AF/">
@@ -187,7 +191,7 @@
   <div class="widget-wrap">
     <div class="widget">
       <h3 class="widget-title">标签</h3>
-      <ul class="widget-tag-list" itemprop="keywords"><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/BUG%E8%AE%B0%E5%BD%95%E5%92%8C%E7%BB%8F%E9%AA%8C%E6%94%B6%E9%9B%86/" rel="tag">BUG记录和经验收集</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/Xcode/" rel="tag">Xcode</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/iOS/" rel="tag">iOS</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E4%B8%80%E9%94%AE%E5%94%A4%E8%B5%B7/" rel="tag">一键唤起</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%A4%9A%E8%AF%BB%E6%96%87%E6%A1%A3/" rel="tag">多读文档</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%B7%AF%E5%BE%84/" rel="tag">学习路径</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%B0%8F%E7%BB%84%E4%BB%B6/" rel="tag">小组件</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%8A%80%E6%9C%AF%E8%B0%83%E7%A0%94/" rel="tag">技术调研</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%95%88%E7%8E%87/" rel="tag">效率</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%9C%89%E7%94%A8%E7%9A%84/" rel="tag">有用的</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E7%9F%A5%E8%AF%86%E7%82%B9/" rel="tag">知识点</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E8%81%8C%E4%B8%9A%E5%8F%91%E5%B1%95/" rel="tag">职业发展</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95/" rel="tag">面试</a></li></ul>
+      <ul class="widget-tag-list" itemprop="keywords"><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/BUG%E8%AE%B0%E5%BD%95%E5%92%8C%E7%BB%8F%E9%AA%8C%E6%94%B6%E9%9B%86/" rel="tag">BUG记录和经验收集</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/Xcode/" rel="tag">Xcode</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/ios/" rel="tag">iOS</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E4%B8%80%E9%94%AE%E5%94%A4%E8%B5%B7/" rel="tag">一键唤起</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%A4%9A%E8%AF%BB%E6%96%87%E6%A1%A3/" rel="tag">多读文档</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E8%B7%AF%E5%BE%84/" rel="tag">学习路径</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%B0%8F%E7%BB%84%E4%BB%B6/" rel="tag">小组件</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%8A%80%E6%9C%AF%E8%B0%83%E7%A0%94/" rel="tag">技术调研</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%95%88%E7%8E%87/" rel="tag">效率</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%9C%89%E7%94%A8%E7%9A%84/" rel="tag">有用的</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E7%9F%A5%E8%AF%86%E7%82%B9/" rel="tag">知识点</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E7%BB%8F%E9%AA%8C%E8%AE%B0%E5%BD%95/" rel="tag">经验记录</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E8%81%8C%E4%B8%9A%E5%8F%91%E5%B1%95/" rel="tag">职业发展</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E8%B0%83%E8%AF%95/" rel="tag">调试</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86/" rel="tag">错误处理</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E9%9D%A2%E8%AF%95/" rel="tag">面试</a></li></ul>
     </div>
   </div>
 
@@ -199,9 +203,19 @@
       <h3 class="widget-title">归档</h3>
       
       
+        <a class="archive-link" href="/archives/2025/03 ">
+          三月 2025 
+          <div class="archive-count">2 </div>
+        </a>
+      
         <a class="archive-link" href="/archives/2024/01 ">
           一月 2024 
           <div class="archive-count">3 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2022/11 ">
+          十一月 2022 
+          <div class="archive-count">1 </div>
         </a>
       
         <a class="archive-link" href="/archives/2022/07 ">
@@ -216,7 +230,7 @@
       
         <a class="archive-link" href="/archives/2021/12 ">
           十二月 2021 
-          <div class="archive-count">1 </div>
+          <div class="archive-count">2 </div>
         </a>
       
         <a class="archive-link" href="/archives/2021/09 ">
@@ -260,9 +274,15 @@
       <h3 class="widget-title">最新文章</h3>
       <ul>
         
-          <a class="recent-link" href="/2024/01/01/%E6%8A%80%E6%9C%AF%E8%B7%AF%E7%BA%BF%E5%9B%BE/" title="iOS 开发者技术路线图（2025 年）" >
+          <a class="recent-link" href="/2025/03/12/iOSCrash%E7%B1%BB%E5%9E%8B/" title="iOS Crash类型总结" >
             <div class="recent-link-text">
-              iOS 开发者技术路线图（2025 年）
+              iOS Crash类型总结
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/03/12/iOS%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B%E6%8C%87%E5%8D%97/" title="iOS文件系统编程指南" >
+            <div class="recent-link-text">
+              iOS文件系统编程指南
             </div>
           </a>
         
@@ -272,15 +292,27 @@
             </div>
           </a>
         
+          <a class="recent-link" href="/2024/01/01/%E6%8A%80%E6%9C%AF%E8%B7%AF%E7%BA%BF%E5%9B%BE/" title="iOS 开发者技术路线图（2025 年）" >
+            <div class="recent-link-text">
+              iOS 开发者技术路线图（2025 年）
+            </div>
+          </a>
+        
           <a class="recent-link" href="/2024/01/01/%E9%AB%98%E9%A2%91%E9%97%AE%E9%A2%98/" title="iOS 面试高频问题总结（2025 最新版）" >
             <div class="recent-link-text">
               iOS 面试高频问题总结（2025 最新版）
             </div>
           </a>
         
-          <a class="recent-link" href="/2022/07/06/SwiftUI/" title="SwiftUI" >
+          <a class="recent-link" href="/2022/11/05/iOS%E7%AD%BE%E5%90%8D%E6%9C%BA%E5%88%B6/" title="iOS签名机制" >
             <div class="recent-link-text">
-              SwiftUI
+              iOS签名机制
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2022/07/06/SwiftUI/" title="SwiftUI 从入门到放弃" >
+            <div class="recent-link-text">
+              SwiftUI 从入门到放弃
             </div>
           </a>
         
@@ -293,6 +325,12 @@
           <a class="recent-link" href="/2021/12/06/iOS%20Web%E5%94%A4%E8%B5%B7APP%E6%96%B9%E6%A1%88%E5%8F%82%E8%80%83/" title="iOS 一键唤起APP方案参考" >
             <div class="recent-link-text">
               iOS 一键唤起APP方案参考
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/12/06/%E4%BF%A1%E6%81%AF%E6%B5%81GIF%E8%BD%AE%E6%92%AD%E6%A1%86%E6%9E%B6/" title="iOS 如何做一个九宫格GIF播放器" >
+            <div class="recent-link-text">
+              iOS 如何做一个九宫格GIF播放器
             </div>
           </a>
         
@@ -451,7 +489,7 @@
 
 <p>坑点：cocoapods-imy-bin配置私有源时只支持ssh，因此要修改以前的https的源，对ssh操作不熟练的需要google出现的问题及解决方案。</p>
 <blockquote>
-<p><a href="mailto:&#103;&#x69;&#116;&#64;&#x78;&#120;&#x78;&#46;&#99;&#111;&#x6d;">git@xxx.com</a> ssh一直报错，之前的公钥有密码,通过ssh连接私有库的时候一直报错让输入密码，但是输入之后还是不行,报错无授权,重新生成rsa秘钥对之后尝试还是不行，报同样的错误。最后发现是git地址没有给对，从cocoapods file中拷贝出来的时候带了一个source字符串，所以ssh授权一直失败（地址都错了授权肯定失败啊）</p>
+<p><a href="mailto:&#x67;&#105;&#116;&#x40;&#x78;&#x78;&#120;&#46;&#x63;&#111;&#x6d;">git@xxx.com</a> ssh一直报错，之前的公钥有密码,通过ssh连接私有库的时候一直报错让输入密码，但是输入之后还是不行,报错无授权,重新生成rsa秘钥对之后尝试还是不行，报同样的错误。最后发现是git地址没有给对，从cocoapods file中拷贝出来的时候带了一个source字符串，所以ssh授权一直失败（地址都错了授权肯定失败啊）</p>
 </blockquote>
 <p>创建repo不能仅仅拉一个git仓库就行了，还得找一个已有的仓库进行.podspec文件push ，否则添加此源之后 执行pod repo update 会一直失败。</p>
 <blockquote>
@@ -470,7 +508,7 @@
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mongod -version <span class="comment">#测试是否安装成功</span></span><br><span class="line"><span class="comment">#除了安装包文件，安装还创建了以下文件和目录：</span></span><br><span class="line"><span class="comment">#配置文件（/usr/local/etc/mongod.conf）</span></span><br><span class="line"><span class="comment">#日志目录（/usr/local/var/log/mongodb）</span></span><br><span class="line"><span class="comment">#数据目录（/usr/local/var/mongodb）</span></span><br><span class="line"><span class="comment">#将MongoDB作为系统服务启动 不再依托终端窗口</span></span><br><span class="line">brew services start mongodb-community<span class="variable">@4</span>.<span class="number">2</span> /<span class="regexp">/启动</span></span><br><span class="line"><span class="regexp">brew services stop mongodb-community@4.2 /</span><span class="regexp">/停止</span></span><br><span class="line"><span class="regexp">brew services restart mongodb-community@4.2 /</span><span class="regexp">/重启</span></span><br></pre></td></tr></table></figure>
 <p>也可以执行mongo shell命令查看数据库启动状态</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mongo</span><br></pre></td></tr></table></figure>
-<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gukuhvxnh2j613i0u0gr602.jpg" alt="mongodb启动shell"></p>
+<p><img src="https://cdn.zcx.info/008i3skNly1gukuhvxnh2j613i0u0gr602.jpg" alt="mongodb启动shell"></p>
 <p>到这里 你的数据库就搭好了也启动起来了。</p>
 <p>然后搭建静态资源服务器</p>
 <p>先下载服务源码：</p>
@@ -499,19 +537,19 @@
 <p>这个过程可能会根据你依赖的库报各种错误，比如我遇到的</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Installing</span>...</span><br><span class="line"><span class="title class_">Installing</span> <span class="title class_">Realm</span> (<span class="number">3.19</span>.<span class="number">0</span>)</span><br><span class="line"><span class="title class_">Installing</span> <span class="title class_">RealmSwift</span> (<span class="number">3.19</span>.<span class="number">0</span>)</span><br><span class="line"><span class="title class_">Installing</span> demo_binary_source (<span class="number">1</span>)</span><br><span class="line">[!] /bin/bash -c</span><br><span class="line">set -e</span><br><span class="line">sh build.sh cocoapods-setup</span><br><span class="line"></span><br><span class="line"><span class="symbol">sh:</span> build.<span class="symbol">sh:</span> <span class="title class_">No</span> such file <span class="keyword">or</span> directory</span><br><span class="line"></span><br><span class="line"><span class="comment">#执行pod bin auto --all-make 报错 不知道啥原因</span></span><br><span class="line"><span class="comment">#经排查 使用插件后 swiftRealm库附带的下载依赖脚本无法执行</span></span><br><span class="line"></span><br><span class="line"><span class="title class_">Running</span> prepare command</span><br><span class="line"><span class="variable">$ </span>/bin/bash -c  set -e sh build.sh cocoapods-setup</span><br><span class="line"><span class="title class_">Downloading</span> <span class="symbol">dependency:</span> <span class="number">10.3</span>.<span class="number">2</span> from <span class="symbol">https:</span>/<span class="regexp">/static.realm.io/downloads</span><span class="regexp">/core/realm</span>-monorepo-xcframework-v10.<span class="number">3.2</span>.tar.xz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解决方案</span></span><br><span class="line">单独的库无法处理，这里因为<span class="string">&#x27;Realm&#x27;</span>编译源码也很慢，所以改成<span class="string">&#x27;xcframework&#x27;</span>方式进行引入了。</span><br><span class="line">解决问题的过程中可能遇见<span class="string">&#x27;pod repo&#x27;</span>混乱的问题，</span><br><span class="line">之前尝试的 <span class="string">&#x27;--all-make&#x27;</span>命令 生成了一部分二进制和<span class="string">&#x27;repo&#x27;</span>信息引起混乱</span><br><span class="line">那就全部删掉，删掉<span class="string">&#x27;repo&#x27;</span>源，删掉已经上传的二进制文件从头再来一遍 </span><br></pre></td></tr></table></figure>
 <p>解决完问题后再尝试进行二进制文件制作。如果顺利的话会看到制作结果。</p>
-<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gukvojcuwpj60u015rjxk02.jpg"></p>
+<p><img src="https://cdn.zcx.info/008i3skNly1gukvojcuwpj60u015rjxk02.jpg"></p>
 <p>同时可以检验一下新创建的 私有源中是否记录的二进制文件的地址信息。</p>
-<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gukvrtyptvj61h30u0td202.jpg"></p>
+<p><img src="https://cdn.zcx.info/008i3skNly1gukvrtyptvj61h30u0td202.jpg"></p>
 <p>二进制文件制作好了，就差link到项目中了。</p>
 <p>既然我们更新了私有源，这里最好把<code>cocoapods repo </code>更新一下再安装。</p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">pod repo update --verbose <span class="comment">#更新源</span></span><br><span class="line">pod install --verbose <span class="comment">#你懂得</span></span><br><span class="line"><span class="comment">#然后你会看到执行的结果，部分三方库被替换成了打包好的静态库</span></span><br><span class="line">======  dev 环境 ========</span><br><span class="line"><span class="variable constant_">CDN</span>: trunk <span class="title class_">Relative</span> <span class="symbol">path:</span> <span class="title class_">CocoaPods</span>-version.yml exists! <span class="title class_">Returning</span> local because checking is only performed <span class="keyword">in</span> repo update</span><br><span class="line">cocoapods-imy-bin 插件</span><br><span class="line">- 开始处理 <span class="title class_">Alamofire</span> <span class="number">4.9</span>.<span class="number">1</span> 组件.</span><br><span class="line">specification =<span class="title class_">Alamofire</span> (<span class="number">4.9</span>.<span class="number">1</span>)</span><br><span class="line">#&lt;Pod::Resolver::ResolverSpecification:0x00007fc8369c9630&gt;</span><br><span class="line">cocoapods-imy-bin 插件</span><br><span class="line">- 开始处理 <span class="title class_">AliPlayer</span>SDK_iOS <span class="number">5.4</span>.<span class="number">0</span> 组件.</span><br><span class="line">cocoapods-imy-bin 插件</span><br><span class="line">- 开始处理 <span class="title class_">AliPlayer</span>SDK_iOS/<span class="title class_">AliPlayer</span>SDK <span class="number">5.4</span>.<span class="number">0</span> 组件.</span><br><span class="line">cocoapods-imy-bin 插件</span><br><span class="line">- 开始处理 <span class="title class_">Alipay</span>SDK-iOS <span class="number">15.7</span>.<span class="number">9</span> 组件.</span><br><span class="line">cocoapods-imy-bin 插件</span><br><span class="line">- 开始处理 <span class="title class_">Bugly</span> <span class="number">2.5</span>.<span class="number">90</span> 组件.</span><br><span class="line">........</span><br><span class="line">#&lt;Pod::Resolver::ResolverSpecification:0x00007fc8370b0f48&gt;</span><br><span class="line">【<span class="title class_">AliPlayer</span>SDK_iOS |<span class="params"> 5.4.0】组件无对应二进制版本 , 将采用源码依赖.</span></span><br><span class="line"><span class="params">【AliPlayerSDK_iOS/AliPlayerSDK </span>| <span class="number">5.4</span>.<span class="number">0</span>】组件无对应二进制版本 , 将采用源码依赖.</span><br><span class="line">【<span class="title class_">Alipay</span>SDK-iOS |<span class="params"> 15.7.9】组件无对应二进制版本 , 将采用源码依赖.</span></span><br><span class="line"><span class="params">【Bugly </span>| <span class="number">2.5</span>.<span class="number">90</span>】组件无对应二进制版本 , 将采用源码依赖.</span><br><span class="line">【<span class="title class_">CocoaAsyncSocket</span> |<span class="params"> 7.6.5】组件无对应二进制版本 , 将采用源码依赖.</span></span><br><span class="line"><span class="params">【GTSDK </span>| <span class="number">2.5</span>.<span class="number">5.0</span>】组件无对应二进制版本 , 将采用源码依赖.</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
-<p>最后查看<code>xcode</code>中的<code>pod</code>文件夹，从源码切换成了<code>framework</code><br><img src="https://tva1.sinaimg.cn/large/008i3skNly1gukw1ce7iej60kq0fmq3x02.jpg"><br>如果没有出现<code>framework</code>的话可以尝试再更新一次<code>pod repo </code>和<code>执行 pod install</code></p>
+<p>最后查看<code>xcode</code>中的<code>pod</code>文件夹，从源码切换成了<code>framework</code><br><img src="https://cdn.zcx.info/008i3skNly1gukw1ce7iej60kq0fmq3x02.jpg"><br>如果没有出现<code>framework</code>的话可以尝试再更新一次<code>pod repo </code>和<code>执行 pod install</code></p>
 <p><code>clean</code> 一下进行全量编译可以看到变化，优化前编译需要500s</p>
-<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gukw4a4ri8j61tc0lijvv02.jpg"></p>
+<p><img src="https://cdn.zcx.info/008i3skNly1gukw4a4ri8j61tc0lijvv02.jpg"></p>
 <p>优化后<code>tasks</code>减少到2500左右</p>
-<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gukw3brvajj60x0038gly02.jpg"></p>
+<p><img src="https://cdn.zcx.info/008i3skNly1gukw3brvajj60x0038gly02.jpg"></p>
 <p>编译时间减少到300s</p>
-<p><img src="https://tva1.sinaimg.cn/large/008i3skNly1gukw38z5bdj60nu05eq3w02.jpg"></p>
+<p><img src="https://cdn.zcx.info/008i3skNly1gukw38z5bdj60nu05eq3w02.jpg"></p>
 <h4 id="可能存在的问题"><a href="#可能存在的问题" class="headerlink" title="可能存在的问题"></a>可能存在的问题</h4><p>暂时没有测试ci打包机上的命令修改和真正realse发包过程。如果要上生产环境的话需要进行大面积的覆盖测试。切记谨慎行事。</p>
 <h3 id="拓展与思考"><a href="#拓展与思考" class="headerlink" title="拓展与思考"></a>拓展与思考</h3><p>组件库的编译时间减少较为可观，这也许是大家推行项目组件化的原因。随着业务的发展，项目会越来越大，业务拓展后也可能会划分更多的部门。</p>
 <p>每个部门做自己的业务，不关注其他部门的代码。所以如果指定一定的代码规范，制作比如网络请求组件、路由组件等公用组件的基础上，每个业务部门输出自身的业务组件，使用<code>cocoapods</code>进行二进制化管理。代码整体的编译上就可以节省不少时间，提升编译效率，团队间合作也会降低一些成本。</p>
@@ -531,13 +569,13 @@
 <nav id="article-nav">
   <a class="article-nav-btn left "
     
-      href="/2021/12/06/iOS%20Web%E5%94%A4%E8%B5%B7APP%E6%96%B9%E6%A1%88%E5%8F%82%E8%80%83/"
-      title="iOS 一键唤起APP方案参考"
+      href="/2021/12/06/%E4%BF%A1%E6%81%AF%E6%B5%81GIF%E8%BD%AE%E6%92%AD%E6%A1%86%E6%9E%B6/"
+      title="iOS 如何做一个九宫格GIF播放器"
      >
     <i class="fa-solid fa-angle-left"></i>
     <p class="title-text">
       
-        iOS 一键唤起APP方案参考
+        iOS 如何做一个九宫格GIF播放器
         
     </p>
   </a>
@@ -601,5 +639,20 @@
 
   </div>
   <script src="/js/light-dark-switch.js"></script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 </body>
 </html>
