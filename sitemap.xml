@@ -200,24 +200,6 @@
   </url>
   
   <url>
-    <loc>https://zcx4u.github.io/tags/index.html</loc>
-    
-    <lastmod>2025-03-11</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>https://zcx4u.github.io/categories/index.html</loc>
-    
-    <lastmod>2025-03-11</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://zcx4u.github.io/2024/01/01/%E6%8A%80%E6%9C%AF%E8%B7%AF%E7%BA%BF%E5%9B%BE/</loc>
     
     <lastmod>2025-03-11</lastmod>
@@ -236,13 +218,6 @@
 
   
   <url>
-    <loc>https://zcx4u.github.io/tags/BUG%E8%AE%B0%E5%BD%95%E5%92%8C%E7%BB%8F%E9%AA%8C%E6%94%B6%E9%9B%86/</loc>
-    <lastmod>2025-03-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://zcx4u.github.io/tags/%E6%9C%89%E7%94%A8%E7%9A%84/</loc>
     <lastmod>2025-03-12</lastmod>
     <changefreq>weekly</changefreq>
@@ -257,6 +232,13 @@
   </url>
   
   <url>
+    <loc>https://zcx4u.github.io/tags/BUG%E8%AE%B0%E5%BD%95%E5%92%8C%E7%BB%8F%E9%AA%8C%E6%94%B6%E9%9B%86/</loc>
+    <lastmod>2025-03-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://zcx4u.github.io/tags/%E6%8A%80%E6%9C%AF%E8%B0%83%E7%A0%94/</loc>
     <lastmod>2025-03-12</lastmod>
     <changefreq>weekly</changefreq>
@@ -265,13 +247,6 @@
   
   <url>
     <loc>https://zcx4u.github.io/tags/%E6%95%88%E7%8E%87/</loc>
-    <lastmod>2025-03-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://zcx4u.github.io/tags/%E5%A4%9A%E8%AF%BB%E6%96%87%E6%A1%A3/</loc>
     <lastmod>2025-03-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -306,6 +281,13 @@
   </url>
   
   <url>
+    <loc>https://zcx4u.github.io/tags/%E5%A4%9A%E8%AF%BB%E6%96%87%E6%A1%A3/</loc>
+    <lastmod>2025-03-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://zcx4u.github.io/tags/%E7%9F%A5%E8%AF%86%E7%82%B9/</loc>
     <lastmod>2025-03-12</lastmod>
     <changefreq>weekly</changefreq>
@@ -320,13 +302,6 @@
   </url>
   
   <url>
-    <loc>https://zcx4u.github.io/tags/%E7%BB%8F%E9%AA%8C%E8%AE%B0%E5%BD%95/</loc>
-    <lastmod>2025-03-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://zcx4u.github.io/tags/%E5%B0%8F%E7%BB%84%E4%BB%B6/</loc>
     <lastmod>2025-03-12</lastmod>
     <changefreq>weekly</changefreq>
@@ -334,7 +309,7 @@
   </url>
   
   <url>
-    <loc>https://zcx4u.github.io/tags/%E7%AE%97%E6%B3%95/</loc>
+    <loc>https://zcx4u.github.io/tags/%E7%BB%8F%E9%AA%8C%E8%AE%B0%E5%BD%95/</loc>
     <lastmod>2025-03-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -342,6 +317,13 @@
   
   <url>
     <loc>https://zcx4u.github.io/tags/%E9%9D%A2%E8%AF%95/</loc>
+    <lastmod>2025-03-12</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://zcx4u.github.io/tags/%E7%AE%97%E6%B3%95/</loc>
     <lastmod>2025-03-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
