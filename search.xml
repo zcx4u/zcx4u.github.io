@@ -9,8 +9,6 @@
 <p>弄完杂七杂八的东西之后回到抓包调试，打开WIFI设置页，手动配置代理…</p>
 <p>？？？</p>
 <p>我刚才填的本机IP和端口呢？我还得再输一次？WTF！</p>
-<span id="more"></span>
-
 <hr>
 <h5 id="解决方案一"><a href="#解决方案一" class="headerlink" title="解决方案一"></a>解决方案一</h5><p>弄两个wifi信号，一个挂笔记本的代理不关，另一个正常联网，需要切换代理的时候切换wifi。</p>
 <p> 说实话操作起来挺麻烦的，并且公司只有一个公用的wifi信号，想弄一个新的信号还需要运维小伙伴来搞，难顶。</p>
@@ -42,6 +40,138 @@
       </tags>
   </entry>
   <entry>
+    <title>AVPlayer相关BUG记录</title>
+    <url>/2021/08/25/AVPlayer%E7%9B%B8%E5%85%B3BUG%E8%AE%B0%E5%BD%95/</url>
+    <content><![CDATA[<p>Bug：音频列表顺序播放过程中偶尔出现设置的1.5倍速重置为1</p>
+<p>原因：音频流卡顿暂停并缓冲到了足够可以继续播放的buffer长度后响应<code>playbackLikelyToKeepUp</code> 事件中 手动调用了 <code>player.play()</code> 方法播放音频</p>
+<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> keyPath <span class="operator">==</span> <span class="string">&quot;currentItem.playbackLikelyToKeepUp&quot;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> <span class="keyword">let</span> item <span class="operator">=</span> currentItem, item.isPlaybackLikelyToKeepUp, playStatus <span class="operator">==</span> .loading, isPlayerActive &#123;</span><br><span class="line">    playStatus <span class="operator">=</span> .playing</span><br><span class="line">    player.play()</span><br><span class="line">    <span class="comment">// 播放之后需增加设置rate的步骤</span></span><br><span class="line">    rate <span class="operator">=</span> <span class="type">CGFloat</span>(<span class="type">UserDefaultManager</span>.manager.getAudioRateValue()) </span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>查看文档可以看到<code>play</code>方法等同于 <code>player.rate = 1</code>，故而导致音频的速率变成了1</p>
+<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*!</span></span><br><span class="line"><span class="comment"> @method		play</span></span><br><span class="line"><span class="comment"> @abstract		Signals the desire to begin playback at the current item&#x27;s natural rate.</span></span><br><span class="line"><span class="comment"> @discussion	Equivalent to setting the value of rate to 1.0.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="operator">-</span> (void)play;</span><br></pre></td></tr></table></figure>
+
+<p>总结：api的使用还是需要多看文档不要仅仅看名字就想当然(play &#x3D; 以当前速率进行继续播放)，简单的api名称并不代表着简单的功能！</p>
+]]></content>
+      <categories>
+        <category>iOS</category>
+      </categories>
+      <tags>
+        <tag>BUG记录和经验收集</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>ChatGPT使用技巧手册</title>
+    <url>/2024/01/15/ChatGPT%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7%E6%89%8B%E5%86%8C/</url>
+    <content><![CDATA[<h1 id="ChatGPT使用技巧手册"><a href="#ChatGPT使用技巧手册" class="headerlink" title="ChatGPT使用技巧手册"></a>ChatGPT使用技巧手册</h1><hr>
+<h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ul>
+<li><a href="#%E6%A0%B8%E5%BF%83%E6%8A%80%E5%B7%A7">核心技巧</a></li>
+<li><a href="#%E4%BB%A3%E7%A0%81%E4%BC%98%E5%8C%96%E4%B8%8E%E9%87%8D%E6%9E%84">代码优化与重构</a></li>
+<li><a href="#%E5%A4%9A%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86">多语言处理</a></li>
+<li><a href="#%E5%BC%80%E5%8F%91%E8%BE%85%E5%8A%A9">开发辅助</a></li>
+<li><a href="#%E8%B7%A8%E5%B9%B3%E5%8F%B0%E9%80%82%E9%85%8D">跨平台适配</a></li>
+<li><a href="#%E6%89%A9%E5%B1%95%E5%BA%94%E7%94%A8">扩展应用</a></li>
+</ul>
+<hr>
+<h2 id="核心技巧"><a href="#核心技巧" class="headerlink" title="核心技巧"></a>核心技巧</h2><h3 id="Prompt生成方法论"><a href="#Prompt生成方法论" class="headerlink" title="Prompt生成方法论"></a>Prompt生成方法论</h3><ol>
+<li><p><strong>多Prompt生成</strong></p>
+<ul>
+<li>通过生成多个prompt迭代优化输出质量</li>
+<li>示例流程：<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 生成初始Prompt → 评估结果 → 生成改进Prompt → 最终优化</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p><strong>角色扮演</strong></p>
+<ul>
+<li>作为超级语言解释器（处理复杂语义）</li>
+<li>作为提示词训练器（生成领域专用Prompt）</li>
+</ul>
+</li>
+<li><p><strong>格式规范</strong></p>
+<ul>
+<li>强制JSON&#x2F;YAML结构化输出</li>
+<li>表格化数据呈现</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="代码优化与重构"><a href="#代码优化与重构" class="headerlink" title="代码优化与重构"></a>代码优化与重构</h2><h3 id="10大即时代码重构技巧"><a href="#10大即时代码重构技巧" class="headerlink" title="10大即时代码重构技巧"></a>10大即时代码重构技巧</h3><table>
+<thead>
+<tr>
+<th>优化方向</th>
+<th>典型操作</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>性能优化</td>
+<td>算法复杂度分析</td>
+<td>循环结构</td>
+</tr>
+<tr>
+<td>兼容性</td>
+<td>多语言语法适配</td>
+<td>跨平台项目</td>
+</tr>
+<tr>
+<td>可维护性</td>
+<td>模块化拆分</td>
+<td>大型工程</td>
+</tr>
+</tbody></table>
+<p><strong>重构步骤示例：</strong></p>
+<ol>
+<li>使用最新库版本替换过时代码</li>
+<li>将ArrayList改为ConcurrentHashMap（数据结构优化）</li>
+<li>添加try-with-resources错误处理</li>
+</ol>
+<hr>
+<h2 id="多语言处理"><a href="#多语言处理" class="headerlink" title="多语言处理"></a>多语言处理</h2><h3 id="多语种翻译工作流"><a href="#多语种翻译工作流" class="headerlink" title="多语种翻译工作流"></a>多语种翻译工作流</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">graph TD</span><br><span class="line">    A[源文本] --&gt; B&#123;语种判断&#125;</span><br><span class="line">    B --&gt;|中文| C[专业术语库匹配]</span><br><span class="line">    B --&gt;|其他| D[GPT直译]</span><br><span class="line">    C --&gt; E[人工校验]</span><br><span class="line">    D --&gt; E</span><br><span class="line">    E --&gt; F[术语统一化]</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键注意事项：</strong></p>
+<ul>
+<li>使用 <code>LANG_CODE</code>作为字典key</li>
+<li>保留原始文本占位符（如 <code>&#123;0&#125;</code>）</li>
+<li>优先处理数字&#x2F;日期格式</li>
+</ul>
+<hr>
+<h2 id="开发辅助"><a href="#开发辅助" class="headerlink" title="开发辅助"></a>开发辅助</h2><h3 id="测试驱动开发（TDD）"><a href="#测试驱动开发（TDD）" class="headerlink" title="测试驱动开发（TDD）"></a>测试驱动开发（TDD）</h3><ol>
+<li><p><strong>UT生成</strong></p>
+<ul>
+<li>输入：方法签名 + 边界条件</li>
+<li>输出：JUnit&#x2F;TestNG测试套件</li>
+<li>覆盖率分析建议</li>
+</ul>
+</li>
+<li><p><strong>Mock数据生成</strong></p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;user&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;id&quot;</span><span class="punctuation">:</span> <span class="string">&quot;##number(1,100)&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;##name.fullName&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></li>
+</ol>
+<hr>
+<h2 id="跨平台适配"><a href="#跨平台适配" class="headerlink" title="跨平台适配"></a>跨平台适配</h2><h3 id="iOS布局转换"><a href="#iOS布局转换" class="headerlink" title="iOS布局转换"></a>iOS布局转换</h3><p><strong>Objective-C框架迁移流程：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 原始Frame布局</span><br><span class="line">CGRectMake(10, 20, 30, 40);</span><br><span class="line"></span><br><span class="line">// Masonry转换后</span><br><span class="line">make.top.equalTo(20);</span><br><span class="line">make.left.equalTo(10);</span><br><span class="line">make.width.equalTo(30);</span><br><span class="line">make.height.equalTo(40);</span><br></pre></td></tr></table></figure>
+
+<p><strong>优化建议：</strong></p>
+<ul>
+<li>将布局逻辑拆分为 <code>setupConstraints</code>方法</li>
+<li>使用 <code>MAS_SHORTHAND</code>简化语法</li>
+</ul>
+<hr>
+<h2 id="扩展应用"><a href="#扩展应用" class="headerlink" title="扩展应用"></a>扩展应用</h2><h3 id="Figma-ChatGPT协作"><a href="#Figma-ChatGPT协作" class="headerlink" title="Figma+ChatGPT协作"></a>Figma+ChatGPT协作</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">@startuml</span><br><span class="line">frame Figma设计稿 &#123;</span><br><span class="line">  component 图层结构</span><br><span class="line">  component 样式参数</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">frame ChatGPT &#123;</span><br><span class="line">  component 设计规范解析</span><br><span class="line">  component 代码生成</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Figma设计稿 --&gt; ChatGPT : 导出设计规范</span><br><span class="line">ChatGPT --&gt; 前端工程 : 生成组件代码</span><br><span class="line">@enduml</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h2><h3 id="实用资源"><a href="#实用资源" class="headerlink" title="实用资源"></a>实用资源</h3><ul>
+<li><a href="https://www.aishort.top/?tags=code">Prompt精选库</a></li>
+<li>Recharts数据可视化库</li>
+<li>Lucide React图标集</li>
+</ul>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>AIGC</tag>
+        <tag>ChatGPT</tag>
+        <tag>开发工具</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>GCD相关知识学习笔记</title>
     <url>/2020/09/22/GCD/</url>
     <content><![CDATA[<p>致未来的我：你是不是有点忘记了GCD的一些知识？恰巧这几天我有看这些，让我给你讲讲吧？<br>GCD是基于C语言的API，开发者只需要将任务放在block内，并指定好追加的队列，就可以完成多线程开发.</p>
@@ -49,8 +179,6 @@
 <p>2.任务： 同步任务、异步任务</p>
 <p>3.队列和任务的交叉组合使用</p>
 <p>4.死锁的产生和预防</p>
-<span id="more"></span>
-
 <h3 id="队列"><a href="#队列" class="headerlink" title="队列"></a>队列</h3><p>Dispatch Queue是执行处理的等待队列，按照任务（block）追加到队列里的顺序，先进先出执行处理。</p>
 <p>而等待队列有两种</p>
 <p>Serial Dispatch Queue：串行队列，等待当前执行任务处理结束的队列。</p>
@@ -120,35 +248,12 @@
       </tags>
   </entry>
   <entry>
-    <title>AVPlayer相关BUG记录</title>
-    <url>/2021/08/25/AVPlayer%E7%9B%B8%E5%85%B3BUG%E8%AE%B0%E5%BD%95/</url>
-    <content><![CDATA[<p>Bug：音频列表顺序播放过程中偶尔出现设置的1.5倍速重置为1</p>
-<p>原因：音频流卡顿暂停并缓冲到了足够可以继续播放的buffer长度后响应<code>playbackLikelyToKeepUp</code> 事件中 手动调用了 <code>player.play()</code> 方法播放音频</p>
-<span id="more"></span>
-
-<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> keyPath <span class="operator">==</span> <span class="string">&quot;currentItem.playbackLikelyToKeepUp&quot;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> <span class="keyword">let</span> item <span class="operator">=</span> currentItem, item.isPlaybackLikelyToKeepUp, playStatus <span class="operator">==</span> .loading, isPlayerActive &#123;</span><br><span class="line">    playStatus <span class="operator">=</span> .playing</span><br><span class="line">    player.play()</span><br><span class="line">    <span class="comment">// 播放之后需增加设置rate的步骤</span></span><br><span class="line">    rate <span class="operator">=</span> <span class="type">CGFloat</span>(<span class="type">UserDefaultManager</span>.manager.getAudioRateValue()) </span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>查看文档可以看到<code>play</code>方法等同于 <code>player.rate = 1</code>，故而导致音频的速率变成了1</p>
-<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*!</span></span><br><span class="line"><span class="comment"> @method		play</span></span><br><span class="line"><span class="comment"> @abstract		Signals the desire to begin playback at the current item&#x27;s natural rate.</span></span><br><span class="line"><span class="comment"> @discussion	Equivalent to setting the value of rate to 1.0.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="operator">-</span> (void)play;</span><br></pre></td></tr></table></figure>
-
-<p>总结：api的使用还是需要多看文档不要仅仅看名字就想当然(play &#x3D; 以当前速率进行继续播放)，简单的api名称并不代表着简单的功能！</p>
-]]></content>
-      <categories>
-        <category>iOS</category>
-      </categories>
-      <tags>
-        <tag>BUG记录和经验收集</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>NSCache</title>
     <url>/2021/04/20/NSCache/</url>
     <content><![CDATA[<h2 id="NSCache"><a href="#NSCache" class="headerlink" title="NSCache"></a>NSCache</h2><h3 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h3><blockquote>
 <p>A mutable collection you use to temporarily store transient key-value pairs that are subject to eviction when resources are low.</p>
 </blockquote>
 <p>一种用于临时存储临时键值对的可变集合，在资源不足时容易被回收。</p>
-<span id="more"></span>
-
 <blockquote>
 <p>Cache objects differ from other mutable collections in a few ways:<br>The NSCache class incorporates various auto-eviction policies, which ensure that a cache doesn’t use too much of the system’s memory. If memory is needed by other applications, these policies remove some items from the cache, minimizing its memory footprint.<br>You can add, remove, and query items in the cache from different threads without having to lock the cache yourself.<br>Unlike an NSMutableDictionary object, a cache does not copy the key objects that are put into it.<br>You typically use NSCache objects to temporarily store objects with transient data that are expensive to create. Reusing these objects can provide performance benefits, because their values do not have to be recalculated. However, the objects are not critical to the application and can be discarded if memory is tight. If discarded, their values will have to be recomputed again when needed.<br>Objects that have subcomponents that can be discarded when not being used can adopt the NSDiscardableContent protocol to improve cache eviction behavior. By default, NSDiscardableContent objects in a cache are automatically removed if their content is discarded, although this automatic removal policy can be changed. If an NSDiscardableContent object is put into the cache, the cache calls discardContentIfPossible() on it upon its removal.</p>
 </blockquote>
@@ -160,7 +265,6 @@
 <p><strong>NSDiscardableContent 在NSCache中不会强引用</strong>：具有子组件的对象在不使用时可以被丢弃，可以采用NSDiscardableContent 协议来改进缓存回收行为。默认情况下，如果缓存中的NSDiscardableContent 对象的内容被丢弃，那么它们将被自动删除，尽管这个自动删除策略可以更改。如果一个NSDiscardableContent 对象被放入缓存，缓存在它被删除时调用discardContentIfPossible()。</p>
 <p>（一般不用可丢弃对象包裹，直接使用方法保存原始obj就行）</p>
 <h3 id="Values-Methods"><a href="#Values-Methods" class="headerlink" title="Values &amp; Methods"></a>Values &amp; Methods</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#import &lt;Foundation/NSObject.h&gt;</span><br><span class="line"></span><br><span class="line">@class NSString;</span><br><span class="line">@protocol NSCacheDelegate;</span><br><span class="line"></span><br><span class="line">NS_ASSUME_NONNULL_BEGIN</span><br><span class="line"></span><br><span class="line">API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0))</span><br><span class="line">@interface NSCache &lt;KeyType, ObjectType&gt; : NSObject &#123;</span><br><span class="line">@private</span><br><span class="line">    id _delegate;</span><br><span class="line">    void *_private[5];</span><br><span class="line">    void *_reserved;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@property (copy) NSString *name; // 用来管理区分cache对象的名字</span><br><span class="line"></span><br><span class="line">@property (nullable, assign) id&lt;NSCacheDelegate&gt; delegate;</span><br><span class="line"></span><br><span class="line">- (nullable ObjectType)objectForKey:(KeyType)key; // 取数据</span><br><span class="line">- (void)setObject:(ObjectType)obj forKey:(KeyType)key; // 0 cost 缓存数据</span><br><span class="line">- (void)setObject:(ObjectType)obj forKey:(KeyType)key cost:(NSUInteger)g; // 缓存数据 cost值设置的消耗内存大小</span><br><span class="line">- (void)removeObjectForKey:(KeyType)key;// 移除数据</span><br><span class="line"></span><br><span class="line">- (void)removeAllObjects;// 移除所有数据</span><br><span class="line"></span><br><span class="line">@property NSUInteger totalCostLimit;	// limits are imprecise/not strict 限制缓存数量</span><br><span class="line">@property NSUInteger countLimit;	// limits are imprecise/not strict 限制缓存保存数大小（cost）</span><br><span class="line">@property BOOL evictsObjectsWithDiscardedContent; // 是否自动回收</span><br><span class="line"></span><br><span class="line">@end</span><br><span class="line"></span><br><span class="line">@protocol NSCacheDelegate &lt;NSObject&gt;</span><br><span class="line">@optional</span><br><span class="line">- (void)cache:(NSCache *)cache willEvictObject:(id)obj; // 回收内存的时候调用代理的方法</span><br><span class="line">@end</span><br><span class="line"></span><br><span class="line">NS_ASSUME_NONNULL_END</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
 ]]></content>
       <categories>
         <category>iOS</category>
@@ -175,8 +279,6 @@
     <content><![CDATA[<p><img src="https://cdn.zcx.info/e6c9d24ely1h4461xrrg2j211906rjrv.jpg" alt="SWiftUITitleImage"></p>
 <h2 id="什么是SwiftUI"><a href="#什么是SwiftUI" class="headerlink" title="什么是SwiftUI"></a>什么是SwiftUI</h2><p>SwiftUI 于 2019 年度 WWDC 全球开发者大会上发布，它是基于 Swift 建立的声明式UI框架。</p>
 <p>该框架可以用于 watchOS、tvOS、macOS、iOS 等平台的应用开发，等于说统一了苹果生态圈的开发工具。</p>
-<span id="more"></span>
-
 <blockquote>
 <p>SwiftUI provides views, controls, and layout structures for declaring your app’s user interface. The framework provides event handlers for delivering taps, gestures, and other types of input to your app, and tools to manage the flow of data from your app’s models down to the views and controls that users will see and interact with.</p>
 </blockquote>
@@ -576,8 +678,6 @@
 <p>Accessibility是一项核心技术，它允许残疾用户获得与其他用户相同的iOS和macOS丰富体验。它包含了一组丰富的UI语义数据，用户可以使用它来指导他们使用你的应用。可访问性集成了UIKit和AppKit，并有api允许你调整行为和对外公开的使用。UI测试使用这些数据来执行其功能。</p>
 <p>在源代码中创建UI测试类似于创建单元测试。你为你的应用创建一个UI测试目标;然后Xcode为你创建一个默认的UI测试组和实现文件，在实现文件中有一个示例测试方法模板。在创建UI测试目标时，可以指定测试要处理的应用程序。</p>
 </blockquote>
-<span id="more"></span>
-
 <p><a href="https://developer.apple.com/library/archive/documentation/DeveloperTools/Conceptual/testing_with_xcode/chapters/09-ui_testing.html#//apple_ref/doc/uid/TP40014132-CH13-DontLinkElementID_8">User Interface Testing</a></p>
 <p><a href="https://onevcat.com/2015/09/ui-testing/">WWDC15 Session笔记 - Xcode 7 UI 测试初窥</a></p>
 <h2 id="添加target"><a href="#添加target" class="headerlink" title="添加target"></a>添加target</h2><p>以前在新建项目的时候可以看到自带单元测试和UI测试。新版本的XCode新建项目的时候可以看到Incloud Tests的选项，勾中这个选项就可以创建出来带单元测试和UI测试的target。</p>
@@ -611,15 +711,13 @@
   <entry>
     <title>Xcode代码块云同步+本地安装脚本</title>
     <url>/2021/08/25/Xcode%E4%BB%A3%E7%A0%81%E5%9D%97%E4%BA%91%E5%90%8C%E6%AD%A5+%E6%9C%AC%E5%9C%B0%E5%AE%89%E8%A3%85%E8%84%9A%E6%9C%AC/</url>
-    <content><![CDATA[<p>今天整理了最近半年内使用频率高的一些代码，做了一些代码块<code>codesnippet</code>使用，并在github上创建了一个私有仓库用来云端维护和同步，写了一个脚本进行代码块下载和合并。</p>
-<span id="more"></span>
-
+    <content><![CDATA[<p>今天整理了最近半年内使用频率高的一些代码，做了一些代码块 <code>codesnippet</code>使用，并在github上创建了一个私有仓库用来云端维护和同步，写了一个脚本进行代码块下载和合并。</p>
 <p>创建方式：</p>
 <ol>
 <li><p>选中要创建的代码块，右键选择Create Code Snippte</p>
 <p><img src="https://cdn.zcx.info/008i3skNly1gtt9tybj9gj611y0q8djc02.jpg"></p>
 </li>
-<li><p>右上角<code>+</code>框快速查看系统和自定义代码块</p>
+<li><p>右上角 <code>+</code>框快速查看系统和自定义代码块</p>
 <p><img src="https://cdn.zcx.info/008i3skNly1gtt9ty5ejxj61gj0u043502.jpg"></p>
 </li>
 <li><p>填写代码块描述，以及快捷方式，修改代码块</p>
@@ -629,15 +727,13 @@
 <p>xcode中用户自定义的 代码块保存在~&#x2F;Library&#x2F;Developer&#x2F;Xcode&#x2F;UserData&#x2F;CodeSnippets路径下，每个代码块都是一个.codesnippet格式的配置文件。</p>
 <figure class="highlight ruby"><table><tr><td class="code"><pre><span class="line">~<span class="regexp">/Library/</span><span class="title class_">Developer</span>/<span class="title class_">Xcode</span>/<span class="title class_">UserData</span>/<span class="title class_">CodeSnippets</span><span class="variable">$:</span> ls -l</span><br><span class="line">total <span class="number">72</span></span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1008</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">19</span><span class="symbol">:</span><span class="number">36</span> 1BF011CF-<span class="number">9292</span>-4B72-9D44-<span class="variable constant_">F7C3BC89AFE0</span>.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1036</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">16</span><span class="symbol">:</span><span class="number">03</span> 28DDA843-<span class="variable constant_">AD69</span>-4A09-87C4-3D1DB320EDB5.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff   <span class="number">864</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">16</span><span class="symbol">:</span><span class="number">37</span> 8BEF45E5-0B98-4CC5-9CB8-86203CA29A69.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1699</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">19</span><span class="symbol">:</span><span class="number">37</span> <span class="variable constant_">B42EC618</span>-1BF8-<span class="number">4E30</span>-<span class="variable constant_">AC73</span>-12E1282FEAFC.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff   <span class="number">994</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> <span class="variable constant_">BA1B105B</span>-<span class="variable constant_">F02A</span>-<span class="number">4925</span>-<span class="variable constant_">A7FD</span>-<span class="variable constant_">B7E6081438E2</span>.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1099</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">15</span><span class="symbol">:</span><span class="number">30</span> <span class="variable constant_">BB31C5F1</span>-<span class="variable constant_">D74A</span>-4CD4-968D-<span class="variable constant_">F707DADF07C1</span>.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1144</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> <span class="variable constant_">DDA53283</span>-7F1F-49EC-9D76-87D876EA67FC.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1557</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> <span class="variable constant_">E12D24FC</span>-<span class="number">2098</span>-413F-<span class="variable constant_">B12E</span>-<span class="variable constant_">CBB79181EBDA</span>.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1085</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> <span class="variable constant_">E7CFEE5D</span>-<span class="variable constant_">D2F0</span>-42D7-<span class="variable constant_">AD6E</span>-258BC0A67D75.codesnippet</span><br></pre></td></tr></table></figure>
 
-
-
 <p>所以对个人的代码块的维护方式也显而易见变成了对此文件夹内的文件的维护。</p>
 <hr>
 <p><a href="https://github.com/zcx4u/XCode_CodeSnippet">创建私有库用来保存创建的代码块</a></p>
 <p>每次下载过文件之后再手动批量向本地复制粘贴挺麻烦（主要是懒…）所以通过脚本命令进行合并再好不过了！</p>
 <figure class="highlight ruby"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/bin/bash</span></span><br><span class="line"><span class="comment"># GitHub: https://github.com/zcx4u/XCode_CodeSnippet</span></span><br><span class="line"><span class="comment"># 将代码块到本地并安装到xcode</span></span><br><span class="line"></span><br><span class="line"><span class="variable constant_">SRC_HOME</span>=<span class="string">`pwd`</span></span><br><span class="line">echo <span class="string">&quot;备份旧代码块~/Library/Developer/Xcode/UserData/CodeSnippets_Backup.zip&quot;</span></span><br><span class="line">cd ~<span class="regexp">/Library/</span><span class="title class_">Developer</span>/<span class="title class_">Xcode</span>/<span class="title class_">UserData</span></span><br><span class="line">zip -r <span class="title class_">CodeSnippets</span>_Backup.zip <span class="title class_">CodeSnippets</span></span><br><span class="line">echo <span class="string">&quot;合并代码块&quot;</span></span><br><span class="line">ditto -V <span class="variable">$&#123;</span><span class="variable constant_">SRC_HOME</span>&#125;/<span class="title class_">CodeSnippets</span> ~<span class="regexp">/Library/</span><span class="title class_">Developer</span>/<span class="title class_">Xcode</span>/<span class="title class_">UserData</span>/<span class="title class_">CodeSnippets</span></span><br><span class="line">echo <span class="string">&quot;done&quot;</span></span><br></pre></td></tr></table></figure>
 
-<p> 记得先备份旧的文件夹以防不测😄 </p>
+<p> 记得先备份旧的文件夹以防不测😄</p>
 <p>以前也零零碎碎的增加过代码块，但是换工作换电脑后就清空了，客户端业务变化较大重复性的编码还是比较多。</p>
 <p>积累一些使用的顺手的工具和方法能有效提升效率，高效完成coding早点homing可以gaming还能shopping，岂不美哉！</p>
 ]]></content>
@@ -660,8 +756,6 @@
 
 <p>现在我们简单的在<code>block</code>中修改了<code>val</code>的值。</p>
 <h3 id="block-原理思考推测"><a href="#block-原理思考推测" class="headerlink" title="__block 原理思考推测"></a>__block 原理思考推测</h3><p>so why？现在到了探究其所以然的时候了。</p>
-<span id="more"></span>
-
 <p>由于<code>objc</code>封装的较深，我们可以把<code>objc</code>代码转换成<code>c++</code>代码一探究竟</p>
 <figure class="highlight ruby"><table><tr><td class="code"><pre><span class="line">xcrun -sdk iphoneos clang -arch arm64 -rewrite-objc main.m</span><br></pre></td></tr></table></figure>
 
@@ -739,8 +833,6 @@
 </li>
 </ol>
 <p>我们这里主要说一说4、5两步其中的细节处理，也是对最近相关的业务的一个总结。</p>
-<span id="more"></span>
-
 <h3 id="DeepLink技术"><a href="#DeepLink技术" class="headerlink" title="DeepLink技术"></a>DeepLink技术</h3><p>在<code>iOS9</code>之前只有通过<code>URL Scheme</code>能够唤起一个APP。</p>
 <p><code>Scheme</code>可以理解为一个APP的名字，因为是<code>URL Scheme</code>所以遵循URL的书写格式，类比于<code>http://www.baidu.com</code>，其中<code>http</code>就是它的<code>Scheme</code>。</p>
 <p>每个APP可以设置自己的Scheme，即给自己起个名字，方便”别人“叫我的时候我可以听得懂。</p>
@@ -890,8 +982,6 @@
 <h2 id="Vision"><a href="#Vision" class="headerlink" title="Vision"></a>Vision</h2><blockquote>
 <p>Vision 是 Apple 在 WWDC 2017 推出的图像识别框架，它基于 Core ML，所以可以理解成 Apple 的工程师设计了一种算法模型，然后利用 Core ML 训练，最后整合成一个新的框架，相比开源模型然后让开发者自己整合起来，这种方式更安全也更方便我们使用。</p>
 </blockquote>
-<span id="more"></span>
-
 <h3 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h3><blockquote>
 <p>The Vision framework performs face and face landmark detection, text detection, barcode recognition, image registration, and general feature tracking. Vision also allows the use of custom Core ML models for tasks like classification or object detection.</p>
 </blockquote>
@@ -1226,8 +1316,6 @@
 <p>It’s common to think of a string as a sequence of characters, but when working with <code>NSString</code> objects, or with Unicode strings in general, in most cases it is better to deal with substrings rather than with individual characters. The reason for this is that what the user perceives as a character in text may in many cases be represented by multiple characters in the string. <code>NSString</code> has a large inventory of methods for properly handling Unicode strings, which in general make Unicode compliance easy, but there are a few precautions you should observe.</p>
 </blockquote>
 <p>我们通常将<code>String</code>视为<code>Characters</code>序列，用户能看到的文本中的<code>String</code>可能由字符串中的多个<code>Characters</code>表示，所以在处理<code>NSString</code>对象或一般的<code>Unicode</code>字符串时，处理子字符串大多数情况下比处理单个字符更好。尽管<code>NSString</code>有大量正确处理<code>Unicode</code>字符串的方法清单，但是仍有一些你需要注意的预防措施。</p>
-<span id="more"></span>
-
 <hr>
 <blockquote>
 <p><code>NSString</code> objects are conceptually UTF-16 with platform endianness. That doesn’t necessarily imply anything about their internal storage mechanism; what it means is that <code>NSString</code> lengths, character indexes, and ranges are expressed in terms of UTF-16 units, and that the term “character” in <code>NSString</code> method names refers to 16-bit platform-endian UTF-16 units. This is a common convention for string objects. In most cases, clients don’t need to be overly concerned with this; as long as you are dealing with substrings, the precise interpretation of the range indexes is not necessarily significant.</p>
@@ -1438,57 +1526,6 @@
       </tags>
   </entry>
   <entry>
-    <title>iOS签名机制</title>
-    <url>/2022/11/05/iOS%E7%AD%BE%E5%90%8D%E6%9C%BA%E5%88%B6/</url>
-    <content><![CDATA[<h1 id="iOS签名机制"><a href="#iOS签名机制" class="headerlink" title="iOS签名机制"></a>iOS签名机制</h1><h2 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>在iOS开发中，配置证书总是一件繁琐的工作，网上的教程有很多，基本都是手把手的教操作，但是如果不了解为什么要配置这些东西，对配置流程就不会有深刻的印象。</p>
-<p>配置证书最大的作用就是保证安全性，安全性主要表现在以下的几个方面：</p>
-<p>1.保证苹果手机下载的App是从<strong>苹果官网认证</strong>的途径下载</p>
-<p>2.保证App在苹果官方注册过的设备上运行</p>
-<p>3.保证App在特定的设备中运行（开发需要）</p>
-<h3 id="技术支持"><a href="#技术支持" class="headerlink" title="技术支持"></a>技术支持</h3><p>苹果采用的是<strong>数字签名</strong>进行加密，它是基于<strong>非对称加密算法和摘要算法</strong>实现的，和对称加密算法不同的是**，**对称加密通过同一份密钥加密和解密数据，而非对称加密有两个密钥，分别是公钥和私钥，用公钥加密的数据，要用私钥才能解密；用私钥加密的数据，要用公钥才能解密。这里的非对称加密就是我们熟知的RSA，想要深入理解的童鞋可以自主了解。</p>
-<p>为了更好的理解非对称加密的好处，我举一个场景例子：A要发送邮件给B，这个过程中要确保在传输中邮件内容没有被篡改，也就是只有B可以查看邮件的内容；还要确保这个邮件是A发送过来的，不是其他人发送的。我们用非对称加密的方式来处理：首先存A和B各有一对公私钥，A持有他自己的私钥和B的公钥，B持有A的公钥和B的私钥，公钥一般是给别人的，私钥在自己手里。A先用B的公钥给邮件加密，这样这个邮件只能被B的私钥解开，保证在传输过程中不会被篡改；A用自己的私钥将邮件加密，B要用A的公钥将邮件解密，来确保这是A发送过来的。这就是双向验证。</p>
-<h2 id="基于iOS开发的签名机制"><a href="#基于iOS开发的签名机制" class="headerlink" title="基于iOS开发的签名机制"></a>基于iOS开发的签名机制</h2><h3 id="从App-Store安装App"><a href="#从App-Store安装App" class="headerlink" title="从App Store安装App"></a>从App Store安装App</h3><p>这个签名的方式相对简单，只需要验证App是从AppStore上下载的即可。苹果官方生成一对公私钥，在苹果设备上内置一个公钥，私钥由后台保管，我们上传App到AppStore时，苹果后台用私钥对App进行签名，设备在在App包后，用内置公钥验证签名。</p>
-<p>思考：每个设备和苹果后台都有对应的一对公私钥还是只有一对公私钥，每个设备的公钥都是一样的，如果是前者，给App用私钥加密的时候是什么时候？</p>
-<p><strong>结论：所有苹果设备上的公钥都是一样的。</strong></p>
-<h3 id="其他方式安装App"><a href="#其他方式安装App" class="headerlink" title="其他方式安装App"></a>其他方式安装App</h3><ul>
-<li>通过Xcode将App运行在设备上，调试用</li>
-<li>企业内部分发，可以直接安装企业证书签名后的App</li>
-<li>AD-Hoc相当于企业分发的限制版，限制安装设备数量</li>
-</ul>
-<p>以上几种场景就比较复杂了，我们需要确保这个App包的来源是苹果官方认证的，还要指定设备信息（不能随便的苹果设备都可以运行）。在了解这些场景的签名过程之前我们先思考一些问题：</p>
-<p>1.App包不能上传到App Store上进行私钥加密了，需要通过其他介质间接验证；</p>
-<p>2.iPhone上只有一个公钥可用，如何验证这么多信息；</p>
-<p>3.如何限制设备、权限等额外信息。</p>
-<p>我们需要除了App包以外的信息来进行验证，就是各种加密之后的文件，所以我们需要配置很多的证书。</p>
-<h3 id="加密流程"><a href="#加密流程" class="headerlink" title="加密流程"></a>加密流程</h3><p>1.在mac上生成一对公私钥，公钥M，私钥M，苹果后台和苹果设备有一对公私钥，公钥A，私钥A。</p>
-<p>2.将公钥M上传到苹果后台，用苹果后台的私钥A签名公钥M得到了公钥M的签名，代称hashM(私A)，hashM(私A)和公钥M组成的数据称为<strong>证书</strong>。（证书携带苹果官方认证信息，需要和App到达设备上）</p>
-<p>3.开发完成后，用私钥M对App进行签名，同时将证书一起打包进App中，安装到手机。</p>
-<p>4.安装时，iOS系统获得证书，用公钥A验证hashM(私A），得到的信息和证书中的公钥是否一致。</p>
-<p><strong>以上的流程可以完成验证App是否经过了苹果官方认可的需求，没有解决滥用的问题。<strong>这里的滥用问题包括任何App都可以用这个证书在任何设备上安装运行，这是不允许的。我们可以把这些限制信息如AppID、设备ID等和证书</strong>再用私钥A进行加密</strong>，在最后的iOS系统验证的时候就可以判断这些限制数据是否符合要求。可以理解为又进行了一次加密。得到的数据就是我们知道的<strong>Provisioning file</strong>，Provisioning file里面就包含了证书和以上提到的额外信息，以及所有信息的签名。</p>
-<p>在编译一个App后，用本地的的私钥M对这个App进行签名，同时把Provisioning file文件打包到App中，文件名为embeded.mobileprovision，把App安装到手机上。以上的过程就是加密的过程，看起来加密了很多层，让我们来梳理一下：</p>
-<p><img src="https://cdn.zcx.info/1553500434698-48c63da0-2fac-490f-9b24-a5944fb17ae8.png"></p>
-<h2 id="配置证书简要流程"><a href="#配置证书简要流程" class="headerlink" title="配置证书简要流程"></a>配置证书简要流程</h2><h3 id="请求根证书"><a href="#请求根证书" class="headerlink" title="请求根证书"></a>请求根证书</h3><p>在mac上生成一对公私钥，并将公钥上传到苹果后台，用苹果后台的私钥加密mac公钥，得到证书</p>
-<p>CSR生成一对公私钥，私钥始终在Mac OS的Keychain Access中，用于签名（CodeSign）对外发布的App，公钥一般随着证书（随Provisioning Profile，随App）散布出去，对App签名进行校验认证。用户要保护好本地Keychain中的private key。</p>
-<p>创建CSR文件：打开钥匙串-&gt;证书助理-&gt;从证书颁发机构请求证书。注：CRS文件是Cerificate Signing Request的英文缩写，即证书请求文件，<strong>CerificateSigningRequest就是本地公钥，.p12就是本地私钥，可以导入其他电脑，同时其他电脑也应该安装下载下来的证书。所以这一步团队开发人员很少操作。</strong></p>
-<h3 id="添加设备"><a href="#添加设备" class="headerlink" title="添加设备"></a>添加设备</h3><p>苹果严格限制了真机调试的设备，如果需要真机调试需要在<a href="https://developer.apple.com/account/resources/devices/list">开发者后台</a>添加测试机的UDID</p>
-<p><img src="https://cdn.zcx.info/202302211647247.png"></p>
-<h3 id="新增描述文件"><a href="#新增描述文件" class="headerlink" title="新增描述文件"></a>新增描述文件</h3><p>描述文件(Provisioning Profile)是一个记录了你这个App的功能和权限的证书。</p>
-<p>一般会用到以下三种：</p>
-<p><strong>develop:调试证书，包含调试信息，安装时需要证书已加入设备UDID或者越狱设备才能安装。</strong></p>
-<p><strong>distribution：正式证书，屏蔽了调试信息，发布到AppStore所用。</strong></p>
-<p><strong>ad-hoc：测试证书，需要给别人测试用到，允许用户从第三方下载应用，如蒲公英。</strong></p>
-<h2 id="刷新证书及描述文件"><a href="#刷新证书及描述文件" class="headerlink" title="刷新证书及描述文件"></a>刷新证书及描述文件</h2><p>一般在重新请求根证书之后需要更新所有的描述文件内的根证书配置。</p>
-<p>根证书和证书对应的私钥都需要有人进行维护(或者使用fastlane维护)，在团队新增成员、设备时需发放到对应的机器中的钥匙串内，否则无法进行构建和上传IPA。</p>
-<p>描述文件更新后需要在Xcode的User设置中找到开发者刷新一下Profile，或者到Profile的保存文件夹内清空重新下载，以避免描述文件更新不及时问题导致CI&#x2F;CD构建失败。</p>
-]]></content>
-      <categories>
-        <category>iOS</category>
-      </categories>
-      <tags>
-        <tag>学习笔记</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>iOS编译优化方案探索与实践-组件篇</title>
     <url>/2021/09/18/iOS%E7%BC%96%E8%AF%91%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%E6%8E%A2%E7%B4%A2%E4%B8%8E%E5%AE%9E%E8%B7%B5-%E7%BB%84%E4%BB%B6%E7%AF%87/</url>
     <content><![CDATA[<h1 id="iOS编译优化方案探索与实践-组件篇"><a href="#iOS编译优化方案探索与实践-组件篇" class="headerlink" title="iOS编译优化方案探索与实践-组件篇"></a>iOS编译优化方案探索与实践-组件篇</h1><h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><p>目前主流的项目构建方案中几乎都使用cocoapods进行组件库管理，不论是第三方开源库还是自研的私有库，都会生成.podspec文件使用cocoapods工具进行维护。</p>
@@ -1497,8 +1534,6 @@
 <p>这个流程没有问题，但是随着项目的的大量迭代和长时间维护，引入的仓库会越来越多。以我们的项目为例，项目迭代了3年左右，引入的第三方仓库达到了30+个。在我的mac上进行一次全量编译时间达到了500s，性能稍差的设备编译消耗的时间更长。</p>
 <p>针对组件库的编译时长的优化方案很简单，把cocoapods仓库中引入的需要编译的源码改成不需要编译的二进制库即可。</p>
 <p>当然一刀切的引入方式切换是不可取的，根据自身的实际情况，对一些基本不会进入调试的代码和一些稳定版本的常用的仓库进行二进制化较为合适。</p>
-<span id="more"></span>
-
 <p>针对以上想法有了一些cocoapods插件可以使用。</p>
 <h3 id="Cocoapods-Binary"><a href="#Cocoapods-Binary" class="headerlink" title="Cocoapods-Binary"></a>Cocoapods-Binary</h3><p>cocoapods 1.6.x版本的时候常用的一个仓库，大家可能都用过，其思路是在cocoapods进行install操作时通过将 dependencies 预编译成 binary 后缓存至本地，然后将原有的 Source Code link 到 binary 以几乎零成本的方式实现编译效率的提高。</p>
 <p>也就是说在pod install的过程中先进行预编译，预编译之后每次pod install都将编译完的二进制link到项目，这样就完成了源码到二进制的转化。</p>
@@ -1521,7 +1556,7 @@
 
 <p>坑点：cocoapods-imy-bin配置私有源时只支持ssh，因此要修改以前的https的源，对ssh操作不熟练的需要google出现的问题及解决方案。</p>
 <blockquote>
-<p><a href="mailto:&#x67;&#105;&#x74;&#x40;&#120;&#x78;&#x78;&#x2e;&#99;&#111;&#x6d;">git@xxx.com</a> ssh一直报错，之前的公钥有密码,通过ssh连接私有库的时候一直报错让输入密码，但是输入之后还是不行,报错无授权,重新生成rsa秘钥对之后尝试还是不行，报同样的错误。最后发现是git地址没有给对，从cocoapods file中拷贝出来的时候带了一个source字符串，所以ssh授权一直失败（地址都错了授权肯定失败啊）</p>
+<p><a href="mailto:&#103;&#105;&#116;&#x40;&#x78;&#120;&#x78;&#46;&#99;&#111;&#109;">git@xxx.com</a> ssh一直报错，之前的公钥有密码,通过ssh连接私有库的时候一直报错让输入密码，但是输入之后还是不行,报错无授权,重新生成rsa秘钥对之后尝试还是不行，报同样的错误。最后发现是git地址没有给对，从cocoapods file中拷贝出来的时候带了一个source字符串，所以ssh授权一直失败（地址都错了授权肯定失败啊）</p>
 </blockquote>
 <p>创建repo不能仅仅拉一个git仓库就行了，还得找一个已有的仓库进行.podspec文件push ，否则添加此源之后 执行pod repo update 会一直失败。</p>
 <blockquote>
@@ -1596,6 +1631,57 @@
       </tags>
   </entry>
   <entry>
+    <title>iOS签名机制</title>
+    <url>/2022/11/05/iOS%E7%AD%BE%E5%90%8D%E6%9C%BA%E5%88%B6/</url>
+    <content><![CDATA[<h1 id="iOS签名机制"><a href="#iOS签名机制" class="headerlink" title="iOS签名机制"></a>iOS签名机制</h1><h2 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>在iOS开发中，配置证书总是一件繁琐的工作，网上的教程有很多，基本都是手把手的教操作，但是如果不了解为什么要配置这些东西，对配置流程就不会有深刻的印象。</p>
+<p>配置证书最大的作用就是保证安全性，安全性主要表现在以下的几个方面：</p>
+<p>1.保证苹果手机下载的App是从<strong>苹果官网认证</strong>的途径下载</p>
+<p>2.保证App在苹果官方注册过的设备上运行</p>
+<p>3.保证App在特定的设备中运行（开发需要）</p>
+<h3 id="技术支持"><a href="#技术支持" class="headerlink" title="技术支持"></a>技术支持</h3><p>苹果采用的是<strong>数字签名</strong>进行加密，它是基于<strong>非对称加密算法和摘要算法</strong>实现的，和对称加密算法不同的是**，**对称加密通过同一份密钥加密和解密数据，而非对称加密有两个密钥，分别是公钥和私钥，用公钥加密的数据，要用私钥才能解密；用私钥加密的数据，要用公钥才能解密。这里的非对称加密就是我们熟知的RSA，想要深入理解的童鞋可以自主了解。</p>
+<p>为了更好的理解非对称加密的好处，我举一个场景例子：A要发送邮件给B，这个过程中要确保在传输中邮件内容没有被篡改，也就是只有B可以查看邮件的内容；还要确保这个邮件是A发送过来的，不是其他人发送的。我们用非对称加密的方式来处理：首先存A和B各有一对公私钥，A持有他自己的私钥和B的公钥，B持有A的公钥和B的私钥，公钥一般是给别人的，私钥在自己手里。A先用B的公钥给邮件加密，这样这个邮件只能被B的私钥解开，保证在传输过程中不会被篡改；A用自己的私钥将邮件加密，B要用A的公钥将邮件解密，来确保这是A发送过来的。这就是双向验证。</p>
+<h2 id="基于iOS开发的签名机制"><a href="#基于iOS开发的签名机制" class="headerlink" title="基于iOS开发的签名机制"></a>基于iOS开发的签名机制</h2><h3 id="从App-Store安装App"><a href="#从App-Store安装App" class="headerlink" title="从App Store安装App"></a>从App Store安装App</h3><p>这个签名的方式相对简单，只需要验证App是从AppStore上下载的即可。苹果官方生成一对公私钥，在苹果设备上内置一个公钥，私钥由后台保管，我们上传App到AppStore时，苹果后台用私钥对App进行签名，设备在在App包后，用内置公钥验证签名。</p>
+<p>思考：每个设备和苹果后台都有对应的一对公私钥还是只有一对公私钥，每个设备的公钥都是一样的，如果是前者，给App用私钥加密的时候是什么时候？</p>
+<p><strong>结论：所有苹果设备上的公钥都是一样的。</strong></p>
+<h3 id="其他方式安装App"><a href="#其他方式安装App" class="headerlink" title="其他方式安装App"></a>其他方式安装App</h3><ul>
+<li>通过Xcode将App运行在设备上，调试用</li>
+<li>企业内部分发，可以直接安装企业证书签名后的App</li>
+<li>AD-Hoc相当于企业分发的限制版，限制安装设备数量</li>
+</ul>
+<p>以上几种场景就比较复杂了，我们需要确保这个App包的来源是苹果官方认证的，还要指定设备信息（不能随便的苹果设备都可以运行）。在了解这些场景的签名过程之前我们先思考一些问题：</p>
+<p>1.App包不能上传到App Store上进行私钥加密了，需要通过其他介质间接验证；</p>
+<p>2.iPhone上只有一个公钥可用，如何验证这么多信息；</p>
+<p>3.如何限制设备、权限等额外信息。</p>
+<p>我们需要除了App包以外的信息来进行验证，就是各种加密之后的文件，所以我们需要配置很多的证书。</p>
+<h3 id="加密流程"><a href="#加密流程" class="headerlink" title="加密流程"></a>加密流程</h3><p>1.在mac上生成一对公私钥，公钥M，私钥M，苹果后台和苹果设备有一对公私钥，公钥A，私钥A。</p>
+<p>2.将公钥M上传到苹果后台，用苹果后台的私钥A签名公钥M得到了公钥M的签名，代称hashM(私A)，hashM(私A)和公钥M组成的数据称为<strong>证书</strong>。（证书携带苹果官方认证信息，需要和App到达设备上）</p>
+<p>3.开发完成后，用私钥M对App进行签名，同时将证书一起打包进App中，安装到手机。</p>
+<p>4.安装时，iOS系统获得证书，用公钥A验证hashM(私A），得到的信息和证书中的公钥是否一致。</p>
+<p><strong>以上的流程可以完成验证App是否经过了苹果官方认可的需求，没有解决滥用的问题。<strong>这里的滥用问题包括任何App都可以用这个证书在任何设备上安装运行，这是不允许的。我们可以把这些限制信息如AppID、设备ID等和证书</strong>再用私钥A进行加密</strong>，在最后的iOS系统验证的时候就可以判断这些限制数据是否符合要求。可以理解为又进行了一次加密。得到的数据就是我们知道的<strong>Provisioning file</strong>，Provisioning file里面就包含了证书和以上提到的额外信息，以及所有信息的签名。</p>
+<p>在编译一个App后，用本地的的私钥M对这个App进行签名，同时把Provisioning file文件打包到App中，文件名为embeded.mobileprovision，把App安装到手机上。以上的过程就是加密的过程，看起来加密了很多层，让我们来梳理一下：</p>
+<p><img src="https://cdn.zcx.info/1553500434698-48c63da0-2fac-490f-9b24-a5944fb17ae8.png"></p>
+<h2 id="配置证书简要流程"><a href="#配置证书简要流程" class="headerlink" title="配置证书简要流程"></a>配置证书简要流程</h2><h3 id="请求根证书"><a href="#请求根证书" class="headerlink" title="请求根证书"></a>请求根证书</h3><p>在mac上生成一对公私钥，并将公钥上传到苹果后台，用苹果后台的私钥加密mac公钥，得到证书</p>
+<p>CSR生成一对公私钥，私钥始终在Mac OS的Keychain Access中，用于签名（CodeSign）对外发布的App，公钥一般随着证书（随Provisioning Profile，随App）散布出去，对App签名进行校验认证。用户要保护好本地Keychain中的private key。</p>
+<p>创建CSR文件：打开钥匙串-&gt;证书助理-&gt;从证书颁发机构请求证书。注：CRS文件是Cerificate Signing Request的英文缩写，即证书请求文件，<strong>CerificateSigningRequest就是本地公钥，.p12就是本地私钥，可以导入其他电脑，同时其他电脑也应该安装下载下来的证书。所以这一步团队开发人员很少操作。</strong></p>
+<h3 id="添加设备"><a href="#添加设备" class="headerlink" title="添加设备"></a>添加设备</h3><p>苹果严格限制了真机调试的设备，如果需要真机调试需要在<a href="https://developer.apple.com/account/resources/devices/list">开发者后台</a>添加测试机的UDID</p>
+<p><img src="https://cdn.zcx.info/202302211647247.png"></p>
+<h3 id="新增描述文件"><a href="#新增描述文件" class="headerlink" title="新增描述文件"></a>新增描述文件</h3><p>描述文件(Provisioning Profile)是一个记录了你这个App的功能和权限的证书。</p>
+<p>一般会用到以下三种：</p>
+<p><strong>develop:调试证书，包含调试信息，安装时需要证书已加入设备UDID或者越狱设备才能安装。</strong></p>
+<p><strong>distribution：正式证书，屏蔽了调试信息，发布到AppStore所用。</strong></p>
+<p><strong>ad-hoc：测试证书，需要给别人测试用到，允许用户从第三方下载应用，如蒲公英。</strong></p>
+<h2 id="刷新证书及描述文件"><a href="#刷新证书及描述文件" class="headerlink" title="刷新证书及描述文件"></a>刷新证书及描述文件</h2><p>一般在重新请求根证书之后需要更新所有的描述文件内的根证书配置。</p>
+<p>根证书和证书对应的私钥都需要有人进行维护(或者使用fastlane维护)，在团队新增成员、设备时需发放到对应的机器中的钥匙串内，否则无法进行构建和上传IPA。</p>
+<p>描述文件更新后需要在Xcode的User设置中找到开发者刷新一下Profile，或者到Profile的保存文件夹内清空重新下载，以避免描述文件更新不及时问题导致CI&#x2F;CD构建失败。</p>
+]]></content>
+      <categories>
+        <category>iOS</category>
+      </categories>
+      <tags>
+        <tag>学习笔记</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>module importing failed invalid pathname 问题解决</title>
     <url>/2021/09/09/module-importing%20failed-invalid%20pathname/</url>
     <content><![CDATA[<p>最近Xcode编译完成后在命令行框里第一行总会报一个错误：</p>
@@ -1603,7 +1689,6 @@
 <p>error: module importing failed: invalid pathname</p>
 </blockquote>
 <p>不论是<code>clean</code>还是删除<code>support文件</code>还是<code>重启Xcode</code>都无法解决这个问题。</p>
-<span id="more"></span>
 <p>于是去google了一番：</p>
 <p><a href="https://stackoverflow.com/questions/59800936/Xcode-11-shows-a-missing-module-error-when-compiling-python-3-8">把target的scheme中的debug executable的选项取消掉就不报这个错了</a></p>
 <p><img src="https://raw.githubusercontent.com/zcx4u/images/master/Hexo/Xcode/008i3skNly1guaiuljmlhj60qi0gmwfh02.jpg" alt="关闭调试器"></p>
@@ -1638,8 +1723,6 @@
 <p><code>Runloop</code> 和 <code>线程</code>是密不可分的，可以说Runloop是为线程而生的。线程和runloop是<code>一一对应的</code>，我们只可以在当前线程内操控当前线程对应的Runloop。</p>
 <p>Runloop是懒加载的在线程<code>第一次</code>获取他的时候创建，在线程<code>结束</code>的时候销毁。</p>
 <p>主线程的runloop是默认启动的，因为主线程需要一直监听事件。子线程的Runloop默认是不启动的，需要手动开启循环。</p>
-<span id="more"></span>
-
 <h3 id="Runloop-的作用？"><a href="#Runloop-的作用？" class="headerlink" title="Runloop 的作用？"></a>Runloop 的作用？</h3><p>保持程序的运行，主线程的runloop使得APP不会退出</p>
 <p>响应并处理APP中的事件，用户交互、定时任务等</p>
 <p>节省cpu资源，按需运行，提升程序性能</p>
@@ -1933,303 +2016,9 @@
       </tags>
   </entry>
   <entry>
-    <title>iOS 面试高频问题总结（2025 最新版）</title>
-    <url>/2024/01/01/%E9%AB%98%E9%A2%91%E9%97%AE%E9%A2%98/</url>
-    <content><![CDATA[<hr>
-<p>本文总结了iOS开发面试中的高频问题，涵盖语言基础、框架应用、性能优化等多个方面。</p>
-<span id="more"></span>
-
-<hr>
-<h2 id="🎯-语言基础（Swift）"><a href="#🎯-语言基础（Swift）" class="headerlink" title="🎯 语言基础（Swift）"></a>🎯 语言基础（Swift）</h2><ol>
-<li><p><strong>值类型 vs 引用类型</strong></p>
-<ul>
-<li>结构体&#x2F;枚举与类的本质区别？</li>
-<li>如何选择 <code>struct</code> 和 <code>class</code> 的使用场景？</li>
-</ul>
-</li>
-<li><p><strong>协议与泛型</strong></p>
-<ul>
-<li><code>associatedtype</code> 的作用是什么？</li>
-<li>如何实现类型擦除（Type Erasure）？</li>
-</ul>
-</li>
-<li><p><strong>内存管理</strong></p>
-<ul>
-<li>解释 <code>weak</code>、<code>unowned</code>、<code>strong</code> 的区别</li>
-<li>如何检测和解决循环引用问题？</li>
-</ul>
-</li>
-<li><p><strong>Swift Concurrency</strong></p>
-<ul>
-<li><code>async/await</code> 与 Combine 框架的适用场景对比</li>
-<li><code>Sendable</code> 协议的作用与实现要求</li>
-</ul>
-</li>
-</ol>
-<hr>
-<h2 id="🖥️-iOS-框架"><a href="#🖥️-iOS-框架" class="headerlink" title="🖥️ iOS 框架"></a>🖥️ iOS 框架</h2><h3 id="UIKit"><a href="#UIKit" class="headerlink" title="UIKit"></a>UIKit</h3><ol>
-<li><p><strong>生命周期</strong></p>
-<ul>
-<li><code>viewDidLoad</code> 和 <code>viewWillAppear</code> 的区别</li>
-<li>如何正确管理视图控制器的内存？</li>
-</ul>
-</li>
-<li><p><strong>布局与渲染</strong></p>
-<ul>
-<li>Auto Layout 性能优化技巧</li>
-<li>解释 <code>drawRect</code> 与 <code>layoutSubviews</code> 的调用时机</li>
-</ul>
-</li>
-<li><p><strong>响应链与手势</strong></p>
-<ul>
-<li>描述 iOS 事件传递机制（Hit-Testing）</li>
-<li>如何实现自定义手势识别器？</li>
-</ul>
-</li>
-</ol>
-<h3 id="SwiftUI"><a href="#SwiftUI" class="headerlink" title="SwiftUI"></a>SwiftUI</h3><ol>
-<li><p><strong>状态管理</strong></p>
-<ul>
-<li><code>@State</code>、<code>@Binding</code>、<code>@ObservedObject</code> 的区别</li>
-<li>如何实现跨视图状态共享？</li>
-</ul>
-</li>
-<li><p><strong>性能优化</strong></p>
-<ul>
-<li><code>LazyVStack</code> 与 <code>VStack</code> 的性能差异</li>
-<li>如何避免 SwiftUI 视图的无效重绘？</li>
-</ul>
-</li>
-</ol>
-<hr>
-<h2 id="💡-设计模式与架构"><a href="#💡-设计模式与架构" class="headerlink" title="💡 设计模式与架构"></a>💡 设计模式与架构</h2><ol>
-<li><p><strong>MVVM 实现</strong></p>
-<ul>
-<li>如何设计双向数据绑定（结合 Combine&#x2F;Swift Concurrency）？</li>
-<li>ViewModel 与 Service 层的职责划分</li>
-</ul>
-</li>
-<li><p><strong>依赖注入</strong></p>
-<ul>
-<li>手动依赖注入 vs 框架（如 Swinject）的优劣</li>
-<li>如何在单元测试中应用 DI？</li>
-</ul>
-</li>
-<li><p><strong>模块化设计</strong></p>
-<ul>
-<li>如何解耦巨型单体工程？</li>
-<li>动态化方案（二进制化&#x2F;插件化）的实现思路</li>
-</ul>
-</li>
-</ol>
-<hr>
-<h2 id="⚙️-性能优化"><a href="#⚙️-性能优化" class="headerlink" title="⚙️ 性能优化"></a>⚙️ 性能优化</h2><ol>
-<li><p><strong>启动优化</strong></p>
-<ul>
-<li>冷启动阶段各进程的加载顺序</li>
-<li>如何减少动态库加载时间？</li>
-</ul>
-</li>
-<li><p><strong>内存优化</strong></p>
-<ul>
-<li>使用 Instruments 定位内存泄漏的步骤</li>
-<li><code>NSCache</code> 与 <code>URLCache</code> 的最佳实践</li>
-</ul>
-</li>
-<li><p><strong>渲染性能</strong></p>
-<ul>
-<li>如何检测和解决掉帧问题？</li>
-<li>离屏渲染的常见场景与优化方案</li>
-</ul>
-</li>
-</ol>
-<hr>
-<h2 id="🌐-网络与存储"><a href="#🌐-网络与存储" class="headerlink" title="🌐 网络与存储"></a>🌐 网络与存储</h2><ol>
-<li><p><strong>HTTP&#x2F;2 与 QUIC</strong></p>
-<ul>
-<li>对比 HTTP&#x2F;1.1 的核心改进点</li>
-<li>iOS 如何支持 QUIC 协议？</li>
-</ul>
-</li>
-<li><p><strong>数据持久化</strong></p>
-<ul>
-<li>Core Data 与 SwiftData 的架构差异</li>
-<li>多线程环境下 Realm 的使用注意事项</li>
-</ul>
-</li>
-<li><p><strong>安全机制</strong></p>
-<ul>
-<li>如何防止中间人攻击（MITM）？</li>
-<li>Keychain 数据存储的加密原理</li>
-</ul>
-</li>
-</ol>
-<hr>
-<h2 id="🔄-多线程与并发"><a href="#🔄-多线程与并发" class="headerlink" title="🔄 多线程与并发"></a>🔄 多线程与并发</h2><ol>
-<li><p><strong>GCD 高级用法</strong></p>
-<ul>
-<li><code>dispatch_barrier_async</code> 的应用场景</li>
-<li>如何创建可取消的 DispatchWorkItem？</li>
-</ul>
-</li>
-<li><p><strong>OperationQueue</strong></p>
-<ul>
-<li>如何实现任务依赖与优先级控制？</li>
-<li>对比 GCD 的优劣</li>
-</ul>
-</li>
-<li><p><strong>Actor 模型</strong></p>
-<ul>
-<li>Swift Actor 如何保证线程安全？</li>
-<li><code>nonisolated</code> 关键字的用途</li>
-</ul>
-</li>
-</ol>
-<hr>
-<h2 id="🧪-测试与调试"><a href="#🧪-测试与调试" class="headerlink" title="🧪 测试与调试"></a>🧪 测试与调试</h2><ol>
-<li><p><strong>单元测试</strong></p>
-<ul>
-<li>如何对异步代码进行测试？</li>
-<li>依赖注入在测试中的应用</li>
-</ul>
-</li>
-<li><p><strong>UI 自动化</strong></p>
-<ul>
-<li>XCUITest 的核心组件与使用限制</li>
-<li>如何实现跨语言自动化测试（Appium）</li>
-</ul>
-</li>
-<li><p><strong>Crash 分析</strong></p>
-<ul>
-<li>符号化崩溃日志的完整流程</li>
-<li>如何捕获并上报野指针异常？</li>
-</ul>
-</li>
-</ol>
-<hr>
-<h2 id="🧠-系统设计题"><a href="#🧠-系统设计题" class="headerlink" title="🧠 系统设计题"></a>🧠 系统设计题</h2><ol>
-<li><p><strong>架构设计</strong></p>
-<ul>
-<li>设计一个支持 LRU 缓存的图片加载库</li>
-<li>实现一个支持断点续传的下载管理器</li>
-</ul>
-</li>
-<li><p><strong>场景方案</strong></p>
-<ul>
-<li>如何保证弱网环境下消息的可靠传输？</li>
-<li>设计一个即时通讯应用的消息同步机制</li>
-</ul>
-</li>
-</ol>
-<hr>
-<h2 id="💻-算法与数据结构"><a href="#💻-算法与数据结构" class="headerlink" title="💻 算法与数据结构"></a>💻 算法与数据结构</h2><ol>
-<li><p><strong>高频算法</strong></p>
-<ul>
-<li>链表反转（迭代&#x2F;递归）</li>
-<li>二叉树层序遍历</li>
-<li>最长无重复子串</li>
-</ul>
-</li>
-<li><p><strong>优化思维</strong></p>
-<ul>
-<li>两数之和的多种解法对比（哈希表&#x2F;双指针）</li>
-<li>动态规划解决背包问题</li>
-</ul>
-</li>
-</ol>
-<hr>
-<blockquote>
-<p><strong>提示</strong>：每个问题建议延伸思考：</p>
-<ul>
-<li>该技术点的底层原理（如 Runtime 机制）</li>
-<li>实际项目中的实践案例</li>
-<li>不同方案的优缺点对比</li>
-</ul>
-</blockquote>
-<p><strong>注</strong>：结合最新 iOS 19 特性（如 Vision Pro 开发）准备差异化答案 🚀</p>
-]]></content>
-      <categories>
-        <category>技术</category>
-      </categories>
-      <tags>
-        <tag>iOS</tag>
-        <tag>知识点</tag>
-        <tag>面试</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>常见算法考题列表（2025 年整理）</title>
-    <url>/2024/01/01/%E7%AE%97%E6%B3%95/</url>
-    <content><![CDATA[<hr>
-<p>本文整理了常见的算法面试题目，包括数据结构、基础算法和高级算法等多个方面的典型题目。</p>
-<span id="more"></span>
-
-<hr>
-<h2 id="📚-数据结构与基础算法"><a href="#📚-数据结构与基础算法" class="headerlink" title="📚 数据结构与基础算法"></a>📚 <strong>数据结构与基础算法</strong></h2><h3 id="1-数组与链表"><a href="#1-数组与链表" class="headerlink" title="1. 数组与链表"></a>1. <strong>数组与链表</strong></h3><ul>
-<li><strong>两数之和</strong>题目：在数组中找出和为 <code>target</code> 的两个元素的下标。考察点：哈希表、空间换时间优化:cite[3]:cite[7]</li>
-<li><strong>合并两个有序链表</strong>题目：将两个升序链表合并为一个新链表。考察点：指针操作、递归&#x2F;迭代实现:cite[3]:cite[7]</li>
-<li><strong>反转链表</strong><br>题目：将单链表反转（迭代或递归实现）。<br>考察点：指针操作、递归思维:cite[2]:cite[7]</li>
-</ul>
-<h3 id="2-字符串"><a href="#2-字符串" class="headerlink" title="2. 字符串"></a>2. <strong>字符串</strong></h3><ul>
-<li><strong>最长回文子串</strong>题目：找到字符串中的最长回文子串。考察点：中心扩散法、动态规划:cite[2]:cite[7]</li>
-<li><strong>第一个不重复的字符</strong>题目：找到字符串中第一个只出现一次的字符的下标。考察点：哈希表统计频率:cite[7]</li>
-<li><strong>版本号排序</strong><br>题目：将版本号数组按从大到小排序（如 <code>[&#39;10.2.1&#39;, &#39;0.402.1&#39;]</code>）。<br>考察点：字符串分割、多级比较:cite[7]</li>
-</ul>
-<h3 id="3-树与图"><a href="#3-树与图" class="headerlink" title="3. 树与图"></a>3. <strong>树与图</strong></h3><ul>
-<li><strong>对称二叉树</strong>题目：判断二叉树是否镜像对称。考察点：递归遍历、层序遍历:cite[3]:cite[7]</li>
-<li><strong>二叉树的中序遍历</strong>题目：实现非递归中序遍历。考察点：栈的应用、Morris 遍历:cite[2]:cite[7]</li>
-<li><strong>克隆图</strong><br>题目：深度拷贝无向连通图。<br>考察点：DFS&#x2F;BFS、哈希表记录已访问节点:cite[3]</li>
-</ul>
-<hr>
-<h2 id="⚙️-高级算法与优化"><a href="#⚙️-高级算法与优化" class="headerlink" title="⚙️ 高级算法与优化"></a>⚙️ <strong>高级算法与优化</strong></h2><h3 id="1-排序与搜索"><a href="#1-排序与搜索" class="headerlink" title="1. 排序与搜索"></a>1. <strong>排序与搜索</strong></h3><ul>
-<li><strong>快速排序</strong>题目：实现快速排序并分析时间复杂度。考察点：分治思想、基准选择优化:cite[1]:cite[7]</li>
-<li><strong>二分查找</strong>题目：在有序数组中查找目标值的位置。考察点：边界条件处理、循环不变量:cite[1]:cite[7]</li>
-<li><strong>第 K 个最大元素</strong><br>题目：在未排序数组中找到第 K 大的元素。<br>考察点：快速选择算法、堆排序:cite[3]</li>
-</ul>
-<h3 id="2-动态规划"><a href="#2-动态规划" class="headerlink" title="2. 动态规划"></a>2. <strong>动态规划</strong></h3><ul>
-<li><strong>最长递增子序列</strong>题目：求数组中最长严格递增子序列的长度。考察点：状态转移方程、二分优化:cite[3]:cite[7]</li>
-<li><strong>背包问题</strong>题目：0-1 背包问题的动态规划解法。考察点：二维 DP 表、空间压缩:cite[4]:cite[8]</li>
-<li><strong>编辑距离</strong><br>题目：计算将字符串 A 转换为 B 的最小操作次数（增&#x2F;删&#x2F;改）。<br>考察点：二维 DP、状态转移方程:cite[7]</li>
-</ul>
-<h3 id="3-贪心与回溯"><a href="#3-贪心与回溯" class="headerlink" title="3. 贪心与回溯"></a>3. <strong>贪心与回溯</strong></h3><ul>
-<li><strong>跳跃游戏</strong>题目：判断能否从数组起点跳到终点（每步最大跳跃长度为 <code>nums[i]</code>）。考察点：贪心策略、最大覆盖范围:cite[7]</li>
-<li><strong>全排列</strong>题目：生成数组的所有排列组合。考察点：回溯算法、剪枝优化:cite[7]</li>
-<li><strong>组合总和</strong><br>题目：找出数组中所有和为 <code>target</code> 的组合（元素可重复使用）。<br>考察点：回溯、去重技巧:cite[7]</li>
-</ul>
-<hr>
-<h2 id="🧩-系统设计与场景题"><a href="#🧩-系统设计与场景题" class="headerlink" title="🧩 系统设计与场景题"></a>🧩 <strong>系统设计与场景题</strong></h2><h3 id="1-数据结构设计"><a href="#1-数据结构设计" class="headerlink" title="1. 数据结构设计"></a>1. <strong>数据结构设计</strong></h3><ul>
-<li><strong>LRU 缓存</strong>题目：设计基于 LRU 策略的缓存，支持 <code>get</code> 和 <code>put</code> 操作。考察点：哈希表 + 双向链表:cite[2]:cite[7]</li>
-<li><strong>最小栈</strong><br>题目：实现一个支持 <code>push</code>、<code>pop</code>、<code>top</code> 及 <code>getMin</code> 的栈。<br>考察点：辅助栈或差值存储:cite[3]</li>
-</ul>
-<h3 id="2-场景问题"><a href="#2-场景问题" class="headerlink" title="2. 场景问题"></a>2. <strong>场景问题</strong></h3><ul>
-<li><strong>会议室安排</strong>题目：给定多个会议时间区间，判断能否全部安排。考察点：区间排序、重叠检测:cite[7]</li>
-<li><strong>接雨水</strong><br>题目：计算柱子高度数组能接多少雨水。<br>考察点：双指针、动态规划或单调栈:cite[7]</li>
-</ul>
-<hr>
-<h2 id="📈-复杂度与优化"><a href="#📈-复杂度与优化" class="headerlink" title="📈 复杂度与优化"></a>📈 <strong>复杂度与优化</strong></h2><ul>
-<li><strong>时间复杂度分析</strong>常见阶：O(1)、O(n)、O(n²)、O(nlogn) 等，需结合代码解释:cite[4]:cite[8]</li>
-<li><strong>空间复杂度优化</strong><br>例如：原地排序、滚动数组、位运算压缩状态:cite[4]:cite[7]</li>
-</ul>
-<hr>
-<blockquote>
-<p><strong>提示</strong>：以上题目覆盖了算法面试 80% 的高频考点，建议结合 LeetCode 或《剑指 Offer》进行针对性练习。<br><strong>完整题目与代码实现</strong>可参考：<a href="https://blog.csdn.net/Ed7zgeE9X/article/details/132288312">CSDN 算法题整理</a>:cite[7] | <a href="https://leetcode.com/">力扣题库</a></p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>技术</category>
-      </categories>
-      <tags>
-        <tag>面试</tag>
-        <tag>算法</tag>
-        <tag>数据结构</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>iOS 开发者技术路线图（2025 年）</title>
     <url>/2024/01/01/%E6%8A%80%E6%9C%AF%E8%B7%AF%E7%BA%BF%E5%9B%BE/</url>
     <content><![CDATA[<p>本文整理了iOS开发者所需掌握的核心技能和学习路径，帮助开发者规划职业发展。</p>
-<span id="more"></span>
-
 <hr>
 <h2 id="🌟-基础能力"><a href="#🌟-基础能力" class="headerlink" title="🌟 基础能力"></a>🌟 基础能力</h2><h3 id="1-编程语言"><a href="#1-编程语言" class="headerlink" title="1. 编程语言"></a>1. 编程语言</h3><ul>
 <li><strong>Swift</strong><ul>
@@ -2475,6 +2264,294 @@
         <tag>iOS</tag>
         <tag>职业发展</tag>
         <tag>学习路径</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>常见算法考题列表（2025 年整理）</title>
+    <url>/2024/01/01/%E7%AE%97%E6%B3%95/</url>
+    <content><![CDATA[<hr>
+<p>本文整理了常见的算法面试题目，包括数据结构、基础算法和高级算法等多个方面的典型题目。</p>
+<hr>
+<h2 id="📚-数据结构与基础算法"><a href="#📚-数据结构与基础算法" class="headerlink" title="📚 数据结构与基础算法"></a>📚 <strong>数据结构与基础算法</strong></h2><h3 id="1-数组与链表"><a href="#1-数组与链表" class="headerlink" title="1. 数组与链表"></a>1. <strong>数组与链表</strong></h3><ul>
+<li><strong>两数之和</strong>题目：在数组中找出和为 <code>target</code> 的两个元素的下标。考察点：哈希表、空间换时间优化:cite[3]:cite[7]</li>
+<li><strong>合并两个有序链表</strong>题目：将两个升序链表合并为一个新链表。考察点：指针操作、递归&#x2F;迭代实现:cite[3]:cite[7]</li>
+<li><strong>反转链表</strong><br>题目：将单链表反转（迭代或递归实现）。<br>考察点：指针操作、递归思维:cite[2]:cite[7]</li>
+</ul>
+<h3 id="2-字符串"><a href="#2-字符串" class="headerlink" title="2. 字符串"></a>2. <strong>字符串</strong></h3><ul>
+<li><strong>最长回文子串</strong>题目：找到字符串中的最长回文子串。考察点：中心扩散法、动态规划:cite[2]:cite[7]</li>
+<li><strong>第一个不重复的字符</strong>题目：找到字符串中第一个只出现一次的字符的下标。考察点：哈希表统计频率:cite[7]</li>
+<li><strong>版本号排序</strong><br>题目：将版本号数组按从大到小排序（如 <code>[&#39;10.2.1&#39;, &#39;0.402.1&#39;]</code>）。<br>考察点：字符串分割、多级比较:cite[7]</li>
+</ul>
+<h3 id="3-树与图"><a href="#3-树与图" class="headerlink" title="3. 树与图"></a>3. <strong>树与图</strong></h3><ul>
+<li><strong>对称二叉树</strong>题目：判断二叉树是否镜像对称。考察点：递归遍历、层序遍历:cite[3]:cite[7]</li>
+<li><strong>二叉树的中序遍历</strong>题目：实现非递归中序遍历。考察点：栈的应用、Morris 遍历:cite[2]:cite[7]</li>
+<li><strong>克隆图</strong><br>题目：深度拷贝无向连通图。<br>考察点：DFS&#x2F;BFS、哈希表记录已访问节点:cite[3]</li>
+</ul>
+<hr>
+<h2 id="⚙️-高级算法与优化"><a href="#⚙️-高级算法与优化" class="headerlink" title="⚙️ 高级算法与优化"></a>⚙️ <strong>高级算法与优化</strong></h2><h3 id="1-排序与搜索"><a href="#1-排序与搜索" class="headerlink" title="1. 排序与搜索"></a>1. <strong>排序与搜索</strong></h3><ul>
+<li><strong>快速排序</strong>题目：实现快速排序并分析时间复杂度。考察点：分治思想、基准选择优化:cite[1]:cite[7]</li>
+<li><strong>二分查找</strong>题目：在有序数组中查找目标值的位置。考察点：边界条件处理、循环不变量:cite[1]:cite[7]</li>
+<li><strong>第 K 个最大元素</strong><br>题目：在未排序数组中找到第 K 大的元素。<br>考察点：快速选择算法、堆排序:cite[3]</li>
+</ul>
+<h3 id="2-动态规划"><a href="#2-动态规划" class="headerlink" title="2. 动态规划"></a>2. <strong>动态规划</strong></h3><ul>
+<li><strong>最长递增子序列</strong>题目：求数组中最长严格递增子序列的长度。考察点：状态转移方程、二分优化:cite[3]:cite[7]</li>
+<li><strong>背包问题</strong>题目：0-1 背包问题的动态规划解法。考察点：二维 DP 表、空间压缩:cite[4]:cite[8]</li>
+<li><strong>编辑距离</strong><br>题目：计算将字符串 A 转换为 B 的最小操作次数（增&#x2F;删&#x2F;改）。<br>考察点：二维 DP、状态转移方程:cite[7]</li>
+</ul>
+<h3 id="3-贪心与回溯"><a href="#3-贪心与回溯" class="headerlink" title="3. 贪心与回溯"></a>3. <strong>贪心与回溯</strong></h3><ul>
+<li><strong>跳跃游戏</strong>题目：判断能否从数组起点跳到终点（每步最大跳跃长度为 <code>nums[i]</code>）。考察点：贪心策略、最大覆盖范围:cite[7]</li>
+<li><strong>全排列</strong>题目：生成数组的所有排列组合。考察点：回溯算法、剪枝优化:cite[7]</li>
+<li><strong>组合总和</strong><br>题目：找出数组中所有和为 <code>target</code> 的组合（元素可重复使用）。<br>考察点：回溯、去重技巧:cite[7]</li>
+</ul>
+<hr>
+<h2 id="🧩-系统设计与场景题"><a href="#🧩-系统设计与场景题" class="headerlink" title="🧩 系统设计与场景题"></a>🧩 <strong>系统设计与场景题</strong></h2><h3 id="1-数据结构设计"><a href="#1-数据结构设计" class="headerlink" title="1. 数据结构设计"></a>1. <strong>数据结构设计</strong></h3><ul>
+<li><strong>LRU 缓存</strong>题目：设计基于 LRU 策略的缓存，支持 <code>get</code> 和 <code>put</code> 操作。考察点：哈希表 + 双向链表:cite[2]:cite[7]</li>
+<li><strong>最小栈</strong><br>题目：实现一个支持 <code>push</code>、<code>pop</code>、<code>top</code> 及 <code>getMin</code> 的栈。<br>考察点：辅助栈或差值存储:cite[3]</li>
+</ul>
+<h3 id="2-场景问题"><a href="#2-场景问题" class="headerlink" title="2. 场景问题"></a>2. <strong>场景问题</strong></h3><ul>
+<li><strong>会议室安排</strong>题目：给定多个会议时间区间，判断能否全部安排。考察点：区间排序、重叠检测:cite[7]</li>
+<li><strong>接雨水</strong><br>题目：计算柱子高度数组能接多少雨水。<br>考察点：双指针、动态规划或单调栈:cite[7]</li>
+</ul>
+<hr>
+<h2 id="📈-复杂度与优化"><a href="#📈-复杂度与优化" class="headerlink" title="📈 复杂度与优化"></a>📈 <strong>复杂度与优化</strong></h2><ul>
+<li><strong>时间复杂度分析</strong>常见阶：O(1)、O(n)、O(n²)、O(nlogn) 等，需结合代码解释:cite[4]:cite[8]</li>
+<li><strong>空间复杂度优化</strong><br>例如：原地排序、滚动数组、位运算压缩状态:cite[4]:cite[7]</li>
+</ul>
+<hr>
+<blockquote>
+<p><strong>提示</strong>：以上题目覆盖了算法面试 80% 的高频考点，建议结合 LeetCode 或《剑指 Offer》进行针对性练习。<br><strong>完整题目与代码实现</strong>可参考：<a href="https://blog.csdn.net/Ed7zgeE9X/article/details/132288312">CSDN 算法题整理</a>:cite[7] | <a href="https://leetcode.com/">力扣题库</a></p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>算法</tag>
+        <tag>面试</tag>
+        <tag>数据结构</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>iOS 面试高频问题总结（2025 最新版）</title>
+    <url>/2024/01/01/%E9%AB%98%E9%A2%91%E9%97%AE%E9%A2%98/</url>
+    <content><![CDATA[<hr>
+<p>本文总结了iOS开发面试中的高频问题，涵盖语言基础、框架应用、性能优化等多个方面。</p>
+<hr>
+<h2 id="🎯-语言基础（Swift）"><a href="#🎯-语言基础（Swift）" class="headerlink" title="🎯 语言基础（Swift）"></a>🎯 语言基础（Swift）</h2><ol>
+<li><p><strong>值类型 vs 引用类型</strong></p>
+<ul>
+<li>结构体&#x2F;枚举与类的本质区别？</li>
+<li>如何选择 <code>struct</code> 和 <code>class</code> 的使用场景？</li>
+</ul>
+</li>
+<li><p><strong>协议与泛型</strong></p>
+<ul>
+<li><code>associatedtype</code> 的作用是什么？</li>
+<li>如何实现类型擦除（Type Erasure）？</li>
+</ul>
+</li>
+<li><p><strong>内存管理</strong></p>
+<ul>
+<li>解释 <code>weak</code>、<code>unowned</code>、<code>strong</code> 的区别</li>
+<li>如何检测和解决循环引用问题？</li>
+</ul>
+</li>
+<li><p><strong>Swift Concurrency</strong></p>
+<ul>
+<li><code>async/await</code> 与 Combine 框架的适用场景对比</li>
+<li><code>Sendable</code> 协议的作用与实现要求</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="🖥️-iOS-框架"><a href="#🖥️-iOS-框架" class="headerlink" title="🖥️ iOS 框架"></a>🖥️ iOS 框架</h2><h3 id="UIKit"><a href="#UIKit" class="headerlink" title="UIKit"></a>UIKit</h3><ol>
+<li><p><strong>生命周期</strong></p>
+<ul>
+<li><code>viewDidLoad</code> 和 <code>viewWillAppear</code> 的区别</li>
+<li>如何正确管理视图控制器的内存？</li>
+</ul>
+</li>
+<li><p><strong>布局与渲染</strong></p>
+<ul>
+<li>Auto Layout 性能优化技巧</li>
+<li>解释 <code>drawRect</code> 与 <code>layoutSubviews</code> 的调用时机</li>
+</ul>
+</li>
+<li><p><strong>响应链与手势</strong></p>
+<ul>
+<li>描述 iOS 事件传递机制（Hit-Testing）</li>
+<li>如何实现自定义手势识别器？</li>
+</ul>
+</li>
+</ol>
+<h3 id="SwiftUI"><a href="#SwiftUI" class="headerlink" title="SwiftUI"></a>SwiftUI</h3><ol>
+<li><p><strong>状态管理</strong></p>
+<ul>
+<li><code>@State</code>、<code>@Binding</code>、<code>@ObservedObject</code> 的区别</li>
+<li>如何实现跨视图状态共享？</li>
+</ul>
+</li>
+<li><p><strong>性能优化</strong></p>
+<ul>
+<li><code>LazyVStack</code> 与 <code>VStack</code> 的性能差异</li>
+<li>如何避免 SwiftUI 视图的无效重绘？</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="💡-设计模式与架构"><a href="#💡-设计模式与架构" class="headerlink" title="💡 设计模式与架构"></a>💡 设计模式与架构</h2><ol>
+<li><p><strong>MVVM 实现</strong></p>
+<ul>
+<li>如何设计双向数据绑定（结合 Combine&#x2F;Swift Concurrency）？</li>
+<li>ViewModel 与 Service 层的职责划分</li>
+</ul>
+</li>
+<li><p><strong>依赖注入</strong></p>
+<ul>
+<li>手动依赖注入 vs 框架（如 Swinject）的优劣</li>
+<li>如何在单元测试中应用 DI？</li>
+</ul>
+</li>
+<li><p><strong>模块化设计</strong></p>
+<ul>
+<li>如何解耦巨型单体工程？</li>
+<li>动态化方案（二进制化&#x2F;插件化）的实现思路</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="⚙️-性能优化"><a href="#⚙️-性能优化" class="headerlink" title="⚙️ 性能优化"></a>⚙️ 性能优化</h2><ol>
+<li><p><strong>启动优化</strong></p>
+<ul>
+<li>冷启动阶段各进程的加载顺序</li>
+<li>如何减少动态库加载时间？</li>
+</ul>
+</li>
+<li><p><strong>内存优化</strong></p>
+<ul>
+<li>使用 Instruments 定位内存泄漏的步骤</li>
+<li><code>NSCache</code> 与 <code>URLCache</code> 的最佳实践</li>
+</ul>
+</li>
+<li><p><strong>渲染性能</strong></p>
+<ul>
+<li>如何检测和解决掉帧问题？</li>
+<li>离屏渲染的常见场景与优化方案</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="🌐-网络与存储"><a href="#🌐-网络与存储" class="headerlink" title="🌐 网络与存储"></a>🌐 网络与存储</h2><ol>
+<li><p><strong>HTTP&#x2F;2 与 QUIC</strong></p>
+<ul>
+<li>对比 HTTP&#x2F;1.1 的核心改进点</li>
+<li>iOS 如何支持 QUIC 协议？</li>
+</ul>
+</li>
+<li><p><strong>数据持久化</strong></p>
+<ul>
+<li>Core Data 与 SwiftData 的架构差异</li>
+<li>多线程环境下 Realm 的使用注意事项</li>
+</ul>
+</li>
+<li><p><strong>安全机制</strong></p>
+<ul>
+<li>如何防止中间人攻击（MITM）？</li>
+<li>Keychain 数据存储的加密原理</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="🔄-多线程与并发"><a href="#🔄-多线程与并发" class="headerlink" title="🔄 多线程与并发"></a>🔄 多线程与并发</h2><ol>
+<li><p><strong>GCD 高级用法</strong></p>
+<ul>
+<li><code>dispatch_barrier_async</code> 的应用场景</li>
+<li>如何创建可取消的 DispatchWorkItem？</li>
+</ul>
+</li>
+<li><p><strong>OperationQueue</strong></p>
+<ul>
+<li>如何实现任务依赖与优先级控制？</li>
+<li>对比 GCD 的优劣</li>
+</ul>
+</li>
+<li><p><strong>Actor 模型</strong></p>
+<ul>
+<li>Swift Actor 如何保证线程安全？</li>
+<li><code>nonisolated</code> 关键字的用途</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="🧪-测试与调试"><a href="#🧪-测试与调试" class="headerlink" title="🧪 测试与调试"></a>🧪 测试与调试</h2><ol>
+<li><p><strong>单元测试</strong></p>
+<ul>
+<li>如何对异步代码进行测试？</li>
+<li>依赖注入在测试中的应用</li>
+</ul>
+</li>
+<li><p><strong>UI 自动化</strong></p>
+<ul>
+<li>XCUITest 的核心组件与使用限制</li>
+<li>如何实现跨语言自动化测试（Appium）</li>
+</ul>
+</li>
+<li><p><strong>Crash 分析</strong></p>
+<ul>
+<li>符号化崩溃日志的完整流程</li>
+<li>如何捕获并上报野指针异常？</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="🧠-系统设计题"><a href="#🧠-系统设计题" class="headerlink" title="🧠 系统设计题"></a>🧠 系统设计题</h2><ol>
+<li><p><strong>架构设计</strong></p>
+<ul>
+<li>设计一个支持 LRU 缓存的图片加载库</li>
+<li>实现一个支持断点续传的下载管理器</li>
+</ul>
+</li>
+<li><p><strong>场景方案</strong></p>
+<ul>
+<li>如何保证弱网环境下消息的可靠传输？</li>
+<li>设计一个即时通讯应用的消息同步机制</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="💻-算法与数据结构"><a href="#💻-算法与数据结构" class="headerlink" title="💻 算法与数据结构"></a>💻 算法与数据结构</h2><ol>
+<li><p><strong>高频算法</strong></p>
+<ul>
+<li>链表反转（迭代&#x2F;递归）</li>
+<li>二叉树层序遍历</li>
+<li>最长无重复子串</li>
+</ul>
+</li>
+<li><p><strong>优化思维</strong></p>
+<ul>
+<li>两数之和的多种解法对比（哈希表&#x2F;双指针）</li>
+<li>动态规划解决背包问题</li>
+</ul>
+</li>
+</ol>
+<hr>
+<blockquote>
+<p><strong>提示</strong>：每个问题建议延伸思考：</p>
+<ul>
+<li>该技术点的底层原理（如 Runtime 机制）</li>
+<li>实际项目中的实践案例</li>
+<li>不同方案的优缺点对比</li>
+</ul>
+</blockquote>
+<p><strong>注</strong>：结合最新 iOS 19 特性（如 Vision Pro 开发）准备差异化答案 🚀</p>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>iOS</tag>
+        <tag>知识点</tag>
+        <tag>面试</tag>
       </tags>
   </entry>
 </search>

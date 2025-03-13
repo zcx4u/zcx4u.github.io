@@ -14,27 +14,22 @@
   
 
   
-  <title>module importing failed invalid pathname 问题解决 | 我的博客</title>
+  <title>标签: ChatGPT | 我的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
   <link rel="preload" href="/css/fonts/Roboto-Regular.ttf" as="font" type="font/ttf" crossorigin="anonymous">
   <link rel="preload" href="/css/fonts/Roboto-Bold.ttf" as="font" type="font/ttf" crossorigin="anonymous">
 
-  <meta name="description" content="最近Xcode编译完成后在命令行框里第一行总会报一个错误：  error: module importing failed: invalid pathname  不论是clean还是删除support文件还是重启Xcode都无法解决这个问题。 于是去google了一番： 把target的scheme中的debug executable的选项取消掉就不报这个错了  试了一下，有效！但是这个选项不能去">
-<meta property="og:type" content="article">
-<meta property="og:title" content="module importing failed invalid pathname 问题解决">
-<meta property="og:url" content="https://zcx4u.github.io/2021/09/09/module-importing%20failed-invalid%20pathname/index.html">
+  <meta name="description" content="分享技术文章和学习心得">
+<meta property="og:type" content="website">
+<meta property="og:title" content="我的博客">
+<meta property="og:url" content="https://zcx4u.github.io/tags/ChatGPT/index.html">
 <meta property="og:site_name" content="我的博客">
-<meta property="og:description" content="最近Xcode编译完成后在命令行框里第一行总会报一个错误：  error: module importing failed: invalid pathname  不论是clean还是删除support文件还是重启Xcode都无法解决这个问题。 于是去google了一番： 把target的scheme中的debug executable的选项取消掉就不报这个错了  试了一下，有效！但是这个选项不能去">
+<meta property="og:description" content="分享技术文章和学习心得">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://raw.githubusercontent.com/zcx4u/images/master/Hexo/Xcode/008i3skNly1guaiuljmlhj60qi0gmwfh02.jpg">
-<meta property="og:image" content="https://raw.githubusercontent.com/zcx4u/images/master/Hexo/Xcode/008i3skNly1guaium1xjzj60n805q74o02.jpg">
-<meta property="article:published_time" content="2021-09-08T16:00:00.000Z">
-<meta property="article:modified_time" content="2025-03-13T09:55:52.400Z">
 <meta property="article:author" content="bruin">
-<meta property="article:tag" content="Xcode">
+<meta property="article:tag" content="技术,博客,编程">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://raw.githubusercontent.com/zcx4u/images/master/Hexo/Xcode/008i3skNly1guaiuljmlhj60qi0gmwfh02.jpg">
   
     <link rel="alternate" href="/atom.xml" title="我的博客" type="application/atom+xml">
   
@@ -410,119 +405,44 @@
     <div id="content-body">
        
 
-
-<article id="post-module-importing failed-invalid pathname" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  
-    
-   
-  <div class="article-inner">
-    <div class="article-main">
-      <header class="article-header">
-        
-<div class="main-title-bar">
-  <div class="main-title-dot"></div>
-  
-    
-      <h1 class="p-name article-title" itemprop="headline name">
-        module importing failed invalid pathname 问题解决
-      </h1>
-    
-  
-</div>
-
-        <div class='meta-info-bar'>
-          <div class="meta-info">
-  <time class="dt-published" datetime="2021-09-08T16:00:00.000Z" itemprop="datePublished">2021-09-09</time>
-</div>
-          <div class="need-seperator meta-info">
-            <div class="meta-cate-flex">
-  
-  <a class="meta-cate-link" href="/categories/iOS/">iOS</a>
-   
-</div>
-  
-          </div>
-          <div class="wordcount need-seperator meta-info">
-            1.3k 词 
-          </div>
-        </div>
-        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Xcode/" rel="tag">Xcode</a></li></ul>
-
-      </header>
-      <div class="e-content article-entry" itemprop="articleBody">
-        
-          <p>最近Xcode编译完成后在命令行框里第一行总会报一个错误：</p>
-<blockquote>
-<p>error: module importing failed: invalid pathname</p>
-</blockquote>
-<p>不论是<code>clean</code>还是删除<code>support文件</code>还是<code>重启Xcode</code>都无法解决这个问题。</p>
-<p>于是去google了一番：</p>
-<p><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/59800936/Xcode-11-shows-a-missing-module-error-when-compiling-python-3-8">把target的scheme中的debug executable的选项取消掉就不报这个错了</a></p>
-<p><img src="https://raw.githubusercontent.com/zcx4u/images/master/Hexo/Xcode/008i3skNly1guaiuljmlhj60qi0gmwfh02.jpg" alt="关闭调试器"></p>
-<p>试了一下，有效！但是这个选项不能去掉啊，去掉了这个选项就不能打断点进行调试了。😂</p>
-<hr>
-<p>Realm删除残留导致的问题？](<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/59090655/removed-realm-but-still-getting-this-error-module-importing-failed-invalid-to/59094519#59094519?newreg=5c6ce4372354468b9449dfc34406e472">https://stackoverflow.com/questions/59090655/removed-realm-but-still-getting-this-error-module-importing-failed-invalid-to/59094519#59094519?newreg=5c6ce4372354468b9449dfc34406e472</a>)</p>
-<p>看到朋友们删除Realm之后会出现这个问题，但是我又没有安装过Realm，为何也有这个问题呢。</p>
-<p>回答中提到解决这个问题需要去编辑<code>~/.lldbinit</code>文件，看的我一脸懵逼，对于这种没见过的配置文件我可不敢去乱删乱改。又想起来被错改配置文件支配的恐惧，吃一堑长一智…</p>
-<p>仔细看<code>lldbinit</code>文件命名，好像在哪见过，是LLDB调试器初始化的配置文件，于是在mac根目录下去找了找这个文件。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">这个文件的全部内容</span><br><span class="line">### Reveal LLDB commands support - DO NOT MODIFY</span><br><span class="line">    command script import /Applications/Reveal.app/Contents/SharedSupport/Scripts/RevealServerCommands.py</span><br><span class="line">###</span><br></pre></td></tr></table></figure>
-<p>当我看到<code>Reveal.app</code>这个东西的时候便明白是什么问题了，我这台mac之前下载过破解版的Reveal软件用来调试界面。</p>
-<p><code>Reveal</code>的插件需要在LLDB启动的时候加载用来获取UI栈信息，后来改用了<code>Lookin</code>就把<code>Reveal</code>给卸载了，但是<code>.lldbinit</code>中的命令没有改掉。LLDB启动的时候找不到<code>Reveal插件</code>便会报<code>module importing failed: invalid pathname</code>错误。</p>
-<p><img src="https://raw.githubusercontent.com/zcx4u/images/master/Hexo/Xcode/008i3skNly1guaium1xjzj60n805q74o02.jpg"></p>
-<p>同时这也验证了为什么在Xcode中关闭调试就不报这个错了(那肯定是Xcode在debug模式下运行时自动启动了内置的LLDB调试器啦)。</p>
-<p>为了验证是LLDB的问题我把Xcode关闭，打开了终端，输入LLDB命令，然后终端中也报出了相同的错误提示。为了更加理解这个文件的作用，我便又去搜索了一番.lldbinit的作用。</p>
-<blockquote>
-<p>~&#x2F;.lldbinit是每次LLDB启动时会加载的文件。所以一些初始化的事儿，我们可以写入其中中，比如给命令定义别名等。但是由于这时候程序还没有真正运行，也有部分操作无法在里面玩，比如设置断点。</p>
-</blockquote>
-<p>到此我解决了Xcode中每次启动都报错的问题，也明白了这个问题出现的原因，同时也了解到了LLDB相关的新知识。所以当看到一些莫名其妙的报错的时候不要着急也不要焦虑，一定是在你不熟悉的地方出现了异常，当你慢慢理解那些内容的时候，这些报错也许只是一个很小很小的问题。</p>
-
-        
-      </div>
-
-         
+<div class="archive-main-card">
+    <div class="archive-top">
+      <div class="main-title-bar">
+        <div class="main-title-dot"></div>
+        <h1 class="article-title">归档</h1>
+      </div>    
     </div>
     
-     
+    
+      
+      
+        
+        <div class="year-line">
+            <div class="year-num">2024</div>
+            <div class="dot-wrapper">
+                <div class="dot"></div>
+            </div>
+            <div class="article-count">1 篇文章</div>
+        </div>
+      
+      <a class="archive-article-link" href="/2024/01/15/ChatGPT%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7%E6%89%8B%E5%86%8C/" title="ChatGPT使用技巧手册">
+        <div class="date">01-15</div>
+        <div class="line">
+            <div class="dot"></div>
+        </div>
+        <div class="title">
+            <div class="title-inner">
+                
+                    ChatGPT使用技巧手册
+                
+            </div>
+        </div>
+        <div class="tags">
+            #AIGC #ChatGPT #开发工具
+        </div>
+      </a>
+    
   </div>
-  
-    
-<nav id="article-nav">
-  <a class="article-nav-btn left "
-    
-      href="/2021/09/18/iOS%E7%BC%96%E8%AF%91%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%E6%8E%A2%E7%B4%A2%E4%B8%8E%E5%AE%9E%E8%B7%B5-%E7%BB%84%E4%BB%B6%E7%AF%87/"
-      title="iOS编译优化方案探索与实践-组件篇"
-     >
-    <i class="fa-solid fa-angle-left"></i>
-    <p class="title-text">
-      
-        iOS编译优化方案探索与实践-组件篇
-        
-    </p>
-  </a>
-  <a class="article-nav-btn right "
-    
-      href="/2021/08/31/iOS-OCR%E5%AE%9E%E8%B7%B5/"
-      title="iOS-OCR实践"
-     >
-
-    <p class="title-text">
-      
-        iOS-OCR实践
-        
-    </p>
-    <i class="fa-solid fa-angle-right"></i>
-  </a>
-</nav>
-
-
-  
-</article>
-
-
-
-
-
     </div>
     <div id="footer-wrapper">
       <footer id="footer">
