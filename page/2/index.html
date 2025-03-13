@@ -125,7 +125,7 @@
   <div class="info-card">
     <div class="avatar">
       
-        <image src=/images/avatar.jpeg></image>
+        <image src=/images/bruin.png></image>
       
       <div class="img-dim"></div>
     </div>
@@ -274,15 +274,15 @@
             </div>
           </a>
         
-          <a class="recent-link" href="/2024/01/01/%E6%8A%80%E6%9C%AF%E8%B7%AF%E7%BA%BF%E5%9B%BE/" title="iOS 开发者技术路线图（2025 年）" >
-            <div class="recent-link-text">
-              iOS 开发者技术路线图（2025 年）
-            </div>
-          </a>
-        
           <a class="recent-link" href="/2024/01/01/%E7%AE%97%E6%B3%95/" title="常见算法考题列表（2025 年整理）" >
             <div class="recent-link-text">
               常见算法考题列表（2025 年整理）
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2024/01/01/%E6%8A%80%E6%9C%AF%E8%B7%AF%E7%BA%BF%E5%9B%BE/" title="iOS 开发者技术路线图（2025 年）" >
+            <div class="recent-link-text">
+              iOS 开发者技术路线图（2025 年）
             </div>
           </a>
         
@@ -1086,11 +1086,28 @@ Cache objects differ from other mutable collections in a few ways:The NSCache cl
       </header>
       <div class="e-content article-entry" itemprop="articleBody">
         
-          <blockquote>
-<p>自iOS8之后，苹果支持了扩展（Extension）的开发，开发者可以通过系统提供给我们的扩展接入点 (Extension point) 来为系统特定的服务提供某些附加的功能。<br>但iOS14后，苹果更新了扩展组件，引入了新的UI组件：<code>WidgetKit</code> 而舍弃了iOS14以下版本的Today Extension组件</p>
-</blockquote>
-<h3 id="Widget介绍"><a href="#Widget介绍" class="headerlink" title="Widget介绍"></a>Widget介绍</h3><p><a target="_blank" rel="noopener" href="https://support.apple.com/zh-cn/HT207122">这里有一份官方的小组件使用指南</a></p>
-<p>简单来说：小组件相当于一个动态程序入口，在有限的空间内展示你想看到的重要的信息</p>
+          <div class="truncate-text">
+            
+              
+自iOS8之后，苹果支持了扩展（Extension）的开发，开发者可以通过系统提供给我们的扩展接入点 (Extension point) 来为系统特定的服务提供某些附加的功能。但iOS14后，苹果更新了扩展组件，引入了新的UI组件：WidgetKit 而舍弃了iOS14以下版本的Today Extension组件
+
+Widget介绍这里有一份官方的小组件使用指南
+简单来说：小组件相当于一个动态程序入口，在有限的空间内展示你想看到的重要的信息
+
+
+苹果自带的日历使用起来非常不适，下载第三方日历又不想被捆绑的无用功能打扰。有了小组件之后这个问题就很好的解决了，比如上面的日历小组件，清晰的展示了今天的日期和农历以及周几，打开手机锁屏就能看见。
+此外系统自带的电量小组件，方便的展示了需要下滑去状态栏才能看到的耳机电量：
+
+
+之前发布的时候觉得这都是安卓系统玩剩下的东西，没什么卵用，不过现在是真香！
+
+Widget设计指南这里有一份官方的设计指南
+简而言之，设计一个简单漂亮吸引人并且快速显示内容的小组件。
+
+Widget: HelloWorld这里有一份官方的开发文档可以参考
+一个小组件...
+            
+          </div>
         
       </div>
 
@@ -1254,20 +1271,5 @@ wifi的代理配置不会自动保存？使用iPhone的大概都遇见过这种�
 
   </div>
   <script src="/js/light-dark-switch.js"></script>
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-        tex2jax: {
-            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
-            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
-            processEscapes: true
-        }
-    });
-    MathJax.Hub.Queue(function() {
-        var all = MathJax.Hub.getAllJax();
-        for (var i = 0; i < all.length; ++i)
-            all[i].SourceElement().parentNode.className += ' has-jax';
-    });
-</script>
-<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 </body>
 </html>

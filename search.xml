@@ -1,45 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>APP内部代理</title>
-    <url>/2021/01/18/APP%E4%BB%A3%E7%90%86/</url>
-    <content><![CDATA[<h3 id="APP内部代理"><a href="#APP内部代理" class="headerlink" title="APP内部代理"></a>APP内部代理</h3><hr>
-<h5 id="wifi的代理配置不会自动保存？"><a href="#wifi的代理配置不会自动保存？" class="headerlink" title="wifi的代理配置不会自动保存？"></a>wifi的代理配置不会自动保存？</h5><p>使用iPhone的大概都遇见过这种事情：</p>
-<p>每次需要给APP抓包的时候都需要到设置-WIFI-下手动配置代理，然而当我们连着代理的时候无法访问App Store或其他禁止代理的服务，这个时候我们会把WIFI的代理给关闭。</p>
-<p>弄完杂七杂八的东西之后回到抓包调试，打开WIFI设置页，手动配置代理…</p>
-<p>？？？</p>
-<p>我刚才填的本机IP和端口呢？我还得再输一次？WTF！</p>
-<hr>
-<h5 id="解决方案一"><a href="#解决方案一" class="headerlink" title="解决方案一"></a>解决方案一</h5><p>弄两个wifi信号，一个挂笔记本的代理不关，另一个正常联网，需要切换代理的时候切换wifi。</p>
-<p> 说实话操作起来挺麻烦的，并且公司只有一个公用的wifi信号，想弄一个新的信号还需要运维小伙伴来搞，难顶。</p>
-<hr>
-<h5 id="解决方案二"><a href="#解决方案二" class="headerlink" title="解决方案二"></a>解决方案二</h5><p>安装VPN软件，配置本地代理规则，需要抓包的时候打开网络代理。</p>
-<p>小火箭之类好用的软件需要美区账号安装，每个测试机都可能会有这个需求，不可能每个测试机都这么操作一遍。</p>
-<hr>
-<h5 id="解决方案三"><a href="#解决方案三" class="headerlink" title="解决方案三"></a>解决方案三</h5><p>APP内部通过代码设置代理，只在APP内部生效，开发环境使用，可持久化配置文件。</p>
-<p>去goole了一圈，发现<code>URLSessionConfiguration</code> 中有个字典专门保存代理信息<code>connectionProxyDictionary</code> </p>
-<p>官方这么说的：</p>
-<blockquote>
-<p>This property controls which proxy tasks within sessions based on this configuration use when connecting to remote hosts.<br>The default value is NULL, which means that tasks use the default system settings.</p>
-</blockquote>
-<p>也就是说默认NULL的时候是走系统的代理设置，如果我们自定义的话就走我们APP内部自定义的代理设置咯。</p>
-<p>同理如果我们强制将这个值置空就能够避免我们的请求走隧道也能防止别人抓包辣！</p>
-<hr>
-<h5 id="动动小手试试效果"><a href="#动动小手试试效果" class="headerlink" title="动动小手试试效果"></a>动动小手试试效果</h5><p>我们工程中使用了<code>Moya</code>来做网络封装，<code>Moya</code>内部使用<code>Alamofire</code>来请求网络，不论是<code>Moya</code> 还是<code>Alamofire</code>都不影响实际的代码效果。因为他们都使用了<code>URLSessionConfiguration</code>的单例，只需要在构建网络请求的时候添加上对应的代理信息即可。</p>
-<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> alamofireConfiguration: <span class="type">URLSessionConfiguration</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> configuration <span class="operator">=</span> <span class="type">URLSessionConfiguration</span>.default</span><br><span class="line">        <span class="keyword">#if</span> <span class="type">DEBUG</span></span><br><span class="line">        configuration.timeoutIntervalForRequest <span class="operator">=</span> <span class="number">30</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">let</span> proxyHost: <span class="type">String</span> <span class="operator">=</span> <span class="type">UserDefaultManager</span>.object(forKey: <span class="type">UserDefaultsKeys</span>.<span class="type">Test</span>.proxyHost),</span><br><span class="line">           <span class="keyword">let</span> proxyPort: <span class="type">Int64</span> <span class="operator">=</span> <span class="type">UserDefaultManager</span>.object(forKey: <span class="type">UserDefaultsKeys</span>.<span class="type">Test</span>.proxyPort) &#123;</span><br><span class="line">            <span class="keyword">var</span> proxyConfiguration <span class="operator">=</span> [<span class="type">AnyHashable</span>:<span class="keyword">Any</span>]()</span><br><span class="line">            <span class="comment">//HTTP</span></span><br><span class="line">            proxyConfiguration.updateValue(<span class="number">1</span> <span class="keyword">as</span> <span class="type">AnyObject</span>, forKey: <span class="string">&quot;HTTPEnable&quot;</span>)</span><br><span class="line">            proxyConfiguration.updateValue(proxyHost <span class="keyword">as</span> <span class="type">AnyObject</span>, forKey: <span class="string">&quot;HTTPProxy&quot;</span>)</span><br><span class="line">            proxyConfiguration.updateValue(proxyPort <span class="keyword">as</span> <span class="type">AnyObject</span>, forKey: <span class="string">&quot;HTTPPort&quot;</span>)</span><br><span class="line">            <span class="comment">//HTTPS</span></span><br><span class="line">            proxyConfiguration.updateValue(<span class="number">1</span> <span class="keyword">as</span> <span class="type">AnyObject</span>, forKey: <span class="string">&quot;HTTPSEnable&quot;</span>)</span><br><span class="line">            proxyConfiguration.updateValue(proxyHost <span class="keyword">as</span> <span class="type">AnyObject</span>, forKey: <span class="string">&quot;HTTPSProxy&quot;</span>)</span><br><span class="line">            proxyConfiguration.updateValue(proxyPort <span class="keyword">as</span> <span class="type">AnyObject</span>, forKey: <span class="string">&quot;HTTPSPort&quot;</span>)</span><br><span class="line">            configuration.connectionProxyDictionary <span class="operator">=</span> proxyConfiguration</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">#else</span></span><br><span class="line">        configuration.timeoutIntervalForRequest <span class="operator">=</span> <span class="number">10</span></span><br><span class="line">        <span class="keyword">#endif</span></span><br><span class="line">        <span class="keyword">return</span> configuration</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<p>最后再做个保存设置功能之类的东东就大功告成了！</p>
-<p>使用起来十分舒服，再也不用老去WIFI设置页去填自己电脑的IP和端口了，在APP内部设置然后持久化一下就可以抓包分析而且不担心影响其他APP了。</p>
-<p>当然要记得控制好开发环境，不要影响线上业务哦！</p>
-]]></content>
-      <categories>
-        <category>iOS</category>
-      </categories>
-      <tags>
-        <tag>有用的</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>AVPlayer相关BUG记录</title>
     <url>/2021/08/25/AVPlayer%E7%9B%B8%E5%85%B3BUG%E8%AE%B0%E5%BD%95/</url>
     <content><![CDATA[<p>Bug：音频列表顺序播放过程中偶尔出现设置的1.5倍速重置为1</p>
@@ -172,6 +133,71 @@
       </tags>
   </entry>
   <entry>
+    <title>APP内部代理</title>
+    <url>/2021/01/18/APP%E4%BB%A3%E7%90%86/</url>
+    <content><![CDATA[<h3 id="APP内部代理"><a href="#APP内部代理" class="headerlink" title="APP内部代理"></a>APP内部代理</h3><hr>
+<h5 id="wifi的代理配置不会自动保存？"><a href="#wifi的代理配置不会自动保存？" class="headerlink" title="wifi的代理配置不会自动保存？"></a>wifi的代理配置不会自动保存？</h5><p>使用iPhone的大概都遇见过这种事情：</p>
+<p>每次需要给APP抓包的时候都需要到设置-WIFI-下手动配置代理，然而当我们连着代理的时候无法访问App Store或其他禁止代理的服务，这个时候我们会把WIFI的代理给关闭。</p>
+<p>弄完杂七杂八的东西之后回到抓包调试，打开WIFI设置页，手动配置代理…</p>
+<p>？？？</p>
+<p>我刚才填的本机IP和端口呢？我还得再输一次？WTF！</p>
+<hr>
+<h5 id="解决方案一"><a href="#解决方案一" class="headerlink" title="解决方案一"></a>解决方案一</h5><p>弄两个wifi信号，一个挂笔记本的代理不关，另一个正常联网，需要切换代理的时候切换wifi。</p>
+<p> 说实话操作起来挺麻烦的，并且公司只有一个公用的wifi信号，想弄一个新的信号还需要运维小伙伴来搞，难顶。</p>
+<hr>
+<h5 id="解决方案二"><a href="#解决方案二" class="headerlink" title="解决方案二"></a>解决方案二</h5><p>安装VPN软件，配置本地代理规则，需要抓包的时候打开网络代理。</p>
+<p>小火箭之类好用的软件需要美区账号安装，每个测试机都可能会有这个需求，不可能每个测试机都这么操作一遍。</p>
+<hr>
+<h5 id="解决方案三"><a href="#解决方案三" class="headerlink" title="解决方案三"></a>解决方案三</h5><p>APP内部通过代码设置代理，只在APP内部生效，开发环境使用，可持久化配置文件。</p>
+<p>去goole了一圈，发现<code>URLSessionConfiguration</code> 中有个字典专门保存代理信息<code>connectionProxyDictionary</code> </p>
+<p>官方这么说的：</p>
+<blockquote>
+<p>This property controls which proxy tasks within sessions based on this configuration use when connecting to remote hosts.<br>The default value is NULL, which means that tasks use the default system settings.</p>
+</blockquote>
+<p>也就是说默认NULL的时候是走系统的代理设置，如果我们自定义的话就走我们APP内部自定义的代理设置咯。</p>
+<p>同理如果我们强制将这个值置空就能够避免我们的请求走隧道也能防止别人抓包辣！</p>
+<hr>
+<h5 id="动动小手试试效果"><a href="#动动小手试试效果" class="headerlink" title="动动小手试试效果"></a>动动小手试试效果</h5><p>我们工程中使用了<code>Moya</code>来做网络封装，<code>Moya</code>内部使用<code>Alamofire</code>来请求网络，不论是<code>Moya</code> 还是<code>Alamofire</code>都不影响实际的代码效果。因为他们都使用了<code>URLSessionConfiguration</code>的单例，只需要在构建网络请求的时候添加上对应的代理信息即可。</p>
+<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> alamofireConfiguration: <span class="type">URLSessionConfiguration</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> configuration <span class="operator">=</span> <span class="type">URLSessionConfiguration</span>.default</span><br><span class="line">        <span class="keyword">#if</span> <span class="type">DEBUG</span></span><br><span class="line">        configuration.timeoutIntervalForRequest <span class="operator">=</span> <span class="number">30</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">let</span> proxyHost: <span class="type">String</span> <span class="operator">=</span> <span class="type">UserDefaultManager</span>.object(forKey: <span class="type">UserDefaultsKeys</span>.<span class="type">Test</span>.proxyHost),</span><br><span class="line">           <span class="keyword">let</span> proxyPort: <span class="type">Int64</span> <span class="operator">=</span> <span class="type">UserDefaultManager</span>.object(forKey: <span class="type">UserDefaultsKeys</span>.<span class="type">Test</span>.proxyPort) &#123;</span><br><span class="line">            <span class="keyword">var</span> proxyConfiguration <span class="operator">=</span> [<span class="type">AnyHashable</span>:<span class="keyword">Any</span>]()</span><br><span class="line">            <span class="comment">//HTTP</span></span><br><span class="line">            proxyConfiguration.updateValue(<span class="number">1</span> <span class="keyword">as</span> <span class="type">AnyObject</span>, forKey: <span class="string">&quot;HTTPEnable&quot;</span>)</span><br><span class="line">            proxyConfiguration.updateValue(proxyHost <span class="keyword">as</span> <span class="type">AnyObject</span>, forKey: <span class="string">&quot;HTTPProxy&quot;</span>)</span><br><span class="line">            proxyConfiguration.updateValue(proxyPort <span class="keyword">as</span> <span class="type">AnyObject</span>, forKey: <span class="string">&quot;HTTPPort&quot;</span>)</span><br><span class="line">            <span class="comment">//HTTPS</span></span><br><span class="line">            proxyConfiguration.updateValue(<span class="number">1</span> <span class="keyword">as</span> <span class="type">AnyObject</span>, forKey: <span class="string">&quot;HTTPSEnable&quot;</span>)</span><br><span class="line">            proxyConfiguration.updateValue(proxyHost <span class="keyword">as</span> <span class="type">AnyObject</span>, forKey: <span class="string">&quot;HTTPSProxy&quot;</span>)</span><br><span class="line">            proxyConfiguration.updateValue(proxyPort <span class="keyword">as</span> <span class="type">AnyObject</span>, forKey: <span class="string">&quot;HTTPSPort&quot;</span>)</span><br><span class="line">            configuration.connectionProxyDictionary <span class="operator">=</span> proxyConfiguration</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">#else</span></span><br><span class="line">        configuration.timeoutIntervalForRequest <span class="operator">=</span> <span class="number">10</span></span><br><span class="line">        <span class="keyword">#endif</span></span><br><span class="line">        <span class="keyword">return</span> configuration</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后再做个保存设置功能之类的东东就大功告成了！</p>
+<p>使用起来十分舒服，再也不用老去WIFI设置页去填自己电脑的IP和端口了，在APP内部设置然后持久化一下就可以抓包分析而且不担心影响其他APP了。</p>
+<p>当然要记得控制好开发环境，不要影响线上业务哦！</p>
+]]></content>
+      <categories>
+        <category>iOS</category>
+      </categories>
+      <tags>
+        <tag>有用的</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>NSCache</title>
+    <url>/2021/04/20/NSCache/</url>
+    <content><![CDATA[<h2 id="NSCache"><a href="#NSCache" class="headerlink" title="NSCache"></a>NSCache</h2><h3 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h3><blockquote>
+<p>A mutable collection you use to temporarily store transient key-value pairs that are subject to eviction when resources are low.</p>
+</blockquote>
+<p>一种用于临时存储临时键值对的可变集合，在资源不足时容易被回收。</p>
+<blockquote>
+<p>Cache objects differ from other mutable collections in a few ways:<br>The NSCache class incorporates various auto-eviction policies, which ensure that a cache doesn’t use too much of the system’s memory. If memory is needed by other applications, these policies remove some items from the cache, minimizing its memory footprint.<br>You can add, remove, and query items in the cache from different threads without having to lock the cache yourself.<br>Unlike an NSMutableDictionary object, a cache does not copy the key objects that are put into it.<br>You typically use NSCache objects to temporarily store objects with transient data that are expensive to create. Reusing these objects can provide performance benefits, because their values do not have to be recalculated. However, the objects are not critical to the application and can be discarded if memory is tight. If discarded, their values will have to be recomputed again when needed.<br>Objects that have subcomponents that can be discarded when not being used can adopt the NSDiscardableContent protocol to improve cache eviction behavior. By default, NSDiscardableContent objects in a cache are automatically removed if their content is discarded, although this automatic removal policy can be changed. If an NSDiscardableContent object is put into the cache, the cache calls discardContentIfPossible() on it upon its removal.</p>
+</blockquote>
+<p>缓存对象与其他可变集合在以下几个方面有所不同:</p>
+<p><strong>自动回收</strong>： NSCache类包含各种自动回收策略，这些策略确保缓存不会使用太多的系统内存。如果其他应用程序需要内存，这些策略会从缓存中删除一些项，从而最小化其内存占用。</p>
+<p><strong>线程安全</strong>：可以从不同的线程在缓存中添加、删除和查询项，而不必自己锁定缓存。</p>
+<p><strong>Key无需实现NSCopying</strong>：与NSMutableDictionary对象不同，缓存不会复制放入其中的key对象，降低内存占用。</p>
+<p><strong>不能长久储存数据</strong>： 您通常使用NSCache对象来临时存储带有临时数据的对象，这些数据的创建成本很高。重用这些对象可以提供性能优势，因为它们的值不必重新计算。但是，这些对象对应用程序并不重要，如果内存紧张，可以丢弃这些对象。如果丢弃，它们的值将不得不在需要时重新计算。</p>
+<p><strong>NSDiscardableContent 在NSCache中不会强引用</strong>：具有子组件的对象在不使用时可以被丢弃，可以采用NSDiscardableContent 协议来改进缓存回收行为。默认情况下，如果缓存中的NSDiscardableContent 对象的内容被丢弃，那么它们将被自动删除，尽管这个自动删除策略可以更改。如果一个NSDiscardableContent 对象被放入缓存，缓存在它被删除时调用discardContentIfPossible()。</p>
+<p>（一般不用可丢弃对象包裹，直接使用方法保存原始obj就行）</p>
+<h3 id="Values-Methods"><a href="#Values-Methods" class="headerlink" title="Values &amp; Methods"></a>Values &amp; Methods</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#import &lt;Foundation/NSObject.h&gt;</span><br><span class="line"></span><br><span class="line">@class NSString;</span><br><span class="line">@protocol NSCacheDelegate;</span><br><span class="line"></span><br><span class="line">NS_ASSUME_NONNULL_BEGIN</span><br><span class="line"></span><br><span class="line">API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0))</span><br><span class="line">@interface NSCache &lt;KeyType, ObjectType&gt; : NSObject &#123;</span><br><span class="line">@private</span><br><span class="line">    id _delegate;</span><br><span class="line">    void *_private[5];</span><br><span class="line">    void *_reserved;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@property (copy) NSString *name; // 用来管理区分cache对象的名字</span><br><span class="line"></span><br><span class="line">@property (nullable, assign) id&lt;NSCacheDelegate&gt; delegate;</span><br><span class="line"></span><br><span class="line">- (nullable ObjectType)objectForKey:(KeyType)key; // 取数据</span><br><span class="line">- (void)setObject:(ObjectType)obj forKey:(KeyType)key; // 0 cost 缓存数据</span><br><span class="line">- (void)setObject:(ObjectType)obj forKey:(KeyType)key cost:(NSUInteger)g; // 缓存数据 cost值设置的消耗内存大小</span><br><span class="line">- (void)removeObjectForKey:(KeyType)key;// 移除数据</span><br><span class="line"></span><br><span class="line">- (void)removeAllObjects;// 移除所有数据</span><br><span class="line"></span><br><span class="line">@property NSUInteger totalCostLimit;	// limits are imprecise/not strict 限制缓存数量</span><br><span class="line">@property NSUInteger countLimit;	// limits are imprecise/not strict 限制缓存保存数大小（cost）</span><br><span class="line">@property BOOL evictsObjectsWithDiscardedContent; // 是否自动回收</span><br><span class="line"></span><br><span class="line">@end</span><br><span class="line"></span><br><span class="line">@protocol NSCacheDelegate &lt;NSObject&gt;</span><br><span class="line">@optional</span><br><span class="line">- (void)cache:(NSCache *)cache willEvictObject:(id)obj; // 回收内存的时候调用代理的方法</span><br><span class="line">@end</span><br><span class="line"></span><br><span class="line">NS_ASSUME_NONNULL_END</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>iOS</category>
+      </categories>
+      <tags>
+        <tag>学习笔记</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>GCD相关知识学习笔记</title>
     <url>/2020/09/22/GCD/</url>
     <content><![CDATA[<p>致未来的我：你是不是有点忘记了GCD的一些知识？恰巧这几天我有看这些，让我给你讲讲吧？<br>GCD是基于C语言的API，开发者只需要将任务放在block内，并指定好追加的队列，就可以完成多线程开发.</p>
@@ -239,32 +265,6 @@
 <p>为了方便程序员的使用,苹果提供了全局队列:dispatch_get_global_queue(0, 0)<br>全局队列是一个并发队列(concurrent)<br>在使用多线程开发时,如果对队列没有特殊需求,在执行异步任务时,可以直接使用全局队列</p>
 <p>队列相当于一个线程的调度器 串行队列总是在当前线程去进行任务调度 并发队列会对异步任务开启新线程</p>
 <h2 id="感悟"><a href="#感悟" class="headerlink" title="感悟"></a>感悟</h2><p>通过我今天对GCD的学习，我觉得之前总是有许多自己给自己设置的学习障碍，一个大概只需要两个小时就能搞明白的知识为什么不静下心来去看看呢？<br>不会的技术并不是难以跨越的大山，只要用心钻研，就一定会有所收获。<br>好了，看到这里了，未来的我有什么要给我补充的吗？</p>
-]]></content>
-      <categories>
-        <category>iOS</category>
-      </categories>
-      <tags>
-        <tag>学习笔记</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>NSCache</title>
-    <url>/2021/04/20/NSCache/</url>
-    <content><![CDATA[<h2 id="NSCache"><a href="#NSCache" class="headerlink" title="NSCache"></a>NSCache</h2><h3 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h3><blockquote>
-<p>A mutable collection you use to temporarily store transient key-value pairs that are subject to eviction when resources are low.</p>
-</blockquote>
-<p>一种用于临时存储临时键值对的可变集合，在资源不足时容易被回收。</p>
-<blockquote>
-<p>Cache objects differ from other mutable collections in a few ways:<br>The NSCache class incorporates various auto-eviction policies, which ensure that a cache doesn’t use too much of the system’s memory. If memory is needed by other applications, these policies remove some items from the cache, minimizing its memory footprint.<br>You can add, remove, and query items in the cache from different threads without having to lock the cache yourself.<br>Unlike an NSMutableDictionary object, a cache does not copy the key objects that are put into it.<br>You typically use NSCache objects to temporarily store objects with transient data that are expensive to create. Reusing these objects can provide performance benefits, because their values do not have to be recalculated. However, the objects are not critical to the application and can be discarded if memory is tight. If discarded, their values will have to be recomputed again when needed.<br>Objects that have subcomponents that can be discarded when not being used can adopt the NSDiscardableContent protocol to improve cache eviction behavior. By default, NSDiscardableContent objects in a cache are automatically removed if their content is discarded, although this automatic removal policy can be changed. If an NSDiscardableContent object is put into the cache, the cache calls discardContentIfPossible() on it upon its removal.</p>
-</blockquote>
-<p>缓存对象与其他可变集合在以下几个方面有所不同:</p>
-<p><strong>自动回收</strong>： NSCache类包含各种自动回收策略，这些策略确保缓存不会使用太多的系统内存。如果其他应用程序需要内存，这些策略会从缓存中删除一些项，从而最小化其内存占用。</p>
-<p><strong>线程安全</strong>：可以从不同的线程在缓存中添加、删除和查询项，而不必自己锁定缓存。</p>
-<p><strong>Key无需实现NSCopying</strong>：与NSMutableDictionary对象不同，缓存不会复制放入其中的key对象，降低内存占用。</p>
-<p><strong>不能长久储存数据</strong>： 您通常使用NSCache对象来临时存储带有临时数据的对象，这些数据的创建成本很高。重用这些对象可以提供性能优势，因为它们的值不必重新计算。但是，这些对象对应用程序并不重要，如果内存紧张，可以丢弃这些对象。如果丢弃，它们的值将不得不在需要时重新计算。</p>
-<p><strong>NSDiscardableContent 在NSCache中不会强引用</strong>：具有子组件的对象在不使用时可以被丢弃，可以采用NSDiscardableContent 协议来改进缓存回收行为。默认情况下，如果缓存中的NSDiscardableContent 对象的内容被丢弃，那么它们将被自动删除，尽管这个自动删除策略可以更改。如果一个NSDiscardableContent 对象被放入缓存，缓存在它被删除时调用discardContentIfPossible()。</p>
-<p>（一般不用可丢弃对象包裹，直接使用方法保存原始obj就行）</p>
-<h3 id="Values-Methods"><a href="#Values-Methods" class="headerlink" title="Values &amp; Methods"></a>Values &amp; Methods</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#import &lt;Foundation/NSObject.h&gt;</span><br><span class="line"></span><br><span class="line">@class NSString;</span><br><span class="line">@protocol NSCacheDelegate;</span><br><span class="line"></span><br><span class="line">NS_ASSUME_NONNULL_BEGIN</span><br><span class="line"></span><br><span class="line">API_AVAILABLE(macos(10.6), ios(4.0), watchos(2.0), tvos(9.0))</span><br><span class="line">@interface NSCache &lt;KeyType, ObjectType&gt; : NSObject &#123;</span><br><span class="line">@private</span><br><span class="line">    id _delegate;</span><br><span class="line">    void *_private[5];</span><br><span class="line">    void *_reserved;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@property (copy) NSString *name; // 用来管理区分cache对象的名字</span><br><span class="line"></span><br><span class="line">@property (nullable, assign) id&lt;NSCacheDelegate&gt; delegate;</span><br><span class="line"></span><br><span class="line">- (nullable ObjectType)objectForKey:(KeyType)key; // 取数据</span><br><span class="line">- (void)setObject:(ObjectType)obj forKey:(KeyType)key; // 0 cost 缓存数据</span><br><span class="line">- (void)setObject:(ObjectType)obj forKey:(KeyType)key cost:(NSUInteger)g; // 缓存数据 cost值设置的消耗内存大小</span><br><span class="line">- (void)removeObjectForKey:(KeyType)key;// 移除数据</span><br><span class="line"></span><br><span class="line">- (void)removeAllObjects;// 移除所有数据</span><br><span class="line"></span><br><span class="line">@property NSUInteger totalCostLimit;	// limits are imprecise/not strict 限制缓存数量</span><br><span class="line">@property NSUInteger countLimit;	// limits are imprecise/not strict 限制缓存保存数大小（cost）</span><br><span class="line">@property BOOL evictsObjectsWithDiscardedContent; // 是否自动回收</span><br><span class="line"></span><br><span class="line">@end</span><br><span class="line"></span><br><span class="line">@protocol NSCacheDelegate &lt;NSObject&gt;</span><br><span class="line">@optional</span><br><span class="line">- (void)cache:(NSCache *)cache willEvictObject:(id)obj; // 回收内存的时候调用代理的方法</span><br><span class="line">@end</span><br><span class="line"></span><br><span class="line">NS_ASSUME_NONNULL_END</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>iOS</category>
@@ -709,42 +709,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Xcode代码块云同步+本地安装脚本</title>
-    <url>/2021/08/25/Xcode%E4%BB%A3%E7%A0%81%E5%9D%97%E4%BA%91%E5%90%8C%E6%AD%A5+%E6%9C%AC%E5%9C%B0%E5%AE%89%E8%A3%85%E8%84%9A%E6%9C%AC/</url>
-    <content><![CDATA[<p>今天整理了最近半年内使用频率高的一些代码，做了一些代码块 <code>codesnippet</code>使用，并在github上创建了一个私有仓库用来云端维护和同步，写了一个脚本进行代码块下载和合并。</p>
-<p>创建方式：</p>
-<ol>
-<li><p>选中要创建的代码块，右键选择Create Code Snippte</p>
-<p><img src="https://cdn.zcx.info/008i3skNly1gtt9tybj9gj611y0q8djc02.jpg"></p>
-</li>
-<li><p>右上角 <code>+</code>框快速查看系统和自定义代码块</p>
-<p><img src="https://cdn.zcx.info/008i3skNly1gtt9ty5ejxj61gj0u043502.jpg"></p>
-</li>
-<li><p>填写代码块描述，以及快捷方式，修改代码块</p>
-</li>
-</ol>
-<p><img src="https://cdn.zcx.info/008i3skNly1gtt9txvjapj61c50u00wu02.jpg"></p>
-<p>xcode中用户自定义的 代码块保存在~&#x2F;Library&#x2F;Developer&#x2F;Xcode&#x2F;UserData&#x2F;CodeSnippets路径下，每个代码块都是一个.codesnippet格式的配置文件。</p>
-<figure class="highlight ruby"><table><tr><td class="code"><pre><span class="line">~<span class="regexp">/Library/</span><span class="title class_">Developer</span>/<span class="title class_">Xcode</span>/<span class="title class_">UserData</span>/<span class="title class_">CodeSnippets</span><span class="variable">$:</span> ls -l</span><br><span class="line">total <span class="number">72</span></span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1008</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">19</span><span class="symbol">:</span><span class="number">36</span> 1BF011CF-<span class="number">9292</span>-4B72-9D44-<span class="variable constant_">F7C3BC89AFE0</span>.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1036</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">16</span><span class="symbol">:</span><span class="number">03</span> 28DDA843-<span class="variable constant_">AD69</span>-4A09-87C4-3D1DB320EDB5.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff   <span class="number">864</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">16</span><span class="symbol">:</span><span class="number">37</span> 8BEF45E5-0B98-4CC5-9CB8-86203CA29A69.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1699</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">19</span><span class="symbol">:</span><span class="number">37</span> <span class="variable constant_">B42EC618</span>-1BF8-<span class="number">4E30</span>-<span class="variable constant_">AC73</span>-12E1282FEAFC.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff   <span class="number">994</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> <span class="variable constant_">BA1B105B</span>-<span class="variable constant_">F02A</span>-<span class="number">4925</span>-<span class="variable constant_">A7FD</span>-<span class="variable constant_">B7E6081438E2</span>.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1099</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">15</span><span class="symbol">:</span><span class="number">30</span> <span class="variable constant_">BB31C5F1</span>-<span class="variable constant_">D74A</span>-4CD4-968D-<span class="variable constant_">F707DADF07C1</span>.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1144</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> <span class="variable constant_">DDA53283</span>-7F1F-49EC-9D76-87D876EA67FC.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1557</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> <span class="variable constant_">E12D24FC</span>-<span class="number">2098</span>-413F-<span class="variable constant_">B12E</span>-<span class="variable constant_">CBB79181EBDA</span>.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1085</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> <span class="variable constant_">E7CFEE5D</span>-<span class="variable constant_">D2F0</span>-42D7-<span class="variable constant_">AD6E</span>-258BC0A67D75.codesnippet</span><br></pre></td></tr></table></figure>
-
-<p>所以对个人的代码块的维护方式也显而易见变成了对此文件夹内的文件的维护。</p>
-<hr>
-<p><a href="https://github.com/zcx4u/XCode_CodeSnippet">创建私有库用来保存创建的代码块</a></p>
-<p>每次下载过文件之后再手动批量向本地复制粘贴挺麻烦（主要是懒…）所以通过脚本命令进行合并再好不过了！</p>
-<figure class="highlight ruby"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/bin/bash</span></span><br><span class="line"><span class="comment"># GitHub: https://github.com/zcx4u/XCode_CodeSnippet</span></span><br><span class="line"><span class="comment"># 将代码块到本地并安装到xcode</span></span><br><span class="line"></span><br><span class="line"><span class="variable constant_">SRC_HOME</span>=<span class="string">`pwd`</span></span><br><span class="line">echo <span class="string">&quot;备份旧代码块~/Library/Developer/Xcode/UserData/CodeSnippets_Backup.zip&quot;</span></span><br><span class="line">cd ~<span class="regexp">/Library/</span><span class="title class_">Developer</span>/<span class="title class_">Xcode</span>/<span class="title class_">UserData</span></span><br><span class="line">zip -r <span class="title class_">CodeSnippets</span>_Backup.zip <span class="title class_">CodeSnippets</span></span><br><span class="line">echo <span class="string">&quot;合并代码块&quot;</span></span><br><span class="line">ditto -V <span class="variable">$&#123;</span><span class="variable constant_">SRC_HOME</span>&#125;/<span class="title class_">CodeSnippets</span> ~<span class="regexp">/Library/</span><span class="title class_">Developer</span>/<span class="title class_">Xcode</span>/<span class="title class_">UserData</span>/<span class="title class_">CodeSnippets</span></span><br><span class="line">echo <span class="string">&quot;done&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p> 记得先备份旧的文件夹以防不测😄</p>
-<p>以前也零零碎碎的增加过代码块，但是换工作换电脑后就清空了，客户端业务变化较大重复性的编码还是比较多。</p>
-<p>积累一些使用的顺手的工具和方法能有效提升效率，高效完成coding早点homing可以gaming还能shopping，岂不美哉！</p>
-]]></content>
-      <categories>
-        <category>iOS</category>
-      </categories>
-      <tags>
-        <tag>效率</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>__block 关键字探究</title>
     <url>/2020/09/23/block/</url>
     <content><![CDATA[<h3 id="block-是干什么用的"><a href="#block-是干什么用的" class="headerlink" title="__block 是干什么用的"></a>__block 是干什么用的</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">int val = 10;   </span><br><span class="line">MyBlock block = ^&#123;</span><br><span class="line">    NSLog(@&quot;val = %d&quot;,val);</span><br><span class="line">&#125;;</span><br><span class="line">block();</span><br><span class="line">//输出</span><br><span class="line">2020-09-22 14:24:47.018497+0800 MyDemo[2987:2658512] val = 10</span><br></pre></td></tr></table></figure>
@@ -813,6 +777,42 @@
       </categories>
       <tags>
         <tag>学习笔记</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Xcode代码块云同步+本地安装脚本</title>
+    <url>/2021/08/25/Xcode%E4%BB%A3%E7%A0%81%E5%9D%97%E4%BA%91%E5%90%8C%E6%AD%A5+%E6%9C%AC%E5%9C%B0%E5%AE%89%E8%A3%85%E8%84%9A%E6%9C%AC/</url>
+    <content><![CDATA[<p>今天整理了最近半年内使用频率高的一些代码，做了一些代码块 <code>codesnippet</code>使用，并在github上创建了一个私有仓库用来云端维护和同步，写了一个脚本进行代码块下载和合并。</p>
+<p>创建方式：</p>
+<ol>
+<li><p>选中要创建的代码块，右键选择Create Code Snippte</p>
+<p><img src="https://cdn.zcx.info/008i3skNly1gtt9tybj9gj611y0q8djc02.jpg"></p>
+</li>
+<li><p>右上角 <code>+</code>框快速查看系统和自定义代码块</p>
+<p><img src="https://cdn.zcx.info/008i3skNly1gtt9ty5ejxj61gj0u043502.jpg"></p>
+</li>
+<li><p>填写代码块描述，以及快捷方式，修改代码块</p>
+</li>
+</ol>
+<p><img src="https://cdn.zcx.info/008i3skNly1gtt9txvjapj61c50u00wu02.jpg"></p>
+<p>xcode中用户自定义的 代码块保存在~&#x2F;Library&#x2F;Developer&#x2F;Xcode&#x2F;UserData&#x2F;CodeSnippets路径下，每个代码块都是一个.codesnippet格式的配置文件。</p>
+<figure class="highlight ruby"><table><tr><td class="code"><pre><span class="line">~<span class="regexp">/Library/</span><span class="title class_">Developer</span>/<span class="title class_">Xcode</span>/<span class="title class_">UserData</span>/<span class="title class_">CodeSnippets</span><span class="variable">$:</span> ls -l</span><br><span class="line">total <span class="number">72</span></span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1008</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">19</span><span class="symbol">:</span><span class="number">36</span> 1BF011CF-<span class="number">9292</span>-4B72-9D44-<span class="variable constant_">F7C3BC89AFE0</span>.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1036</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">16</span><span class="symbol">:</span><span class="number">03</span> 28DDA843-<span class="variable constant_">AD69</span>-4A09-87C4-3D1DB320EDB5.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff   <span class="number">864</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">16</span><span class="symbol">:</span><span class="number">37</span> 8BEF45E5-0B98-4CC5-9CB8-86203CA29A69.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1699</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">19</span><span class="symbol">:</span><span class="number">37</span> <span class="variable constant_">B42EC618</span>-1BF8-<span class="number">4E30</span>-<span class="variable constant_">AC73</span>-12E1282FEAFC.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff   <span class="number">994</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> <span class="variable constant_">BA1B105B</span>-<span class="variable constant_">F02A</span>-<span class="number">4925</span>-<span class="variable constant_">A7FD</span>-<span class="variable constant_">B7E6081438E2</span>.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1099</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">15</span><span class="symbol">:</span><span class="number">30</span> <span class="variable constant_">BB31C5F1</span>-<span class="variable constant_">D74A</span>-4CD4-968D-<span class="variable constant_">F707DADF07C1</span>.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1144</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> <span class="variable constant_">DDA53283</span>-7F1F-49EC-9D76-87D876EA67FC.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1557</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> <span class="variable constant_">E12D24FC</span>-<span class="number">2098</span>-413F-<span class="variable constant_">B12E</span>-<span class="variable constant_">CBB79181EBDA</span>.codesnippet</span><br><span class="line">-rw-r--r--  <span class="number">1</span> zcx  staff  <span class="number">1085</span> <span class="title class_">Aug</span> <span class="number">25</span> <span class="number">17</span><span class="symbol">:</span><span class="number">48</span> <span class="variable constant_">E7CFEE5D</span>-<span class="variable constant_">D2F0</span>-42D7-<span class="variable constant_">AD6E</span>-258BC0A67D75.codesnippet</span><br></pre></td></tr></table></figure>
+
+<p>所以对个人的代码块的维护方式也显而易见变成了对此文件夹内的文件的维护。</p>
+<hr>
+<p><a href="https://github.com/zcx4u/XCode_CodeSnippet">创建私有库用来保存创建的代码块</a></p>
+<p>每次下载过文件之后再手动批量向本地复制粘贴挺麻烦（主要是懒…）所以通过脚本命令进行合并再好不过了！</p>
+<figure class="highlight ruby"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/bin/bash</span></span><br><span class="line"><span class="comment"># GitHub: https://github.com/zcx4u/XCode_CodeSnippet</span></span><br><span class="line"><span class="comment"># 将代码块到本地并安装到xcode</span></span><br><span class="line"></span><br><span class="line"><span class="variable constant_">SRC_HOME</span>=<span class="string">`pwd`</span></span><br><span class="line">echo <span class="string">&quot;备份旧代码块~/Library/Developer/Xcode/UserData/CodeSnippets_Backup.zip&quot;</span></span><br><span class="line">cd ~<span class="regexp">/Library/</span><span class="title class_">Developer</span>/<span class="title class_">Xcode</span>/<span class="title class_">UserData</span></span><br><span class="line">zip -r <span class="title class_">CodeSnippets</span>_Backup.zip <span class="title class_">CodeSnippets</span></span><br><span class="line">echo <span class="string">&quot;合并代码块&quot;</span></span><br><span class="line">ditto -V <span class="variable">$&#123;</span><span class="variable constant_">SRC_HOME</span>&#125;/<span class="title class_">CodeSnippets</span> ~<span class="regexp">/Library/</span><span class="title class_">Developer</span>/<span class="title class_">Xcode</span>/<span class="title class_">UserData</span>/<span class="title class_">CodeSnippets</span></span><br><span class="line">echo <span class="string">&quot;done&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p> 记得先备份旧的文件夹以防不测😄</p>
+<p>以前也零零碎碎的增加过代码块，但是换工作换电脑后就清空了，客户端业务变化较大重复性的编码还是比较多。</p>
+<p>积累一些使用的顺手的工具和方法能有效提升效率，高效完成coding早点homing可以gaming还能shopping，岂不美哉！</p>
+]]></content>
+      <categories>
+        <category>iOS</category>
+      </categories>
+      <tags>
+        <tag>效率</tag>
       </tags>
   </entry>
   <entry>
@@ -1526,6 +1526,57 @@
       </tags>
   </entry>
   <entry>
+    <title>iOS签名机制</title>
+    <url>/2022/11/05/iOS%E7%AD%BE%E5%90%8D%E6%9C%BA%E5%88%B6/</url>
+    <content><![CDATA[<h1 id="iOS签名机制"><a href="#iOS签名机制" class="headerlink" title="iOS签名机制"></a>iOS签名机制</h1><h2 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>在iOS开发中，配置证书总是一件繁琐的工作，网上的教程有很多，基本都是手把手的教操作，但是如果不了解为什么要配置这些东西，对配置流程就不会有深刻的印象。</p>
+<p>配置证书最大的作用就是保证安全性，安全性主要表现在以下的几个方面：</p>
+<p>1.保证苹果手机下载的App是从<strong>苹果官网认证</strong>的途径下载</p>
+<p>2.保证App在苹果官方注册过的设备上运行</p>
+<p>3.保证App在特定的设备中运行（开发需要）</p>
+<h3 id="技术支持"><a href="#技术支持" class="headerlink" title="技术支持"></a>技术支持</h3><p>苹果采用的是<strong>数字签名</strong>进行加密，它是基于<strong>非对称加密算法和摘要算法</strong>实现的，和对称加密算法不同的是**，**对称加密通过同一份密钥加密和解密数据，而非对称加密有两个密钥，分别是公钥和私钥，用公钥加密的数据，要用私钥才能解密；用私钥加密的数据，要用公钥才能解密。这里的非对称加密就是我们熟知的RSA，想要深入理解的童鞋可以自主了解。</p>
+<p>为了更好的理解非对称加密的好处，我举一个场景例子：A要发送邮件给B，这个过程中要确保在传输中邮件内容没有被篡改，也就是只有B可以查看邮件的内容；还要确保这个邮件是A发送过来的，不是其他人发送的。我们用非对称加密的方式来处理：首先存A和B各有一对公私钥，A持有他自己的私钥和B的公钥，B持有A的公钥和B的私钥，公钥一般是给别人的，私钥在自己手里。A先用B的公钥给邮件加密，这样这个邮件只能被B的私钥解开，保证在传输过程中不会被篡改；A用自己的私钥将邮件加密，B要用A的公钥将邮件解密，来确保这是A发送过来的。这就是双向验证。</p>
+<h2 id="基于iOS开发的签名机制"><a href="#基于iOS开发的签名机制" class="headerlink" title="基于iOS开发的签名机制"></a>基于iOS开发的签名机制</h2><h3 id="从App-Store安装App"><a href="#从App-Store安装App" class="headerlink" title="从App Store安装App"></a>从App Store安装App</h3><p>这个签名的方式相对简单，只需要验证App是从AppStore上下载的即可。苹果官方生成一对公私钥，在苹果设备上内置一个公钥，私钥由后台保管，我们上传App到AppStore时，苹果后台用私钥对App进行签名，设备在在App包后，用内置公钥验证签名。</p>
+<p>思考：每个设备和苹果后台都有对应的一对公私钥还是只有一对公私钥，每个设备的公钥都是一样的，如果是前者，给App用私钥加密的时候是什么时候？</p>
+<p><strong>结论：所有苹果设备上的公钥都是一样的。</strong></p>
+<h3 id="其他方式安装App"><a href="#其他方式安装App" class="headerlink" title="其他方式安装App"></a>其他方式安装App</h3><ul>
+<li>通过Xcode将App运行在设备上，调试用</li>
+<li>企业内部分发，可以直接安装企业证书签名后的App</li>
+<li>AD-Hoc相当于企业分发的限制版，限制安装设备数量</li>
+</ul>
+<p>以上几种场景就比较复杂了，我们需要确保这个App包的来源是苹果官方认证的，还要指定设备信息（不能随便的苹果设备都可以运行）。在了解这些场景的签名过程之前我们先思考一些问题：</p>
+<p>1.App包不能上传到App Store上进行私钥加密了，需要通过其他介质间接验证；</p>
+<p>2.iPhone上只有一个公钥可用，如何验证这么多信息；</p>
+<p>3.如何限制设备、权限等额外信息。</p>
+<p>我们需要除了App包以外的信息来进行验证，就是各种加密之后的文件，所以我们需要配置很多的证书。</p>
+<h3 id="加密流程"><a href="#加密流程" class="headerlink" title="加密流程"></a>加密流程</h3><p>1.在mac上生成一对公私钥，公钥M，私钥M，苹果后台和苹果设备有一对公私钥，公钥A，私钥A。</p>
+<p>2.将公钥M上传到苹果后台，用苹果后台的私钥A签名公钥M得到了公钥M的签名，代称hashM(私A)，hashM(私A)和公钥M组成的数据称为<strong>证书</strong>。（证书携带苹果官方认证信息，需要和App到达设备上）</p>
+<p>3.开发完成后，用私钥M对App进行签名，同时将证书一起打包进App中，安装到手机。</p>
+<p>4.安装时，iOS系统获得证书，用公钥A验证hashM(私A），得到的信息和证书中的公钥是否一致。</p>
+<p><strong>以上的流程可以完成验证App是否经过了苹果官方认可的需求，没有解决滥用的问题。<strong>这里的滥用问题包括任何App都可以用这个证书在任何设备上安装运行，这是不允许的。我们可以把这些限制信息如AppID、设备ID等和证书</strong>再用私钥A进行加密</strong>，在最后的iOS系统验证的时候就可以判断这些限制数据是否符合要求。可以理解为又进行了一次加密。得到的数据就是我们知道的<strong>Provisioning file</strong>，Provisioning file里面就包含了证书和以上提到的额外信息，以及所有信息的签名。</p>
+<p>在编译一个App后，用本地的的私钥M对这个App进行签名，同时把Provisioning file文件打包到App中，文件名为embeded.mobileprovision，把App安装到手机上。以上的过程就是加密的过程，看起来加密了很多层，让我们来梳理一下：</p>
+<p><img src="https://cdn.zcx.info/1553500434698-48c63da0-2fac-490f-9b24-a5944fb17ae8.png"></p>
+<h2 id="配置证书简要流程"><a href="#配置证书简要流程" class="headerlink" title="配置证书简要流程"></a>配置证书简要流程</h2><h3 id="请求根证书"><a href="#请求根证书" class="headerlink" title="请求根证书"></a>请求根证书</h3><p>在mac上生成一对公私钥，并将公钥上传到苹果后台，用苹果后台的私钥加密mac公钥，得到证书</p>
+<p>CSR生成一对公私钥，私钥始终在Mac OS的Keychain Access中，用于签名（CodeSign）对外发布的App，公钥一般随着证书（随Provisioning Profile，随App）散布出去，对App签名进行校验认证。用户要保护好本地Keychain中的private key。</p>
+<p>创建CSR文件：打开钥匙串-&gt;证书助理-&gt;从证书颁发机构请求证书。注：CRS文件是Cerificate Signing Request的英文缩写，即证书请求文件，<strong>CerificateSigningRequest就是本地公钥，.p12就是本地私钥，可以导入其他电脑，同时其他电脑也应该安装下载下来的证书。所以这一步团队开发人员很少操作。</strong></p>
+<h3 id="添加设备"><a href="#添加设备" class="headerlink" title="添加设备"></a>添加设备</h3><p>苹果严格限制了真机调试的设备，如果需要真机调试需要在<a href="https://developer.apple.com/account/resources/devices/list">开发者后台</a>添加测试机的UDID</p>
+<p><img src="https://cdn.zcx.info/202302211647247.png"></p>
+<h3 id="新增描述文件"><a href="#新增描述文件" class="headerlink" title="新增描述文件"></a>新增描述文件</h3><p>描述文件(Provisioning Profile)是一个记录了你这个App的功能和权限的证书。</p>
+<p>一般会用到以下三种：</p>
+<p><strong>develop:调试证书，包含调试信息，安装时需要证书已加入设备UDID或者越狱设备才能安装。</strong></p>
+<p><strong>distribution：正式证书，屏蔽了调试信息，发布到AppStore所用。</strong></p>
+<p><strong>ad-hoc：测试证书，需要给别人测试用到，允许用户从第三方下载应用，如蒲公英。</strong></p>
+<h2 id="刷新证书及描述文件"><a href="#刷新证书及描述文件" class="headerlink" title="刷新证书及描述文件"></a>刷新证书及描述文件</h2><p>一般在重新请求根证书之后需要更新所有的描述文件内的根证书配置。</p>
+<p>根证书和证书对应的私钥都需要有人进行维护(或者使用fastlane维护)，在团队新增成员、设备时需发放到对应的机器中的钥匙串内，否则无法进行构建和上传IPA。</p>
+<p>描述文件更新后需要在Xcode的User设置中找到开发者刷新一下Profile，或者到Profile的保存文件夹内清空重新下载，以避免描述文件更新不及时问题导致CI&#x2F;CD构建失败。</p>
+]]></content>
+      <categories>
+        <category>iOS</category>
+      </categories>
+      <tags>
+        <tag>学习笔记</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>iOS编译优化方案探索与实践-组件篇</title>
     <url>/2021/09/18/iOS%E7%BC%96%E8%AF%91%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%E6%8E%A2%E7%B4%A2%E4%B8%8E%E5%AE%9E%E8%B7%B5-%E7%BB%84%E4%BB%B6%E7%AF%87/</url>
     <content><![CDATA[<h1 id="iOS编译优化方案探索与实践-组件篇"><a href="#iOS编译优化方案探索与实践-组件篇" class="headerlink" title="iOS编译优化方案探索与实践-组件篇"></a>iOS编译优化方案探索与实践-组件篇</h1><h3 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h3><p>目前主流的项目构建方案中几乎都使用cocoapods进行组件库管理，不论是第三方开源库还是自研的私有库，都会生成.podspec文件使用cocoapods工具进行维护。</p>
@@ -1556,7 +1607,7 @@
 
 <p>坑点：cocoapods-imy-bin配置私有源时只支持ssh，因此要修改以前的https的源，对ssh操作不熟练的需要google出现的问题及解决方案。</p>
 <blockquote>
-<p><a href="mailto:&#103;&#105;&#116;&#x40;&#x78;&#120;&#x78;&#46;&#99;&#111;&#109;">git@xxx.com</a> ssh一直报错，之前的公钥有密码,通过ssh连接私有库的时候一直报错让输入密码，但是输入之后还是不行,报错无授权,重新生成rsa秘钥对之后尝试还是不行，报同样的错误。最后发现是git地址没有给对，从cocoapods file中拷贝出来的时候带了一个source字符串，所以ssh授权一直失败（地址都错了授权肯定失败啊）</p>
+<p><a href="mailto:&#x67;&#x69;&#x74;&#x40;&#x78;&#x78;&#x78;&#46;&#x63;&#111;&#x6d;">git@xxx.com</a> ssh一直报错，之前的公钥有密码,通过ssh连接私有库的时候一直报错让输入密码，但是输入之后还是不行,报错无授权,重新生成rsa秘钥对之后尝试还是不行，报同样的错误。最后发现是git地址没有给对，从cocoapods file中拷贝出来的时候带了一个source字符串，所以ssh授权一直失败（地址都错了授权肯定失败啊）</p>
 </blockquote>
 <p>创建repo不能仅仅拉一个git仓库就行了，还得找一个已有的仓库进行.podspec文件push ，否则添加此源之后 执行pod repo update 会一直失败。</p>
 <blockquote>
@@ -1628,57 +1679,6 @@
       </categories>
       <tags>
         <tag>技术调研</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>iOS签名机制</title>
-    <url>/2022/11/05/iOS%E7%AD%BE%E5%90%8D%E6%9C%BA%E5%88%B6/</url>
-    <content><![CDATA[<h1 id="iOS签名机制"><a href="#iOS签名机制" class="headerlink" title="iOS签名机制"></a>iOS签名机制</h1><h2 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>在iOS开发中，配置证书总是一件繁琐的工作，网上的教程有很多，基本都是手把手的教操作，但是如果不了解为什么要配置这些东西，对配置流程就不会有深刻的印象。</p>
-<p>配置证书最大的作用就是保证安全性，安全性主要表现在以下的几个方面：</p>
-<p>1.保证苹果手机下载的App是从<strong>苹果官网认证</strong>的途径下载</p>
-<p>2.保证App在苹果官方注册过的设备上运行</p>
-<p>3.保证App在特定的设备中运行（开发需要）</p>
-<h3 id="技术支持"><a href="#技术支持" class="headerlink" title="技术支持"></a>技术支持</h3><p>苹果采用的是<strong>数字签名</strong>进行加密，它是基于<strong>非对称加密算法和摘要算法</strong>实现的，和对称加密算法不同的是**，**对称加密通过同一份密钥加密和解密数据，而非对称加密有两个密钥，分别是公钥和私钥，用公钥加密的数据，要用私钥才能解密；用私钥加密的数据，要用公钥才能解密。这里的非对称加密就是我们熟知的RSA，想要深入理解的童鞋可以自主了解。</p>
-<p>为了更好的理解非对称加密的好处，我举一个场景例子：A要发送邮件给B，这个过程中要确保在传输中邮件内容没有被篡改，也就是只有B可以查看邮件的内容；还要确保这个邮件是A发送过来的，不是其他人发送的。我们用非对称加密的方式来处理：首先存A和B各有一对公私钥，A持有他自己的私钥和B的公钥，B持有A的公钥和B的私钥，公钥一般是给别人的，私钥在自己手里。A先用B的公钥给邮件加密，这样这个邮件只能被B的私钥解开，保证在传输过程中不会被篡改；A用自己的私钥将邮件加密，B要用A的公钥将邮件解密，来确保这是A发送过来的。这就是双向验证。</p>
-<h2 id="基于iOS开发的签名机制"><a href="#基于iOS开发的签名机制" class="headerlink" title="基于iOS开发的签名机制"></a>基于iOS开发的签名机制</h2><h3 id="从App-Store安装App"><a href="#从App-Store安装App" class="headerlink" title="从App Store安装App"></a>从App Store安装App</h3><p>这个签名的方式相对简单，只需要验证App是从AppStore上下载的即可。苹果官方生成一对公私钥，在苹果设备上内置一个公钥，私钥由后台保管，我们上传App到AppStore时，苹果后台用私钥对App进行签名，设备在在App包后，用内置公钥验证签名。</p>
-<p>思考：每个设备和苹果后台都有对应的一对公私钥还是只有一对公私钥，每个设备的公钥都是一样的，如果是前者，给App用私钥加密的时候是什么时候？</p>
-<p><strong>结论：所有苹果设备上的公钥都是一样的。</strong></p>
-<h3 id="其他方式安装App"><a href="#其他方式安装App" class="headerlink" title="其他方式安装App"></a>其他方式安装App</h3><ul>
-<li>通过Xcode将App运行在设备上，调试用</li>
-<li>企业内部分发，可以直接安装企业证书签名后的App</li>
-<li>AD-Hoc相当于企业分发的限制版，限制安装设备数量</li>
-</ul>
-<p>以上几种场景就比较复杂了，我们需要确保这个App包的来源是苹果官方认证的，还要指定设备信息（不能随便的苹果设备都可以运行）。在了解这些场景的签名过程之前我们先思考一些问题：</p>
-<p>1.App包不能上传到App Store上进行私钥加密了，需要通过其他介质间接验证；</p>
-<p>2.iPhone上只有一个公钥可用，如何验证这么多信息；</p>
-<p>3.如何限制设备、权限等额外信息。</p>
-<p>我们需要除了App包以外的信息来进行验证，就是各种加密之后的文件，所以我们需要配置很多的证书。</p>
-<h3 id="加密流程"><a href="#加密流程" class="headerlink" title="加密流程"></a>加密流程</h3><p>1.在mac上生成一对公私钥，公钥M，私钥M，苹果后台和苹果设备有一对公私钥，公钥A，私钥A。</p>
-<p>2.将公钥M上传到苹果后台，用苹果后台的私钥A签名公钥M得到了公钥M的签名，代称hashM(私A)，hashM(私A)和公钥M组成的数据称为<strong>证书</strong>。（证书携带苹果官方认证信息，需要和App到达设备上）</p>
-<p>3.开发完成后，用私钥M对App进行签名，同时将证书一起打包进App中，安装到手机。</p>
-<p>4.安装时，iOS系统获得证书，用公钥A验证hashM(私A），得到的信息和证书中的公钥是否一致。</p>
-<p><strong>以上的流程可以完成验证App是否经过了苹果官方认可的需求，没有解决滥用的问题。<strong>这里的滥用问题包括任何App都可以用这个证书在任何设备上安装运行，这是不允许的。我们可以把这些限制信息如AppID、设备ID等和证书</strong>再用私钥A进行加密</strong>，在最后的iOS系统验证的时候就可以判断这些限制数据是否符合要求。可以理解为又进行了一次加密。得到的数据就是我们知道的<strong>Provisioning file</strong>，Provisioning file里面就包含了证书和以上提到的额外信息，以及所有信息的签名。</p>
-<p>在编译一个App后，用本地的的私钥M对这个App进行签名，同时把Provisioning file文件打包到App中，文件名为embeded.mobileprovision，把App安装到手机上。以上的过程就是加密的过程，看起来加密了很多层，让我们来梳理一下：</p>
-<p><img src="https://cdn.zcx.info/1553500434698-48c63da0-2fac-490f-9b24-a5944fb17ae8.png"></p>
-<h2 id="配置证书简要流程"><a href="#配置证书简要流程" class="headerlink" title="配置证书简要流程"></a>配置证书简要流程</h2><h3 id="请求根证书"><a href="#请求根证书" class="headerlink" title="请求根证书"></a>请求根证书</h3><p>在mac上生成一对公私钥，并将公钥上传到苹果后台，用苹果后台的私钥加密mac公钥，得到证书</p>
-<p>CSR生成一对公私钥，私钥始终在Mac OS的Keychain Access中，用于签名（CodeSign）对外发布的App，公钥一般随着证书（随Provisioning Profile，随App）散布出去，对App签名进行校验认证。用户要保护好本地Keychain中的private key。</p>
-<p>创建CSR文件：打开钥匙串-&gt;证书助理-&gt;从证书颁发机构请求证书。注：CRS文件是Cerificate Signing Request的英文缩写，即证书请求文件，<strong>CerificateSigningRequest就是本地公钥，.p12就是本地私钥，可以导入其他电脑，同时其他电脑也应该安装下载下来的证书。所以这一步团队开发人员很少操作。</strong></p>
-<h3 id="添加设备"><a href="#添加设备" class="headerlink" title="添加设备"></a>添加设备</h3><p>苹果严格限制了真机调试的设备，如果需要真机调试需要在<a href="https://developer.apple.com/account/resources/devices/list">开发者后台</a>添加测试机的UDID</p>
-<p><img src="https://cdn.zcx.info/202302211647247.png"></p>
-<h3 id="新增描述文件"><a href="#新增描述文件" class="headerlink" title="新增描述文件"></a>新增描述文件</h3><p>描述文件(Provisioning Profile)是一个记录了你这个App的功能和权限的证书。</p>
-<p>一般会用到以下三种：</p>
-<p><strong>develop:调试证书，包含调试信息，安装时需要证书已加入设备UDID或者越狱设备才能安装。</strong></p>
-<p><strong>distribution：正式证书，屏蔽了调试信息，发布到AppStore所用。</strong></p>
-<p><strong>ad-hoc：测试证书，需要给别人测试用到，允许用户从第三方下载应用，如蒲公英。</strong></p>
-<h2 id="刷新证书及描述文件"><a href="#刷新证书及描述文件" class="headerlink" title="刷新证书及描述文件"></a>刷新证书及描述文件</h2><p>一般在重新请求根证书之后需要更新所有的描述文件内的根证书配置。</p>
-<p>根证书和证书对应的私钥都需要有人进行维护(或者使用fastlane维护)，在团队新增成员、设备时需发放到对应的机器中的钥匙串内，否则无法进行构建和上传IPA。</p>
-<p>描述文件更新后需要在Xcode的User设置中找到开发者刷新一下Profile，或者到Profile的保存文件夹内清空重新下载，以避免描述文件更新不及时问题导致CI&#x2F;CD构建失败。</p>
-]]></content>
-      <categories>
-        <category>iOS</category>
-      </categories>
-      <tags>
-        <tag>学习笔记</tag>
       </tags>
   </entry>
   <entry>
@@ -1776,8 +1776,6 @@
 </blockquote>
 <h3 id="Widget介绍"><a href="#Widget介绍" class="headerlink" title="Widget介绍"></a>Widget介绍</h3><p><a href="https://support.apple.com/zh-cn/HT207122">这里有一份官方的小组件使用指南</a></p>
 <p>简单来说：小组件相当于一个动态程序入口，在有限的空间内展示你想看到的重要的信息</p>
-<span id="more"></span>
-
 <img src="https://cdn.zcx.info/008eGmZEly1gnu0x3a5faj305g05p0tr.jpg" alt="电池小组件" style="zoom:50%;" />
 
 <p>苹果自带的日历使用起来非常不适，下载第三方日历又不想被捆绑的无用功能打扰。有了小组件之后这个问题就很好的解决了，比如上面的日历小组件，清晰的展示了今天的日期和农历以及周几，打开手机锁屏就能看见。</p>
@@ -1794,7 +1792,7 @@
 <p><code>FIle</code> &gt; <code>New</code> &gt;<code>Target</code> &gt;<code>Wiget Extension</code>  来创建</p>
 <img src="https://cdn.zcx.info/008eGmZEly1gnu1b833goj30g90gdadn.jpg" style="zoom:100%;" />
 
-<p>找到我们需要的<code>Widget Extension</code></p>
+<p>找到我们需要的 <code>Widget Extension</code></p>
 <p><img src="https://cdn.zcx.info/008eGmZEly1gnu1b7z83jj30kb0eodh5.jpg"></p>
 <p>命名小组件</p>
 <p><img src="https://cdn.zcx.info/008eGmZEly1gnu1b7vu85j30ke0eoq3v.jpg"></p>
@@ -1805,7 +1803,7 @@
 <p><img src="https://cdn.zcx.info/008eGmZEly1gnu1ge3kbuj30eb03hglp.jpg" alt="带配置项的结构"></p>
 <p>带配置项的小组件的结构 主要区别在于 <code>TestWidget.intentdefinition</code>文件上，这个文件内部可以添加配置选项。</p>
 <p>TestWidget代码如下</p>
-<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> WidgetKit</span><br><span class="line"><span class="keyword">import</span> SwiftUI</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Provider</span>: <span class="title class_ inherited__">TimelineProvider</span> &#123;</span><br><span class="line">   	<span class="comment">/// 默认显示（无自定数据情况下显示）</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">placeholder</span>(<span class="params">in</span> <span class="params">context</span>: <span class="type">Context</span>) -&gt; <span class="type">SimpleEntry</span> &#123;</span><br><span class="line">        <span class="type">SimpleEntry</span>(date: <span class="type">Date</span>())</span><br><span class="line">    &#125;</span><br><span class="line">		</span><br><span class="line">    <span class="comment">///getSnapshot方法是提供一个预览数据，可以让用户看到该组件的一个大致情况，是长什么样、显示什么数据的，可以写成固定数据，国外的			文章里叫它“fake information”</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">getSnapshot</span>(<span class="params">in</span> <span class="params">context</span>: <span class="type">Context</span>, <span class="params">completion</span>: <span class="keyword">@escaping</span> (<span class="type">SimpleEntry</span>) -&gt; ()) &#123;</span><br><span class="line">        <span class="keyword">let</span> entry <span class="operator">=</span> <span class="type">SimpleEntry</span>(date: <span class="type">Date</span>())</span><br><span class="line">        completion(entry)</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">		<span class="comment">///包含要显示的所有条目：预期显示的时间（条目的日期）以及时间轴“过期”的时间</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">getTimeline</span>(<span class="params">in</span> <span class="params">context</span>: <span class="type">Context</span>, <span class="params">completion</span>: <span class="keyword">@escaping</span> (<span class="type">Timeline</span>&lt;<span class="type">Entry</span>&gt;) -&gt; ()) &#123;</span><br><span class="line">        <span class="keyword">var</span> entries: [<span class="type">SimpleEntry</span>] <span class="operator">=</span> []</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Generate a timeline consisting of five entries an hour apart, starting from the current date.</span></span><br><span class="line">        <span class="keyword">let</span> currentDate <span class="operator">=</span> <span class="type">Date</span>()</span><br><span class="line">        <span class="keyword">for</span> hourOffset <span class="keyword">in</span> <span class="number">0</span> <span class="operator">..&lt;</span> <span class="number">5</span> &#123;</span><br><span class="line">            <span class="comment">//需要在这里从网络加载数据回来 同步进行初始化</span></span><br><span class="line">            <span class="keyword">let</span> entryDate <span class="operator">=</span> <span class="type">Calendar</span>.current.date(byAdding: .hour, value: hourOffset, to: currentDate)<span class="operator">!</span></span><br><span class="line">            <span class="keyword">let</span> entry <span class="operator">=</span> <span class="type">SimpleEntry</span>(date: entryDate)</span><br><span class="line">            entries.append(entry)</span><br><span class="line">        &#125;</span><br><span class="line">				<span class="comment">// atEnd 指在最后一个显示时间点的小组件完毕后重新刷新TimeLine</span></span><br><span class="line">        <span class="keyword">let</span> timeline <span class="operator">=</span> <span class="type">Timeline</span>(entries: entries, policy: .atEnd)</span><br><span class="line">        completion(timeline)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">SimpleEntry</span>: <span class="title class_ inherited__">TimelineEntry</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> date: <span class="type">Date</span></span><br><span class="line">  	<span class="comment">// 下面可以自己添加自定义的model</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">TestWidgetEntryView</span> : <span class="title class_ inherited__">View</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> entry: <span class="type">Provider</span>.<span class="type">Entry</span></span><br><span class="line">		<span class="comment">// swiftUI的View 可以返回一系列View 具体请参看SwiftUI文档</span></span><br><span class="line">    <span class="keyword">var</span> body: <span class="keyword">some</span> <span class="type">View</span> &#123;</span><br><span class="line">        <span class="type">Text</span>(entry.date, style: .time)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 小组件主入口</span></span><br><span class="line"><span class="keyword">@main</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">TestWidget</span>: <span class="title class_ inherited__">Widget</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> kind: <span class="type">String</span> <span class="operator">=</span> <span class="string">&quot;TestWidget&quot;</span></span><br><span class="line">		<span class="comment">// StaticConfiguration 不带配置项的小组件初始化方式</span></span><br><span class="line">    <span class="keyword">var</span> body: <span class="keyword">some</span> <span class="type">WidgetConfiguration</span> &#123;</span><br><span class="line">        <span class="type">StaticConfiguration</span>(kind: kind, provider: <span class="type">Provider</span>()) &#123; entry <span class="keyword">in</span></span><br><span class="line">            <span class="type">TestWidgetEntryView</span>(entry: entry)</span><br><span class="line">        &#125;</span><br><span class="line">        .configurationDisplayName(<span class="string">&quot;My Widget&quot;</span>)</span><br><span class="line">        .description(<span class="string">&quot;This is an example widget.&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 实时预览view</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">TestWidget_Previews</span>: <span class="title class_ inherited__">PreviewProvider</span> &#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">var</span> previews: <span class="keyword">some</span> <span class="type">View</span> &#123;</span><br><span class="line">        <span class="type">TestWidgetEntryView</span>(entry: <span class="type">SimpleEntry</span>(date: <span class="type">Date</span>()))</span><br><span class="line">            .previewContext(<span class="type">WidgetPreviewContext</span>(family: .systemSmall))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> WidgetKit</span><br><span class="line"><span class="keyword">import</span> SwiftUI</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Provider</span>: <span class="title class_ inherited__">TimelineProvider</span> &#123;</span><br><span class="line">   	<span class="comment">/// 默认显示（无自定数据情况下显示）</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">placeholder</span>(<span class="params">in</span> <span class="params">context</span>: <span class="type">Context</span>) -&gt; <span class="type">SimpleEntry</span> &#123;</span><br><span class="line">        <span class="type">SimpleEntry</span>(date: <span class="type">Date</span>())</span><br><span class="line">    &#125;</span><br><span class="line">	</span><br><span class="line">    <span class="comment">///getSnapshot方法是提供一个预览数据，可以让用户看到该组件的一个大致情况，是长什么样、显示什么数据的，可以写成固定数据，国外的			文章里叫它“fake information”</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">getSnapshot</span>(<span class="params">in</span> <span class="params">context</span>: <span class="type">Context</span>, <span class="params">completion</span>: <span class="keyword">@escaping</span> (<span class="type">SimpleEntry</span>) -&gt; ()) &#123;</span><br><span class="line">        <span class="keyword">let</span> entry <span class="operator">=</span> <span class="type">SimpleEntry</span>(date: <span class="type">Date</span>())</span><br><span class="line">        completion(entry)</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">		<span class="comment">///包含要显示的所有条目：预期显示的时间（条目的日期）以及时间轴“过期”的时间</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">getTimeline</span>(<span class="params">in</span> <span class="params">context</span>: <span class="type">Context</span>, <span class="params">completion</span>: <span class="keyword">@escaping</span> (<span class="type">Timeline</span>&lt;<span class="type">Entry</span>&gt;) -&gt; ()) &#123;</span><br><span class="line">        <span class="keyword">var</span> entries: [<span class="type">SimpleEntry</span>] <span class="operator">=</span> []</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Generate a timeline consisting of five entries an hour apart, starting from the current date.</span></span><br><span class="line">        <span class="keyword">let</span> currentDate <span class="operator">=</span> <span class="type">Date</span>()</span><br><span class="line">        <span class="keyword">for</span> hourOffset <span class="keyword">in</span> <span class="number">0</span> <span class="operator">..&lt;</span> <span class="number">5</span> &#123;</span><br><span class="line">            <span class="comment">//需要在这里从网络加载数据回来 同步进行初始化</span></span><br><span class="line">            <span class="keyword">let</span> entryDate <span class="operator">=</span> <span class="type">Calendar</span>.current.date(byAdding: .hour, value: hourOffset, to: currentDate)<span class="operator">!</span></span><br><span class="line">            <span class="keyword">let</span> entry <span class="operator">=</span> <span class="type">SimpleEntry</span>(date: entryDate)</span><br><span class="line">            entries.append(entry)</span><br><span class="line">        &#125;</span><br><span class="line">				<span class="comment">// atEnd 指在最后一个显示时间点的小组件完毕后重新刷新TimeLine</span></span><br><span class="line">        <span class="keyword">let</span> timeline <span class="operator">=</span> <span class="type">Timeline</span>(entries: entries, policy: .atEnd)</span><br><span class="line">        completion(timeline)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">SimpleEntry</span>: <span class="title class_ inherited__">TimelineEntry</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> date: <span class="type">Date</span></span><br><span class="line">  	<span class="comment">// 下面可以自己添加自定义的model</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">TestWidgetEntryView</span> : <span class="title class_ inherited__">View</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> entry: <span class="type">Provider</span>.<span class="type">Entry</span></span><br><span class="line">		<span class="comment">// swiftUI的View 可以返回一系列View 具体请参看SwiftUI文档</span></span><br><span class="line">    <span class="keyword">var</span> body: <span class="keyword">some</span> <span class="type">View</span> &#123;</span><br><span class="line">        <span class="type">Text</span>(entry.date, style: .time)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 小组件主入口</span></span><br><span class="line"><span class="keyword">@main</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">TestWidget</span>: <span class="title class_ inherited__">Widget</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> kind: <span class="type">String</span> <span class="operator">=</span> <span class="string">&quot;TestWidget&quot;</span></span><br><span class="line">		<span class="comment">// StaticConfiguration 不带配置项的小组件初始化方式</span></span><br><span class="line">    <span class="keyword">var</span> body: <span class="keyword">some</span> <span class="type">WidgetConfiguration</span> &#123;</span><br><span class="line">        <span class="type">StaticConfiguration</span>(kind: kind, provider: <span class="type">Provider</span>()) &#123; entry <span class="keyword">in</span></span><br><span class="line">            <span class="type">TestWidgetEntryView</span>(entry: entry)</span><br><span class="line">        &#125;</span><br><span class="line">        .configurationDisplayName(<span class="string">&quot;My Widget&quot;</span>)</span><br><span class="line">        .description(<span class="string">&quot;This is an example widget.&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 实时预览view</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">TestWidget_Previews</span>: <span class="title class_ inherited__">PreviewProvider</span> &#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">var</span> previews: <span class="keyword">some</span> <span class="type">View</span> &#123;</span><br><span class="line">        <span class="type">TestWidgetEntryView</span>(entry: <span class="type">SimpleEntry</span>(date: <span class="type">Date</span>()))</span><br><span class="line">            .previewContext(<span class="type">WidgetPreviewContext</span>(family: .systemSmall))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 <p>于是我们获得了第一个小组件：</p>
 <p><img src="https://cdn.zcx.info/008eGmZEly1gnu2oixw72j304o051mx9.jpg"></p>
@@ -1816,7 +1814,7 @@
 <blockquote>
 <p>Widgets use SwiftUI views to display their content. WidgetKit renders the views on your behalf in a separate process. As a result, your widget extension is not continually active, even if the widget is onscreen. Despite your widget not always being active, there are several ways you can keep its content up to date.</p>
 </blockquote>
-<p>抛开<code>SwiftUI</code>不谈，单说 <code>your widget extension is not continually active</code> ，这段文字清晰的说明了小组件所面临的问题：不能实时刷新。即使你的小组件在你目光注视中，小组件也不能保持最新状态。</p>
+<p>抛开 <code>SwiftUI</code>不谈，单说 <code>your widget extension is not continually active</code> ，这段文字清晰的说明了小组件所面临的问题：不能实时刷新。即使你的小组件在你目光注视中，小组件也不能保持最新状态。</p>
 <p>重新加载窗口小部件会消耗系统资源，并会由于额外的联网和处理而导致电池消耗。为了减少对性能的影响并保持全天的电池寿命，请求的更新频率和更新次数将会限制为必要。</p>
 <p>那么小组件如何刷新？</p>
 <blockquote>
@@ -1825,70 +1823,70 @@
 <p>许多APP需要定时刷新数据，这些刷新时间是可预测的，比如日历APP每天刷新当日的日期信息，股市APP则会在工作日频繁刷新交易信息，但是在休息日不频繁刷新。</p>
 <p>当我们能够为小组件提供一个可预测的时间点和刷新策略，系统便会按照既定的顺序刷新。</p>
 <p><img src="https://cdn.zcx.info/008eGmZEly1gnwiq5qmqfj30n80rugn1.jpg"></p>
-<p>如图所示，我们在<code>.Now</code>和每隔1小时共三小时设置四个显示时间点，系统在get到我们给定的<code>TimeLine</code>之后会在当前、一小时后、两小时后、三小时后总计四个时间点进行小组件UI渲染,由于我们第一次给定的重新刷新策略为<code>.atEnd</code>所以会在三个小时时间点渲染完毕之后重新获取<code>TimeLine</code>。</p>
-<p>第二个<code>TimeLine(Provide timeline)</code>中设置的重新刷新策略为<code>.never</code>所以在这个时间点的小组件渲染完毕之后就不再刷新了。</p>
-<h4 id="添加预览-Snapshot"><a href="#添加预览-Snapshot" class="headerlink" title="添加预览 Snapshot"></a>添加预览 Snapshot</h4><p><code>getSnapshot</code>方法比较简单，这个方法获取我们在打开小组件预览界面时所看到的三个小组件的<code>Entry</code>。</p>
+<p>如图所示，我们在 <code>.Now</code>和每隔1小时共三小时设置四个显示时间点，系统在get到我们给定的 <code>TimeLine</code>之后会在当前、一小时后、两小时后、三小时后总计四个时间点进行小组件UI渲染,由于我们第一次给定的重新刷新策略为 <code>.atEnd</code>所以会在三个小时时间点渲染完毕之后重新获取 <code>TimeLine</code>。</p>
+<p>第二个 <code>TimeLine(Provide timeline)</code>中设置的重新刷新策略为 <code>.never</code>所以在这个时间点的小组件渲染完毕之后就不再刷新了。</p>
+<h4 id="添加预览-Snapshot"><a href="#添加预览-Snapshot" class="headerlink" title="添加预览 Snapshot"></a>添加预览 Snapshot</h4><p><code>getSnapshot</code>方法比较简单，这个方法获取我们在打开小组件预览界面时所看到的三个小组件的 <code>Entry</code>。</p>
 <p>这里如果不需要展示实时数据的时候可以放入固定的预览数据以获得最好的体验(不需要请求网络直接渲染数据)。</p>
 <h4 id="界面美化-Placeholder"><a href="#界面美化-Placeholder" class="headerlink" title="界面美化 Placeholder"></a>界面美化 Placeholder</h4><p><code>placeholder</code>方法目的在于获取一个没有数据或者没有网络情况下的默认View,一般是进行美化小组件的时候在这个view上做文章，</p>
 <h4 id="数据支撑-TimelineEntry"><a href="#数据支撑-TimelineEntry" class="headerlink" title="数据支撑 TimelineEntry"></a>数据支撑 TimelineEntry</h4><figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">SimpleEntry</span>: <span class="title class_ inherited__">TimelineEntry</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> date: <span class="type">Date</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p><code>TimelineEntry</code>协议必须包含一个<code>date</code>属性，用于计算需要渲染页面的时间点</p>
+<p><code>TimelineEntry</code>协议必须包含一个 <code>date</code>属性，用于计算需要渲染页面的时间点</p>
 <p>自定义的模型可以实现这个协议用于承载内容数据。</p>
 <h4 id="内容基石-WidgetEntryView"><a href="#内容基石-WidgetEntryView" class="headerlink" title="内容基石 WidgetEntryView"></a>内容基石 WidgetEntryView</h4><figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">TestWidgetEntryView</span> : <span class="title class_ inherited__">View</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> entry: <span class="type">Provider</span>.<span class="type">Entry</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> body: <span class="keyword">some</span> <span class="type">View</span> &#123;</span><br><span class="line">        <span class="type">Text</span>(entry.date, style: .time)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>小组件的<code>View</code>就是一个普通的包含<code>Provider.Entry</code>的<code>View(swiftUI)</code>，一般创建timeline的时候会提供<code>Provider.Entry</code>给<code>View</code>进行渲染。</p>
-<p><code>body</code>属性下包含一系列<code>VIew</code>控件用于渲染页面，更多<code>SwiftUI</code>相关的知识看<a href="https://developer.apple.com/tutorials/swiftui/creating-and-combining-views">SwiftUI文档</a>。</p>
+<p>小组件的 <code>View</code>就是一个普通的包含 <code>Provider.Entry</code>的 <code>View(swiftUI)</code>，一般创建timeline的时候会提供 <code>Provider.Entry</code>给 <code>View</code>进行渲染。</p>
+<p><code>body</code>属性下包含一系列 <code>VIew</code>控件用于渲染页面，更多 <code>SwiftUI</code>相关的知识看<a href="https://developer.apple.com/tutorials/swiftui/creating-and-combining-views">SwiftUI文档</a>。</p>
 <p>以上就是小组件的结构拆分和解析，只要明白组成结构和运行机制就能根据自己的需求去定制开发了。</p>
 <hr>
-<h3 id="Widget进阶"><a href="#Widget进阶" class="headerlink" title="Widget进阶"></a>Widget进阶</h3><h4 id="功能和限制"><a href="#功能和限制" class="headerlink" title="功能和限制"></a>功能和限制</h4><p><code>iOS14 Widget</code>的功能对比着以前的<code>TodayExtension</code>要少了很多，官方对小组件添加了很多限制。</p>
+<h3 id="Widget进阶"><a href="#Widget进阶" class="headerlink" title="Widget进阶"></a>Widget进阶</h3><h4 id="功能和限制"><a href="#功能和限制" class="headerlink" title="功能和限制"></a>功能和限制</h4><p><code>iOS14 Widget</code>的功能对比着以前的 <code>TodayExtension</code>要少了很多，官方对小组件添加了很多限制。</p>
 <ul>
-<li>小组件扩展整体需要使用<code>SwiftUI</code>结构，<code>WidgetEntryView</code>需要提供<code>SwiftUIView</code>。</li>
-<li>页面滚动、动画和视频是被禁止的，<code>SwiftUI</code> 中<code> List</code> 控件是无法使用的，扩展的<code>UIKit</code>中 <code>UIVisualEffectView</code>是被禁用的(毛玻璃效果)，更多被禁用的<code>View</code>还需要在开发中发现。</li>
+<li>小组件扩展整体需要使用 <code>SwiftUI</code>结构，<code>WidgetEntryView</code>需要提供 <code>SwiftUIView</code>。</li>
+<li>页面滚动、动画和视频是被禁止的，<code>SwiftUI</code> 中 <code> List</code> 控件是无法使用的，扩展的 <code>UIKit</code>中 <code>UIVisualEffectView</code>是被禁用的(毛玻璃效果)，更多被禁用的 <code>View</code>还需要在开发中发现。</li>
 <li>只支持点击事件交互。</li>
-<li>无法主动更新数据 刷新数据使用<code>Timeline</code>方式手动设置。</li>
-<li>每次重置刷新轮次的间隔不能低于5分钟，低于5分钟无效 ，我们在填充<code>entries</code>时应该为其填充5分钟内需要显示的数据。不建议显示实时时间，和手机系统显示的时间可能会出现偏差。</li>
+<li>无法主动更新数据 刷新数据使用 <code>Timeline</code>方式手动设置。</li>
+<li>每次重置刷新轮次的间隔不能低于5分钟，低于5分钟无效 ，我们在填充 <code>entries</code>时应该为其填充5分钟内需要显示的数据。不建议显示实时时间，和手机系统显示的时间可能会出现偏差。</li>
 </ul>
 <h4 id="小组件样式区分-supportedFamilies"><a href="#小组件样式区分-supportedFamilies" class="headerlink" title="小组件样式区分  supportedFamilies"></a>小组件样式区分  supportedFamilies</h4><figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="keyword">@main</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">TestWidget</span>: <span class="title class_ inherited__">Widget</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> kind: <span class="type">String</span> <span class="operator">=</span> <span class="string">&quot;TestWidget&quot;</span></span><br><span class="line">		<span class="comment">// StaticConfiguration 不带配置项的小组件初始化方式</span></span><br><span class="line">    <span class="keyword">var</span> body: <span class="keyword">some</span> <span class="type">WidgetConfiguration</span> &#123;</span><br><span class="line">        <span class="type">StaticConfiguration</span>(kind: kind, provider: <span class="type">Provider</span>()) &#123; entry <span class="keyword">in</span></span><br><span class="line">            <span class="type">TestWidgetEntryView</span>(entry: entry)</span><br><span class="line">        &#125;</span><br><span class="line">        .configurationDisplayName(<span class="string">&quot;My Widget&quot;</span>)</span><br><span class="line">        .description(<span class="string">&quot;This is an example widget.&quot;</span>)</span><br><span class="line">        .supportedFamilies([.systemSmall])<span class="comment">// 注意这里增加了一个方法来限制小组件支持的类型 这里只支持2x2小方块</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>从主入口可以看到我们定义了一个<code>TestWidget的</code>小组件，这个小组件默认支持三种样式。</p>
+<p>从主入口可以看到我们定义了一个 <code>TestWidget的</code>小组件，这个小组件默认支持三种样式。</p>
 <p>我们常常只需要某一个小组件只支持一种样式，比如最小的方块形状的组件设计的时候由于尺寸及形状往往不考虑其他显示格式。</p>
-<p>这时我们可以在<code>StaticConfiguration</code>后跟上配置支持的样式方法<code>supportedFamilies()</code>，小组件按照体积大小分为   <code>systemSmall</code>, <code> systemMedium</code>，<code>systemLarge</code>三种。 </p>
+<p>这时我们可以在 <code>StaticConfiguration</code>后跟上配置支持的样式方法 <code>supportedFamilies()</code>，小组件按照体积大小分为   <code>systemSmall</code>, <code> systemMedium</code>，<code>systemLarge</code>三种。</p>
 <h4 id="多小组件容器-WidgetBundle"><a href="#多小组件容器-WidgetBundle" class="headerlink" title="多小组件容器  WidgetBundle"></a>多小组件容器  WidgetBundle</h4><p>在设计完成并确定要展示的小组件之后，我们会遇到一个问题，如何在入口方法处展示多个不同类型的小组件。</p>
 <p>比如我们确定了三个小组件，<code>2x2</code>、<code>2x4</code>、<code>4x4</code>三种尺寸各一个，展示的内容也不相同。</p>
 <figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="keyword">@main</span> <span class="comment">// 移除原来的标记 放在这里 main只能存在一个</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">KrWidget</span>: <span class="title class_ inherited__">WidgetBundle</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> body: <span class="keyword">some</span> <span class="type">Widget</span> &#123;</span><br><span class="line">        <span class="type">KrSmallWidget</span>()</span><br><span class="line">        <span class="type">KrMediumWidget</span>()</span><br><span class="line">        <span class="type">KrLargeWidget</span>()</span><br><span class="line">      	<span class="type">TestWidget</span>()<span class="comment">// 声明好的小组件可以在WidgetBundle下直接初始化</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>这时我们可以将入口方法标记改成<code>WidgetBundle</code>来适应多个小组件，<code>KrSmallWidget</code>、<code>KrMediumWidget</code>、<code>KrLargeWidget</code>为我们自定义的小组件，其结构和<code>TestWidget</code>一致。</p>
-<h4 id="所见即所得-PreviewProvider"><a href="#所见即所得-PreviewProvider" class="headerlink" title="所见即所得   PreviewProvider"></a>所见即所得   PreviewProvider</h4><p>如果对<code>swiftUI</code>比较熟悉的胖友对这个会比较熟悉。</p>
+<p>这时我们可以将入口方法标记改成 <code>WidgetBundle</code>来适应多个小组件，<code>KrSmallWidget</code>、<code>KrMediumWidget</code>、<code>KrLargeWidget</code>为我们自定义的小组件，其结构和 <code>TestWidget</code>一致。</p>
+<h4 id="所见即所得-PreviewProvider"><a href="#所见即所得-PreviewProvider" class="headerlink" title="所见即所得   PreviewProvider"></a>所见即所得   PreviewProvider</h4><p>如果对 <code>swiftUI</code>比较熟悉的胖友对这个会比较熟悉。</p>
 <figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">TestWidget_Previews</span>: <span class="title class_ inherited__">PreviewProvider</span> &#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">var</span> previews: <span class="keyword">some</span> <span class="type">View</span> &#123;</span><br><span class="line">        <span class="type">TestWidgetEntryView</span>(entry: <span class="type">SimpleEntry</span>(date: <span class="type">Date</span>()))</span><br><span class="line">            .previewContext(<span class="type">WidgetPreviewContext</span>(family: .systemSmall))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>这个<code>PreviewProvider</code>可以呼出实时预览的页面，方便我们码UI。</p>
+<p>这个 <code>PreviewProvider</code>可以呼出实时预览的页面，方便我们码UI。</p>
 <p>可以点编辑器右边的resume按钮进行预览</p>
 <p><img src="https://cdn.zcx.info/008eGmZEly1gnwfwkcrujj30il04f3yq.jpg"></p>
 <p>经过build可以看到预览的结果，在你代码改动的时候会实时变化，十分方便。</p>
 <p><img src="https://cdn.zcx.info/008eGmZEly1gnwfux3fiej31310ibn10.jpg"></p>
-<p>不小心把页面关掉的话可以在右上角五条横线按钮中找到<code>Canvas</code>选项勾选即可<code>(Xcode12)</code></p>
+<p>不小心把页面关掉的话可以在右上角五条横线按钮中找到 <code>Canvas</code>选项勾选即可 <code>(Xcode12)</code></p>
 <p><img src="https://cdn.zcx.info/008eGmZEly1gnwfqmmkj4j305r06waag.jpg"></p>
-<h4 id="APP内刷新小组件-WidgetCenter"><a href="#APP内刷新小组件-WidgetCenter" class="headerlink" title="APP内刷新小组件   WidgetCenter"></a>APP内刷新小组件   WidgetCenter</h4><p>如果你需要在主工程里干预小组件的刷新，你可以使用<code>WidgetCenter（单例）</code>类来进行操作。</p>
+<h4 id="APP内刷新小组件-WidgetCenter"><a href="#APP内刷新小组件-WidgetCenter" class="headerlink" title="APP内刷新小组件   WidgetCenter"></a>APP内刷新小组件   WidgetCenter</h4><p>如果你需要在主工程里干预小组件的刷新，你可以使用 <code>WidgetCenter（单例）</code>类来进行操作。</p>
 <figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="comment">/// Reloads the timelines for all widgets of a particular kind.</span></span><br><span class="line"> <span class="comment">/// - Parameter kind: A string that identifies the widget and matches the</span></span><br><span class="line"> <span class="comment">///   value you used when you created the widget&#x27;s configuration.</span></span><br><span class="line"> <span class="keyword">public</span> <span class="keyword">func</span> <span class="title function_">reloadTimelines</span>(<span class="params">ofKind</span> <span class="params">kind</span>: <span class="type">String</span>)</span><br><span class="line"></span><br><span class="line"> <span class="comment">/// Reloads the timelines for all configured widgets belonging to the</span></span><br><span class="line"> <span class="comment">/// containing app.</span></span><br><span class="line"> <span class="keyword">public</span> <span class="keyword">func</span> <span class="title function_">reloadAllTimelines</span>()</span><br></pre></td></tr></table></figure>
 
 <p>一般使用这两个方法，来实现主APP内刷新小组件。</p>
-<h4 id="为小组件启用定位"><a href="#为小组件启用定位" class="headerlink" title="为小组件启用定位"></a>为小组件启用定位</h4><p>一些天气类型的小组件经常会获取当前的定位，小组件中如果要请求定位信息，需要在小组件目录下的<code>info.plist</code>文件中添加<code>NSWidgetWantsLocation</code>字段来请求权限</p>
+<h4 id="为小组件启用定位"><a href="#为小组件启用定位" class="headerlink" title="为小组件启用定位"></a>为小组件启用定位</h4><p>一些天气类型的小组件经常会获取当前的定位，小组件中如果要请求定位信息，需要在小组件目录下的 <code>info.plist</code>文件中添加 <code>NSWidgetWantsLocation</code>字段来请求权限</p>
 <p>更多定位权限相关的信息请参考<a href="https://developer.apple.com/documentation/widgetkit/accessing-location-information-in-widgets">给你的小组件添加定位信息</a></p>
 <h4 id="和主APP数据共享"><a href="#和主APP数据共享" class="headerlink" title="和主APP数据共享"></a>和主APP数据共享</h4><p>由于widget跟APP间相互独立，如果想用相同的数据则需要两者间数据共享，创建**<code>App Group</code>**<br>主APP中  <code>Target</code> -&gt; <code>Signing &amp; Capability</code> -&gt; <code>+Capability</code> -&gt; <code>添加 App Group</code></p>
-<p>不过如果开发者账号开启<code>Automatically manage signing</code>的话苹果会自动给你创建相关联的APPID。</p>
-<p>两者间的数据共享主要通过**<code>UserDefaults</code><strong>和</strong><code>FileManager</code>**两种形式。</p>
+<p>不过如果开发者账号开启 <code>Automatically manage signing</code>的话苹果会自动给你创建相关联的APPID。</p>
+<p>两者间的数据共享主要通过**<code>UserDefaults</code><strong>和</strong> <code>FileManager</code>**两种形式。</p>
 <h4 id="点击交互和跳转方式"><a href="#点击交互和跳转方式" class="headerlink" title="点击交互和跳转方式"></a>点击交互和跳转方式</h4><p>点击Widget窗口唤起APP进行交互指定跳转支持两种方式：</p>
 <ul>
-<li><code>.widgetURL</code>：点击区域是Widget的所有区域，适合元素、逻辑简单的小部件，一个小组件只能响应一个<code>widgetURL</code>，其中**<code>systemSmall</code>**类型的小组件只能使用此方式进行跳转</li>
-<li><code>Link</code>：通过Link修饰，允许让界面上不同元素产生点击响应，一个小组件可以包含多个<code>Link</code></li>
+<li><code>.widgetURL</code>：点击区域是Widget的所有区域，适合元素、逻辑简单的小部件，一个小组件只能响应一个 <code>widgetURL</code>，其中**<code>systemSmall</code>**类型的小组件只能使用此方式进行跳转</li>
+<li><code>Link</code>：通过Link修饰，允许让界面上不同元素产生点击响应，一个小组件可以包含多个 <code>Link</code></li>
 </ul>
-<p>以上两种小组件链接点击后，可以在主<code>APP</code>中的<code>APPDelegate</code>类中进行响应</p>
+<p>以上两种小组件链接点击后，可以在主 <code>APP</code>中的 <code>APPDelegate</code>类中进行响应</p>
 <figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="keyword">func</span> <span class="title function_">application</span>(<span class="keyword">_</span> <span class="params">app</span>: <span class="type">UIApplication</span>, <span class="params">open</span> <span class="params">url</span>: <span class="type">URL</span>, <span class="params">options</span>: [<span class="type">UIApplication</span>.<span class="params">OpenURLOptionsKey</span> : <span class="keyword">Any</span>] <span class="operator">=</span> [:]) -&gt; <span class="type">Bool</span> &#123;</span><br><span class="line">  		 <span class="comment">// 一般为小组件链接定义特殊的host进行区分</span></span><br><span class="line">       <span class="keyword">if</span> url.host <span class="operator">==</span> <span class="type">WidgetExtensionHost</span> &#123;</span><br><span class="line">         <span class="comment">//处理小组件点击事件源</span></span><br><span class="line">       &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>如果<code>APP</code>内做了切屏适配，实现了<code>SceneDelegate</code>则需要在<code>SceneDelegate</code>里面实现跳转处理</p>
+<p>如果 <code>APP</code>内做了切屏适配，实现了 <code>SceneDelegate</code>则需要在 <code>SceneDelegate</code>里面实现跳转处理</p>
 <figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="keyword">func</span> <span class="title function_">scene</span>(<span class="keyword">_</span> <span class="params">scene</span>: <span class="type">UIScene</span>, <span class="params">openURLContexts</span> <span class="params">URLContexts</span>: <span class="type">Set</span>&lt;<span class="type">UIOpenURLContext</span>&gt;) &#123;</span><br><span class="line">    <span class="keyword">for</span> context <span class="keyword">in</span> <span class="type">URLContexts</span> &#123;</span><br><span class="line">        <span class="built_in">print</span>(context.url)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h4 id="调试小组件"><a href="#调试小组件" class="headerlink" title="调试小组件"></a>调试小组件</h4><p>开发的过程中总是充满了不确定性，一些东西需要断点进行调试。那么针对小组件如何调试？其实很简单，安装APP之后把<code>Scheme</code>修改为我们的<code>WidgetExtension</code>，选择测试机，然后运行，在手机上添加小组件后即可看到代码进入断点。</p>
+<h4 id="调试小组件"><a href="#调试小组件" class="headerlink" title="调试小组件"></a>调试小组件</h4><p>开发的过程中总是充满了不确定性，一些东西需要断点进行调试。那么针对小组件如何调试？其实很简单，安装APP之后把 <code>Scheme</code>修改为我们的 <code>WidgetExtension</code>，选择测试机，然后运行，在手机上添加小组件后即可看到代码进入断点。</p>
 <p><img src="https://cdn.zcx.info/008eGmZEly1gnwg0oh85cj30iw06ljsr.jpg"></p>
 <h4 id="机型适配"><a href="#机型适配" class="headerlink" title="机型适配"></a>机型适配</h4><p><img src="https://cdn.zcx.info/008eGmZEly1gnwgzuiadlj30rh09g751.jpg"></p>
 <p>不同的设备尺寸所拥有的小组件的尺寸也是不同的，目前（iPhone12时代）小组件有以上几种尺寸。</p>
@@ -1904,7 +1902,7 @@
 <p>但是一般主项目中的网络框架往往会夹杂很多定制化的插件或其他需求，这么分享会使项目工程代码依赖十分混乱。</p>
 <p>小组件中要使用的接口服务不会很多，所以我建议这里使用简单的网络请求即可。</p>
 <p>当然由于widget类似于todayExtension，这里可以和todayExtension的网络请求策略保持一致。</p>
-<h4 id="网络图片"><a href="#网络图片" class="headerlink" title="网络图片"></a>网络图片</h4><p>SwiftUI中的Image没有提供直接加载URL方式的图片显示。在<code>getTimeline</code>中进行数据请求中<code>completion(timeline)</code>执行完之后，不再支持图片的异步回调，用异步加载的方式就无法加载网络图片，所以必须在数据请求回来的处理中采用<strong>同步方式</strong>，将图片的data获取，转换成UIImage，再赋值给Image展示</p>
+<h4 id="网络图片"><a href="#网络图片" class="headerlink" title="网络图片"></a>网络图片</h4><p>SwiftUI中的Image没有提供直接加载URL方式的图片显示。在 <code>getTimeline</code>中进行数据请求中 <code>completion(timeline)</code>执行完之后，不再支持图片的异步回调，用异步加载的方式就无法加载网络图片，所以必须在数据请求回来的处理中采用<strong>同步方式</strong>，将图片的data获取，转换成UIImage，再赋值给Image展示</p>
 <figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">KrBaseWidgetEntity</span>: <span class="title class_ inherited__">Mappable</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> itemId: <span class="type">Int</span>?</span><br><span class="line">    <span class="keyword">var</span> itemType: <span class="type">Int</span>?</span><br><span class="line">    <span class="keyword">var</span> widgetTitle: <span class="type">String</span>?</span><br><span class="line">    <span class="keyword">var</span> widgetImageURL: <span class="type">URL</span>?</span><br><span class="line">    <span class="keyword">var</span> widgetImage: <span class="type">UIImage</span>?</span><br><span class="line">    <span class="keyword">var</span> route: <span class="type">String</span>?</span><br><span class="line"></span><br><span class="line">    <span class="keyword">init?</span>(<span class="params">map</span>: <span class="type">Map</span>) &#123; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">mutating</span> <span class="keyword">func</span> <span class="title function_">mapping</span>(<span class="params">map</span>: <span class="type">Map</span>) &#123;</span><br><span class="line">        itemId <span class="operator">&lt;-</span> map[<span class="string">&quot;itemId&quot;</span>]</span><br><span class="line">        itemType <span class="operator">&lt;-</span> map[<span class="string">&quot;itemType&quot;</span>]</span><br><span class="line">        widgetTitle <span class="operator">&lt;-</span> map[<span class="string">&quot;widgetTitle&quot;</span>]</span><br><span class="line">        widgetImageURL <span class="operator">&lt;-</span> (map[<span class="string">&quot;widgetImage&quot;</span>], <span class="type">CustomURLTransform</span>())</span><br><span class="line">        route <span class="operator">&lt;-</span> map[<span class="string">&quot;route&quot;</span>]</span><br><span class="line">      	<span class="comment">//获取到图片地址后直接同步获取图片数据转换为UIImage然后在View里面转换为Image显示</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">let</span> url <span class="operator">=</span>  widgetImageURL,<span class="keyword">let</span> img <span class="operator">=</span> <span class="keyword">try?</span> <span class="type">Data</span>(contentsOf: url) &#123;</span><br><span class="line">            widgetImage <span class="operator">=</span> <span class="type">UIImage</span>(data: img)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">init</span>(<span class="params">id</span>: <span class="type">Int</span>, <span class="params">img</span>: <span class="type">UIImage</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.itemId <span class="operator">=</span> id</span><br><span class="line">        <span class="keyword">self</span>.itemType <span class="operator">=</span> <span class="number">0</span></span><br><span class="line">        <span class="keyword">self</span>.widgetTitle <span class="operator">=</span> <span class="string">&quot;&quot;</span></span><br><span class="line">        <span class="keyword">self</span>.widgetImage <span class="operator">=</span> img</span><br><span class="line">        <span class="keyword">self</span>.route <span class="operator">=</span> defultRoute</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h4 id="埋点传值"><a href="#埋点传值" class="headerlink" title="埋点传值"></a>埋点传值</h4><p>小组件中埋点不宜设计过于复杂，因为小组件能够一直在操作系统界面上留存，但是主APP却不一定，需要传递埋点的时候只能在点击事件传递的URL中附带埋点值然后在APP内接收和处理的时候再提取固定的埋点字段。</p>
@@ -1912,7 +1910,7 @@
 
 <h3 id="Widget踩坑"><a href="#Widget踩坑" class="headerlink" title="Widget踩坑"></a>Widget踩坑</h3><h4 id="强制使用SwiftUI"><a href="#强制使用SwiftUI" class="headerlink" title="强制使用SwiftUI"></a>强制使用SwiftUI</h4><p>这次的小组件更新强制使用SwiftUI可以看到苹果的目标和态度。对这个UI库不熟的话开发起来还是有点困难，不过正好也可以通过Widget对swiftUI进行一次实战训练。</p>
 <h4 id="偶现第一次添加小组件到桌面UI渲染失败-系统不调用getTimeLine"><a href="#偶现第一次添加小组件到桌面UI渲染失败-系统不调用getTimeLine" class="headerlink" title="偶现第一次添加小组件到桌面UI渲染失败(系统不调用getTimeLine)"></a>偶现第一次添加小组件到桌面UI渲染失败(系统不调用getTimeLine)</h4><p>测试过程中发现的一个问题</p>
-<p>APP第一次安装，第一次添加小组件的的时候，如果不等待小组件预览渲染完成就直接点<code>添加到桌面</code>会触发初始化失败问题</p>
+<p>APP第一次安装，第一次添加小组件的的时候，如果不等待小组件预览渲染完成就直接点 <code>添加到桌面</code>会触发初始化失败问题</p>
 <p>断点调试发现这个时候操作系统不调用（有时候会等很久才调貌似是线程被阻塞了）<code>getTimeLine</code>方法，导致页面加载不成功，由于timeline获取失败，其后续的刷新时间点也没法确定，则最后全部都不能刷新。</p>
 <h4 id="刷新不及时"><a href="#刷新不及时" class="headerlink" title="刷新不及时"></a>刷新不及时</h4><p>自己使用的一些其他家的小组件，例如上文提到的日历，偶尔能看到小组件上还保持着昨天的日期，这让我感觉体验很差。</p>
 <p>这个新兴事物还有待优化呀。</p>
@@ -2013,6 +2011,71 @@
       </categories>
       <tags>
         <tag>经验记录</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>常见算法考题列表（2025 年整理）</title>
+    <url>/2024/01/01/%E7%AE%97%E6%B3%95/</url>
+    <content><![CDATA[<hr>
+<p>本文整理了常见的算法面试题目，包括数据结构、基础算法和高级算法等多个方面的典型题目。</p>
+<hr>
+<h2 id="📚-数据结构与基础算法"><a href="#📚-数据结构与基础算法" class="headerlink" title="📚 数据结构与基础算法"></a>📚 <strong>数据结构与基础算法</strong></h2><h3 id="1-数组与链表"><a href="#1-数组与链表" class="headerlink" title="1. 数组与链表"></a>1. <strong>数组与链表</strong></h3><ul>
+<li><strong>两数之和</strong>题目：在数组中找出和为 <code>target</code> 的两个元素的下标。考察点：哈希表、空间换时间优化:cite[3]:cite[7]</li>
+<li><strong>合并两个有序链表</strong>题目：将两个升序链表合并为一个新链表。考察点：指针操作、递归&#x2F;迭代实现:cite[3]:cite[7]</li>
+<li><strong>反转链表</strong><br>题目：将单链表反转（迭代或递归实现）。<br>考察点：指针操作、递归思维:cite[2]:cite[7]</li>
+</ul>
+<h3 id="2-字符串"><a href="#2-字符串" class="headerlink" title="2. 字符串"></a>2. <strong>字符串</strong></h3><ul>
+<li><strong>最长回文子串</strong>题目：找到字符串中的最长回文子串。考察点：中心扩散法、动态规划:cite[2]:cite[7]</li>
+<li><strong>第一个不重复的字符</strong>题目：找到字符串中第一个只出现一次的字符的下标。考察点：哈希表统计频率:cite[7]</li>
+<li><strong>版本号排序</strong><br>题目：将版本号数组按从大到小排序（如 <code>[&#39;10.2.1&#39;, &#39;0.402.1&#39;]</code>）。<br>考察点：字符串分割、多级比较:cite[7]</li>
+</ul>
+<h3 id="3-树与图"><a href="#3-树与图" class="headerlink" title="3. 树与图"></a>3. <strong>树与图</strong></h3><ul>
+<li><strong>对称二叉树</strong>题目：判断二叉树是否镜像对称。考察点：递归遍历、层序遍历:cite[3]:cite[7]</li>
+<li><strong>二叉树的中序遍历</strong>题目：实现非递归中序遍历。考察点：栈的应用、Morris 遍历:cite[2]:cite[7]</li>
+<li><strong>克隆图</strong><br>题目：深度拷贝无向连通图。<br>考察点：DFS&#x2F;BFS、哈希表记录已访问节点:cite[3]</li>
+</ul>
+<hr>
+<h2 id="⚙️-高级算法与优化"><a href="#⚙️-高级算法与优化" class="headerlink" title="⚙️ 高级算法与优化"></a>⚙️ <strong>高级算法与优化</strong></h2><h3 id="1-排序与搜索"><a href="#1-排序与搜索" class="headerlink" title="1. 排序与搜索"></a>1. <strong>排序与搜索</strong></h3><ul>
+<li><strong>快速排序</strong>题目：实现快速排序并分析时间复杂度。考察点：分治思想、基准选择优化:cite[1]:cite[7]</li>
+<li><strong>二分查找</strong>题目：在有序数组中查找目标值的位置。考察点：边界条件处理、循环不变量:cite[1]:cite[7]</li>
+<li><strong>第 K 个最大元素</strong><br>题目：在未排序数组中找到第 K 大的元素。<br>考察点：快速选择算法、堆排序:cite[3]</li>
+</ul>
+<h3 id="2-动态规划"><a href="#2-动态规划" class="headerlink" title="2. 动态规划"></a>2. <strong>动态规划</strong></h3><ul>
+<li><strong>最长递增子序列</strong>题目：求数组中最长严格递增子序列的长度。考察点：状态转移方程、二分优化:cite[3]:cite[7]</li>
+<li><strong>背包问题</strong>题目：0-1 背包问题的动态规划解法。考察点：二维 DP 表、空间压缩:cite[4]:cite[8]</li>
+<li><strong>编辑距离</strong><br>题目：计算将字符串 A 转换为 B 的最小操作次数（增&#x2F;删&#x2F;改）。<br>考察点：二维 DP、状态转移方程:cite[7]</li>
+</ul>
+<h3 id="3-贪心与回溯"><a href="#3-贪心与回溯" class="headerlink" title="3. 贪心与回溯"></a>3. <strong>贪心与回溯</strong></h3><ul>
+<li><strong>跳跃游戏</strong>题目：判断能否从数组起点跳到终点（每步最大跳跃长度为 <code>nums[i]</code>）。考察点：贪心策略、最大覆盖范围:cite[7]</li>
+<li><strong>全排列</strong>题目：生成数组的所有排列组合。考察点：回溯算法、剪枝优化:cite[7]</li>
+<li><strong>组合总和</strong><br>题目：找出数组中所有和为 <code>target</code> 的组合（元素可重复使用）。<br>考察点：回溯、去重技巧:cite[7]</li>
+</ul>
+<hr>
+<h2 id="🧩-系统设计与场景题"><a href="#🧩-系统设计与场景题" class="headerlink" title="🧩 系统设计与场景题"></a>🧩 <strong>系统设计与场景题</strong></h2><h3 id="1-数据结构设计"><a href="#1-数据结构设计" class="headerlink" title="1. 数据结构设计"></a>1. <strong>数据结构设计</strong></h3><ul>
+<li><strong>LRU 缓存</strong>题目：设计基于 LRU 策略的缓存，支持 <code>get</code> 和 <code>put</code> 操作。考察点：哈希表 + 双向链表:cite[2]:cite[7]</li>
+<li><strong>最小栈</strong><br>题目：实现一个支持 <code>push</code>、<code>pop</code>、<code>top</code> 及 <code>getMin</code> 的栈。<br>考察点：辅助栈或差值存储:cite[3]</li>
+</ul>
+<h3 id="2-场景问题"><a href="#2-场景问题" class="headerlink" title="2. 场景问题"></a>2. <strong>场景问题</strong></h3><ul>
+<li><strong>会议室安排</strong>题目：给定多个会议时间区间，判断能否全部安排。考察点：区间排序、重叠检测:cite[7]</li>
+<li><strong>接雨水</strong><br>题目：计算柱子高度数组能接多少雨水。<br>考察点：双指针、动态规划或单调栈:cite[7]</li>
+</ul>
+<hr>
+<h2 id="📈-复杂度与优化"><a href="#📈-复杂度与优化" class="headerlink" title="📈 复杂度与优化"></a>📈 <strong>复杂度与优化</strong></h2><ul>
+<li><strong>时间复杂度分析</strong>常见阶：O(1)、O(n)、O(n²)、O(nlogn) 等，需结合代码解释:cite[4]:cite[8]</li>
+<li><strong>空间复杂度优化</strong><br>例如：原地排序、滚动数组、位运算压缩状态:cite[4]:cite[7]</li>
+</ul>
+<hr>
+<blockquote>
+<p><strong>提示</strong>：以上题目覆盖了算法面试 80% 的高频考点，建议结合 LeetCode 或《剑指 Offer》进行针对性练习。<br><strong>完整题目与代码实现</strong>可参考：<a href="https://blog.csdn.net/Ed7zgeE9X/article/details/132288312">CSDN 算法题整理</a>:cite[7] | <a href="https://leetcode.com/">力扣题库</a></p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>算法</tag>
+        <tag>面试</tag>
+        <tag>数据结构</tag>
       </tags>
   </entry>
   <entry>
@@ -2264,71 +2327,6 @@
         <tag>iOS</tag>
         <tag>职业发展</tag>
         <tag>学习路径</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>常见算法考题列表（2025 年整理）</title>
-    <url>/2024/01/01/%E7%AE%97%E6%B3%95/</url>
-    <content><![CDATA[<hr>
-<p>本文整理了常见的算法面试题目，包括数据结构、基础算法和高级算法等多个方面的典型题目。</p>
-<hr>
-<h2 id="📚-数据结构与基础算法"><a href="#📚-数据结构与基础算法" class="headerlink" title="📚 数据结构与基础算法"></a>📚 <strong>数据结构与基础算法</strong></h2><h3 id="1-数组与链表"><a href="#1-数组与链表" class="headerlink" title="1. 数组与链表"></a>1. <strong>数组与链表</strong></h3><ul>
-<li><strong>两数之和</strong>题目：在数组中找出和为 <code>target</code> 的两个元素的下标。考察点：哈希表、空间换时间优化:cite[3]:cite[7]</li>
-<li><strong>合并两个有序链表</strong>题目：将两个升序链表合并为一个新链表。考察点：指针操作、递归&#x2F;迭代实现:cite[3]:cite[7]</li>
-<li><strong>反转链表</strong><br>题目：将单链表反转（迭代或递归实现）。<br>考察点：指针操作、递归思维:cite[2]:cite[7]</li>
-</ul>
-<h3 id="2-字符串"><a href="#2-字符串" class="headerlink" title="2. 字符串"></a>2. <strong>字符串</strong></h3><ul>
-<li><strong>最长回文子串</strong>题目：找到字符串中的最长回文子串。考察点：中心扩散法、动态规划:cite[2]:cite[7]</li>
-<li><strong>第一个不重复的字符</strong>题目：找到字符串中第一个只出现一次的字符的下标。考察点：哈希表统计频率:cite[7]</li>
-<li><strong>版本号排序</strong><br>题目：将版本号数组按从大到小排序（如 <code>[&#39;10.2.1&#39;, &#39;0.402.1&#39;]</code>）。<br>考察点：字符串分割、多级比较:cite[7]</li>
-</ul>
-<h3 id="3-树与图"><a href="#3-树与图" class="headerlink" title="3. 树与图"></a>3. <strong>树与图</strong></h3><ul>
-<li><strong>对称二叉树</strong>题目：判断二叉树是否镜像对称。考察点：递归遍历、层序遍历:cite[3]:cite[7]</li>
-<li><strong>二叉树的中序遍历</strong>题目：实现非递归中序遍历。考察点：栈的应用、Morris 遍历:cite[2]:cite[7]</li>
-<li><strong>克隆图</strong><br>题目：深度拷贝无向连通图。<br>考察点：DFS&#x2F;BFS、哈希表记录已访问节点:cite[3]</li>
-</ul>
-<hr>
-<h2 id="⚙️-高级算法与优化"><a href="#⚙️-高级算法与优化" class="headerlink" title="⚙️ 高级算法与优化"></a>⚙️ <strong>高级算法与优化</strong></h2><h3 id="1-排序与搜索"><a href="#1-排序与搜索" class="headerlink" title="1. 排序与搜索"></a>1. <strong>排序与搜索</strong></h3><ul>
-<li><strong>快速排序</strong>题目：实现快速排序并分析时间复杂度。考察点：分治思想、基准选择优化:cite[1]:cite[7]</li>
-<li><strong>二分查找</strong>题目：在有序数组中查找目标值的位置。考察点：边界条件处理、循环不变量:cite[1]:cite[7]</li>
-<li><strong>第 K 个最大元素</strong><br>题目：在未排序数组中找到第 K 大的元素。<br>考察点：快速选择算法、堆排序:cite[3]</li>
-</ul>
-<h3 id="2-动态规划"><a href="#2-动态规划" class="headerlink" title="2. 动态规划"></a>2. <strong>动态规划</strong></h3><ul>
-<li><strong>最长递增子序列</strong>题目：求数组中最长严格递增子序列的长度。考察点：状态转移方程、二分优化:cite[3]:cite[7]</li>
-<li><strong>背包问题</strong>题目：0-1 背包问题的动态规划解法。考察点：二维 DP 表、空间压缩:cite[4]:cite[8]</li>
-<li><strong>编辑距离</strong><br>题目：计算将字符串 A 转换为 B 的最小操作次数（增&#x2F;删&#x2F;改）。<br>考察点：二维 DP、状态转移方程:cite[7]</li>
-</ul>
-<h3 id="3-贪心与回溯"><a href="#3-贪心与回溯" class="headerlink" title="3. 贪心与回溯"></a>3. <strong>贪心与回溯</strong></h3><ul>
-<li><strong>跳跃游戏</strong>题目：判断能否从数组起点跳到终点（每步最大跳跃长度为 <code>nums[i]</code>）。考察点：贪心策略、最大覆盖范围:cite[7]</li>
-<li><strong>全排列</strong>题目：生成数组的所有排列组合。考察点：回溯算法、剪枝优化:cite[7]</li>
-<li><strong>组合总和</strong><br>题目：找出数组中所有和为 <code>target</code> 的组合（元素可重复使用）。<br>考察点：回溯、去重技巧:cite[7]</li>
-</ul>
-<hr>
-<h2 id="🧩-系统设计与场景题"><a href="#🧩-系统设计与场景题" class="headerlink" title="🧩 系统设计与场景题"></a>🧩 <strong>系统设计与场景题</strong></h2><h3 id="1-数据结构设计"><a href="#1-数据结构设计" class="headerlink" title="1. 数据结构设计"></a>1. <strong>数据结构设计</strong></h3><ul>
-<li><strong>LRU 缓存</strong>题目：设计基于 LRU 策略的缓存，支持 <code>get</code> 和 <code>put</code> 操作。考察点：哈希表 + 双向链表:cite[2]:cite[7]</li>
-<li><strong>最小栈</strong><br>题目：实现一个支持 <code>push</code>、<code>pop</code>、<code>top</code> 及 <code>getMin</code> 的栈。<br>考察点：辅助栈或差值存储:cite[3]</li>
-</ul>
-<h3 id="2-场景问题"><a href="#2-场景问题" class="headerlink" title="2. 场景问题"></a>2. <strong>场景问题</strong></h3><ul>
-<li><strong>会议室安排</strong>题目：给定多个会议时间区间，判断能否全部安排。考察点：区间排序、重叠检测:cite[7]</li>
-<li><strong>接雨水</strong><br>题目：计算柱子高度数组能接多少雨水。<br>考察点：双指针、动态规划或单调栈:cite[7]</li>
-</ul>
-<hr>
-<h2 id="📈-复杂度与优化"><a href="#📈-复杂度与优化" class="headerlink" title="📈 复杂度与优化"></a>📈 <strong>复杂度与优化</strong></h2><ul>
-<li><strong>时间复杂度分析</strong>常见阶：O(1)、O(n)、O(n²)、O(nlogn) 等，需结合代码解释:cite[4]:cite[8]</li>
-<li><strong>空间复杂度优化</strong><br>例如：原地排序、滚动数组、位运算压缩状态:cite[4]:cite[7]</li>
-</ul>
-<hr>
-<blockquote>
-<p><strong>提示</strong>：以上题目覆盖了算法面试 80% 的高频考点，建议结合 LeetCode 或《剑指 Offer》进行针对性练习。<br><strong>完整题目与代码实现</strong>可参考：<a href="https://blog.csdn.net/Ed7zgeE9X/article/details/132288312">CSDN 算法题整理</a>:cite[7] | <a href="https://leetcode.com/">力扣题库</a></p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>技术</category>
-      </categories>
-      <tags>
-        <tag>算法</tag>
-        <tag>面试</tag>
-        <tag>数据结构</tag>
       </tags>
   </entry>
   <entry>
