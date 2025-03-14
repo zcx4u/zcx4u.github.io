@@ -14,19 +14,21 @@
   
 
   
-  <title>标签: AIGC | 我的博客</title>
+  <title>CTMediator 架构方案深度解析 | 我的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
   <link rel="preload" href="/css/fonts/Roboto-Regular.ttf" as="font" type="font/ttf" crossorigin="anonymous">
   <link rel="preload" href="/css/fonts/Roboto-Bold.ttf" as="font" type="font/ttf" crossorigin="anonymous">
 
-  <meta name="description" content="分享技术文章和学习心得">
-<meta property="og:type" content="website">
-<meta property="og:title" content="我的博客">
-<meta property="og:url" content="https://zcx4u.github.io/tags/AIGC/index.html">
+  <meta name="description" content="一、架构背景深度剖析1.1 问题场景再现1234graph LR  A[模块A] --&gt;|直接导入| B[模块B]  C[模块C] --&gt;|循环依赖| A  D[公共模块] --&gt;|被多模块修改| E[版本冲突]  典型痛点表现：  编译时间随模块增加呈指数增长（N 模块编译耗时约 [T &#x3D; k*N^2]） 多团队协作时出现「修改冲突风暴」 基础模块迭代导致全量回归测试">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CTMediator 架构方案深度解析">
+<meta property="og:url" content="https://zcx4u.github.io/2025/03/14/CTMediator%20%E4%BD%BF%E7%94%A8%E6%80%BB%E7%BB%93%E4%B8%8E%E6%80%9D%E8%80%83/index.html">
 <meta property="og:site_name" content="我的博客">
-<meta property="og:description" content="分享技术文章和学习心得">
+<meta property="og:description" content="一、架构背景深度剖析1.1 问题场景再现1234graph LR  A[模块A] --&gt;|直接导入| B[模块B]  C[模块C] --&gt;|循环依赖| A  D[公共模块] --&gt;|被多模块修改| E[版本冲突]  典型痛点表现：  编译时间随模块增加呈指数增长（N 模块编译耗时约 [T &#x3D; k*N^2]） 多团队协作时出现「修改冲突风暴」 基础模块迭代导致全量回归测试">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-03-14T09:52:47.017Z">
+<meta property="article:modified_time" content="2025-03-14T10:01:43.497Z">
 <meta property="article:author" content="bruin">
 <meta property="article:tag" content="技术,博客,编程">
 <meta name="twitter:card" content="summary">
@@ -433,44 +435,203 @@
     <div id="content-body">
        
 
-<div class="archive-main-card">
-    <div class="archive-top">
-      <div class="main-title-bar">
-        <div class="main-title-dot"></div>
-        <h1 class="article-title">归档</h1>
-      </div>    
+
+<article id="post-CTMediator 使用总结与思考" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+    
+   
+  <div class="article-inner">
+    <div class="article-main">
+      <header class="article-header">
+        
+<div class="main-title-bar">
+  <div class="main-title-dot"></div>
+  
+    
+      <h1 class="p-name article-title" itemprop="headline name">
+        CTMediator 架构方案深度解析
+      </h1>
+    
+  
+</div>
+
+        <div class='meta-info-bar'>
+          <div class="meta-info">
+  <time class="dt-published" datetime="2025-03-14T09:52:47.017Z" itemprop="datePublished">2025-03-14</time>
+</div>
+          <div class="need-seperator meta-info">
+            <div class="meta-cate-flex">
+  
+    未分类 
+   
+</div>
+  
+          </div>
+          <div class="wordcount need-seperator meta-info">
+            2.9k 词 
+          </div>
+        </div>
+        
+      </header>
+      <div class="e-content article-entry" itemprop="articleBody">
+        
+          <h1 id="一、架构背景深度剖析"><a href="#一、架构背景深度剖析" class="headerlink" title="一、架构背景深度剖析"></a>一、架构背景深度剖析</h1><h2 id="1-1-问题场景再现"><a href="#1-1-问题场景再现" class="headerlink" title="1.1 问题场景再现"></a>1.1 问题场景再现</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">graph LR</span><br><span class="line">  A[模块A] --&gt;|直接导入| B[模块B]</span><br><span class="line">  C[模块C] --&gt;|循环依赖| A</span><br><span class="line">  D[公共模块] --&gt;|被多模块修改| E[版本冲突]</span><br></pre></td></tr></table></figure>
+
+<p><strong>典型痛点表现</strong>：</p>
+<ul>
+<li>编译时间随模块增加呈指数增长（N 模块编译耗时约 [T &#x3D; k*N^2]）</li>
+<li>多团队协作时出现「修改冲突风暴」</li>
+<li>基础模块迭代导致全量回归测试</li>
+</ul>
+<h2 id="1-2-设计决策矩阵"><a href="#1-2-设计决策矩阵" class="headerlink" title="1.2 设计决策矩阵"></a>1.2 设计决策矩阵</h2><table>
+<thead>
+<tr>
+<th>方案类型</th>
+<th>编译时耦合</th>
+<th>运行时开销</th>
+<th>可维护性</th>
+<th>学习曲线</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>直接引用</td>
+<td>高</td>
+<td>低</td>
+<td>差</td>
+<td>低</td>
+</tr>
+<tr>
+<td>协议抽象</td>
+<td>中</td>
+<td>中</td>
+<td>优</td>
+<td>高</td>
+</tr>
+<tr>
+<td>CTMediator</td>
+<td>低</td>
+<td>中</td>
+<td>良</td>
+<td>中</td>
+</tr>
+<tr>
+<td>URL Router</td>
+<td>低</td>
+<td>高</td>
+<td>良</td>
+<td>低</td>
+</tr>
+</tbody></table>
+<h1 id="二、技术实现详解"><a href="#二、技术实现详解" class="headerlink" title="二、技术实现详解"></a>二、技术实现详解</h1><h2 id="2-1-核心类结构"><a href="#2-1-核心类结构" class="headerlink" title="2.1 核心类结构"></a>2.1 核心类结构</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">@startuml</span><br><span class="line">class CTMediator &#123;</span><br><span class="line">  - cachedTargets: NSMutableDictionary</span><br><span class="line">  + sharedInstance(): CTMediator</span><br><span class="line">  + performTarget(): id</span><br><span class="line">  + safePerformAction(): id</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class Target_XXX &#123;</span><br><span class="line">  + Action_YYY(): id</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">CTMediator --&gt; Target_XXX : 动态调用</span><br><span class="line">@enduml</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-2-完整调用链路"><a href="#2-2-完整调用链路" class="headerlink" title="2.2 完整调用链路"></a>2.2 完整调用链路</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">// 调用端示例（含安全校验）</span><br><span class="line">NSDictionary *params = @&#123;</span><br><span class="line">  @&quot;pageID&quot;: @(1024),</span><br><span class="line">  @&quot;authToken&quot;: @&quot;3a8d7f0e&quot;,</span><br><span class="line">  @&quot;callback&quot;: ^(BOOL success) &#123;</span><br><span class="line">      NSLog(@&quot;操作状态: %@&quot;, success ? @&quot;成功&quot; : @&quot;失败&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">UIViewController *vc = [[CTMediator sharedInstance]</span><br><span class="line">    performTarget:@&quot;UserCenter&quot;  // 目标模块标识</span><br><span class="line">     action:@&quot;ProfilePage&quot;       // 功能单元标识</span><br><span class="line">     params:[params copy]       // 防御性拷贝</span><br><span class="line">     shouldCacheTarget:YES];    // 高频访问缓存</span><br><span class="line"></span><br><span class="line">// 异常处理流程</span><br><span class="line">if (![vc conformsToProtocol:@protocol(SafeViewProtocol)]) &#123;</span><br><span class="line">    [self trackException:@&#123;</span><br><span class="line">        @&quot;code&quot;: @(403),</span><br><span class="line">        @&quot;reason&quot;: @&quot;视图控制器协议不匹配&quot;</span><br><span class="line">    &#125;];</span><br><span class="line">    vc = [FallbackViewController new];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-3-性能优化策略"><a href="#2-3-性能优化策略" class="headerlink" title="2.3 性能优化策略"></a>2.3 性能优化策略</h2><p><strong>缓存机制实现</strong>：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">CTMediatorCache</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">var</span> targetCache <span class="operator">=</span> [<span class="type">String</span>: <span class="type">NSObject</span>]()</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">cache</span>(<span class="params">target</span>: <span class="type">NSObject</span>, <span class="params">forKey</span> <span class="params">key</span>: <span class="type">String</span>) &#123;</span><br><span class="line">        <span class="keyword">guard</span> targetCache.count <span class="operator">&lt;</span> <span class="number">20</span> <span class="keyword">else</span> &#123; <span class="keyword">return</span> &#125; <span class="comment">// 防溢出</span></span><br><span class="line">        targetCache[key] <span class="operator">=</span> target</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">purgeExpired</span>() &#123;</span><br><span class="line">        targetCache.keys</span><br><span class="line">            .filter &#123; lastAccessTime(for: <span class="variable">$0</span>) <span class="operator">&lt;</span> .now<span class="operator">-</span><span class="number">3600</span> &#125;</span><br><span class="line">            .forEach &#123; targetCache.removeValue(forKey: <span class="variable">$0</span>) &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="三、架构演进路线"><a href="#三、架构演进路线" class="headerlink" title="三、架构演进路线"></a>三、架构演进路线</h1><h2 id="3-1-当前应用场景"><a href="#3-1-当前应用场景" class="headerlink" title="3.1 当前应用场景"></a>3.1 当前应用场景</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">graph TD</span><br><span class="line">  subgraph 基础层</span><br><span class="line">      CommonUtils --&gt;|反向调用| CTMediator</span><br><span class="line">  end</span><br><span class="line">  </span><br><span class="line">  subgraph 业务层</span><br><span class="line">      FeatureA --&gt;|跨模块调用| CTMediator</span><br><span class="line">      CTMediator --&gt;|动态路由| I18NModule</span><br><span class="line">  end</span><br><span class="line">  </span><br><span class="line">  subgraph 数据层</span><br><span class="line">      Analytics --&gt;|事件上报| CTMediator</span><br><span class="line">  end</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-2-改造路线图"><a href="#3-2-改造路线图" class="headerlink" title="3.2 改造路线图"></a>3.2 改造路线图</h2><table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>时间范围</th>
+<th>重点任务</th>
+<th>关键指标</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>过渡期</td>
+<td>2025 Q1-Q2</td>
+<td>建立调用备案制度</td>
+<td>调用文档覆盖率 ≥90%</td>
+</tr>
+<tr>
+<td>迁移期</td>
+<td>2025 Q3-Q4</td>
+<td>核心模块接口改造</td>
+<td>直接引用占比 ≤30%</td>
+</tr>
+<tr>
+<td>稳定期</td>
+<td>2026 Q1</td>
+<td>全量静态校验实施</td>
+<td>编译时检查覆盖率 100%</td>
+</tr>
+</tbody></table>
+<h1 id="四、最佳实践指南"><a href="#四、最佳实践指南" class="headerlink" title="四、最佳实践指南"></a>四、最佳实践指南</h1><h2 id="4-1-安全调用模板"><a href="#4-1-安全调用模板" class="headerlink" title="4.1 安全调用模板"></a>4.1 安全调用模板</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">// SafeInvoker.h</span><br><span class="line">#define SAFE_CALL(target, action, paramsType) \</span><br><span class="line">__attribute__((overloadable)) \</span><br><span class="line">static inline id safeInvoke(NSString *target, NSString *action, paramsType params) &#123; \</span><br><span class="line">    if (![CTMediator validateTarget:target]) &#123; \</span><br><span class="line">        [NSException raise:@&quot;非法调用&quot; format:@&quot;未经注册的 Target: %@&quot;, target]; \</span><br><span class="line">    &#125; \</span><br><span class="line">    /* ... 参数校验逻辑 ... */ \</span><br><span class="line">    return [[CTMediator sharedInstance] performTarget:target action:action params:params]; \</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-2-监控指标配置"><a href="#4-2-监控指标配置" class="headerlink" title="4.2 监控指标配置"></a>4.2 监控指标配置</h2><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;metrics&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;调用成功率&quot;</span><span class="punctuation">:</span> <span class="string">&quot;98.7%&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;平均响应时间&quot;</span><span class="punctuation">:</span> <span class="string">&quot;12ms&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;缓存命中率&quot;</span><span class="punctuation">:</span> <span class="string">&quot;82.3%&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;异常类型分布&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;TargetNotFound&quot;</span><span class="punctuation">:</span> <span class="number">45</span>%<span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;ActionMissing&quot;</span><span class="punctuation">:</span> <span class="number">30</span>%<span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;ParamError&quot;</span><span class="punctuation">:</span> <span class="number">25</span>%</span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="五、常见问题诊断"><a href="#五、常见问题诊断" class="headerlink" title="五、常见问题诊断"></a>五、常见问题诊断</h1><table>
+<thead>
+<tr>
+<th>故障现象</th>
+<th>排查步骤</th>
+<th>修复方案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>调用返回 nil</td>
+<td>1. 检查 Target 类前缀<code>&lt;br&gt;</code>2. 验证 Action 参数类型</td>
+<td>添加 Class 前缀约定</td>
+</tr>
+<tr>
+<td>参数传递丢失</td>
+<td>1. 检查字典 key 大小写<code>&lt;br&gt;</code>2. 验证 NSJSONSerialization 兼容性</td>
+<td>使用类型安全的参数包装器</td>
+</tr>
+<tr>
+<td>内存持续增长</td>
+<td>1. 检查 Target 缓存策略<code>&lt;br&gt;</code>2. 分析 ARC 引用关系</td>
+<td>实现缓存自动回收机制</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>架构师建议</strong>：在 Swift 主导的新项目中，建议采用 <code>Protocol-Oriented Dependency Injection</code> 模式逐步替代 CTMediator，同时保留其作为应急通信机制。</p>
+</blockquote>
+
+        
+      </div>
+
+         
     </div>
     
-    
-      
-      
-        
-        <div class="year-line">
-            <div class="year-num">2024</div>
-            <div class="dot-wrapper">
-                <div class="dot"></div>
-            </div>
-            <div class="article-count">1 篇文章</div>
-        </div>
-      
-      <a class="archive-article-link" href="/2024/01/15/ChatGPT%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7%E6%89%8B%E5%86%8C/" title="ChatGPT使用技巧手册">
-        <div class="date">01-15</div>
-        <div class="line">
-            <div class="dot"></div>
-        </div>
-        <div class="title">
-            <div class="title-inner">
-                
-                    ChatGPT使用技巧手册
-                
-            </div>
-        </div>
-        <div class="tags">
-            #AIGC #ChatGPT #开发工具
-        </div>
-      </a>
-    
+     
   </div>
+  
+    
+<nav id="article-nav">
+  <a class="article-nav-btn left  disabled "
+     >
+    <i class="fa-solid fa-angle-left"></i>
+    <p class="title-text">
+        
+    </p>
+  </a>
+  <a class="article-nav-btn right "
+    
+      href="/2025/03/14/CodeReview%E6%8C%87%E5%8D%97/"
+      title="代码审查实战指南"
+     >
+
+    <p class="title-text">
+      
+        代码审查实战指南
+        
+    </p>
+    <i class="fa-solid fa-angle-right"></i>
+  </a>
+</nav>
+
+
+  
+</article>
+
+
+
+
+
     </div>
     <div id="footer-wrapper">
       <footer id="footer">

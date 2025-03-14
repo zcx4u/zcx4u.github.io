@@ -164,11 +164,6 @@
     <div class="widget">
       <h3 class="widget-title">分类</h3>
       <div class="category-box">
-            <a class="category-link" href="/categories/%E6%8A%80%E6%9C%AF/">
-                技术
-                <div class="category-count">4</div>
-            </a>
-        
             <a class="category-link" href="/categories/iOS/">
                 iOS
                 <div class="category-count">19</div>
@@ -177,6 +172,11 @@
             <a class="category-link" href="/categories/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/">
                 软件工程
                 <div class="category-count">1</div>
+            </a>
+        
+            <a class="category-link" href="/categories/%E6%8A%80%E6%9C%AF/">
+                技术
+                <div class="category-count">4</div>
             </a>
         
             <a class="category-link" href="/categories/%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5/">
@@ -207,7 +207,7 @@
       
         <a class="archive-link" href="/archives/2025/03 ">
           三月 2025 
-          <div class="archive-count">4 </div>
+          <div class="archive-count">5 </div>
         </a>
       
         <a class="archive-link" href="/archives/2024/01 ">
@@ -275,6 +275,12 @@
     <div class="widget">
       <h3 class="widget-title">最新文章</h3>
       <ul>
+        
+          <a class="recent-link" href="/2025/03/14/CTMediator%20%E4%BD%BF%E7%94%A8%E6%80%BB%E7%BB%93%E4%B8%8E%E6%80%9D%E8%80%83/" title="CTMediator 架构方案深度解析" >
+            <div class="recent-link-text">
+              CTMediator 架构方案深度解析
+            </div>
+          </a>
         
           <a class="recent-link" href="/2025/03/14/CodeReview%E6%8C%87%E5%8D%97/" title="代码审查实战指南" >
             <div class="recent-link-text">
@@ -507,7 +513,7 @@
 
 <p>坑点：cocoapods-imy-bin配置私有源时只支持ssh，因此要修改以前的https的源，对ssh操作不熟练的需要google出现的问题及解决方案。</p>
 <blockquote>
-<p><a href="mailto:&#x67;&#x69;&#x74;&#64;&#120;&#120;&#120;&#46;&#x63;&#x6f;&#x6d;">git@xxx.com</a> ssh一直报错，之前的公钥有密码,通过ssh连接私有库的时候一直报错让输入密码，但是输入之后还是不行,报错无授权,重新生成rsa秘钥对之后尝试还是不行，报同样的错误。最后发现是git地址没有给对，从cocoapods file中拷贝出来的时候带了一个source字符串，所以ssh授权一直失败（地址都错了授权肯定失败啊）</p>
+<p><a href="mailto:&#103;&#105;&#116;&#x40;&#120;&#x78;&#x78;&#46;&#x63;&#111;&#109;">git@xxx.com</a> ssh一直报错，之前的公钥有密码,通过ssh连接私有库的时候一直报错让输入密码，但是输入之后还是不行,报错无授权,重新生成rsa秘钥对之后尝试还是不行，报同样的错误。最后发现是git地址没有给对，从cocoapods file中拷贝出来的时候带了一个source字符串，所以ssh授权一直失败（地址都错了授权肯定失败啊）</p>
 </blockquote>
 <p>创建repo不能仅仅拉一个git仓库就行了，还得找一个已有的仓库进行.podspec文件push ，否则添加此源之后 执行pod repo update 会一直失败。</p>
 <blockquote>
