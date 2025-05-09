@@ -14,22 +14,32 @@
   
 
   
-  <title>归档: 2024/11 | 我的博客</title>
+  <title>基于Web Vitals的秒开优化调研 | 我的博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
   <link rel="preload" href="/css/fonts/Roboto-Regular.ttf" as="font" type="font/ttf" crossorigin="anonymous">
   <link rel="preload" href="/css/fonts/Roboto-Bold.ttf" as="font" type="font/ttf" crossorigin="anonymous">
 
-  <meta name="description" content="分享技术文章和学习心得">
-<meta property="og:type" content="website">
-<meta property="og:title" content="我的博客">
-<meta property="og:url" content="https://zcx4u.github.io/archives/2024/11/index.html">
+  <meta name="description" content="基于Web Vitals的秒开优化调研需求背景项目中上线的H5页面越来越多，用户在Web页面的体验变得更加重要。 随着网络带宽不断发展增大，人们对网页的打开速度要求也变得越来越高。 性能指标做性能优化之前首先需要明确相关指标。明确性能指标就是要明确我们关注哪些数据，这些数据如何测量，什么数据算是好的，什么数据算是不好的。 拿到我们需要的指标数据之后才能再针对特定的场景进行优化。 基于Core We">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于Web Vitals的秒开优化调研">
+<meta property="og:url" content="https://zcx4u.github.io/2025/05/09/%E5%9F%BA%E4%BA%8EWeb%20Vitals%E7%9A%84%E7%A7%92%E5%BC%80%E4%BC%98%E5%8C%96%E8%B0%83%E7%A0%94/index.html">
 <meta property="og:site_name" content="我的博客">
-<meta property="og:description" content="分享技术文章和学习心得">
+<meta property="og:description" content="基于Web Vitals的秒开优化调研需求背景项目中上线的H5页面越来越多，用户在Web页面的体验变得更加重要。 随着网络带宽不断发展增大，人们对网页的打开速度要求也变得越来越高。 性能指标做性能优化之前首先需要明确相关指标。明确性能指标就是要明确我们关注哪些数据，这些数据如何测量，什么数据算是好的，什么数据算是不好的。 拿到我们需要的指标数据之后才能再针对特定的场景进行优化。 基于Core We">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gcore.jsdelivr.net/gh/zcx4u/images/images/20250509142715.png">
+<meta property="og:image" content="https://gcore.jsdelivr.net/gh/zcx4u/images/images/20250509144435.png">
+<meta property="og:image" content="https://gcore.jsdelivr.net/gh/zcx4u/images/images/iShot_2025-05-09_14.11.27.png">
+<meta property="og:image" content="https://gcore.jsdelivr.net/gh/zcx4u/images/images/iShot_2025-05-09_14.10.16.png">
+<meta property="og:image" content="https://gcore.jsdelivr.net/gh/zcx4u/images/images/20250509154959.png">
+<meta property="og:image" content="https://gcore.jsdelivr.net/gh/zcx4u/images/images/20250509180527.png">
+<meta property="article:published_time" content="2025-05-09T07:53:32.000Z">
+<meta property="article:modified_time" content="2025-05-09T12:52:00.808Z">
 <meta property="article:author" content="bruin">
-<meta property="article:tag" content="技术,博客,编程">
+<meta property="article:tag" content="iOS">
+<meta property="article:tag" content="Webview">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gcore.jsdelivr.net/gh/zcx4u/images/images/20250509142715.png">
   
     <link rel="alternate" href="/atom.xml" title="我的博客" type="application/atom+xml">
   
@@ -499,44 +509,180 @@
     <div id="content-body">
        
 
-<div class="archive-main-card">
-    <div class="archive-top">
-      <div class="main-title-bar">
-        <div class="main-title-dot"></div>
-        <h1 class="article-title">归档</h1>
-      </div>    
+
+<article id="post-基于Web Vitals的秒开优化调研" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+    
+   
+  <div class="article-inner">
+    <div class="article-main">
+      <header class="article-header">
+        
+<div class="main-title-bar">
+  <div class="main-title-dot"></div>
+  
+    
+      <h1 class="p-name article-title" itemprop="headline name">
+        基于Web Vitals的秒开优化调研
+      </h1>
+    
+  
+</div>
+
+        <div class='meta-info-bar'>
+          <div class="meta-info">
+  <time class="dt-published" datetime="2025-05-09T07:53:32.000Z" itemprop="datePublished">2025-05-09</time>
+</div>
+          <div class="need-seperator meta-info">
+            <div class="meta-cate-flex">
+  
+  <a class="meta-cate-link" href="/categories/tech-sharing/">技术分享</a>
+   
+</div>
+  
+          </div>
+          <div class="wordcount need-seperator meta-info">
+            4.6k 词 
+          </div>
+        </div>
+        
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Webview/" rel="tag">Webview</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ios/" rel="tag">iOS</a></li></ul>
+
+      </header>
+      <div class="e-content article-entry" itemprop="articleBody">
+        
+          <h1 id="基于Web-Vitals的秒开优化调研"><a href="#基于Web-Vitals的秒开优化调研" class="headerlink" title="基于Web Vitals的秒开优化调研"></a>基于Web Vitals的秒开优化调研</h1><h2 id="需求背景"><a href="#需求背景" class="headerlink" title="需求背景"></a>需求背景</h2><p>项目中上线的H5页面越来越多，用户在Web页面的体验变得更加重要。</p>
+<p>随着网络带宽不断发展增大，人们对网页的打开速度要求也变得越来越高。</p>
+<h2 id="性能指标"><a href="#性能指标" class="headerlink" title="性能指标"></a>性能指标</h2><p>做性能优化之前首先需要明确相关指标。明确性能指标就是要明确我们关注哪些数据，这些数据如何测量，什么数据算是好的，什么数据算是不好的。</p>
+<p>拿到我们需要的指标数据之后才能再针对特定的场景进行优化。</p>
+<h3 id="基于Core-Web-Vitals的指标"><a href="#基于Core-Web-Vitals的指标" class="headerlink" title="基于Core Web Vitals的指标"></a>基于Core Web Vitals的指标</h3><p>多年来Google提供了许多工具衡量和报告网页加载效果，有些开发者擅长使用这些工具，而有些开发者因为工具和指标众多难以跟上节奏。</p>
+<p>这里我们按照Chrome的最新LightHouse给出的以用户为中心的标准化指标Web Vitals来衡量网页的性能。</p>
+<p>其中我们最关心以下指标：</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/images/20250509142715.png" alt="20250509142715"></p>
+<h4 id="LCP-最大可视内容绘制时间"><a href="#LCP-最大可视内容绘制时间" class="headerlink" title="LCP 最大可视内容绘制时间"></a>LCP 最大可视内容绘制时间</h4><p>LCP 会报告视口内可见的最大图片、文本块或视频的渲染时间（相对于用户首次导航到网页的时间）。</p>
+<p>从用户视角来看，相比于其他指标LCP最能反映出页面加载的速度。</p>
+<p>为了提供良好的用户体验，一个网页应该在2.5s内完成最大可视内容加载。</p>
+<h4 id="INP-输入延迟时间"><a href="#INP-输入延迟时间" class="headerlink" title="INP 输入延迟时间"></a>INP 输入延迟时间</h4><p>输入延迟时间指用户交互中点击网页后的延迟时间，网页的INP不应超过200ms。</p>
+<h4 id="CLS-页面布局累积偏移量"><a href="#CLS-页面布局累积偏移量" class="headerlink" title="CLS 页面布局累积偏移量"></a>CLS 页面布局累积偏移量</h4><p>CLS指网页在加载中页面布局总计偏移量，用来衡量页面稳定性，避免过多的闪烁带来较差的用户体验。网页的CLS应该低于0.1。</p>
+<h4 id="p75"><a href="#p75" class="headerlink" title="p75"></a>p75</h4><p>用户网络环境良莠不齐，再精致的优化也不能保证所有的用户都能达到这些指标的建议值。</p>
+<p>一个合适的衡量阈值是按照不同的设备进行区分的网页加载时间的第75个百分数。即有75%的用户达到了这些指标的建议值就将其视为通过性能测试。</p>
+<h4 id="FCP-Safari平台对LCP的平替（白屏时间）"><a href="#FCP-Safari平台对LCP的平替（白屏时间）" class="headerlink" title="FCP Safari平台对LCP的平替（白屏时间）"></a>FCP Safari平台对LCP的平替（白屏时间）</h4><p>FCP 测量用户导航到页面后浏览器呈现初始 DOM 内容所需的时间。页面上的图像、非白色元素和 SVG <code>&lt;canvas&gt;</code>被视为 DOM 内容。iframe 内的任何内容均不包含在内。</p>
+<p>一个良好的页面应该保持FCP在1s以内。</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://webkit.org/blog/16458/announcing-interop-2025/#core-web-vitals">Webkit 声称2025年会支持LCP</a></p>
+</blockquote>
+<blockquote>
+<p>In Safari 18.0, we updated our implementation to the latest spec, but there’s more work to do to reach full interoperability.<br>Core Web Vitals<br>The performance of your website is key to providing a fantastic user experience, and we know it’s top-of-mind as you write code. We’ve heard your &gt; &gt;  requests for cross-browser support of the popular Core Web Vitals, and we are excited to have them on the agenda for 2025. The focus areas includes:<br>Largest Contentful Paint (LCP)<br>Interaction to Next Paint (INP)<br>Having these metrics available in all browsers allows you to track how quickly and smoothly users can interact with a page, no matter which platform they are on.</p>
+</blockquote>
+<h2 id="检测工具"><a href="#检测工具" class="headerlink" title="检测工具"></a>检测工具</h2><p>检测工具根据数据源的不同大致可以分为两类：</p>
+<p>分别以线上和dev环境来区分为基于真实用户数据的检测工具和基于实验室数据的检测工具。</p>
+<h3 id="基于实验室数据的工具"><a href="#基于实验室数据的工具" class="headerlink" title="基于实验室数据的工具"></a>基于实验室数据的工具</h3><p>大多是指在开发者做针对性优化时为测试出网页数据使用的工具。例如 PageSpeed Insights、Chrom DevTools、Lighthouse、Web Vitals Extension 等等。</p>
+<p>最直接的就是Chome浏览器开发者模式选择Lighthouse：</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/images/20250509144435.png" alt="20250509144435"></p>
+<h3 id="基于真实用户数据的工具"><a href="#基于真实用户数据的工具" class="headerlink" title="基于真实用户数据的工具"></a>基于真实用户数据的工具</h3><p>可以理解为线上用户使用场景下采集数据的工具。例如 web-vitals、CrUX、等等。</p>
+<p>其中基于web-vitals的已经有成熟的存储和可视化查询工具。</p>
+<p>例如我们私有化部署的Sentry</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/images/iShot_2025-05-09_14.11.27.png" alt="iShot_2025-05-09_14.11.27"></p>
+<p>或者是开源项目 Grafana</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/images/iShot_2025-05-09_14.10.16.png" alt="iShot_2025-05-09_14.10.16"></p>
+<h2 id="性能优化"><a href="#性能优化" class="headerlink" title="性能优化"></a>性能优化</h2><p>了解了<strong>性能指标</strong>和<strong>检测工具</strong>后就是真正的重头戏–<strong>性能优化</strong>。</p>
+<p>根据实践中的总结，所有的优化手段大致可以分为两类：系统级优化和针对性优化。</p>
+<h3 id="系统级优化"><a href="#系统级优化" class="headerlink" title="系统级优化"></a>系统级优化</h3><p>顾名思义，不针对某个具体功能或者指标的整体性的优化。例如前端的架构选型，项目脚手架、模板、编译构建、组件库等，还有服务端和客户端配合做的一些优化。</p>
+<h4 id="服务端渲染-SSR"><a href="#服务端渲染-SSR" class="headerlink" title="服务端渲染-SSR"></a>服务端渲染-SSR</h4><p>常规的CSR架构下天然存在一些缺陷，比较明显的是LCP问题。</p>
+<p>因为CSR架构下服务端返回了Html之后还要等待CSS，JS加载完成后才能看到Dom页面。这样就导致用户需要等待浏览器渲染Html，白屏时间较长。</p>
+<p>而SSR通过服务端渲染首屏内容，请求返回后可以直接看到（部分）页面内容。</p>
+<p>这样可以让用户在第一时间看到首屏页面，配合一些数据预加载手段可以大大缓解LCP问题。</p>
+<p>另外由于服务端已经将页面结构渲染好了，基本不会出现大范围的Dom结构位移，也就不会出现CLS问题。</p>
+<p>但是SSR架构会带来额外的问题：</p>
+<p>首先SSR架构强依赖接口的性能，如果服务端接口迟迟不能响应，且前端没有做CSR降级，用户体验就会更加劣化。</p>
+<p>其次用户虽然能看到页面内容，但是在刚加载出页面时会密集的执行大量任务导致用户无法进行交互和操作，其体验也不好。</p>
+<p>而CSR架构中页面初始化时的任务都是比较分散的，一定程度的降低了longTask的产生。</p>
+<p>针对这些问题，前端技术又衍生出来很多解决方案这里不再一一阐述。</p>
+<h4 id="离线包"><a href="#离线包" class="headerlink" title="离线包"></a>离线包</h4><p>在APP环境内开发者可以针对Webview做各种各样的修改，拥有更强更自由的定制化能力。</p>
+<p>而离线包的思路就需要客户端和服务端相互配合，通过将Web页面资源进行打包下发的方式在加载页面的时候直接从APP内访问本地资源从而减少用户等待时间。</p>
+<p>也就是说将一个包含HTML、JS、CSS、图片等静态资源的压缩包放到APP本地，APP拦截Webview的请求并使用本地资源响应，从而最大程度的摆脱网络环境对H5页面的影响。</p>
+<p>粗看离线包仅仅去解决网络问题，不过如果能彻底解决加载问题，对用户体验的提升还是非常大的。但是围绕<strong>离线包</strong>这个点需要做的工作还有很多的。</p>
+<h3 id="针对性优化"><a href="#针对性优化" class="headerlink" title="针对性优化"></a>针对性优化</h3><p>大多是针对某个具体的指标，某种具体类型的资源。需要具体情况具体分析，比如优化资源的加载优先级，动态import，拆分longTask等。</p>
+<h2 id="APP侧秒开优化"><a href="#APP侧秒开优化" class="headerlink" title="APP侧秒开优化"></a>APP侧秒开优化</h2><p>回到正题，秒开指的是我们想对APP环境内的H5页面加载时间进行优化。对应上文属于从APP系统级对LCP指标的针对性优化。</p>
+<p>从APP开发者的视角开发对应的方案也显而易见 – 离线包。</p>
+<h3 id="离线包方案预估收益"><a href="#离线包方案预估收益" class="headerlink" title="离线包方案预估收益"></a>离线包方案预估收益</h3><h3 id="离线包方案调研"><a href="#离线包方案调研" class="headerlink" title="离线包方案调研"></a>离线包方案调研</h3><p>市面上关于离线包的技术方案也基本类似，比较其原理是一致的。资源预加载 -&gt; 拦截请求 -&gt; 命中缓存 -&gt; 渲染WebContent。</p>
+<p>以京东开源的离线包方案为例，拦截以及匹配流程如下：</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/images/20250509154959.png" alt="20250509154959"></p>
+<p>看似简单的流程中还存在很多细节需要处理，也有很多风险点需要特别注意。</p>
+<h4 id="Webview请求拦截"><a href="#Webview请求拦截" class="headerlink" title="Webview请求拦截"></a>Webview请求拦截</h4><p>Android Webview 可以通过重写 shouldInterceptRequest 方法进行拦截Http请求进行资源查询并返回。</p>
+<p>iOS WkWebview可以通过WKURLSchemeHandler拦截自定义scheme请求但是未提供拦截http(s)请求的接口。</p>
+<p>目前可以通过一些黑魔法进行hook来达成拦截http(s)的目的。</p>
+<p>一旦拦截到请求就可以去本地静态资源池中进行匹配，如果命中本地资源就可以直接返回本地的数据，跳过请求网络的等待环节。</p>
+<p>请求拦截阶段存在一些问题：</p>
+<p>由于Webview发起请求和APP内部请求不在同一个进程，其Cookie、Header等很多内容不能共享，需要额外的工作量去处理这些问题。</p>
+<p>iOS通过hook手段支持拦截Http(s), 这意味着在Webview中所有的非离线包的请求也需要开发者手工处理，其风险等级陡升。</p>
+<p>而且随着官方API变更以及审核条款变更，hook方法可能会失效，一旦失效等于离线包的基础已不存在，基于离线包做出的设计全部作废。</p>
+<h4 id="资源更新和分发能力"><a href="#资源更新和分发能力" class="headerlink" title="资源更新和分发能力"></a>资源更新和分发能力</h4><p>服务端需要开发离线包更新和下发功能，前端需要开发打包离线包资源功能，APP需要开发资源包的下载和管理功能。</p>
+<h4 id="差量更新"><a href="#差量更新" class="headerlink" title="差量更新"></a>差量更新</h4><p>打离线包资源下发这一环节还有比较重要的内容要考虑–带宽压力。</p>
+<p>前端页面更新很快，不可能一点点页面变动就推送全量的资源包到APP，所以这里还需要做差量更新，APP需要做基于diff算法的文件管理和维护。</p>
+<p>另外APP主动获取资源包的时机也有待考究，对网络环境和APP业务任务优先级处理需要有比较细致的操控。</p>
+<p>还有加载速度和资源实时性的取舍，需要实现<strong>动态离线</strong>，对不同的权重的页面实施不同的离线策略。</p>
+<h4 id="接口预请求"><a href="#接口预请求" class="headerlink" title="接口预请求"></a>接口预请求</h4><p>在资源预加载的基础上我们还可以对特定页面需要的数据进行接口数据预加载。</p>
+<p>APP可以在初始化Webview的同时异步去请求这个页面需要的接口数据保证H5更早的拿到数据来减少LCP时间。</p>
+<p>当然如何识别某个页面需要什么请求什么接口还需要进行定制化配置的开发。</p>
+<h4 id="多语适配"><a href="#多语适配" class="headerlink" title="多语适配"></a>多语适配</h4><p>对离线包来说多语适配还存在一些问题需要解决，前端项目的多语资源很多，所以需要考虑打静态资源的时候拆分需要展示的i18n资源进行下发。</p>
+<p>另外APP内切换了语言之后如何动态切换静态HTML的语言也要和当前项目中的i18n的实现相关联。</p>
+<h4 id="容器预热"><a href="#容器预热" class="headerlink" title="容器预热"></a>容器预热</h4><p>得益于APP对Webview更加自由的定制化，APP内加载H5页面还有一些手段可以提升加载速度 - 容器预热。</p>
+<p>Webview初始化也需要一定时间，所以APP启动后就可以创建Webview复用池来预创建容器。</p>
+<p>当前用户击一个链接后直接从内存中取出预热的容器直接加载URL，缩减用户从点击到看到第一帧画面的时间。</p>
+<p>严格来说容器预热不从属于离线包的技术范畴，所以预热中的容器也可以提前请求一些公共JS库（非离线）。</p>
+<p>利用Http的Cache-Control先把H5页面可能使用到的公共JS加载到内存缓存中，可以一定程度提升首次加载页面的速度。</p>
+<h3 id="离线包方案风险和弊端"><a href="#离线包方案风险和弊端" class="headerlink" title="离线包方案风险和弊端"></a>离线包方案风险和弊端</h3><h4 id="资源投入大"><a href="#资源投入大" class="headerlink" title="资源投入大"></a>资源投入大</h4><p>iOS和Android双端都要支持功能，并且要对齐具体的策略，更新和迭代需要双端开发。</p>
+<p>需要服务端开发对应的离线包更新和分发服务，前端开发静态资源打包能力。</p>
+<h4 id="维护成本高，易劣化"><a href="#维护成本高，易劣化" class="headerlink" title="维护成本高，易劣化"></a>维护成本高，易劣化</h4><p>设计结构复杂，容易对现有业务产生负面影响，对风险范围难以控制，很容易出现bug。</p>
+<h3 id="APP内Web秒开优化评估"><a href="#APP内Web秒开优化评估" class="headerlink" title="APP内Web秒开优化评估"></a>APP内Web秒开优化评估</h3><h4 id="监控数据来源"><a href="#监控数据来源" class="headerlink" title="监控数据来源"></a>监控数据来源</h4><p>Web端支持在sentry上报数据新增区分APP内环境的tag，可以通过此tag筛选处于APP Webview容器的数据集合。</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/images/20250509180527.png" alt="20250509180527"></p>
+<p>Web端预计于5月第二周上线带入此修改，APP可以在第三周查询数据统计。</p>
+<h4 id="预期采用方案"><a href="#预期采用方案" class="headerlink" title="预期采用方案"></a>预期采用方案</h4><p>Web端已经进行了一波性能优化，已经处于灰度上线阶段。</p>
+<p>从APP角度来看，基于离线包方案的收益和风险不成正比，目前可以先从容器预热着手。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a target="_blank" rel="noopener" href="https://developer.chrome.com/docs/lighthouse/performance">Google Developer Lighthouse</a><br><a target="_blank" rel="noopener" href="https://web.dev/articles/defining-core-web-vitals-thresholds?hl=zh-cn">Core Web Vitals 指标阈值是如何定义的</a><br><a target="_blank" rel="noopener" href="https://webkit.org/blog/16458/announcing-interop-2025/#core-web-vitals">Webkit 声称2025年会支持LCP</a><br><a target="_blank" rel="noopener" href="https://juejin.cn/post/7151753139052347399">使用 Sentry 做性能监控</a><br><a target="_blank" rel="noopener" href="https://juejin.cn/post/6923415236049534989">Android 拦截Webview请求</a><br><a target="_blank" rel="noopener" href="https://github.com/jd-opensource/JDHybrid/tree/main/iOS/JDHybrid/JDCache">京东离线包开源方案</a></p>
+
+        
+      </div>
+
+         
     </div>
     
-    
-      
-      
-        
-        <div class="year-line">
-            <div class="year-num">2024</div>
-            <div class="dot-wrapper">
-                <div class="dot"></div>
-            </div>
-            <div class="article-count">1 篇文章</div>
-        </div>
-      
-      <a class="archive-article-link" href="/2024/11/29/iOS%E8%83%8C%E6%99%AF%E6%A8%A1%E7%B3%8A%E5%AE%9E%E7%8E%B0%E6%8A%80%E6%9C%AF%E6%96%B9%E6%A1%88/" title="AI作业背景模糊实现技术方案">
-        <div class="date">11-29</div>
-        <div class="line">
-            <div class="dot"></div>
-        </div>
-        <div class="title">
-            <div class="title-inner">
-                
-                    AI作业背景模糊实现技术方案
-                
-            </div>
-        </div>
-        <div class="tags">
-            #iOS #图像处理 #AI
-        </div>
-      </a>
-    
+     
   </div>
+  
+    
+<nav id="article-nav">
+  <a class="article-nav-btn left  disabled "
+     >
+    <i class="fa-solid fa-angle-left"></i>
+    <p class="title-text">
+        
+    </p>
+  </a>
+  <a class="article-nav-btn right "
+    
+      href="/2025/04/02/iOS%E4%BD%BF%E7%94%A8Cursor%E5%BC%80%E5%8F%91%E9%85%8D%E7%BD%AE/"
+      title="iOS使用Cursor开发配置指南"
+     >
+
+    <p class="title-text">
+      
+        iOS使用Cursor开发配置指南
+        
+    </p>
+    <i class="fa-solid fa-angle-right"></i>
+  </a>
+</nav>
+
+
+  
+</article>
+
+
+
+
+
     </div>
     <div id="footer-wrapper">
       <footer id="footer">
