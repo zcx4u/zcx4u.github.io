@@ -27,17 +27,17 @@
 <meta property="og:site_name" content="我的博客">
 <meta property="og:description" content="什么是SwiftUISwiftUI 于 2019 年度 WWDC 全球开发者大会上发布，它是基于 Swift 建立的声明式UI框架。 该框架可以用于 watchOS、tvOS、macOS、iOS 等平台的应用开发，等于说统一了苹果生态圈的开发工具。  SwiftUI provides views, controls, and layout structures for declaring you">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://cdn.zcx.info/e6c9d24ely1h4461xrrg2j211906rjrv.jpg">
-<meta property="og:image" content="https://cdn.zcx.info/e6c9d24ely1h36ny2yym8j213002fmx4.jpg">
-<meta property="og:image" content="https://cdn.zcx.info/e6c9d24ely1h36o3x0gvgj207h04lglm.jpg">
-<meta property="og:image" content="https://cdn.zcx.info/e6c9d24ely1h3x76m90gnj20b80buglq.jpg">
+<meta property="og:image" content="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h4461xrrg2j211906rjrv.jpg">
+<meta property="og:image" content="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h36ny2yym8j213002fmx4.jpg">
+<meta property="og:image" content="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h36o3x0gvgj207h04lglm.jpg">
+<meta property="og:image" content="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3x76m90gnj20b80buglq.jpg">
 <meta property="og:image" content="https://docs-assets.developer.apple.com/published/d98251c2fac9fc4f6843be1e4836cb93/Managing-User-Interface-State-1@2x.png">
 <meta property="article:published_time" content="2022-07-05T16:00:00.000Z">
-<meta property="article:modified_time" content="2025-03-13T09:54:06.212Z">
+<meta property="article:modified_time" content="2025-07-04T03:50:42.129Z">
 <meta property="article:author" content="bruin">
 <meta property="article:tag" content="学习笔记">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://cdn.zcx.info/e6c9d24ely1h4461xrrg2j211906rjrv.jpg">
+<meta name="twitter:image" content="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h4461xrrg2j211906rjrv.jpg">
   
     <link rel="alternate" href="/atom.xml" title="我的博客" type="application/atom+xml">
   
@@ -502,7 +502,7 @@
       </header>
       <div class="e-content article-entry" itemprop="articleBody">
         
-          <p><img src="https://cdn.zcx.info/e6c9d24ely1h4461xrrg2j211906rjrv.jpg" alt="SWiftUITitleImage"></p>
+          <p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h4461xrrg2j211906rjrv.jpg" alt="SWiftUITitleImage"></p>
 <h2 id="什么是SwiftUI"><a href="#什么是SwiftUI" class="headerlink" title="什么是SwiftUI"></a>什么是SwiftUI</h2><p>SwiftUI 于 2019 年度 WWDC 全球开发者大会上发布，它是基于 Swift 建立的声明式UI框架。</p>
 <p>该框架可以用于 watchOS、tvOS、macOS、iOS 等平台的应用开发，等于说统一了苹果生态圈的开发工具。</p>
 <blockquote>
@@ -510,9 +510,9 @@
 </blockquote>
 <h2 id="SwiftUI-Hello-World"><a href="#SwiftUI-Hello-World" class="headerlink" title="SwiftUI Hello World"></a>SwiftUI Hello World</h2><p><a target="_blank" rel="noopener" href="https://developer.apple.com/tutorials/swiftui/creating-and-combining-views">创建新项目并预览画布</a></p>
 <p>和平时创建新项目流程基本一致。只需要选择Swift UI Interface即可。</p>
-<p><img src="https://cdn.zcx.info/e6c9d24ely1h36ny2yym8j213002fmx4.jpg" alt="2"></p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h36ny2yym8j213002fmx4.jpg" alt="2"></p>
 <p>工程初始化创建完毕后可以看到文件结构如下：</p>
-<p><img src="https://cdn.zcx.info/e6c9d24ely1h36o3x0gvgj207h04lglm.jpg" alt="3"></p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h36o3x0gvgj207h04lglm.jpg" alt="3"></p>
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── <span class="title class_">SwiftUIClient</span></span><br><span class="line">│   ├── <span class="title class_">Assets</span>.xcassets /<span class="regexp">/ 素材文件夹</span></span><br><span class="line"><span class="regexp">│   │   ├── AccentColor.colorset</span></span><br><span class="line"><span class="regexp">│   │   │   └── Contents.json</span></span><br><span class="line"><span class="regexp">│   │   ├── AppIcon.appiconset</span></span><br><span class="line"><span class="regexp">│   │   │   └── Contents.json</span></span><br><span class="line"><span class="regexp">│   │   └── Contents.json</span></span><br><span class="line"><span class="regexp">│   ├── ContentView.swift /</span><span class="regexp">/ 默认view</span></span><br><span class="line"><span class="regexp">│   ├── Preview Content</span></span><br><span class="line"><span class="regexp">│   │   └── Preview Assets.xcassets</span></span><br><span class="line"><span class="regexp">│   │       └── Contents.json</span></span><br><span class="line"><span class="regexp">│   └── SwiftUIClientApp.swift /</span><span class="regexp">/ APP入口文件</span></span><br><span class="line"><span class="regexp">└── SwiftUIClient.xcodeproj </span></span><br><span class="line"><span class="regexp">    ├── project.pbxproj</span></span><br><span class="line"><span class="regexp">    └── xcuserdata</span></span><br><span class="line"><span class="regexp">        └── pxcm-0101-01-0246.xcuserdatad</span></span><br><span class="line"><span class="regexp">            └── xcschemes</span></span><br><span class="line"><span class="regexp">                └── xcschememanagement.plist</span></span><br></pre></td></tr></table></figure>
 
 <h2 id="main"><a href="#main" class="headerlink" title="@main"></a>@main</h2><p>找到APP入口文件<code>SwiftUIClientApp.swift</code>中的<code>@main</code>标记<br>根据经验APP会从@main入口启动开始执行</p>
@@ -551,7 +551,7 @@
 <p>简单且强大的文本控件,类似于UILabel.可以支持很短的代码设置所需属性</p>
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3i0g7vwrdj214w0mjacl.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3i0g7vwrdj214w0mjacl.jpg"></image></pre>
 </details>
 
 <h4 id="TextField"><a href="#TextField" class="headerlink" title="TextField"></a>TextField</h4><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">TextField</span>(<span class="string">&quot;输入框&quot;</span>, text: <span class="variable">$value</span>)</span><br><span class="line">.textFieldStyle(.roundedBorder)</span><br><span class="line">.keyboardType(.alphabet)</span><br></pre></td></tr></table></figure>
@@ -559,7 +559,7 @@
 <p>相当于UIKit中的UITextField的单行文本输入框.支持banging一个@state修饰的string变量。</p>
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3i5s1lrouj214r0mejuw.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3i5s1lrouj214r0mejuw.jpg"></image></pre>
 </details>
 
 <h4 id="SecureField"><a href="#SecureField" class="headerlink" title="SecureField"></a>SecureField</h4><p>密码输入框,用法和普通的输入框一致</p>
@@ -570,14 +570,14 @@
 
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3i8b01bi2j214q0mg437.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3i8b01bi2j214q0mg437.jpg"></image></pre>
 </details>
 
 <h3 id="按钮"><a href="#按钮" class="headerlink" title="按钮"></a>按钮</h3><h4 id="Button"><a href="#Button" class="headerlink" title="Button"></a>Button</h4><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 不带边框style的button</span></span><br><span class="line"><span class="type">Button</span>(<span class="string">&quot;不应用边框的按钮样式&quot;</span>)&#123;&#125;.buttonStyle(<span class="type">BorderlessButtonStyle</span>()).padding()</span><br><span class="line"></span><br><span class="line"><span class="comment">// 可以通过自定义PrimitiveButtonStyle类来实现一些自定义的button</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">PriButton</span>: <span class="title class_ inherited__">PrimitiveButtonStyle</span> &#123;</span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">Body</span> <span class="operator">=</span> <span class="type">Button</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">makeBody</span>(<span class="params">configuration</span>: <span class="type">Configuration</span>) -&gt; <span class="keyword">some</span> <span class="type">View</span> &#123;</span><br><span class="line">        configuration.trigger()</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">        <span class="type">Button</span>(configuration)</span><br><span class="line">            .background(<span class="type">Color</span>.orange)</span><br><span class="line">            .clipShape(<span class="type">RoundedRectangle</span>(cornerRadius: <span class="number">25.0</span>, style: .continuous))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 也可以直接使用label参数设置自定义view</span></span><br><span class="line"><span class="type">Button</span> &#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;click&quot;</span>) <span class="comment">// 事件block</span></span><br><span class="line">&#125; label: &#123;</span><br><span class="line">   <span class="comment">//这里可以放自定义view</span></span><br><span class="line">    <span class="type">Image</span>(systemName: <span class="string">&quot;star&quot;</span>).offset(x: <span class="operator">-</span><span class="number">10</span>, y: <span class="number">0</span>)</span><br><span class="line">    <span class="type">Text</span>(<span class="string">&quot;带图标的按钮&quot;</span>)</span><br><span class="line">&#125;.padding()</span><br></pre></td></tr></table></figure>
 
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3i0k7u9qvj213d0mj42p.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3i0k7u9qvj213d0mj42p.jpg"></image></pre>
 </details>
 
 <h4 id="Menu-PullDownButton"><a href="#Menu-PullDownButton" class="headerlink" title="Menu(PullDownButton)"></a>Menu(<em>PullDownButton</em>)</h4><p>点击弹出选择菜单,可以加在toolbar上或者其他地方,本体是一个Button,也可以是自定义View.</p>
@@ -585,7 +585,7 @@
 
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3i91gt97aj214s0mgn15.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3i91gt97aj214s0mgn15.jpg"></image></pre>
 </details>
 
 <h4 id="EditButton"><a href="#EditButton" class="headerlink" title="EditButton"></a>EditButton</h4><p>支持改变整个环境变量中的editMode字段,开启编辑状态后一些系统控件会自动触发状态变化。例如支持删除或者排序的List中的ForEach列表在开启editmode后会显示出List的编辑功能。</p>
@@ -595,7 +595,7 @@
 <p>经常会和toolbar功能共用,在导航条右上角支持编辑模式。</p>
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3j3vq77r8j214l0md793.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3j3vq77r8j214l0md793.jpg"></image></pre>
 </details>
 
 <h3 id="列表"><a href="#列表" class="headerlink" title="列表"></a>列表</h3><h4 id="List-Section-ForEach"><a href="#List-Section-ForEach" class="headerlink" title="List, Section, ForEach"></a>List, Section, ForEach</h4><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">List</span>&#123;</span><br><span class="line">  <span class="type">Section</span>(<span class="string">&quot;水果列表&quot;</span>) &#123;</span><br><span class="line">      <span class="type">ForEach</span>(fruits, id: \.<span class="keyword">self</span>) &#123; fruit <span class="keyword">in</span></span><br><span class="line">          <span class="type">Text</span>(<span class="string">&quot;<span class="subst">\(fruit)</span>&quot;</span>)</span><br><span class="line">      &#125;.onMove &#123; indexSet, index <span class="keyword">in</span></span><br><span class="line">          fruits.move(fromOffsets: indexSet, toOffset: index)</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> <span class="operator">!</span>balls.isEmpty &#123;</span><br><span class="line">      <span class="type">Section</span>(<span class="string">&quot;球类列表&quot;</span>) &#123;</span><br><span class="line">          <span class="type">ForEach</span>(balls, id: \.<span class="keyword">self</span>) &#123; ball <span class="keyword">in</span></span><br><span class="line">              <span class="type">Text</span>(<span class="string">&quot;<span class="subst">\(ball)</span>&quot;</span>)</span><br><span class="line">          &#125;.onDelete &#123; indexSet <span class="keyword">in</span></span><br><span class="line">              balls.remove(atOffsets: indexSet)</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -610,7 +610,7 @@
 
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3j3sni4zjj214s0mhtbz.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3j3sni4zjj214s0mhtbz.jpg"></image></pre>
 </details>
 
 <h4 id="Group"><a href="#Group" class="headerlink" title="Group"></a>Group</h4><p>Group用于集合多个视图，对 Group 设置的属性，将作用于每个子视图。</p>
@@ -618,7 +618,7 @@
 
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3rnl7bryaj213o0metbb.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3rnl7bryaj213o0metbb.jpg"></image></pre>
 </details>
 
 <h4 id="From"><a href="#From" class="headerlink" title="From"></a>From</h4><p>Form是SwiftUI的基础控件，如果我们需要显示产品配置、选项、用户输入时，使用Form可以快速搭建出各类表单。</p>
@@ -626,7 +626,7 @@
 
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3jl3sied0j214q0mb0w3.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3jl3sied0j214q0mb0w3.jpg"></image></pre>
 </details>
 
 <h4 id="ScrollView"><a href="#ScrollView" class="headerlink" title="ScrollView"></a>ScrollView</h4><p>在有限空间放较多内容的容器View</p>
@@ -634,7 +634,7 @@
 
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3jbr3uhfej214s0mfjy1.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3jbr3uhfej214s0mfjy1.jpg"></image></pre>
 </details>
 
 <h3 id="布局"><a href="#布局" class="headerlink" title="布局"></a>布局</h3><h4 id="VStack-HStack"><a href="#VStack-HStack" class="headerlink" title="VStack,HStack"></a>VStack,HStack</h4><p>VStack类似UIStackView,属于布局修饰符,其中包裹的view会按照一定的规则进行垂直方向的自动布局。</p>
@@ -643,7 +643,7 @@
 
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3uoh36i9gj213v0n1418.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3uoh36i9gj213v0n1418.jpg"></image></pre>
 </details>
 
 <h4 id="ZStack"><a href="#ZStack" class="headerlink" title="ZStack"></a>ZStack</h4><p>ZStack的布局方式类似于UIKit中的View父子层级,但是SwiftUI中较少提及父子层级关系,SwiftUI中认为每个View都是独立的View,仅仅是布局方式的不同。</p>
@@ -652,7 +652,7 @@
 
 <details>
 <summary><font color=gray>点击查看运行效果</font></summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3uorpdw9qj213s0mtn0l.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3uorpdw9qj213s0mtn0l.jpg"></image></pre>
 </details>
 
 <h3 id="导航"><a href="#导航" class="headerlink" title="导航"></a>导航</h3><h4 id="TabView"><a href="#TabView" class="headerlink" title="TabView"></a>TabView</h4><p>类似UIKit中的UITabbar承担tab切换的功能</p>
@@ -660,7 +660,7 @@
 
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3jkd4vkktj214o0men09.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3jkd4vkktj214o0men09.jpg"></image></pre>
 </details>
 
 <h4 id="NavigationView-NavigationLink"><a href="#NavigationView-NavigationLink" class="headerlink" title="NavigationView, NavigationLink"></a>NavigationView, NavigationLink</h4><p>类似UINavigationViewController,负责导航栈的管理。</p>
@@ -671,7 +671,7 @@
 
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3n25qldn7j214q0mg0va.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3n25qldn7j214q0mg0va.jpg"></image></pre>
 </details>
 
 <h4 id="Modal"><a href="#Modal" class="headerlink" title="Modal"></a>Modal</h4><p>模态弹出是经常使用的一种弹出信息页面的模式。</p>
@@ -682,7 +682,7 @@
 
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3pdafcupzj213e0mgwgx.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3pdafcupzj213e0mgwgx.jpg"></image></pre>
 </details>
 
 <h4 id="Popover"><a href="#Popover" class="headerlink" title="Popover"></a>Popover</h4><p>Popover在不同的设备上展示会出现差异,在iOS上是模态弹出一个新页面,在iPad或Mac上弹出一个气泡框。</p>
@@ -690,7 +690,7 @@
 
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3ro8fw598j21380fatah.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3ro8fw598j21380fatah.jpg"></image></pre>
 </details>
 
 <h3 id="Pickers"><a href="#Pickers" class="headerlink" title="Pickers"></a>Pickers</h3><h4 id="Picker"><a href="#Picker" class="headerlink" title="Picker"></a>Picker</h4><p>可以自定义数据的选择器</p>
@@ -698,7 +698,7 @@
 
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3n2vebx0zj214s0mijv7.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3n2vebx0zj214s0mijv7.jpg"></image></pre>
 </details>
 
 <h4 id="DatePicker"><a href="#DatePicker" class="headerlink" title="DatePicker"></a>DatePicker</h4><p>系统内置的时间选择器</p>
@@ -706,7 +706,7 @@
 
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3nr7v7zu9j214p0mdjvb.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3nr7v7zu9j214p0mdjvb.jpg"></image></pre>
 </details>
 
 <h4 id="Toggle"><a href="#Toggle" class="headerlink" title="Toggle"></a>Toggle</h4><p>类似于UISwitch,用于开关选择</p>
@@ -714,7 +714,7 @@
 
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3o0cr0v3mj214q0mdmz8.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3o0cr0v3mj214q0mdmz8.jpg"></image></pre>
 </details>
 
 <h4 id="Slider"><a href="#Slider" class="headerlink" title="Slider"></a>Slider</h4><p>Slider相当于UIKit中的UISlider，通过移动滑杆实现指定区域和间隔的数值的选择。</p>
@@ -722,7 +722,7 @@
 
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3p7s7u4plj214v0mf0vu.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3p7s7u4plj214v0mf0vu.jpg"></image></pre>
 </details>
 
 <h4 id="Stepper"><a href="#Stepper" class="headerlink" title="Stepper"></a>Stepper</h4><p>步进选择器</p>
@@ -730,7 +730,7 @@
 
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3p82b0ae5j214r0mhace.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3p82b0ae5j214r0mhace.jpg"></image></pre>
 </details>
 
 <h3 id="Alerts"><a href="#Alerts" class="headerlink" title="Alerts"></a>Alerts</h3><h4 id="Alert"><a href="#Alert" class="headerlink" title="Alert"></a>Alert</h4><p>AlertView将被废弃,被.alert方法替代</p>
@@ -740,7 +740,7 @@
 <p>当action中的button数量不同时会自动切换alert的显示格式</p>
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3pcgv2l0dj213s0mgjuh.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3pcgv2l0dj213s0mgjuh.jpg"></image></pre>
 </details>
 
 <h4 id="ActionSheet"><a href="#ActionSheet" class="headerlink" title="ActionSheet"></a>ActionSheet</h4><p>ActionSheet将被废弃,被.confirmationDialog替代</p>
@@ -749,7 +749,7 @@
 
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24egy1h3pctoaj0pj213k0mfaco.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24egy1h3pctoaj0pj213k0mfaco.jpg"></image></pre>
 </details>
 
 <h3 id="Image"><a href="#Image" class="headerlink" title="Image"></a>Image</h3><p>Image,类似于UIImageView,相对于UIimageview,Image控件可以更加简单的设置圆角,边框,阴影等属性。</p>
@@ -757,7 +757,7 @@
 
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3jk79vi59j214p0mf76j.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3jk79vi59j214p0mf76j.jpg"></image></pre>
 </details>
 
 <h3 id="WebImage"><a href="#WebImage" class="headerlink" title="WebImage"></a>WebImage</h3><p>SwiftUI中的VIew控件可以控制其生命周期,在onAppear的时候进行URL图片下载,下载成功后替换image即可。</p>
@@ -765,13 +765,13 @@
 
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3uxv5n357j213q0natdv.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3uxv5n357j213q0natdv.jpg"></image></pre>
 </details>
 
 <p>当然可以使用kf图片库来进行网络图片的下载和缓存管理。</p>
 <details>
 <summary><font color=gray>点击查看长时间下载的加载效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3uxr4o7zbg20oo1hcx6p.gif" height = 400></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3uxr4o7zbg20oo1hcx6p.gif" height = 400></image></pre>
 </details>
 
 <h3 id="Webview"><a href="#Webview" class="headerlink" title="Webview"></a>Webview</h3><p>SwiftUI没有再封装一套新的Webview容器,直接桥接WKWebView即可。</p>
@@ -780,7 +780,7 @@
 
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3uqhsiluvj213m0nc42w.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3uqhsiluvj213m0nc42w.jpg"></image></pre>
 </details>
 
 <hr>
@@ -789,7 +789,7 @@
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">protocol</span> <span class="title class_">UIViewRepresentable</span> : <span class="title class_ inherited__">View</span> <span class="keyword">where</span> <span class="title class_ inherited__">Self</span>.<span class="title class_ inherited__">Body</span> == <span class="title class_ inherited__">Never</span> &#123;</span><br><span class="line">    <span class="comment">/// 首先需要确定你要桥接的View的类型</span></span><br><span class="line">    <span class="keyword">associatedtype</span> <span class="type">UIViewType</span> : <span class="type">UIView</span></span><br><span class="line">    <span class="comment">/// 必须实现的协议，系统在初始化结构体的时候会初始化你的View</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">makeUIView</span>(<span class="params">context</span>: <span class="keyword">Self</span>.<span class="type">Context</span>) -&gt; <span class="keyword">Self</span>.<span class="type">UIViewType</span></span><br><span class="line">    <span class="comment">/// 必须实现的协议，SwiftUI更新的时候会调用此方法让你的View同步更新</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">updateUIView</span>(<span class="keyword">_</span> <span class="params">uiView</span>: <span class="keyword">Self</span>.<span class="type">UIViewType</span>, <span class="params">context</span>: <span class="keyword">Self</span>.<span class="type">Context</span>)</span><br><span class="line">    <span class="comment">/// 非必须实现的协议，相当于 UIView 的 deinit 方法，可以在其中做一些诸如删除通知 observer，停止 timer 等清理工作</span></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">func</span> <span class="title function_">dismantleUIView</span>(<span class="keyword">_</span> <span class="params">uiView</span>: <span class="keyword">Self</span>.<span class="type">UIViewType</span>, <span class="params">coordinator</span>: <span class="keyword">Self</span>.<span class="type">Coordinator</span>)</span><br><span class="line">    <span class="comment">/// 协调器，当前结构体从UIKit中获取数据的途径，一般用来实现UIKit View 的代理</span></span><br><span class="line">    <span class="keyword">associatedtype</span> <span class="type">Coordinator</span> <span class="operator">=</span> <span class="type">Void</span></span><br><span class="line">    <span class="comment">/// 创建一个协调器，用来连接SwiftUI和UIKit，makeUIView之前就会调用</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">makeCoordinator</span>() -&gt; <span class="keyword">Self</span>.<span class="type">Coordinator</span></span><br><span class="line">    <span class="comment">/// 存储一些数据的上下文</span></span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">Context</span> <span class="operator">=</span> <span class="type">UIViewRepresentableContext</span>&lt;<span class="keyword">Self</span>&gt;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>桥接过程的生命周期为：</p>
-<p><img src="https://cdn.zcx.info/e6c9d24ely1h3x76m90gnj20b80buglq.jpg" alt="4"></p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3x76m90gnj20b80buglq.jpg" alt="4"></p>
 <p>其中updateUIView方法会随着View的刷新调用多次。</p>
 <h3 id="UIViewControllerRepresentable"><a href="#UIViewControllerRepresentable" class="headerlink" title="UIViewControllerRepresentable"></a>UIViewControllerRepresentable</h3><p>类似于桥接UIView，SwiftUI也给出了桥接UIViewController的方式</p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">protocol</span> <span class="title class_">UIViewControllerRepresentable</span> : <span class="title class_ inherited__">View</span> <span class="keyword">where</span> <span class="title class_ inherited__">Self</span>.<span class="title class_ inherited__">Body</span> == <span class="title class_ inherited__">Never</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">associatedtype</span> <span class="type">UIViewControllerType</span> : <span class="type">UIViewController</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">makeUIViewController</span>(<span class="params">context</span>: <span class="keyword">Self</span>.<span class="type">Context</span>) -&gt; <span class="keyword">Self</span>.<span class="type">UIViewControllerType</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">updateUIViewController</span>(<span class="keyword">_</span> <span class="params">uiViewController</span>: <span class="keyword">Self</span>.<span class="type">UIViewControllerType</span>, <span class="params">context</span>: <span class="keyword">Self</span>.<span class="type">Context</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">makeCoordinator</span>() -&gt; <span class="keyword">Self</span>.<span class="type">Coordinator</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">typealias</span> <span class="type">Context</span> <span class="operator">=</span> <span class="type">UIViewControllerRepresentableContext</span>&lt;<span class="keyword">Self</span>&gt;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -828,7 +828,7 @@
 
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3w250asb2j213u0mqwgy.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3w250asb2j213u0mqwgy.jpg"></image></pre>
 </details>
 
 <p>可以看到我们点了很多次按钮,内存中的age字段已经变成了25,界面上却依旧显示为原始的值,这是因为User类是不可观察的,所以当User中的字段发生改变的时候不能触发页面的刷新.</p>
@@ -837,7 +837,7 @@
 
 <details>
 <summary><font color=gray>点击查看运行效果</font> </summary>
-  <pre><image src="https://cdn.zcx.info/e6c9d24ely1h3w27hniv2j213o0luad5.jpg"></image></pre>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3w27hniv2j213o0luad5.jpg"></image></pre>
 </details>
 
 <p>可以看到随着我们的点击增加user的age字段值,界面上显示的年龄文字也随之增加.</p>
