@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+
+
+<html theme="dark" showBanner="true" hasBanner="true" > 
+<link href="https://cdn.staticfile.org/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet">
+<link href="https://cdn.staticfile.org/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet">
+<link href="https://cdn.staticfile.org/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet">
+<script src="/js/color.global.min.js" ></script>
+<script src="/js/load-settings.js" ></script>
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+
+  
+  <title>AI-Agent 白皮书 - Agent Quality | 我的博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <link rel="preload" href="/css/fonts/Roboto-Regular.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+  <link rel="preload" href="/css/fonts/Roboto-Bold.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+
+  <meta name="description" content="Agent Quality   智能体质量 Authors: Meltem Subasioglu, Turan Bulmus, and Wafae Bakkali   Agent Quality  The future of AI is agentic. Its  success is determined by quality. AI 的未来是智能体化的。其成功取决于质量。 Introducti">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AI-Agent 白皮书 - Agent Quality">
+<meta property="og:url" content="https://zcx4u.github.io/2025/12/19/Agent%20Quality/index.html">
+<meta property="og:site_name" content="我的博客">
+<meta property="og:description" content="Agent Quality   智能体质量 Authors: Meltem Subasioglu, Turan Bulmus, and Wafae Bakkali   Agent Quality  The future of AI is agentic. Its  success is determined by quality. AI 的未来是智能体化的。其成功取决于质量。 Introducti">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-12-18T16:00:08.000Z">
+<meta property="article:modified_time" content="2025-12-18T16:14:36.924Z">
+<meta property="article:author" content="bruin">
+<meta property="article:tag" content="技术,博客,编程">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="我的博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" media="(prefers-color-scheme: light)" href="/images/favicon-light-32.png" sizes="32x32">
+    <link rel="icon" media="(prefers-color-scheme: light)" href="/images/favicon-light-128.png" sizes="128x128">
+    <link rel="icon" media="(prefers-color-scheme: light)" href="/images/favicon-light-180.png" sizes="180x180">
+    <link rel="icon" media="(prefers-color-scheme: light)" href="/images/favicon-light-192.png" sizes="192x192">
+    <link rel="icon" media="(prefers-color-scheme: dark)" href="/images/favicon-dark-32.png" sizes="32x32">
+    <link rel="icon" media="(prefers-color-scheme: dark)" href="/images/favicon-dark-128.png" sizes="128x128">
+    <link rel="icon" media="(prefers-color-scheme: dark)" href="/images/favicon-dark-180.png" sizes="180x180">
+    <link rel="icon" media="(prefers-color-scheme: dark)" href="/images/favicon-dark-192.png" sizes="192x192">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  
+  
+    
+<div id="banner" class="">
+  <img src="/images/banner.webp" itemprop="image">
+  <div id="banner-dim"></div>
+</div>
+ 
+   
+  <div id="main-grid" class="  ">
+    <div id="nav" class=""  >
+      <navbar id="navbar">
+  <nav id="title-nav">
+    <a href="/">
+      <div id="vivia-logo">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+      <div>我的博客 </div>
+    </a>
+  </nav>
+  <nav id="main-nav">
+    
+      <a class="main-nav-link" href="/">Home</a>
+    
+      <a class="main-nav-link" href="/archives">Archives</a>
+    
+      <a class="main-nav-link" href="/about">About</a>
+    
+  </nav>
+  <nav id="sub-nav">
+    <a id="theme-btn" class="nav-icon">
+      <span class="light-mode-icon"><svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="M438.5-829.913v-48q0-17.452 11.963-29.476 11.964-12.024 29.326-12.024 17.363 0 29.537 12.024t12.174 29.476v48q0 17.452-11.963 29.476-11.964 12.024-29.326 12.024-17.363 0-29.537-12.024T438.5-829.913Zm0 747.826v-48q0-17.452 11.963-29.476 11.964-12.024 29.326-12.024 17.363 0 29.537 12.024t12.174 29.476v48q0 17.452-11.963 29.476-11.964 12.024-29.326 12.024-17.363 0-29.537-12.024T438.5-82.087ZM877.913-438.5h-48q-17.452 0-29.476-11.963-12.024-11.964-12.024-29.326 0-17.363 12.024-29.537t29.476-12.174h48q17.452 0 29.476 11.963 12.024 11.964 12.024 29.326 0 17.363-12.024 29.537T877.913-438.5Zm-747.826 0h-48q-17.452 0-29.476-11.963-12.024-11.964-12.024-29.326 0-17.363 12.024-29.537T82.087-521.5h48q17.452 0 29.476 11.963 12.024 11.964 12.024 29.326 0 17.363-12.024 29.537T130.087-438.5Zm660.174-290.87-34.239 32q-12.913 12.674-29.565 12.174-16.653-.5-29.327-13.174-12.674-12.673-12.554-28.826.12-16.152 12.794-28.826l33-35q12.913-12.674 30.454-12.674t30.163 12.847q12.709 12.846 12.328 30.826-.38 17.98-13.054 30.653ZM262.63-203.978l-32 34q-12.913 12.674-30.454 12.674t-30.163-12.847q-12.709-12.846-12.328-30.826.38-17.98 13.054-30.653l33.239-31q12.913-12.674 29.565-12.174 16.653.5 29.327 13.174 12.674 12.673 12.554 28.826-.12 16.152-12.794 28.826Zm466.74 33.239-32-33.239q-12.674-12.913-12.174-29.565.5-16.653 13.174-29.327 12.673-12.674 28.826-13.054 16.152-.38 28.826 12.294l35 33q12.674 12.913 12.674 30.454t-12.847 30.163q-12.846 12.709-30.826 12.328-17.98-.38-30.653-13.054ZM203.978-697.37l-34-33q-12.674-12.913-13.174-29.945-.5-17.033 12.174-29.707t31.326-13.293q18.653-.62 31.326 13.054l32 34.239q11.674 12.913 11.174 29.565-.5 16.653-13.174 29.327-12.673 12.674-28.826 12.554-16.152-.12-28.826-12.794ZM480-240q-100 0-170-70t-70-170q0-100 70-170t170-70q100 0 170 70t70 170q0 100-70 170t-170 70Zm-.247-82q65.703 0 111.475-46.272Q637-414.544 637-480.247t-45.525-111.228Q545.95-637 480.247-637t-111.475 45.525Q323-545.95 323-480.247t45.525 111.975Q414.05-322 479.753-322ZM481-481Z"/></svg></span>
+      <span class="dark-mode-icon"><svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="M480.239-116.413q-152.63 0-258.228-105.478Q116.413-327.37 116.413-480q0-130.935 77.739-227.435t206.304-125.043q43.022-9.631 63.87 10.869t3.478 62.805q-8.891 22.043-14.315 44.463-5.424 22.42-5.424 46.689 0 91.694 64.326 155.879 64.325 64.186 156.218 64.186 24.369 0 46.978-4.946 22.609-4.945 44.413-14.076 42.826-17.369 62.967 1.142 20.142 18.511 10.511 61.054Q807.174-280 712.63-198.206q-94.543 81.793-232.391 81.793Zm0-95q79.783 0 143.337-40.217 63.554-40.218 95.793-108.283-15.608 4.044-31.097 5.326-15.49 1.283-31.859.805-123.706-4.066-210.777-90.539-87.071-86.473-91.614-212.092-.24-16.369.923-31.978 1.164-15.609 5.446-30.978-67.826 32.478-108.282 96.152Q211.652-559.543 211.652-480q0 111.929 78.329 190.258 78.329 78.329 190.258 78.329ZM466.13-465.891Z"/></svg></span>
+    </a>
+    
+      <a id="nav-rss-link" class="nav-icon mobile-hide" href="/atom.xml" title="RSS 订阅">
+        <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="M198-120q-25.846 0-44.23-18.384-18.384-18.385-18.384-44.23 0-25.846 18.384-44.23 18.384-18.385 44.23-18.385 25.846 0 44.23 18.385 18.384 18.384 18.384 44.23 0 25.845-18.384 44.23Q223.846-120 198-120Zm538.385 0q-18.846 0-32.923-13.769-14.076-13.769-15.922-33.23-8.692-100.616-51.077-188.654-42.385-88.039-109.885-155.539-67.5-67.501-155.539-109.885Q283-663.462 182.385-672.154q-19.461-1.846-33.23-16.23-13.769-14.385-13.769-33.846t14.076-32.922q14.077-13.461 32.923-12.23 120.076 8.692 226.038 58.768 105.961 50.077 185.73 129.846 79.769 79.769 129.846 185.731 50.077 105.961 58.769 226.038 1.231 18.846-12.538 32.922Q756.461-120 736.385-120Zm-252 0q-18.231 0-32.423-13.461t-18.653-33.538Q418.155-264.23 348.886-333.5q-69.27-69.27-166.501-84.423-20.077-4.462-33.538-18.961-13.461-14.5-13.461-33.346 0-19.076 13.884-33.23 13.884-14.153 33.115-10.922 136.769 15.384 234.384 112.999 97.615 97.615 112.999 234.384 3.231 19.23-10.538 33.115Q505.461-120 484.385-120Z"/></svg>
+      </a>
+    
+    <div id="nav-menu-btn" class="nav-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="M177.37-252.282q-17.453 0-29.477-11.964-12.024-11.963-12.024-29.326t12.024-29.537q12.024-12.174 29.477-12.174h605.26q17.453 0 29.477 11.964 12.024 11.963 12.024 29.326t-12.024 29.537q-12.024 12.174-29.477 12.174H177.37Zm0-186.218q-17.453 0-29.477-11.963-12.024-11.964-12.024-29.326 0-17.363 12.024-29.537T177.37-521.5h605.26q17.453 0 29.477 11.963 12.024 11.964 12.024 29.326 0 17.363-12.024 29.537T782.63-438.5H177.37Zm0-186.217q-17.453 0-29.477-11.964-12.024-11.963-12.024-29.326t12.024-29.537q12.024-12.174 29.477-12.174h605.26q17.453 0 29.477 11.964 12.024 11.963 12.024 29.326t-12.024 29.537q-12.024 12.174-29.477 12.174H177.37Z"/></svg>
+    </div>
+  </nav>
+</navbar>
+<div id="nav-dropdown" class="hidden">
+  <div id="dropdown-link-list">
+    
+      <a class="nav-dropdown-link" href="/">Home</a>
+    
+      <a class="nav-dropdown-link" href="/archives">Archives</a>
+    
+      <a class="nav-dropdown-link" href="/about">About</a>
+    
+    
+      <a class="nav-dropdown-link" href="/atom.xml" title="RSS 订阅">RSS</a>
+     
+    </div>
+</div>
+<script>
+  let dropdownBtn = document.getElementById("nav-menu-btn");
+  let dropdownEle = document.getElementById("nav-dropdown");
+  dropdownBtn.onclick = function() {
+    dropdownEle.classList.toggle("hidden");
+  }
+</script>
+    </div>
+    <div id="sidebar-wrapper">
+      <sidebar id="sidebar">
+  
+    <div class="widget-wrap">
+  <div class="info-card">
+    <div class="avatar">
+      
+        <image src=/images/bruin.png></image>
+      
+      <div class="img-dim"></div>
+    </div>
+    <div class="info">
+      <div class="username">bruin </div>
+      <div class="dot"></div>
+      <div class="subtitle">个人技术博客 </div>
+      <div class="link-list">
+        
+          <a class="link-btn" target="_blank" rel="noopener" href="https://github.com/zcx4u" title="GitHub"><i class="fa-brands fa-github"></i></a>
+        
+          <a class="link-btn" href="mailto:your-email@example.com" title="Email"><i class="fa-solid fa-envelope"></i></a>
+         
+      </div>  
+    </div>
+  </div>
+</div>
+
+  
+  <div class="sticky">
+    
+      
+
+
+  <div class="widget-wrap">
+    <div class="widget">
+      <h3 class="widget-title">分类</h3>
+      <div class="category-box">
+            <a class="category-link" href="/categories/iOS/">
+                iOS
+                <div class="category-count">21</div>
+            </a>
+        
+            <a class="category-link" href="/categories/%E6%8A%80%E6%9C%AF/">
+                技术
+                <div class="category-count">1</div>
+            </a>
+        
+            <a class="category-link" href="/categories/tech-sharing/">
+                技术分享
+                <div class="category-count">3</div>
+            </a>
+        
+            <a class="category-link" href="/categories/AI-Agent/">
+                AI-Agent
+                <div class="category-count">5</div>
+            </a>
+        
+            <a class="category-link" href="/categories/ios-development/">
+                iOS开发
+                <div class="category-count">1</div>
+            </a>
+        </div>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget-wrap">
+    <div class="widget">
+      <h3 class="widget-title">标签</h3>
+      <ul class="widget-tag-list" itemprop="keywords"><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/AI/" rel="tag">AI</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/AIGC/" rel="tag">AIGC</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/BUG%E8%AE%B0%E5%BD%95%E5%92%8C%E7%BB%8F%E9%AA%8C%E6%94%B6%E9%9B%86/" rel="tag">BUG记录和经验收集</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/ChatGPT/" rel="tag">ChatGPT</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/Cursor/" rel="tag">Cursor</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/IDE/" rel="tag">IDE</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/Webview/" rel="tag">Webview</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/Xcode/" rel="tag">Xcode</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/asr/" rel="tag">asr</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/i18n/" rel="tag">i18n</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/ios/" rel="tag">iOS</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E4%B8%80%E9%94%AE%E5%94%A4%E8%B5%B7/" rel="tag">一键唤起</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/" rel="tag">图像处理</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%A4%9A%E8%AF%BB%E6%96%87%E6%A1%A3/" rel="tag">多读文档</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%B0%8F%E7%BB%84%E4%BB%B6/" rel="tag">小组件</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/" rel="tag">开发工具</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/performance/" rel="tag">性能优化</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%8A%80%E6%9C%AF%E8%B0%83%E7%A0%94/" rel="tag">技术调研</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%95%88%E7%8E%87/" rel="tag">效率</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%95%88%E7%8E%87%E6%8F%90%E5%8D%87/" rel="tag">效率提升</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%9C%89%E7%94%A8%E7%9A%84/" rel="tag">有用的</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/architecture/" rel="tag">架构设计</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E7%9F%A5%E8%AF%86%E7%82%B9/" rel="tag">知识点</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E7%BB%8F%E9%AA%8C%E8%AE%B0%E5%BD%95/" rel="tag">经验记录</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B%E6%80%9D%E7%BB%B4/" rel="tag">编程思维</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" rel="tag">语音识别</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E8%B0%83%E8%AF%95/" rel="tag">调试</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86/" rel="tag">错误处理</a></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget-wrap">
+    <div class="widget">
+      <h3 class="widget-title">归档</h3>
+      
+      
+        <a class="archive-link" href="/archives/2025/12 ">
+          十二月 2025 
+          <div class="archive-count">5 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2025/07 ">
+          七月 2025 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2025/05 ">
+          五月 2025 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2025/04 ">
+          四月 2025 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2025/03 ">
+          三月 2025 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2024/11 ">
+          十一月 2024 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2024/05 ">
+          五月 2024 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2024/01 ">
+          一月 2024 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2023/03 ">
+          三月 2023 
+          <div class="archive-count">2 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2022/11 ">
+          十一月 2022 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2022/07 ">
+          七月 2022 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2022/02 ">
+          二月 2022 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/12 ">
+          十二月 2021 
+          <div class="archive-count">2 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/09 ">
+          九月 2021 
+          <div class="archive-count">2 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/08 ">
+          八月 2021 
+          <div class="archive-count">3 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/04 ">
+          四月 2021 
+          <div class="archive-count">2 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/02 ">
+          二月 2021 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/01 ">
+          一月 2021 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2020/09 ">
+          九月 2020 
+          <div class="archive-count">3 </div>
+        </a>
+      
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget-wrap">
+    <div class="widget">
+      <h3 class="widget-title">最新文章</h3>
+      <ul>
+        
+          <a class="recent-link" href="/2025/12/23/Prototype%20to%20Production/" title="AI-Agent 白皮书 5 - Prototype to Production" >
+            <div class="recent-link-text">
+              AI-Agent 白皮书 5 - Prototype to Production
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/12/20/Context%20Engineering_%20Sessions%20&%20Memory/" title="AI-Agent 白皮书 - Context Engineering: Sessions & Memory" >
+            <div class="recent-link-text">
+              AI-Agent 白皮书 - Context Engineering: Sessions &amp; Memory
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/12/19/Agent%20Quality/" title="AI-Agent 白皮书 - Agent Quality" >
+            <div class="recent-link-text">
+              AI-Agent 白皮书 - Agent Quality
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/12/19/Agent%20Tools%20&%20%20Interoperability%20%20with%20MCP/" title="AI-Agent 白皮书 - Agent Tools & Interoperability with MCP" >
+            <div class="recent-link-text">
+              AI-Agent 白皮书 - Agent Tools &amp; Interoperability with MCP
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/12/18/Introduction%20to%20Agents/" title="AI-Agent 白皮书 - Introduction to Agents whitepaper" >
+            <div class="recent-link-text">
+              AI-Agent 白皮书 - Introduction to Agents whitepaper
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/07/04/Cursor-%E7%BB%93%E6%9E%84%E5%92%8C%E6%8E%A7%E5%88%B6%E6%98%AF%E8%83%9C%E5%88%A9%E4%B9%8B%E9%81%93/" title="Cursor-结构和控制是胜利之道" >
+            <div class="recent-link-text">
+              Cursor-结构和控制是胜利之道
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/05/09/%E5%9F%BA%E4%BA%8EWeb%20Vitals%E7%9A%84%E7%A7%92%E5%BC%80%E4%BC%98%E5%8C%96%E8%B0%83%E7%A0%94/" title="基于Web Vitals的秒开优化调研" >
+            <div class="recent-link-text">
+              基于Web Vitals的秒开优化调研
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/04/02/iOS%E4%BD%BF%E7%94%A8Cursor%E5%BC%80%E5%8F%91%E9%85%8D%E7%BD%AE/" title="iOS使用Cursor开发配置指南" >
+            <div class="recent-link-text">
+              iOS使用Cursor开发配置指南
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/03/27/iOS-i18n%E5%8A%A8%E6%80%81%E5%8C%96%E6%80%9D%E8%80%83/" title="iOS-i18n动态化思考" >
+            <div class="recent-link-text">
+              iOS-i18n动态化思考
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2024/11/29/iOS%E8%83%8C%E6%99%AF%E6%A8%A1%E7%B3%8A%E5%AE%9E%E7%8E%B0%E6%8A%80%E6%9C%AF%E6%96%B9%E6%A1%88/" title="AI作业背景模糊实现技术方案" >
+            <div class="recent-link-text">
+              AI作业背景模糊实现技术方案
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2024/05/20/iOS%E7%AB%AF%20ASR%E4%BC%98%E5%8C%96/" title="iOS端 ASR优化" >
+            <div class="recent-link-text">
+              iOS端 ASR优化
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2024/01/15/ChatGPT%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7%E6%89%8B%E5%86%8C/" title="ChatGPT使用技巧手册" >
+            <div class="recent-link-text">
+              ChatGPT使用技巧手册
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2023/03/12/iOSCrash%E7%B1%BB%E5%9E%8B/" title="iOS Crash类型总结" >
+            <div class="recent-link-text">
+              iOS Crash类型总结
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2023/03/12/iOS%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B%E6%8C%87%E5%8D%97/" title="iOS文件系统编程指南" >
+            <div class="recent-link-text">
+              iOS文件系统编程指南
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2022/11/05/iOS%E7%AD%BE%E5%90%8D%E6%9C%BA%E5%88%B6/" title="iOS签名机制" >
+            <div class="recent-link-text">
+              iOS签名机制
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2022/07/06/SwiftUI/" title="SwiftUI 从入门到放弃" >
+            <div class="recent-link-text">
+              SwiftUI 从入门到放弃
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2022/02/28/XCUITest%E6%8E%A2%E7%B4%A2/" title="XCUITest iOS自动化UI测试框架" >
+            <div class="recent-link-text">
+              XCUITest iOS自动化UI测试框架
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/12/06/iOS%20Web%E5%94%A4%E8%B5%B7APP%E6%96%B9%E6%A1%88%E5%8F%82%E8%80%83/" title="iOS 一键唤起APP方案参考" >
+            <div class="recent-link-text">
+              iOS 一键唤起APP方案参考
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/12/06/%E4%BF%A1%E6%81%AF%E6%B5%81GIF%E8%BD%AE%E6%92%AD%E6%A1%86%E6%9E%B6/" title="iOS 如何做一个九宫格GIF播放器" >
+            <div class="recent-link-text">
+              iOS 如何做一个九宫格GIF播放器
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/09/18/iOS%E7%BC%96%E8%AF%91%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%E6%8E%A2%E7%B4%A2%E4%B8%8E%E5%AE%9E%E8%B7%B5-%E7%BB%84%E4%BB%B6%E7%AF%87/" title="iOS编译优化方案探索与实践-组件篇" >
+            <div class="recent-link-text">
+              iOS编译优化方案探索与实践-组件篇
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/09/09/module-importing%20failed-invalid%20pathname/" title="module importing failed invalid pathname 问题解决" >
+            <div class="recent-link-text">
+              module importing failed invalid pathname 问题解决
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/08/31/iOS-OCR%E5%AE%9E%E8%B7%B5/" title="iOS-OCR实践" >
+            <div class="recent-link-text">
+              iOS-OCR实践
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/08/25/AVPlayer%E7%9B%B8%E5%85%B3BUG%E8%AE%B0%E5%BD%95/" title="AVPlayer相关BUG记录" >
+            <div class="recent-link-text">
+              AVPlayer相关BUG记录
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/08/25/Xcode%E4%BB%A3%E7%A0%81%E5%9D%97%E4%BA%91%E5%90%8C%E6%AD%A5+%E6%9C%AC%E5%9C%B0%E5%AE%89%E8%A3%85%E8%84%9A%E6%9C%AC/" title="Xcode代码块云同步+本地安装脚本" >
+            <div class="recent-link-text">
+              Xcode代码块云同步+本地安装脚本
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/04/22/iOS%E5%AD%97%E7%AC%A6%E5%92%8C%E5%AD%97%E7%B4%A0%E7%B0%87/" title="iOS字符串安全截取及任意位置插入" >
+            <div class="recent-link-text">
+              iOS字符串安全截取及任意位置插入
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/04/20/NSCache/" title="NSCache" >
+            <div class="recent-link-text">
+              NSCache
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/02/23/%E4%B8%80%E5%B8%96%E7%9C%8B%E9%80%8FiOS14%20%E5%B0%8F%E7%BB%84%E4%BB%B6/" title="一帖看透iOS14 小组件" >
+            <div class="recent-link-text">
+              一帖看透iOS14 小组件
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/01/18/APP%E4%BB%A3%E7%90%86/" title="APP内部代理" >
+            <div class="recent-link-text">
+              APP内部代理
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2020/09/25/runloop/" title="runloop 学习笔记" >
+            <div class="recent-link-text">
+              runloop 学习笔记
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2020/09/23/block/" title="__block 关键字探究" >
+            <div class="recent-link-text">
+              __block 关键字探究
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2020/09/22/GCD/" title="GCD相关知识学习笔记" >
+            <div class="recent-link-text">
+              GCD相关知识学习笔记
+            </div>
+          </a>
+        
+      </ul>
+    </div>
+  </div>
+
+    
+  </div>
+</sidebar>
+    </div>
+    <div id="content-body">
+       
+
+
+<article id="post-Agent Quality" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+    
+   
+  <div class="article-inner">
+    <div class="article-main">
+      <header class="article-header">
+        
+<div class="main-title-bar">
+  <div class="main-title-dot"></div>
+  
+    
+      <h1 class="p-name article-title" itemprop="headline name">
+        AI-Agent 白皮书 - Agent Quality
+      </h1>
+    
+  
+</div>
+
+        <div class='meta-info-bar'>
+          <div class="meta-info">
+  <time class="dt-published" datetime="2025-12-18T16:00:08.000Z" itemprop="datePublished">2025-12-19</time>
+</div>
+          <div class="need-seperator meta-info">
+            <div class="meta-cate-flex">
+  
+  <a class="meta-cate-link" href="/categories/AI-Agent/">AI-Agent</a>
+   
+</div>
+  
+          </div>
+          <div class="wordcount need-seperator meta-info">
+            73k 词 
+          </div>
+        </div>
+        
+      </header>
+      <div class="e-content article-entry" itemprop="articleBody">
+        
+          <p><strong>Agent Quality</strong>  </p>
+<p><strong>智能体质量</strong></p>
+<p><strong>Authors: Meltem Subasioglu, Turan Bulmus, and Wafae Bakkali</strong>  </p>
+<p>Agent Quality </p>
+<p>The future of AI is agentic. Its  success is determined by quality.</p>
+<p>AI 的未来是智能体化的。其成功取决于质量。</p>
+<p><strong>Introduction</strong> </p>
+<p><strong>简介</strong></p>
+<p>We are at the dawn of the agentic era. The transition from predictable, instruction-based  tools to autonomous, goal-oriented AI agents presents one of the most profound shifts in  software engineering in decades. While these agents unlock incredible capabilities, their  </p>
+<p>inherent non-determinism makes them unpredictable and shatters our traditional models of  quality assurance. </p>
+<p>我们正处于智能体时代的黎明。从可预测的、基于指令的工具向自主的、目标导向的 AI 智能体的转变，代表着数十年来软件工程领域最深刻的变革之一。虽然这些智能体释放了令人难以置信的能力，但其固有的非确定性使它们难以预测，并打破了我们传统的质量保证模型。</p>
+<p>This whitepaper serves as a practical guide to this new reality, founded on a simple but  radical principle: </p>
+<p>本白皮书旨在为这一新现实提供实用指南，其建立在一个简单但激进的原则之上：</p>
+<p><strong>Agent quality is an architectural pillar, not a final testing phase.</strong> </p>
+<p><strong>智能体质量是一个架构支柱，而非最终测试阶段。</strong></p>
+<p>This guide is built on three core messages: </p>
+<p>本指南建立在三个核心信息之上：</p>
+<p><strong>• The Trajectory is the Truth:</strong> We must evolve beyond evaluating just the final output. The  true measure of an agent’s quality and safety lies in its entire decision-making process. </p>
+<p><strong>• 轨迹即真理：</strong> 我们必须超越仅评估最终输出。衡量智能体质量和安全性的真正标准在于其整个决策过程。</p>
+<p><strong>• Observability is the Foundation:</strong> You cannot judge a process you cannot see. We detail  the “three pillars” of observability - Logging , Tracing , and Metrics - as the essential  technical foundation for capturing the agent’s “thought process.” </p>
+<p><strong>• 可观测性是基础：</strong> 你无法评判一个看不见的过程。我们详细阐述了可观测性的”三大支柱”——日志记录、追踪和指标——作为捕获智能体”思维过程”的基本技术基础。</p>
+<p><strong>• Evaluation is a Continuous Loop:</strong> We synthesize these concepts into the <strong>“Agent Quality  Flywheel”</strong>, an operational playbook for turning this data into actionable insights. This  system uses a hybrid of scalable AI-driven evaluators and indispensable Human-in-the Loop (HITL) judgment to drive relentless improvement. </p>
+<p><strong>• 评估是一个持续循环：</strong> 我们将这些概念综合成**”智能体质量飞轮”**，这是一个将数据转化为可行洞察的操作手册。该系统使用可扩展的 AI 驱动评估器和不可或缺的人机协同（HITL）判断的混合方式来推动持续改进。</p>
+<p>This whitepaper is for the architects, engineers, and product leaders building this future.  It provides the framework to move from building capable agents to building <em>reliable</em> and  <em>trustworthy</em> ones. </p>
+<p>本白皮书面向构建这一未来的架构师、工程师和产品负责人。它提供了从构建有能力的智能体到构建<em>可靠</em>且<em>值得信赖</em>的智能体的框架。</p>
+<p><strong>How to Read This Whitepaper</strong> </p>
+<p><strong>如何阅读本白皮书</strong></p>
+<p>This guide is structured to build from the “<em>why</em>“ to the “<em>what</em>“ and finally to the “<em>how</em>.” Use this  section to navigate to the chapters most relevant to your role. </p>
+<p>本指南的结构从”<em>为什么</em>“到”<em>是什么</em>“再到”<em>如何做</em>“逐步构建。请使用本节导航到与您角色最相关的章节。</p>
+<p><strong>• For All Readers:</strong> Start with <strong>Chapter 1: Agent Quality in a Non-Deterministic World</strong>.  This chapter establishes the core problem. It explains why traditional QA fails for AI agents  and introduces the <strong>Four Pillars of Agent Quality</strong> (Effectiveness, Efficiency, Robustness,  and Safety) that define our goals.</p>
+<p><strong>• 面向所有读者：</strong> 从<strong>第 1 章：非确定性世界中的智能体质量</strong>开始。本章阐述了核心问题，解释了为何传统 QA 对 AI 智能体无效，并介绍了定义我们目标的<strong>智能体质量四大支柱</strong>（有效性、效率、鲁棒性和安全性）。</p>
+<p><strong>• For Product Managers, Data Scientists, and QA Leaders:</strong> If you’re responsible for what  to measure and how to judge quality, focus on <strong>Chapter 2: The Art of Agent Evaluation</strong>.  This chapter is your strategic guide. It details the “Outside-In” hierarchy for evaluation,  explains the scalable <strong>“LLM-as-a-Judge”</strong> paradigm , and clarifies the critical role of  <strong>Human-in-the-Loop (HITL)</strong> evaluation. </p>
+<p><strong>• 面向产品经理、数据科学家和 QA 负责人：</strong> 如果您负责确定测量内容和如何判断质量，请关注<strong>第 2 章：智能体评估的艺术</strong>。本章是您的战略指南。它详细介绍了”由外而内”的评估层次，解释了可扩展的**”LLM 即评判者”<strong>范式，并阐明了</strong>人机协同（HITL）**评估的关键作用。</p>
+<p><strong>• For Engineers, Architects, and SREs:</strong> If you build the systems, your technical blueprint is  <strong>Chapter 3: Observability</strong>. This chapter moves from theory to implementation. It provides  the “kitchen analogy” (Line Cook vs. Gourmet Chef) to explain monitoring vs. observability  and details the <strong>Three Pillars of Observability: Logs, Traces, and Metrics</strong> - the tools  you need to build an “evaluatable” agent. </p>
+<p><strong>• 面向工程师、架构师和 SRE：</strong> 如果您构建系统，您的技术蓝图是<strong>第 3 章：可观测性</strong>。本章从理论转向实现。它提供了”厨房类比”（流水线厨师 vs. 美食大厨）来解释监控与可观测性的区别，并详细介绍了<strong>可观测性的三大支柱：日志、追踪和指标</strong>——构建”可评估”智能体所需的工具。</p>
+<p><strong>• For Team Leads and Strategists:</strong> To understand how these pieces create a self improving system, read <strong>Chapter 4: Conclusion</strong>. This chapter unites the concepts  into an operational playbook. It introduces the <strong>“Agent Quality Flywheel”</strong> as a model  for continuous improvement and summarizes the three core principles for building  trustworthy AI.</p>
+<p><strong>• 面向团队负责人和战略家：</strong> 要了解这些部分如何创建一个自我改进的系统，请阅读<strong>第 4 章：结论</strong>。本章将概念统一为一个操作手册。它介绍了**”智能体质量飞轮”**作为持续改进的模型，并总结了构建可信 AI 的三大核心原则。 </p>
+<p><strong>Agent Quality in a</strong><br><strong>Non-Deterministic World</strong> </p>
+<p><strong>非确定性世界中的智能体质量</strong></p>
+<p>The world of artificial intelligence is transforming at full speed. We are moving from building  predictable tools that execute instructions to designing autonomous agents that interpret  intent, formulate plans, and execute complex, multi-step actions. For data scientists and  engineers who build, compete, and deploy at the cutting edge, this transition presents  a profound challenge. The very mechanisms that make AI agents powerful also make  them unpredictable.</p>
+<p>人工智能的世界正在全速转型。我们正从构建执行指令的可预测工具，转向设计能够解读意图、制定计划并执行复杂多步骤操作的自主智能体。对于在前沿领域构建、竞争和部署的数据科学家和工程师来说，这一转变带来了深刻的挑战。使 AI 智能体强大的机制同样使它们难以预测。</p>
+<p>To understand this shift, compare traditional software to a delivery truck and an AI agent  to a Formula 1 race car. The truck requires only basic checks (<em>“Did the engine start? Did it  follow the fixed route?”</em>). The race car, like an AI agent, is a complex, autonomous system  </p>
+<p>whose success depends on dynamic judgment. Its evaluation cannot be a simple checklist; it  requires continuous telemetry to judge the quality of every decision—from fuel consumption  to braking strategy. </p>
+<p>要理解这一转变，可以将传统软件比作送货卡车，将 AI 智能体比作一级方程式赛车。卡车只需要基本检查（<em>“引擎启动了吗？它按照固定路线行驶了吗？”</em>）。而赛车，就像 AI 智能体一样，是一个复杂的自主系统，其成功取决于动态判断。对它的评估不能是一个简单的检查清单；它需要持续的遥测来判断每个决策的质量——从油耗到制动策略。</p>
+<p>This evolution is fundamentally changing how we must approach software quality. Traditional  quality assurance (QA) practices, while robust for deterministic systems, are insufficient for  the nuanced and emergent behaviors of modern AI. An agent can pass 100 unit tests and  still fail catastrophically in production because its failure isn’t a bug in the code; it’s a flaw in  its judgment. </p>
+<p>这种演变从根本上改变了我们必须如何处理软件质量。传统的质量保证（QA）实践虽然对确定性系统足够强大，但对于现代 AI 的细微和涌现行为来说是不够的。一个智能体可以通过 100 个单元测试，但仍然在生产中灾难性地失败，因为它的失败不是代码中的错误；而是其判断中的缺陷。</p>
+<p>Traditional software verification asks: <em>“Did we build the product right?”</em> It verifies logic  against a fixed specification. Modern AI evaluation must ask a far more complex question:  <em>“Did we build the <strong>right</strong> product?”</em> This is a process of validation, assessing quality,  robustness, and trustworthiness in a dynamic and uncertain world. </p>
+<p>传统软件验证问的是：<em>“我们是否正确地构建了产品？”</em> 它根据固定规范验证逻辑。现代 AI 评估必须问一个更复杂的问题：<em>“我们是否构建了<strong>正确的</strong>产品？”</em> 这是一个验证过程，在动态和不确定的世界中评估质量、鲁棒性和可信度。</p>
+<p>This chapter inspects this new paradigm. We will explore why agent quality demands a new  approach, analyze the technical shift that makes our old methods obsolete, and establish the  strategic “Outside-In” framework for evaluating systems that “think”.</p>
+<p>本章检视这一新范式。我们将探讨为何智能体质量需要新方法，分析使我们旧方法过时的技术转变，并建立用于评估”会思考”系统的战略性”由外而内”框架。 </p>
+<p><strong>Why Agent Quality Demands a New Approach</strong> </p>
+<p><strong>为何智能体质量需要新方法</strong></p>
+<p>For an engineer, risk is something to be identified and mitigated. In traditional software,  failure is explicit: a system crashes, throws a <code>NullPointerException</code>, or returns an  explicitly incorrect calculation. These failures are obvious, deterministic, and traceable to a  specific error in logic.</p>
+<p>对于工程师来说，风险是需要识别和缓解的东西。在传统软件中，失败是明确的：系统崩溃、抛出 <code>NullPointerException</code>，或返回明显错误的计算结果。这些失败是明显的、确定性的，并且可以追溯到特定的逻辑错误。</p>
+<p>AI agents fail differently. Their failures are often not system crashes but <strong>subtle degradations  of quality</strong>, emerging from the complex interplay of model weights, training data, and  environmental interactions. These failures are insidious: the system continues to run, API  calls return 200 OK, and the output <em>looks</em> plausible. But it is profoundly wrong, operationally  dangerous, and silently eroding trust. </p>
+<p>AI 智能体的失败方式不同。它们的失败通常不是系统崩溃，而是<strong>质量的微妙下降</strong>，源于模型权重、训练数据和环境交互的复杂相互作用。这些失败是隐蔽的：系统继续运行，API 调用返回 200 OK，输出<em>看起来</em>合理。但它是严重错误的、操作上危险的，并且在悄悄侵蚀信任。</p>
+<p>Organizations that fail to grasp this shift face significant failures, operational inefficiencies,  and reputational damage. While failure modes like algorithmic bias and concept drift existed  in passive models, the autonomy and complexity of agents compound these risks, making  them harder to trace and mitigate. Consider these real-world failure modes highlighted in  Table 1:  </p>
+<p>未能理解这一转变的组织将面临重大失败、运营低效和声誉损害。虽然算法偏见和概念漂移等失败模式在被动模型中就已存在，但智能体的自主性和复杂性加剧了这些风险，使其更难追踪和缓解。请考虑表 1 中突出显示的这些真实世界失败模式：</p>
+<p>Failure Mode Description Examples </p>
+<p>失败模式 | 描述 | 示例</p>
+<table>
+<thead>
+<tr>
+<th align="left">An agent operationalizes and potentially  amplifies systemic biases present in  its training data, leading to unfair or  discriminatory outcomes.</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">The agent produces plausible-sounding  but factually incorrect or invented  information with high confidence, often  when it cannot find a valid source.</td>
+</tr>
+<tr>
+<td align="left">The agent’s performance degrades over  time as the real-world data it interacts  with (“concept”) changes, making its  original training obsolete.</td>
+</tr>
+</tbody></table>
+<p>Algorithmic Bias • A financial agent tasked with risk  summarization over-penalizes loan  </p>
+<p>applications based on zip codes found in  </p>
+<p>biased training data. </p>
+<p>算法偏见：智能体将其训练数据中存在的系统性偏见操作化并可能放大，导致不公平或歧视性结果。示例：负责风险摘要的金融智能体根据有偏见训练数据中发现的邮政编码对贷款申请过度惩罚。</p>
+<p>Factual  </p>
+<p>Hallucination </p>
+<p>事实幻觉：智能体以高置信度产生听起来合理但事实上不正确或捏造的信息，通常是在找不到有效来源时发生。示例：研究工具在学术报告中生成高度具体但完全虚假的历史日期或地理位置，破坏学术诚信。</p>
+<p>Performance &amp;  Concept Drift </p>
+<p>性能与概念漂移：随着智能体与之交互的真实世界数据（”概念”）发生变化，智能体的性能会随时间下降，使其原始训练变得过时。示例：欺诈检测智能体无法发现新的攻击模式。</p>
+<p>Emergent  </p>
+<p>Unintended  Behaviors<br>The agent develops novel or  </p>
+<p>unanticipated strategies to achieve its  goal, which can be inefficient, unhelpful,  or exploitative. </p>
+<p>涌现的意外行为：智能体开发出新颖或意外的策略来实现其目标，这些策略可能是低效的、无益的或具有剥削性的。示例：在系统规则中寻找和利用漏洞；与其他机器人进行”代理战”（例如，反复覆盖编辑）。</p>
+<p>• A research tool generating a highly  specific but utterly false historical date  or geographical location in a scholarly  report, undermining academic integrity. </p>
+<p>• A fraud detection agent failing to spot  new attack patterns.  </p>
+<p>• Finding and exploiting loopholes in a  system’s rules.  </p>
+<p>• Engaging in “proxy wars” with other bots  (e.g., repeatedly overwriting edits). </p>
+<p>Table 1: Agent Failure Modes </p>
+<p>表 1：智能体失败模式</p>
+<p>These failures render traditional debugging and testing paradigms ineffective. You cannot  use a breakpoint to debug a hallucination. You cannot write a unit test to prevent emergent  bias. Root cause analysis requires deep data analysis, model retraining, and systemic  evaluation - a new discipline entirely.</p>
+<p>这些失败使传统的调试和测试范式变得无效。你无法使用断点来调试幻觉。你无法编写单元测试来防止涌现的偏见。根本原因分析需要深入的数据分析、模型重新训练和系统评估——这完全是一门新学科。 </p>
+<p><strong>The Paradigm Shift: From Predictable Code to  Unpredictable Agents</strong> </p>
+<p><strong>范式转变：从可预测代码到不可预测智能体</strong></p>
+<p>The core technical challenge stems from the evolution from <strong>model-centric AI</strong> to <strong>system centric AI</strong>. Evaluating an AI agent is fundamentally different from evaluating an algorithm  because the agent is a system. This evolution has occurred in compounding stages, each  adding a new layer of evaluative complexity. </p>
+<p>核心技术挑战源于从<strong>以模型为中心的 AI</strong> 到<strong>以系统为中心的 AI</strong> 的演变。评估 AI 智能体与评估算法有本质区别，因为智能体是一个系统。这种演变是分阶段复合发生的，每个阶段都增加了新的评估复杂性层次。</p>
+<p>![][image1]Figure 1: From Traditional ML to Multi-Agent Systems </p>
+<p>图 1：从传统机器学习到多智能体系统</p>
+<p><strong>1. Traditional Machine Learning:</strong> Evaluating regression or classification models, while non trivial, is a well-defined problem. We rely on statistical metrics like Precision, Recall, F1- Score, and RMSE against a held-out test set. The problem is complex, but the definition of  “correct” is clear.</p>
+<p><strong>1. 传统机器学习：</strong> 评估回归或分类模型虽非易事，但却是一个定义明确的问题。我们依赖于针对保留测试集的统计指标，如精确率、召回率、F1 分数和 RMSE。问题是复杂的，但”正确”的定义是明确的。</p>
+<p><strong>2. The Passive LLM:</strong> With the rise of generative models, we lost our simple metrics. How  do we measure the “accuracy” of a generated paragraph? The output is probabilistic.  Even with identical inputs, the output can vary. Evaluation became more complex, relying  on human raters and model-vs-model benchmarking. Still, these systems were largely  passive, text-in, text-out tools. </p>
+<p><strong>2. 被动式 LLM：</strong> 随着生成模型的兴起，我们失去了简单的指标。我们如何衡量生成段落的”准确性”？输出是概率性的。即使输入完全相同，输出也可能不同。评估变得更加复杂，依赖于人工评分者和模型对模型的基准测试。尽管如此，这些系统在很大程度上仍是被动的，输入文本、输出文本的工具。</p>
+<p><strong>3. LLM+RAG (Retrieval-Augmented Generation):</strong> The next leap introduced a multi component pipeline, as pioneered by Lewis et al. (2020)1 in their work “Retrieval Augmented Generation for Knowledge-Intensive NLP Tasks.” Now, failure could occur  in the LLM or in the retrieval system. Did the agent give a bad answer because the LLM  reasoned poorly, or because the vector database retrieved irrelevant snippets? Our  evaluation surface expanded from just the model to include the performance of chunking  strategies, embeddings, and retrievers. </p>
+<p><strong>3. LLM+RAG（检索增强生成）：</strong> 下一个飞跃引入了多组件管道，由 Lewis 等人（2020）在其工作”面向知识密集型 NLP 任务的检索增强生成”中首创。现在，失败可能发生在 LLM 或检索系统中。智能体给出错误答案是因为 LLM 推理不当，还是因为向量数据库检索了不相关的片段？我们的评估范围从仅仅是模型扩展到包括分块策略、嵌入和检索器的性能。</p>
+<p><strong>4. The Active AI Agent:</strong> Today, we face a profound architectural shift. The LLM is no longer  just a text generator; it is the reasoning “brain” within a complex system, integrated into a  loop capable of autonomous action. This agentic system introduces three core technical  capabilities that break our evaluation models: </p>
+<p><strong>4. 主动式 AI 智能体：</strong> 今天，我们面临着深刻的架构转变。LLM 不再只是文本生成器；它是复杂系统中的推理”大脑”，被集成到能够自主行动的循环中。这种智能体系统引入了三种打破我们评估模型的核心技术能力：</p>
+<p><strong>• Planning and Multi-Step Reasoning:</strong> Agents decompose complex goals (“plan  my trip”) into multiple sub-tasks. This creates a trajectory (Thought → Action →  Observation → Thought…). The non-determinism of the LLM now compounds at every  step. A small, stochastic word choice in Step 1 can send the agent down a completely  different and unrecoverable reasoning path by Step 4. </p>
+<p><strong>• 规划和多步推理：</strong> 智能体将复杂目标（”规划我的旅行”）分解为多个子任务。这创建了一个轨迹（思考 → 行动 → 观察 → 思考…）。LLM 的非确定性现在在每一步都会复合。第 1 步中一个小的随机词语选择可能会使智能体在第 4 步走上完全不同且不可恢复的推理路径。</p>
+<p><strong>• Tool Use and Function Calling:</strong> Agents interact with the real world through APIs  and external tools (code interpreters, search engines, booking APIs). This introduces  dynamic environmental interaction. The agent’s next action depends entirely on the  state of an external, uncontrollable world.</p>
+<p><strong>• 工具使用和函数调用：</strong> 智能体通过 API 和外部工具（代码解释器、搜索引擎、预订 API）与现实世界交互。这引入了动态环境交互。智能体的下一步行动完全取决于外部不可控世界的状态。</p>
+<p><strong>• Memory:</strong> Agents maintain state. Short-term “scratchpad” memory tracks the current  task, while long-term memory allows the agent to learn from past interactions. This  means the agent’s behavior evolves, and an input that worked yesterday might produce  a different result today based on what the agent has “learned.” </p>
+<p><strong>• 记忆：</strong> 智能体维护状态。短期”草稿本”记忆跟踪当前任务，而长期记忆允许智能体从过去的交互中学习。这意味着智能体的行为会演变，昨天有效的输入今天可能会根据智能体所”学到的”产生不同的结果。</p>
+<p><strong>5. Multi-Agent Systems:</strong> The ultimate architectural complexity arises when multiple  active agents are integrated into a shared environment. This is no longer the evaluation  of a single trajectory but of a system-level emergent phenomenon, introducing new,  fundamental challenges: </p>
+<p><strong>5. 多智能体系统：</strong> 当多个活跃智能体被集成到共享环境中时，终极架构复杂性就会出现。这不再是对单一轨迹的评估，而是对系统级涌现现象的评估，引入了新的根本性挑战：</p>
+<p><strong>• Emergent System Failures:</strong> The system’s success depends on the unscripted  interactions between agents, such as resource contention, communication bottlenecks,  and systemic deadlocks, which cannot be attributed to a single agent’s failure. </p>
+<p><strong>• 涌现的系统失败：</strong> 系统的成功取决于智能体之间非脚本化的交互，如资源竞争、通信瓶颈和系统死锁，这些无法归因于单个智能体的失败。</p>
+<p><strong>• Cooperative vs. Competitive Evaluation:</strong> The objective function itself may become  ambiguous. In cooperative MAS (e.g., supply chain optimization), success is a global  metric, while in competitive MAS (e.g., game theory scenarios or auction systems), the  evaluation often requires tracking individual agent performance <em>and</em> the stability of the  overall market&#x2F;environment. </p>
+<p><strong>• 协作型 vs. 竞争型评估：</strong> 目标函数本身可能变得模糊。在协作型 MAS（如供应链优化）中，成功是一个全局指标，而在竞争型 MAS（如博弈论场景或拍卖系统）中，评估通常需要跟踪个体智能体性能<em>以及</em>整体市场&#x2F;环境的稳定性。</p>
+<p>This combination of capabilities means the primary unit of evaluation is no longer the model,  but the <strong>entire system trajectory</strong>. The agent’s emergent behavior arises from the intricate  interplay between its planning module, its tools, its memory, and the dynamic environment.</p>
+<p>这些能力的组合意味着评估的主要单位不再是模型，而是<strong>整个系统轨迹</strong>。智能体的涌现行为源于其规划模块、工具、记忆和动态环境之间错综复杂的相互作用。 </p>
+<p><strong>The Pillars of Agent Quality: A Framework for Evaluation</strong> </p>
+<p><strong>智能体质量的支柱：评估框架</strong></p>
+<p>If we can no longer rely on simple accuracy metrics, and we must evaluate the entire system,  where do we begin? The answer is a strategic shift known as the <strong>“Outside-In” approach</strong>.</p>
+<p>如果我们不能再依赖简单的准确性指标，并且必须评估整个系统，我们从哪里开始？答案是被称为**”由外而内”方法**的战略转变。</p>
+<p>This approach anchors AI evaluation in user-centric metrics and overarching business goals,  moving beyond a sole reliance on internal, component-level technical scores. We must  stop asking only <em>“What is the model’s F1-score?”</em> and start asking, <em>“Does this agent deliver  measurable value and align with our user’s intent?”</em> </p>
+<p>这种方法将 AI 评估锚定在以用户为中心的指标和总体业务目标上，超越了仅仅依赖内部组件级技术分数的做法。我们必须停止仅仅问*”模型的 F1 分数是多少？”<em>，而开始问</em>“这个智能体是否提供可衡量的价值并符合用户的意图？”*</p>
+<p>This strategy requires a holistic framework that connects high-level business goals to  technical performance. We define agent quality across four interconnected pillars:</p>
+<p>这一策略需要一个将高层业务目标与技术性能连接起来的整体框架。我们通过四个相互关联的支柱来定义智能体质量： </p>
+<p>![][image2]Figure 2: The four pillars of Agent Quality </p>
+<p>图 2：智能体质量的四大支柱</p>
+<p><strong>Effectiveness (Goal Achievement):</strong> This is the ultimate “black-box” question: Did the agent  successfully and accurately achieve the user’s <em>actual intent</em>? This pillar connects directly  to user-centered metrics and business KPIs. For a retail agent, this isn’t just <em>“did it find a  product?”</em> but <em>“did it drive a conversion?”</em> For a data analysis agent, it’s not <em>“did it write  code?”</em> but <em>“did the code produce the correct insight?”</em> Effectiveness is the final measure of  task success. </p>
+<p><strong>有效性（目标达成）：</strong> 这是终极的”黑盒”问题：智能体是否成功且准确地实现了用户的<em>实际意图</em>？这一支柱直接与以用户为中心的指标和业务 KPI 相连。对于零售智能体，这不仅仅是*”它找到了产品吗？”<em>而是</em>“它推动了转化吗？”<em>对于数据分析智能体，不是</em>“它编写了代码吗？”<em>而是</em>“代码产生了正确的洞察吗？”*有效性是任务成功的最终衡量标准。</p>
+<p><strong>Efficiency (Operational Cost):</strong> Did the agent solve the problem <em>well</em>? An agent that takes  25 steps, five failed tool calls, and three self-correction loops to book a simple flight can be  considered as a low-quality agent - even if it eventually succeeds. Efficiency is measured in  resources consumed: total tokens (cost), wall-clock time (latency), and trajectory complexity  (total number of steps). </p>
+<p><strong>效率（运营成本）：</strong> 智能体是否<em>很好地</em>解决了问题？一个需要 25 步、5 次失败的工具调用和 3 次自我纠正循环才能预订一张简单机票的智能体，即使最终成功了，也可以被认为是低质量的智能体。效率通过消耗的资源来衡量：总 token 数（成本）、实际耗时（延迟）和轨迹复杂性（总步骤数）。</p>
+<p><strong>Robustness (Reliability):</strong> How does the agent handle adversity and the messiness of the  real world? When an API times out, a website’s layout changes, data is missing, or a user  provides an ambiguous prompt, does the agent fail gracefully? A robust agent retries failed  calls, asks the user for clarification when needed, and reports <em>what</em> it couldn’t do and <em>why</em> rather than crashing or hallucinating. </p>
+<p><strong>鲁棒性（可靠性）：</strong> 智能体如何处理逆境和现实世界的混乱？当 API 超时、网站布局改变、数据缺失或用户提供模糊提示时，智能体是否能优雅地失败？一个鲁棒的智能体会重试失败的调用，在需要时向用户询问澄清，并报告它<em>无法做什么</em>以及<em>为什么</em>——而不是崩溃或产生幻觉。</p>
+<p><strong>Safety &amp; Alignment (Trustworthiness):</strong> This is the non-negotiable gate. Does the agent  operate within its defined ethical boundaries and constraints? This pillar encompasses  everything from Responsible AI metrics for fairness and bias to security against prompt  injection and data leakage. It ensures the agent stays on task, refuses harmful instructions,  and operates as a trustworthy proxy for your organization. </p>
+<p><strong>安全与对齐（可信度）：</strong> 这是不可妥协的关卡。智能体是否在其定义的伦理边界和约束内运行？这一支柱涵盖了从公平性和偏见的负责任 AI 指标到防止提示注入和数据泄露的安全性的所有内容。它确保智能体保持任务专注、拒绝有害指令，并作为您组织的可信代理运行。</p>
+<p>This framework makes one thing clear: you cannot measure any of these pillars if you only  see the final answer. You cannot measure <strong>Efficiency</strong> if you don’t count the steps. You cannot  diagnose a <strong>Robustness</strong> failure if you don’t know which API call failed. You cannot verify  <strong>Safety</strong> if you cannot inspect the agent’s internal reasoning. </p>
+<p>这个框架明确了一件事：如果你只看到最终答案，你无法衡量这些支柱中的任何一个。如果不计算步骤，你就无法衡量<strong>效率</strong>。如果不知道哪个 API 调用失败，你就无法诊断<strong>鲁棒性</strong>失败。如果无法检查智能体的内部推理，你就无法验证<strong>安全性</strong>。</p>
+<p>A holistic framework for agent quality <em>demands</em> a holistic architecture for agent visibility.</p>
+<p>智能体质量的整体框架<em>需要</em>智能体可见性的整体架构。 </p>
+<p><strong>Summary &amp; What’s Next</strong> </p>
+<p><strong>总结与展望</strong></p>
+<p>The intrinsic non-deterministic nature of agents has broken traditional quality assurance.  Risks now include subtle issues like bias, hallucination, and drift, driven by a shift from passive  models to active, system-centric agents that plan and use tools. We must change our focus  from verification (checking specs) to validation (judging value).</p>
+<p>智能体固有的非确定性特性打破了传统的质量保证。现在的风险包括偏见、幻觉和漂移等微妙问题，这些问题是由从被动模型到主动的、以系统为中心的、能够规划和使用工具的智能体的转变驱动的。我们必须将焦点从验证（检查规范）转变为验证（判断价值）。</p>
+<p>This requires an “Outside-In” framework measuring agent quality across four pillars:  <strong>Effectiveness</strong>, <strong>Efficiency</strong>, <strong>Robustness</strong>, and <strong>Safety</strong>. Measuring these pillars demands deep  visibility—seeing inside the agent’s decision-making trajectory. </p>
+<p>这需要一个”由外而内”的框架，通过四个支柱来衡量智能体质量：<strong>有效性</strong>、<strong>效率</strong>、<strong>鲁棒性</strong>和<strong>安全性</strong>。衡量这些支柱需要深度可见性——洞察智能体的决策轨迹内部。</p>
+<p>Before building the <em>how</em> (observability architecture), we must define the <em>what</em>: <strong>What does  good evaluation look like?</strong> </p>
+<p>在构建<em>如何做</em>（可观测性架构）之前，我们必须定义<em>是什么</em>：<strong>好的评估是什么样的？</strong></p>
+<p><strong>Chapter 2</strong> will define the strategies and judges for assessing complex agent behavior.  <strong>Chapter 3</strong> will then build the technical foundation (<strong>logging, tracing, and metrics</strong>) needed  to capture the data.</p>
+<p><strong>第 2 章</strong>将定义评估复杂智能体行为的策略和评判者。<strong>第 3 章</strong>随后将构建捕获数据所需的技术基础（<strong>日志记录、追踪和指标</strong>）。 </p>
+<p><strong>The Art of Agent Evaluation: Judging  the Process</strong> </p>
+<p><strong>智能体评估的艺术：评判过程</strong></p>
+<p>In Chapter 1, we established the fundamental shift from traditional software testing to  modern AI evaluation. Traditional testing is a deterministic process of <strong>verification</strong> - it asks,  <em>“Did we build the product right?”</em> against a fixed specification. This approach fails when a  system’s core logic is probabilistic, because non-deterministic output may be more likely to  introduce subtle degradations of quality that do not result in explicit crashes and may not  be repeatable. </p>
+<p>在第 1 章中，我们建立了从传统软件测试到现代 AI 评估的根本性转变。传统测试是<strong>验证</strong>的确定性过程——它针对固定规范询问*”我们是否正确地构建了产品？”*当系统的核心逻辑是概率性的时候，这种方法就会失败，因为非确定性输出更可能引入不会导致明显崩溃且可能不可重复的微妙质量下降。</p>
+<p>Agent evaluation, by contrast, is a holistic process of <strong>validation</strong>. It asks a far more complex  and essential strategic question: <em>“Did we build the <strong>right</strong> product?”</em> This question is the  strategic anchor for the “Outside-In” evaluation framework, representing the necessary  shift from internal compliance to judging the system’s external value and alignment with user  intent. This requires us to assess the overall quality, robustness, and user value of an agent  operating in a dynamic world.</p>
+<p>相比之下，智能体评估是一个整体<strong>验证</strong>过程。它问了一个更复杂、更本质的战略问题：*”我们是否构建了<strong>正确的</strong>产品？”*这个问题是”由外而内”评估框架的战略锚点，代表着从内部合规性到判断系统外部价值和与用户意图一致性的必要转变。这要求我们评估在动态世界中运行的智能体的整体质量、鲁棒性和用户价值。</p>
+<p>The rise of AI agents, which can plan, use tools, and interact with complex environments,  significantly complicates this evaluation landscape. We must move beyond “testing” an  output and learn the art of “evaluating” a process. This chapter provides the strategic  framework for doing just that: judging the agent’s entire decision-making trajectory, from  initial intent to final outcome.</p>
+<p>能够规划、使用工具并与复杂环境交互的 AI 智能体的兴起，显著复杂化了这一评估格局。我们必须超越”测试”输出，学习”评估”过程的艺术。本章提供了这样做的战略框架：评判智能体从初始意图到最终结果的整个决策轨迹。 </p>
+<p><strong>A Strategic Framework: The “Outside-In”</strong><br><strong>Evaluation Hierarchy</strong> </p>
+<p><strong>战略框架：”由外而内”评估层次</strong></p>
+<p>To avoid getting lost in a sea of component-level metrics, evaluation must be a top-down,  strategic process. We call this the “Outside-In” Hierarchy. This approach prioritizes the only  metric that ultimately matters - real-world success - before diving into the technical details  of <em>why</em> that success did or did not occur. This model is a two-stage process: start with the  black box, then open it up.</p>
+<p>为避免迷失在组件级指标的海洋中，评估必须是一个自上而下的战略过程。我们称之为”由外而内”层次结构。这种方法优先考虑唯一最终重要的指标——现实世界的成功——然后再深入研究成功或失败的技术细节。这个模型是一个两阶段过程：从黑盒开始，然后打开它。</p>
+<p>**The “Outside-In” View: End-to-End Evaluation (The Black Box) ![][image3]**Figure 3: A Framework for Holistic Agent Evaluation </p>
+<p><strong>“由外而内”视角：端到端评估（黑盒）</strong></p>
+<p>图 3：整体智能体评估框架</p>
+<p>The first and most important question is: <em><strong>“Did the agent achieve the user’s  goal effectively?”</strong></em> </p>
+<p>第一个也是最重要的问题是：<em><strong>“智能体是否有效地实现了用户的目标？”</strong></em></p>
+<p>This is the “Outside-In” view. Before analyzing a single internal thought or tool call, we must  evaluate the agent’s final performance against its defined objective.  </p>
+<p>这就是”由外而内”视角。在分析任何单个内部思考或工具调用之前，我们必须根据其定义的目标评估智能体的最终表现。</p>
+<p>Metrics at this stage focus on overall task completion. We measure: </p>
+<p>这个阶段的指标关注整体任务完成情况。我们测量：</p>
+<p><strong>• Task Success Rate:</strong> A binary (or graded) score of whether the final output was correct,  complete, and solved the user’s actual problem, e.g. PR acceptance rate for a coding  agent, successful database transaction rate for a financial agent, or session completion  rate for a customer service bot.</p>
+<p><strong>• 任务成功率：</strong> 最终输出是否正确、完整并解决了用户实际问题的二元（或分级）评分，例如编码智能体的 PR 接受率、金融智能体的成功数据库事务率，或客服机器人的会话完成率。</p>
+<p><strong>• User Satisfaction:</strong> For interactive agents, this can be a direct user feedback score (e.g.,  thumbs up&#x2F;down) or a Customer Satisfaction Score (CSAT). </p>
+<p><strong>• 用户满意度：</strong> 对于交互式智能体，这可以是直接的用户反馈评分（如点赞&#x2F;点踩）或客户满意度评分（CSAT）。</p>
+<p><strong>• Overall Quality:</strong> If the agent’s goal was quantitative (e.g., “summarize these 10 articles”),  the metric might be accuracy or completeness (e.g., “Did it summarize all 10?”). </p>
+<p><strong>• 整体质量：</strong> 如果智能体的目标是定量的（如”总结这 10 篇文章”），指标可能是准确性或完整性（如”它是否总结了全部 10 篇？”）。</p>
+<p>If the agent scores 100% at this stage, our work may be done. But in a complex system,  it rarely will. When the agent produces a flawed final output, abandons a task, or fails to  converge on a solution, the “Outside-In” view tells us what went wrong. Now we must open  the box to see <em>why</em>.</p>
+<p>如果智能体在这个阶段得分 100%，我们的工作可能就完成了。但在复杂系统中，这种情况很少发生。当智能体产生有缺陷的最终输出、放弃任务或无法收敛到解决方案时，”由外而内”视角告诉我们出了什么问题。现在我们必须打开盒子看看<em>为什么</em>。 </p>
+<p>![][image4] <strong>Applied Tip:</strong> </p>
+<p><strong>应用提示：</strong></p>
+<p>To build an output regression test with the Agent Development Kit (ADK), start  the ADK web UI (<code>adk web</code>) and interact with your agent. When you receive an ideal  response that you want to set as the benchmark, navigate to the Eval tab and click  “Add current session.” This saves the entire interaction as an <code>Eval Case</code> (in a <code>.test. json</code> file) and locks in the agent’s current text as the ground truth <code>final_response</code>.  You can then run this Eval Set via the CLI (<code>adk eval</code>) or <code>pytest</code> to automatically  check future agent versions against this saved answer, catching any regressions in  output quality.</p>
+<p>要使用 Agent Development Kit（ADK）构建输出回归测试，请启动 ADK Web UI（<code>adk web</code>）并与您的智能体交互。当您收到想要设置为基准的理想响应时，导航到 Eval 选项卡并点击”Add current session”。这会将整个交互保存为 <code>Eval Case</code>（在 <code>.test.json</code> 文件中），并将智能体当前的文本锁定为真实值 <code>final_response</code>。然后，您可以通过 CLI（<code>adk eval</code>）或 <code>pytest</code> 运行此评估集，自动检查未来的智能体版本是否与此保存的答案一致，捕获输出质量的任何回归。</p>
+<p><strong>The “Inside-Out” View: Trajectory Evaluation (The Glass Box)</strong> </p>
+<p><strong>“由内而外”视角：轨迹评估（玻璃盒）</strong></p>
+<p>Once a failure is identified, we move to the “Inside-Out” view. We analyze the agent’s  approach by systematically assessing every component of its execution trajectory: </p>
+<p>一旦识别出失败，我们就转向”由内而外”视角。我们通过系统地评估其执行轨迹的每个组件来分析智能体的方法：</p>
+<p><strong>1. LLM Planning (The “Thought”):</strong> We first check the core reasoning. Is the LLM itself the  problem? Failures here include hallucinations, nonsensical or off-topic responses, context  pollution, or repetitive output loops. </p>
+<p><strong>1. LLM 规划（”思考”）：</strong> 我们首先检查核心推理。LLM 本身是问题所在吗？这里的失败包括幻觉、无意义或离题的响应、上下文污染或重复输出循环。</p>
+<p><strong>2. Tool Usage (Selection &amp; Parameterization):</strong> An agent is only as good as its tools.  We must analyze if the agent is calling the wrong tool, failing to call a necessary tool,  hallucinating tool names or parameter names&#x2F;types, or calling one unnecessarily. Even if it  selects the <em>right</em> tool, it can fail by providing missing parameters, incorrect data types, or  malformed JSON for the API call. </p>
+<p><strong>2. 工具使用（选择与参数化）：</strong> 智能体的好坏取决于其工具。我们必须分析智能体是否调用了错误的工具、未能调用必要的工具、幻觉出工具名称或参数名称&#x2F;类型，或不必要地调用工具。即使它选择了<em>正确的</em>工具，也可能因为提供缺失的参数、不正确的数据类型或格式错误的 API 调用 JSON 而失败。</p>
+<p><strong>3. Tool Response Interpretation (The “Observation”):</strong> After a tool executes correctly, the  agent must <em>understand</em> the result. Agents frequently fail here by misinterpreting numerical  data, failing to extract key entities from the response, or, critically, not recognizing an  error state returned by the tool (e.g., an API’s 404 error) and proceeding as if the call  was successful. </p>
+<p><strong>3. 工具响应解释（”观察”）：</strong> 工具正确执行后，智能体必须<em>理解</em>结果。智能体经常在这里失败，表现为误解数值数据、未能从响应中提取关键实体，或者关键地，未能识别工具返回的错误状态（例如 API 的 404 错误）并继续执行，就好像调用成功一样。</p>
+<p><strong>4. RAG Performance:</strong> If the agent uses Retrieval-Augmented Generation (RAG), the  trajectory depends on the quality of its retrieved information. Failures include irrelevant  document retrieval, fetching outdated or incorrect information, or the LLM ignoring the  retrieved context entirely and hallucinating an answer anyway. </p>
+<p><strong>4. RAG 性能：</strong> 如果智能体使用检索增强生成（RAG），轨迹取决于其检索信息的质量。失败包括检索不相关的文档、获取过时或不正确的信息，或 LLM 完全忽略检索的上下文并仍然产生幻觉答案。</p>
+<p><strong>5. Trajectory Efficiency and Robustness:</strong> Beyond correctness, we must evaluate the  process itself: exposing inefficient resource allocation, such as an excessive number of  API calls, high latency, or redundant efforts. It also reveals robustness failures, such as  unhandled exceptions. </p>
+<p><strong>5. 轨迹效率和鲁棒性：</strong> 除了正确性之外，我们还必须评估过程本身：暴露低效的资源分配，如过多的 API 调用、高延迟或冗余工作。它还揭示了鲁棒性失败，如未处理的异常。</p>
+<p><strong>6. Multi-Agent Dynamics:</strong> In advanced systems, trajectories involve multiple agents.  Evaluation must then also include inter-agent communication logs to check for  misunderstandings or communication loops and ensure agents are adhering to their  defined roles without conflicting with others.</p>
+<p><strong>6. 多智能体动态：</strong> 在高级系统中，轨迹涉及多个智能体。评估还必须包括智能体间通信日志，以检查误解或通信循环，并确保智能体遵守其定义的角色而不与其他智能体冲突。</p>
+<p>By analyzing the trace, we can move from “the final answer is wrong” (Black Box) to “the final  answer is wrong because ….” (Glass Box). This level of diagnostic power is the entire goal of  agent evaluation.</p>
+<p>通过分析追踪，我们可以从”最终答案是错误的”（黑盒）转变为”最终答案是错误的，因为……”（玻璃盒）。这种级别的诊断能力是智能体评估的全部目标。 </p>
+<p>![][image5] <strong>Applied Tip:</strong> </p>
+<p><strong>应用提示：</strong></p>
+<p>When you save an <code>Eval Case</code> (as described in the previous tip) in the ADK, it  also saves the entire sequence of tool calls as the ground truth trajectory. Your  automated <code>pytest</code> or <code>adk eval</code> run will then check this trajectory for a perfect match  (by default). </p>
+<p>当您在 ADK 中保存 <code>Eval Case</code>（如前一个提示中所述）时，它还会将整个工具调用序列保存为真实值轨迹。您的自动化 <code>pytest</code> 或 <code>adk eval</code> 运行将检查此轨迹是否完全匹配（默认情况下）。</p>
+<p>To manually implement process evaluation (i.e., debug a failure), use the <strong>Trace  tab</strong> in the <code>adk web</code> UI. This provides an interactive graph of the agent’s execution,  allowing you to visually inspect the agent’s plan, see every tool it called with its exact  arguments, and compare its actual path against the expected path to pinpoint the  exact step where its logic failed.</p>
+<p>要手动实现过程评估（即调试失败），请使用 <code>adk web</code> UI 中的 <strong>Trace 选项卡</strong>。这提供了智能体执行的交互式图形，允许您直观地检查智能体的计划、查看它调用的每个工具及其确切参数，并将其实际路径与预期路径进行比较，以精确定位其逻辑失败的确切步骤。</p>
+<p><strong>The Evaluators: The Who and What of Agent Judgment</strong> </p>
+<p><strong>评估者：智能体判断的主体与内容</strong></p>
+<p>Knowing what to evaluate (the trajectory) is half the battle. The other half is <em>how</em> to judge  it. For nuanced aspects like quality, safety, and interpretability, this judgment requires a  sophisticated, hybrid approach. Automated systems provide scale, but human judgment  remains the crucial arbiter of quality.</p>
+<p>知道要评估什么（轨迹）是成功的一半。另一半是<em>如何</em>判断它。对于质量、安全性和可解释性等细微方面，这种判断需要一种复杂的混合方法。自动化系统提供规模，但人类判断仍然是质量的关键仲裁者。  </p>
+<p><strong>Automated Metrics</strong> </p>
+<p><strong>自动化指标</strong></p>
+<p>Automated metrics provide speed and reproducibility. They are useful for regression testing  and benchmarking outputs. Examples include: </p>
+<p>自动化指标提供速度和可重复性。它们对于回归测试和输出基准测试很有用。示例包括：</p>
+<p><strong>• String-based similarity</strong> (ROUGE, BLEU), comparing generated text to references. </p>
+<p><strong>• 基于字符串的相似度</strong>（ROUGE、BLEU），将生成的文本与参考文本进行比较。</p>
+<p><strong>• Embedding-based similarity</strong> (BERTScore, cosine similarity), measuring  semantic closeness. </p>
+<p><strong>• 基于嵌入的相似度</strong>（BERTScore、余弦相似度），测量语义接近程度。</p>
+<p><strong>• Task-specific benchmarks, e.g</strong>., TruthfulQA2 </p>
+<p><strong>• 特定任务基准测试</strong>，例如 TruthfulQA²</p>
+<p>Metrics are efficient but shallow: they capture surface similarity, not deeper reasoning or  user value. </p>
+<p>指标高效但浅显：它们捕获表面相似性，而非更深层的推理或用户价值。</p>
+<p>![][image6] <strong>Applied Tip:</strong> </p>
+<p><strong>应用提示：</strong></p>
+<p>Implement automated metrics as the first quality gate in your CI&#x2F;CD pipeline. The key  is to treat them as trend indicators, not as absolute measures of quality. A specific  BERTScore of 0.8, for example, doesn’t definitively mean the answer is “good.” </p>
+<p>在您的 CI&#x2F;CD 管道中将自动化指标作为第一个质量门控实施。关键是将它们视为趋势指标，而非质量的绝对衡量标准。例如，特定的 BERTScore 0.8 并不一定意味着答案是”好的”。</p>
+<p>Their real value is in tracking changes: if your main branch consistently averages a  0.8 BERTScore on your “golden set,” and a new code commit drops that average to  0.6, you have automatically detected a significant regression. This makes metrics the  perfect, low-cost “first filter” to catch obvious failures at scale before escalating to  more expensive LLM-as-a-Judge or human evaluation.</p>
+<p>它们的真正价值在于跟踪变化：如果您的主分支在”黄金集”上持续平均得分 0.8 BERTScore，而新的代码提交将该平均值降至 0.6，您就自动检测到了显著的回归。这使得指标成为完美的、低成本的”第一过滤器”，可以在升级到更昂贵的 LLM 即评判者或人工评估之前大规模捕获明显的失败。</p>
+<p><strong>The LLM-as-a-Judge Paradigm</strong> </p>
+<p><strong>LLM 即评判者范式</strong></p>
+<p>How can we automate the evaluation of qualitative outputs like <em>“is this summary good?”</em> or  <em>“was this plan logical?”</em> The answer is to use the same technology we are trying to evaluate.  The LLM-as-a-Judge3 paradigm involves using a powerful, state-of-the-art model (like  Google’s Gemini Advanced) to evaluate the outputs of another agent. </p>
+<p>我们如何自动化评估定性输出，如*”这个摘要好吗？”<em>或</em>“这个计划合乎逻辑吗？”*答案是使用我们试图评估的相同技术。LLM 即评判者³范式涉及使用强大的最先进模型（如 Google 的 Gemini Advanced）来评估另一个智能体的输出。</p>
+<p>We provide the “judge” LLM with the agent’s output, the original prompt, the “golden” answer  or reference (if one exists), and a detailed evaluation rubric (e.g., “Rate the helpfulness,  correctness, and safety of this response on a scale of 1-5, explaining your reasoning.”).  This approach provides scalable, fast, and surprisingly nuanced feedback, especially for  intermediate steps like the quality of an agent’s “Thought” or its interpretation of a tool  response. While it doesn’t replace human judgment, it allows data science teams to rapidly  evaluate performance across thousands of scenarios, making an iterative evaluation  process feasible.</p>
+<p>我们向”评判者”LLM 提供智能体的输出、原始提示、”黄金”答案或参考（如果存在的话），以及详细的评估准则（例如，”在 1-5 的范围内评价此响应的有用性、正确性和安全性，并解释您的推理。”）。这种方法提供可扩展的、快速的、出人意料地细致入微的反馈，特别是对于中间步骤，如智能体”思考”的质量或其对工具响应的解释。虽然它不能取代人类判断，但它允许数据科学团队快速评估数千个场景的性能，使迭代评估过程变得可行。</p>
+<p>![][image7] <strong>Applied Tip:</strong> </p>
+<p><strong>应用提示：</strong></p>
+<p>To implement this, prioritize pairwise comparison over single-scoring to mitigate the  exact biases mentioned. First, run your evaluation set of prompts against two different  agent versions (e.g., your old production agent vs. your new experimental one) to  generate an “Answer A” and “Answer B” for each prompt. </p>
+<p>要实现这一点，请优先使用成对比较而非单一评分，以减轻所提到的确切偏见。首先，针对两个不同的智能体版本（例如，您的旧生产智能体与新实验智能体）运行您的评估提示集，为每个提示生成”答案 A”和”答案 B”。</p>
+<p>Then, create the LLM judge by giving a powerful LLM (like Gemini Pro) a clear rubric  and a prompt that forces a choice: “Given this User Query, which response is more  helpful: A or B? Explain your reasoning.” By automating this process, you can scalably  calculate a win&#x2F;loss&#x2F;tie rate for your new agent. A high “win rate” is a far more reliable  signal of improvement than a small change in an absolute (and often noisy) 1-5 score. A prompt for an LLM-as-a-Judge, especially for the robust pairwise comparison,  might look like this: </p>
+<p>然后，通过给强大的 LLM（如 Gemini Pro）一个清晰的评估准则和一个强制选择的提示来创建 LLM 评判者：”鉴于此用户查询，哪个响应更有帮助：A 还是 B？解释您的推理。”通过自动化此过程，您可以可扩展地计算新智能体的胜&#x2F;负&#x2F;平率。高”胜率”是比绝对（且通常嘈杂的）1-5 分数的小变化更可靠的改进信号。LLM 即评判者的提示，特别是对于稳健的成对比较，可能如下所示：</p>
+<blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">You are an expert evaluator for a customer support chatbot. Your goal is to  </span><br><span class="line">assess which of two responses is more helpful, polite, and correct.</span><br><span class="line"></span><br><span class="line">[User Query]</span><br><span class="line">&quot;Hi, my order #12345 hasn&#x27;t arrived yet.&quot;</span><br><span class="line"></span><br><span class="line">[Answer A]</span><br><span class="line">&quot;I can see that order #12345 is currently out for delivery and should  </span><br><span class="line">arrive by 5 PM today.&quot;</span><br><span class="line"></span><br><span class="line">[Answer B]</span><br><span class="line">&quot;Order #12345 is on the truck. It will be there by 5.&quot;</span><br><span class="line"></span><br><span class="line">Please evaluate which answer is better. Compare them on correctness,  </span><br><span class="line">helpfulness, and tone. Provide your reasoning and then output your final  </span><br><span class="line">decision in a JSON object with a &quot;winner&quot; key (either &quot;A&quot;, &quot;B&quot;, or &quot;tie&quot;)  </span><br><span class="line">and a &quot;rationale&quot; key.</span><br></pre></td></tr></table></figure></blockquote>
+<p><strong>Agent-as-a-Judge</strong> </p>
+<p><strong>智能体即评判者</strong></p>
+<p>While LLMs can score final responses, agents require deeper evaluation of their reasoning  and actions. The emerging Agent-as-a-Judge4 paradigm uses one agent to evaluate the full  execution trace of another. Instead of scoring only outputs, it assesses the process itself. Key  evaluation dimensions include: </p>
+<p>虽然 LLM 可以对最终响应进行评分，但智能体需要对其推理和行动进行更深入的评估。新兴的智能体即评判者⁴范式使用一个智能体来评估另一个智能体的完整执行追踪。它不仅仅对输出进行评分，而是评估过程本身。关键评估维度包括：</p>
+<p><strong>• Plan quality:</strong> Was the plan logically structured and feasible? </p>
+<p><strong>• 计划质量：</strong> 计划是否逻辑结构合理且可行？</p>
+<p><strong>• Tool use:</strong> Were the right tools chosen and applied correctly? </p>
+<p><strong>• 工具使用：</strong> 是否选择了正确的工具并正确应用？</p>
+<p><strong>• Context handling:</strong> Did the agent use prior information effectively? </p>
+<p><strong>• 上下文处理：</strong> 智能体是否有效地使用了先前的信息？</p>
+<p>This approach is particularly valuable for process evaluation, where failures often arise from  flawed intermediate steps rather than the final output.</p>
+<p>这种方法对于过程评估特别有价值，因为失败通常源于有缺陷的中间步骤，而非最终输出。 </p>
+<p>![][image8] <strong>Applied Tip:</strong> </p>
+<p><strong>应用提示：</strong></p>
+<p>To implement an Agent-as-a-Judge, consider feeding relevant parts of the execution  trace object to your judge. First, configure your agent framework to log and  export the trace, including the internal plan, the list of tools chosen, and the exact  arguments passed. </p>
+<p>要实现智能体即评判者，请考虑将执行追踪对象的相关部分提供给您的评判者。首先，配置您的智能体框架以记录和导出追踪，包括内部计划、选择的工具列表和传递的确切参数。</p>
+<p>Then, create a specialized “Critic Agent” with a prompt (rubric) that asks it to evaluate  this <em>trace object</em> directly. Your prompt should ask specific process questions: “1. Based  on the trace, was the initial plan logical? 2. Was the {<code>tool_A</code>} tool the correct first  choice, or should another tool have been used? 3. Were the arguments correct and  properly formatted?” This allows you to automatically detect <em>process</em> failures (like an  inefficient plan), even when the agent produced a final answer that looked correct.</p>
+<p>然后，创建一个专门的”批评者智能体”，其提示（评估准则）要求它直接评估此<em>追踪对象</em>。您的提示应该询问具体的过程问题：”1. 根据追踪，初始计划是否合乎逻辑？2. {<code>tool_A</code>} 工具是否是正确的首选，还是应该使用其他工具？3. 参数是否正确且格式正确？”这使您能够自动检测<em>过程</em>失败（如低效的计划），即使智能体产生了看起来正确的最终答案。</p>
+<p><strong>Human-in-the-Loop (HITL) Evaluation</strong> </p>
+<p><strong>人机协同（HITL）评估</strong></p>
+<p>While automation provides scale, it struggles with deep subjectivity and complex domain  knowledge. Human-in-the-Loop (HITL) evaluation is the essential process for capturing the  critical qualitative signals and nuanced judgments that automated systems miss. </p>
+<p>虽然自动化提供了规模，但它在深度主观性和复杂领域知识方面存在困难。人机协同（HITL）评估是捕获自动化系统遗漏的关键定性信号和细微判断的基本过程。</p>
+<p>We must, however, move away from the idea that human rating provides a perfect “objective  ground truth.” For highly subjective tasks (like assessing creative quality or nuanced tone),  perfect inter-annotator agreement is rare. Instead, HITL is the indispensable methodology  for establishing a <strong>human-calibrated benchmark</strong>, ensuring the agent’s behavior aligns with  complex human values, contextual needs, and domain-specific accuracy. </p>
+<p>然而，我们必须摒弃人类评分提供完美”客观真实值”的想法。对于高度主观的任务（如评估创意质量或细微的语气），完美的标注者间一致性很少见。相反，HITL 是建立<strong>人类校准基准</strong>不可或缺的方法论，确保智能体的行为与复杂的人类价值观、情境需求和领域特定的准确性保持一致。</p>
+<p>The HITL process involves several key functions: </p>
+<p>HITL 过程涉及几个关键功能：</p>
+<p><strong>• Domain Expertise:</strong> For specialized agents (e.g., medical, legal, or financial), you must  leverage domain experts to evaluate factual correctness and adherence to specific  industry standards.  </p>
+<p><strong>• 领域专业知识：</strong> 对于专业智能体（如医疗、法律或金融），您必须利用领域专家来评估事实正确性和对特定行业标准的遵守。</p>
+<p><strong>• Interpreting Nuance:</strong> Humans are essential for judging the subtle qualities that  define a high-quality interaction, such as tone, creativity, user intent, and complex  ethical alignment. </p>
+<p><strong>• 解释细微差别：</strong> 人类对于判断定义高质量交互的微妙品质至关重要，如语气、创意、用户意图和复杂的伦理对齐。</p>
+<p><strong>• Creating the “Golden Set”:</strong> Before automation can be effective, humans must establish  the “gold standard” benchmark. This involves curating a comprehensive evaluation set,  defining the objectives for success , and crafting a robust suite of test cases that cover  typical, edge, and adversarial scenarios.</p>
+<p><strong>• 创建”黄金集”：</strong> 在自动化能够有效之前，人类必须建立”黄金标准”基准。这涉及策划一个全面的评估集、定义成功的目标，以及制作一套涵盖典型、边缘和对抗场景的稳健测试用例。</p>
+<p>![][image9] <strong>Applied Tip:</strong> </p>
+<p><strong>应用提示：</strong></p>
+<p>For runtime safety, implement an interruption workflow. In a framework like ADK, you  can configure the agent to pause its execution before committing to a high-stakes  tool call (like <code>execute_payment or delete_database_entry</code>). The agent’s state  and planned action are then surfaced in a Reviewer UI, where a human operator must  manually approve or reject the step before the agent is allowed to resume.</p>
+<p>对于运行时安全性，请实施中断工作流。在像 ADK 这样的框架中，您可以配置智能体在执行高风险工具调用（如 <code>execute_payment</code> 或 <code>delete_database_entry</code>）之前暂停执行。然后在审核 UI 中显示智能体的状态和计划的操作，人工操作员必须手动批准或拒绝该步骤，然后智能体才能继续执行。</p>
+<p><strong>User Feedback and Reviewer UI</strong>  </p>
+<p><strong>用户反馈与审核界面</strong></p>
+<p>Evaluation must also capture real-world user feedback. Every interaction is a signal of  usefulness, clarity, and trust. This feedback includes both qualitative signals (like thumbs up&#x2F; down) and quantitative in-product success metrics, such as pull request (PR) acceptance  rate for a coding agent, or successful booking completion rate for a travel agent. Best  practices include: </p>
+<p>评估还必须捕获真实世界的用户反馈。每次交互都是有用性、清晰度和信任的信号。此反馈包括定性信号（如点赞&#x2F;点踩）和产品内定量成功指标，如编码智能体的拉取请求（PR）接受率，或旅行智能体的成功预订完成率。最佳实践包括：</p>
+<p><strong>• Low-friction feedback:</strong> thumbs up&#x2F;down, quick sliders, or short comments. </p>
+<p><strong>• 低摩擦反馈：</strong> 点赞&#x2F;点踩、快速滑块或简短评论。</p>
+<p><strong>• Context-rich review:</strong> feedback should be paired with the full conversation and agent’s  reasoning trace. </p>
+<p><strong>• 上下文丰富的审核：</strong> 反馈应与完整的对话和智能体的推理追踪配对。</p>
+<p><strong>• Reviewer User Interface (UI):</strong> a two-panel interface: conversation on the left, reasoning  steps on the right, with inline tagging for issues like “bad plan” or “tool misuse.” </p>
+<p><strong>• 审核用户界面（UI）：</strong> 双面板界面：左侧是对话，右侧是推理步骤，对”糟糕的计划”或”工具误用”等问题进行内联标记。</p>
+<p><strong>• Governance dashboards:</strong> aggregate feedback to highlight recurring issues and risks. </p>
+<p><strong>• 治理仪表板：</strong> 汇总反馈以突出重复出现的问题和风险。</p>
+<p>Without usable interfaces, evaluation frameworks fail in practice. A strong UI makes user and  reviewer feedback visible, fast, and actionable. </p>
+<p>没有可用的界面，评估框架在实践中会失败。强大的 UI 使用户和审核者的反馈可见、快速且可操作。</p>
+<p>![][image10] <strong>Applied Tip:</strong> </p>
+<p><strong>应用提示：</strong></p>
+<p>Implement your user feedback system as an event-driven pipeline, not just a static  log. When a user clicks “thumbs down,” that signal must automatically capture the full,  context-rich conversation trace and add it to a dedicated review queue within your  developer’s Reviewer UI.</p>
+<p>将您的用户反馈系统实现为事件驱动的管道，而不仅仅是静态日志。当用户点击”点踩”时，该信号必须自动捕获完整的、上下文丰富的对话追踪，并将其添加到开发者审核 UI 中的专用审核队列中。</p>
+<p><strong>Beyond Performance: Responsible AI (RAI) &amp;</strong><br><strong>Safety Evaluation</strong> </p>
+<p><strong>超越性能：负责任 AI（RAI）与安全评估</strong></p>
+<p>A final dimension of evaluation operates not as a component, but as a mandatory, non negotiable gate for any production agent: Responsible AI and Safety. An agent that is 100%  effective but causes harm is a total failure. </p>
+<p>评估的最后一个维度不是作为组件运作，而是作为任何生产智能体的强制性、不可妥协的门控：负责任 AI 和安全性。一个 100% 有效但造成伤害的智能体是完全失败的。</p>
+<p>Evaluation for safety is a specialized discipline that must be woven into the entire  development lifecycle. This involves: </p>
+<p>安全评估是一门专业学科，必须贯穿整个开发生命周期。这涉及：</p>
+<p><strong>• Systematic Red Teaming:</strong> Actively trying to break the agent using adversarial scenarios.  This includes attempts to generate hate speech, reveal private information, propagate  harmful stereotypes, or induce the agent to engage in malicious actions. </p>
+<p><strong>• 系统性红队测试：</strong> 使用对抗场景主动尝试破坏智能体。这包括尝试生成仇恨言论、泄露私人信息、传播有害刻板印象，或诱导智能体参与恶意行为。</p>
+<p><strong>• Automated Filters &amp; Human Review:</strong> Implementing technical filters to catch policy  violations and coupling them with human review, as automation alone may not catch  nuanced forms of bias or toxicity. </p>
+<p><strong>• 自动化过滤器与人工审核：</strong> 实施技术过滤器以捕获违反政策的行为，并将其与人工审核相结合，因为仅靠自动化可能无法捕获细微形式的偏见或毒性。</p>
+<p><strong>• Adherence to Guidelines:</strong> Explicitly evaluating the agent’s outputs against  predefined ethical guidelines and principles to ensure alignment and prevent  unintended consequences. </p>
+<p><strong>• 遵守指南：</strong> 根据预定义的伦理指南和原则明确评估智能体的输出，以确保对齐并防止意外后果。</p>
+<p>Ultimately, performance metrics tell us if the agent <em>can</em> do the job, but safety evaluation tells  us if it <em>should</em>.</p>
+<p>最终，性能指标告诉我们智能体是否<em>能够</em>完成工作，但安全评估告诉我们它是否<em>应该</em>这样做。 </p>
+<p>![][image11] <strong>Applied Tip:</strong> </p>
+<p><strong>应用提示：</strong></p>
+<p>Implement your guardrails as a structured Plugin, rather than as isolated functions.  In this pattern, the callback is the mechanism (the hook provided by ADK), while the  Plugin is the <em>reusable module</em> you build. </p>
+<p>将您的护栏实现为结构化插件，而非孤立的函数。在此模式中，回调是机制（ADK 提供的钩子），而插件是您构建的<em>可重用模块</em>。</p>
+<p>For example, you can build a single <code>SafetyPlugin</code> class. This plugin would then  register its internal methods with the framework’s available callbacks: </p>
+<p>例如，您可以构建一个单一的 <code>SafetyPlugin</code> 类。然后，此插件将其内部方法注册到框架的可用回调中：</p>
+<p>1. Your plugin’s <code>check_input_safety()</code> method would register with the  <code>before_model_callback</code>. This method’s job is to run your prompt  </p>
+<p>injection classifier. </p>
+<ol>
+<li>您插件的 <code>check_input_safety()</code> 方法将注册到 <code>before_model_callback</code>。此方法的工作是运行您的提示注入分类器。</li>
+</ol>
+<p>2. Your plugin’s <code>check_output_pii()</code> method would register with the <code>after_ model_callback</code>. This method’s job is to run your PII scanner. </p>
+<ol start="2">
+<li>您插件的 <code>check_output_pii()</code> 方法将注册到 <code>after_model_callback</code>。此方法的工作是运行您的 PII 扫描器。</li>
+</ol>
+<p>This plugin architecture makes your guardrails reusable, independently testable, and  cleanly layered on top of the foundation model’s built-in safety settings (like those  in Gemini).</p>
+<p>这种插件架构使您的护栏可重用、可独立测试，并清晰地分层在基础模型的内置安全设置（如 Gemini 中的设置）之上。</p>
+<p><strong>Summary &amp; What’s Next</strong> </p>
+<p><strong>总结与展望</strong></p>
+<p>Effective agent evaluation requires moving beyond simple testing to a strategic, hierarchical  framework. This “Outside-In” approach first validates end-to-end task completion (the Black  Box) before analyzing the full trajectory within the “Glass Box”—assessing reasoning quality,  tool use, robustness, and efficiency.  </p>
+<p>有效的智能体评估需要超越简单测试，采用战略性的分层框架。这种”由外而内”方法首先验证端到端任务完成情况（黑盒），然后在”玻璃盒”内分析完整轨迹——评估推理质量、工具使用、鲁棒性和效率。</p>
+<p>Judging this process demands a hybrid approach: scalable automation like LLM-as-a-Judge,  paired with the indispensable, nuanced judgment of Human-in-the-Loop (HITL) evaluators.  This framework is secured by a non-negotiable layer of Responsible AI and safety evaluation  to build trustworthy systems.  </p>
+<p>判断此过程需要一种混合方法：可扩展的自动化（如 LLM 即评判者），与人机协同（HITL）评估者不可或缺的细致判断相结合。此框架由负责任 AI 和安全评估的不可妥协层保护，以构建可信系统。</p>
+<p>We understand the need to judge the entire trajectory, but this framework is purely  theoretical without the data. To enable this “Glass Box” evaluation, the system must first be  observable. <strong>Chapter 3</strong> will provide the architectural blueprint, moving from the <em>theory</em> of  evaluation to the <em>practice</em> of observability by mastering the three pillars: logging, tracing,  and metrics.</p>
+<p>我们理解评判整个轨迹的必要性，但没有数据，这个框架纯粹是理论性的。要启用这种”玻璃盒”评估，系统必须首先是可观测的。<strong>第 3 章</strong>将提供架构蓝图，通过掌握三大支柱：日志记录、追踪和指标，从评估的<em>理论</em>转向可观测性的<em>实践</em>。</p>
+<p><strong>Observability: Seeing Inside the  Agent’s Mind</strong> </p>
+<p><strong>可观测性：洞察智能体的思维</strong></p>
+<p><strong>From Monitoring to True Observability</strong> </p>
+<p><strong>从监控到真正的可观测性</strong></p>
+<p>In the last chapter, we established that AI Agents are a new breed of software. They don’t  just follow instructions; they make decisions. This fundamental difference demands a new  approach to quality assurance, moving us beyond traditional software monitoring into the  deeper realm of <strong>observability</strong>. </p>
+<p>在上一章中，我们确立了 AI 智能体是一种新型软件。它们不仅仅遵循指令；它们做出决策。这种根本性差异需要一种新的质量保证方法，使我们超越传统软件监控，进入更深层次的<strong>可观测性</strong>领域。</p>
+<p>To grasp the difference, let’s leave the server room and step into a kitchen. </p>
+<p>要理解这种差异，让我们离开服务器机房，走进厨房。</p>
+<p><strong>The Kitchen Analogy: Line Cook vs. Gourmet Chef</strong> </p>
+<p><strong>厨房类比：流水线厨师 vs. 美食大厨</strong></p>
+<p><strong>Traditional Software is a Line Cook:</strong> Imagine a fast-food kitchen. The line cook has a  laminated recipe card for making a burger. The steps are rigid and deterministic: toast bun  for 30 seconds, grill patty for 90 seconds, add one slice of cheese, two pickles, one squirt  of ketchup. </p>
+<p><strong>传统软件是流水线厨师：</strong> 想象一个快餐厨房。流水线厨师有一张制作汉堡的覆膜食谱卡。步骤是严格且确定性的：烤面包 30 秒、烤肉饼 90 秒、加一片奶酪、两片泡菜、挤一次番茄酱。</p>
+<p><strong>• Monitoring</strong> in this world is a checklist. Is the grill at the right temperature? Did the  cook follow every step? Was the order completed on time? We are verifying a known,  predictable process.</p>
+<p>在这个世界中，<strong>监控</strong>是一个检查清单。烤架温度对吗？厨师遵循了每一步吗？订单按时完成了吗？我们正在验证一个已知的、可预测的过程。</p>
+<p><strong>An AI Agent is a Gourmet Chef in a “Mystery Box” Challenge:</strong> The chef is given a  goal (“Create an amazing dessert”) and a basket of ingredients (the user’s prompt, data,  and available tools). There is no single correct recipe. They might create a chocolate lava  cake, a deconstructed tiramisu, or a saffron-infused panna cotta. All could be valid, even  brilliant, solutions. </p>
+<p><strong>AI 智能体是”神秘盒子”挑战中的美食大厨：</strong> 厨师被给予一个目标（”创造一道惊艳的甜点”）和一篮食材（用户的提示、数据和可用工具）。没有单一正确的食谱。他们可能创造出熔岩巧克力蛋糕、解构提拉米苏或藏红花奶冻。所有这些都可能是有效的，甚至是出色的解决方案。</p>
+<p><strong>• Observability</strong> is how a food critic would judge the chef. The critic doesn’t just taste the  final dish. They want to understand the process and the reasoning. Why did the chef  choose to pair raspberries with basil? What technique did they use to crystallize the  ginger? How did they adapt when they realized they were out of sugar? We need to see  inside their “thought process” to truly evaluate the quality of their work. </p>
+<p><strong>可观测性</strong>是美食评论家评判厨师的方式。评论家不仅仅品尝最终的菜肴。他们想了解过程和推理。厨师为什么选择将覆盆子与罗勒搭配？他们用什么技术使生姜结晶？当他们意识到糖用完了时，他们是如何适应的？我们需要看到他们的”思维过程”内部，才能真正评估他们工作的质量。</p>
+<p>This represents a fundamental shift for AI agents, moving beyond simple monitoring to  true observability. The focus is no longer on merely verifying if an agent is active, but  on understanding the quality of its cognitive processes. Instead of asking <em>“Is the agent  running?”</em>, the critical question becomes <em>“Is the agent thinking <strong>effectively</strong>?”</em>.</p>
+<p>这代表了 AI 智能体的根本性转变，从简单监控转向真正的可观测性。焦点不再仅仅是验证智能体是否活跃，而是理解其认知过程的质量。关键问题不再是*”智能体在运行吗？”<em>，而是变成</em>“智能体在<strong>有效地</strong>思考吗？”* </p>
+<p><strong>The Three Pillars of Observability</strong> </p>
+<p><strong>可观测性的三大支柱</strong></p>
+<p>So, how do we get access to the agent’s “thought process”? We can’t read its mind  directly, but we can analyze the evidence it leaves behind. This is achieved by building  our observability practice on three foundational pillars: <strong>Logs</strong>, <strong>Traces</strong>, and <strong>Metrics</strong>. They  are the tools that allow us to move from tasting the final dish to critiquing the entire  culinary performance.</p>
+<p>那么，我们如何访问智能体的”思维过程”？我们不能直接读取它的思维，但我们可以分析它留下的证据。这是通过在三个基础支柱上构建我们的可观测性实践来实现的：<strong>日志</strong>、<strong>追踪</strong>和<strong>指标</strong>。它们是使我们能够从品尝最终菜肴转向评论整个烹饪表演的工具。</p>
+<p>![][image12]<br>Figure 4: Three foundational pillars for Agent Observability </p>
+<p>图 4：智能体可观测性的三大基础支柱</p>
+<p>Let’s dissect each pillar and see how they work together to give us a critic’s-eye view of our  agent’s performance.</p>
+<p>让我们剖析每个支柱，看看它们如何协同工作，为我们提供评论家视角来审视智能体的表现。 </p>
+<p><strong>Pillar 1: Logging – The Agent’s Diary</strong> </p>
+<p><strong>支柱一：日志——智能体的日记</strong></p>
+<p>What are Logs? Logs are the atomic unit of observability. Think of them as timestamped  entries in your agent’s diary. Each entry is a raw, immutable fact about a discrete event: “At  10:01:32, I was asked a question. At 10:01:33, I decided to use the get_weather tool.” They tell  us what happened.</p>
+<p>什么是日志？日志是可观测性的原子单位。把它们想象成智能体日记中带时间戳的条目。每个条目都是关于离散事件的原始、不可变的事实：”在 10:01:32，我被问了一个问题。在 10:01:33，我决定使用 get_weather 工具。”它们告诉我们发生了什么。</p>
+<p><strong>Beyond</strong> <code>print()</code><strong>: What Makes a Log Effective?</strong> </p>
+<p><strong>超越</strong> <code>print()</code><strong>：什么使日志有效？</strong></p>
+<p>A fully managed service like Google Cloud Logging allows you to store, search, and analyze  log data at scale. It can automatically collect logs from Google Cloud services, and its Log  Analytics capabilities allow you to run SQL queries to uncover trends in your agent’s behavior. </p>
+<p>像 Google Cloud Logging 这样的完全托管服务允许您大规模存储、搜索和分析日志数据。它可以自动从 Google Cloud 服务收集日志，其日志分析功能允许您运行 SQL 查询来发现智能体行为中的趋势。</p>
+<p>A best-in-class framework makes this easy. For example, the Agent Development Kit (ADK) is  built on Python’s standard <code>logging</code> module. This allows a developer to configure the desired  level of detail - from high-level <code>INFO</code> messages in production to granular <code>DEBUG</code> messages  during development - without changing the agent’s code.</p>
+<p>一流的框架使这变得容易。例如，Agent Development Kit（ADK）构建在 Python 的标准 <code>logging</code> 模块之上。这允许开发人员配置所需的详细级别——从生产中的高级 <code>INFO</code> 消息到开发期间的细粒度 <code>DEBUG</code> 消息——而无需更改智能体的代码。 </p>
+<p><strong>The Anatomy of a Critical Log Entry</strong> </p>
+<p><strong>关键日志条目的结构</strong></p>
+<p>To reconstruct an agent’s “thought process,” a log must be rich with context. A structured  JSON format is the gold standard. </p>
+<p>要重建智能体的”思维过程”，日志必须富含上下文。结构化 JSON 格式是黄金标准。</p>
+<p><strong>• Core Information:</strong> A good log captures the full context: prompt&#x2F;response pairs,  intermediate reasoning steps (the agent’s “chain of thought”, a concept explored by Wei  et al. (2022)), structured tool calls (inputs, outputs, errors), and any changes to the agent’s  internal state. </p>
+<p><strong>• 核心信息：</strong> 好的日志捕获完整的上下文：提示&#x2F;响应对、中间推理步骤（智能体的”思维链”，Wei 等人（2022）探索的概念）、结构化工具调用（输入、输出、错误）以及智能体内部状态的任何变化。</p>
+<p><strong>• The Tradeoff:</strong> Verbosity vs. Performance: A highly detailed <code>DEBUG</code> log is a developer’s  best friend for troubleshooting but can be too “noisy” and create performance overhead  in a production environment. This is why structured logging is so powerful; it allows you to  collect detailed data but filter it efficiently. </p>
+<p><strong>• 权衡：</strong> 详细程度 vs. 性能：高度详细的 <code>DEBUG</code> 日志是开发人员故障排除的最佳助手，但在生产环境中可能过于”嘈杂”并造成性能开销。这就是结构化日志如此强大的原因；它允许您收集详细数据但高效过滤。</p>
+<p>Here’s a practical example showing the power of a structured log, adapted from an ADK  <code>DEBUG</code> output:</p>
+<p>这是一个展示结构化日志强大功能的实际示例，改编自 ADK 的 <code>DEBUG</code> 输出：</p>
+<p><strong>JSON</strong> </p>
+<blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">// A structured log entry capturing a single LLM request</span><br><span class="line">// 捕获单个 LLM 请求的结构化日志条目</span><br><span class="line">...</span><br><span class="line">2025-07-10 15:26:13,778 - DEBUG - google_adk.google.adk.models.google_llm - Sending out  </span><br><span class="line">request, model: gemini-2.0-flash, backend: GoogleLLMVariant.GEMINI_API, stream: False</span><br><span class="line">2025-07-10 15:26:13,778 - DEBUG - google_adk.google.adk.models.google_llm -  </span><br><span class="line">LLM Request:</span><br><span class="line">-----------------------------------------------------------</span><br><span class="line">System Instruction:</span><br><span class="line"> You roll dice and answer questions about the outcome of the dice rolls.....  </span><br><span class="line">The description about you is &quot;hello world agent that can roll a dice of 8 sides and check  </span><br><span class="line">prime numbers.&quot;</span><br><span class="line">-----------------------------------------------------------</span><br><span class="line">Contents:</span><br><span class="line">&#123;&quot;parts&quot;:[&#123;&quot;text&quot;:&quot;Roll a 6 sided dice&quot;&#125;],&quot;role&quot;:&quot;user&quot;&#125;</span><br><span class="line">&#123;&quot;parts&quot;:[&#123;&quot;function_call&quot;:&#123;&quot;args&quot;:&#123;&quot;sides&quot;:6&#125;,&quot;name&quot;:&quot;roll_die&quot;&#125;&#125;],&quot;role&quot;:&quot;model&quot;&#125;</span><br><span class="line">&#123;&quot;parts&quot;:[&#123;&quot;function_response&quot;:&#123;&quot;name&quot;:&quot;roll_die&quot;,&quot;response&quot;:&#123;&quot;result&quot;:2&#125;&#125;&#125;],&quot;role&quot;:&quot;user&quot;&#125;</span><br><span class="line">-----------------------------------------------------------</span><br><span class="line">Functions:</span><br><span class="line">roll_die: &#123;&#x27;sides&#x27;: &#123;&#x27;type&#x27;: &lt;Type.INTEGER: &#x27;INTEGER&#x27;&gt;&#125;&#125;  </span><br><span class="line">check_prime: &#123;&#x27;nums&#x27;: &#123;&#x27;items&#x27;: &#123;&#x27;type&#x27;: &lt;Type.INTEGER: &#x27;INTEGER&#x27;&gt;&#125;, &#x27;type&#x27;: &lt;Type.ARRAY:  </span><br><span class="line">&#x27;ARRAY&#x27;&gt;&#125;&#125;  </span><br><span class="line">-----------------------------------------------------------</span><br><span class="line">2025-07-10 15:26:13,779 - INFO - google_genai.models - AFC is enabled with max remote  </span><br><span class="line">calls: 10.</span><br><span class="line">2025-07-10 15:26:14,309 - INFO - google_adk.google.adk.models.google_llm -  </span><br><span class="line">LLM Response:</span><br><span class="line">-----------------------------------------------------------</span><br><span class="line">Text:</span><br><span class="line">I have rolled a 6 sided die, and the result is 2.</span><br><span class="line">...</span><br></pre></td></tr></table></figure></blockquote>
+<p>Snippet 1: A structured log entry capturing a single LLM request </p>
+<p>代码片段 1：捕获单个 LLM 请求的结构化日志条目</p>
+<p>![][image13] <strong>Applied Tip:</strong> </p>
+<p><strong>应用提示：</strong></p>
+<p>A powerful logging pattern is to record the agent’s intent before an action and the  outcome after. This immediately clarifies the difference between a failed attempt and a  deliberate decision not to act.</p>
+<p>一个强大的日志模式是在操作之前记录智能体的意图，在操作之后记录结果。这可以立即澄清失败的尝试和故意决定不采取行动之间的区别。</p>
+<p><strong>Pillar 2: Tracing – Following the Agent’s Footsteps</strong> </p>
+<p><strong>支柱二：追踪——跟随智能体的足迹</strong></p>
+<p><strong>What is Tracing?</strong> If logs are diary entries, <strong>traces</strong> are the narrative thread that connects  them into a coherent story. Tracing follows a single task - from the initial user query to the  final answer - stitching together individual logs (called <strong>spans</strong>) into a complete, end-to-end  view. Traces reveal the crucial “why” by showing the causal relationship between events. </p>
+<p><strong>什么是追踪？</strong> 如果日志是日记条目，<strong>追踪</strong>就是将它们连接成连贯故事的叙事线索。追踪跟随单个任务——从初始用户查询到最终答案——将单个日志（称为<strong>跨度</strong>）拼接成完整的端到端视图。追踪通过显示事件之间的因果关系来揭示关键的”为什么”。</p>
+<p>Imagine a detective’s corkboard. Logs are the individual clues - a photo, a ticket stub. A trace  is the red yarn connecting them, revealing the full sequence of events. </p>
+<p>想象一个侦探的软木板。日志是单独的线索——一张照片、一张票根。追踪是连接它们的红线，揭示完整的事件序列。</p>
+<p><strong>Why Tracing is Indispensable</strong> </p>
+<p><strong>为何追踪不可或缺</strong></p>
+<p>Consider a complex agent failure where a user asks a question and gets a  nonsensical answer. </p>
+<p>考虑一个复杂的智能体失败场景，用户提出问题却得到一个无意义的答案。</p>
+<p><strong>• Isolated Logs might show:</strong> <code>ERROR: RAG search failed</code> and <code>ERROR: LLM response  failed validation</code>. You see the errors, but the root cause is unclear. </p>
+<p><strong>• 孤立的日志可能显示：</strong> <code>ERROR: RAG search failed</code> 和 <code>ERROR: LLM response failed validation</code>。你看到了错误，但根本原因不清楚。</p>
+<p><strong>• A Trace reveals the full causal chain:</strong> <code>User Query</code> → <code>RAG Search (failed)</code> → <code>Faulty Tool Call (received null input)</code> → <code>LLM Error (confused by bad  tool output)</code> → <code>Incorrect Final Answer</code></p>
+<p><strong>• 追踪揭示完整的因果链：</strong> <code>用户查询</code> → <code>RAG 搜索（失败）</code> → <code>错误的工具调用（收到空输入）</code> → <code>LLM 错误（被错误的工具输出混淆）</code> → <code>错误的最终答案</code> </p>
+<p>The trace makes the root cause instantly obvious, making it indispensable for debugging  complex, multi-step agent behaviors.</p>
+<p>追踪使根本原因立即显而易见，这对于调试复杂的多步骤智能体行为是不可或缺的。</p>
+<p><strong>Key Elements of an Agent Trace</strong> </p>
+<p><strong>智能体追踪的关键要素</strong></p>
+<p>Modern tracing is built on open standards like <strong>OpenTelemetry</strong>. The core components are: </p>
+<p>现代追踪建立在 <strong>OpenTelemetry</strong> 等开放标准之上。核心组件包括：</p>
+<p><strong>• Spans:</strong> The individual, named operations within a trace (e.g., an <code>llm_call</code> span, a  <code>tool_execution</code> span). </p>
+<p><strong>• 跨度：</strong> 追踪中单独的命名操作（例如，<code>llm_call</code> 跨度、<code>tool_execution</code> 跨度）。</p>
+<p><strong>• Attributes:</strong> The rich metadata attached to each span - <code>prompt_id</code>, <code>latency_ms,  token_count</code>, <code>user_id</code>, etc. </p>
+<p><strong>• 属性：</strong> 附加到每个跨度的丰富元数据——<code>prompt_id</code>、<code>latency_ms</code>、<code>token_count</code>、<code>user_id</code> 等。</p>
+<p><strong>• Context Propagation:</strong> The “magic” that links spans together via a unique <code>trace_id</code>,  allowing backends like Google Cloud Trace to assemble the full picture. Cloud Trace is a  distributed tracing system that helps you understand how long it takes for your application  to handle requests. When an agent is deployed on a managed runtime like Vertex AI Agent  Engine, this integration is streamlined. The Agent Engine handles the infrastructure for  scaling agents in production and automatically integrates with Cloud Trace to provide end to-end observability, linking the agent invocation with all subsequent model and tool calls. </p>
+<p><strong>• 上下文传播：</strong> 通过唯一的 <code>trace_id</code> 将跨度链接在一起的”魔法”，允许像 Google Cloud Trace 这样的后端组装完整的画面。Cloud Trace 是一个分布式追踪系统，帮助您了解应用程序处理请求需要多长时间。当智能体部署在像 Vertex AI Agent Engine 这样的托管运行时上时，此集成被简化。Agent Engine 处理生产中扩展智能体的基础设施，并自动与 Cloud Trace 集成以提供端到端可观测性，将智能体调用与所有后续模型和工具调用链接起来。</p>
+<p>![][image14]Figure 5: OpenTelemetry view lets you inspect attributes, logs, events, and other details</p>
+<p>图 5：OpenTelemetry 视图允许您检查属性、日志、事件和其他详细信息</p>
+<p><strong>Pillar 3: Metrics – The Agent’s Health Report</strong> </p>
+<p><strong>支柱三：指标——智能体的健康报告</strong></p>
+<p><strong>What are Metrics?</strong> If <strong>logs</strong> are the chef’s prep notes and <strong>traces</strong> are the critic watching the  recipe unfold step-by-step, then <strong>metrics</strong> are the final scorecard the critic publishes. They  are the quantitative, aggregated health scores that give you an immediate, at-a-glance  understanding of your agent’s overall performance. </p>
+<p><strong>什么是指标？</strong> 如果<strong>日志</strong>是厨师的准备笔记，<strong>追踪</strong>是评论家逐步观看食谱展开的过程，那么<strong>指标</strong>就是评论家发布的最终评分卡。它们是定量的、汇总的健康评分，让您即时、一目了然地了解智能体的整体表现。</p>
+<p>Crucially, a food critic doesn’t just invent these scores based on a single taste of the final  dish. Their judgment is informed by everything they observe. Metrics are the same: they are  not a new source of data. They are derived by <strong>aggregating the data from your logs and  traces</strong> over time. They answer the question, <em>“How <strong>well</strong> did the performance go, on average?”</em> </p>
+<p>至关重要的是，美食评论家不会仅仅根据最终菜肴的一次品尝来发明这些评分。他们的判断是基于他们观察到的一切。指标也是如此：它们不是新的数据来源。它们是通过<strong>随时间汇总日志和追踪中的数据</strong>得出的。它们回答的问题是：<em>“平均而言，表现*<em>有多好</em></em>？”*</p>
+<p>For AI Agents, it’s useful to divide metrics into two distinct categories: the directly  measurable System Metrics and the more complex, evaluative Quality Metrics. </p>
+<p>对于 AI 智能体，将指标分为两个不同类别是有用的：可直接测量的系统指标和更复杂的评估性质量指标。</p>
+<p><strong>System Metrics: The Vital Signs</strong> </p>
+<p><strong>系统指标：生命体征</strong></p>
+<p>System Metrics are the foundational, quantitative measures of operational health. They  are directly calculated from the attributes on your logs and traces through aggregation  functions (like average, sum, or percentile). Think of these as the agent’s vital signs: its pulse,  temperature, and blood pressure. </p>
+<p>系统指标是运营健康的基础性定量衡量标准。它们通过聚合函数（如平均值、总和或百分位数）直接从日志和追踪的属性中计算得出。将这些视为智能体的生命体征：脉搏、体温和血压。</p>
+<p>Key System Metrics to track include: </p>
+<p>要跟踪的关键系统指标包括：</p>
+<p><strong>• Performance:</strong> </p>
+<p><strong>• 性能：</strong></p>
+<p><strong>• Latency (P50&#x2F;P99):</strong> Calculated by aggregating the duration_ms attribute from traces  to find the median and 99th percentile response times. This tells you about the typical  and worst-case user experience.</p>
+<p><strong>• 延迟（P50&#x2F;P99）：</strong> 通过聚合追踪中的 duration_ms 属性来计算中位数和第 99 百分位响应时间。这告诉您典型和最坏情况下的用户体验。</p>
+<p><strong>• Error Rate:</strong> The percentage of traces that contain a span with an <code>error=true</code> attribute. <strong>• Cost:</strong> </p>
+<p><strong>• 错误率：</strong> 包含 <code>error=true</code> 属性跨度的追踪百分比。</p>
+<p><strong>• Cost:</strong></p>
+<p><strong>• 成本：</strong></p>
+<p><strong>• Tokens per Task:</strong> The average of the token_count attribute across all traces, which is  vital for managing LLM costs. </p>
+<p><strong>• 每任务 Token 数：</strong> 所有追踪中 token_count 属性的平均值，这对于管理 LLM 成本至关重要。</p>
+<p><strong>• API Cost per Run:</strong> By combining token counts with model pricing, you can track the  average financial cost per task. </p>
+<p><strong>• 每次运行的 API 成本：</strong> 通过将 token 计数与模型定价结合，您可以跟踪每个任务的平均财务成本。</p>
+<p><strong>• Effectiveness:</strong> </p>
+<p><strong>• 有效性：</strong></p>
+<p><strong>• Task Completion Rate:</strong> The percentage of traces that successfully reach a designated  “success” span. </p>
+<p><strong>• 任务完成率：</strong> 成功到达指定”成功”跨度的追踪百分比。</p>
+<p><strong>• Tool Usage Frequency:</strong> A count of how often each tool (e.g., get_weather) appears as  a span name, revealing which tools are most valuable. </p>
+<p><strong>• 工具使用频率：</strong> 每个工具（例如 get_weather）作为跨度名称出现的频率计数，揭示哪些工具最有价值。</p>
+<p>These metrics are essential for operations, setting alerts, and managing the cost and  performance of your agent fleet.</p>
+<p>这些指标对于运营、设置警报以及管理智能体集群的成本和性能至关重要。 </p>
+<p><strong>Quality Metrics: Judging the Decision-Making</strong> </p>
+<p><strong>质量指标：评判决策</strong></p>
+<p>Quality Metrics are <strong>second-order metrics</strong> derived by applying the judgment frameworks  detailed in Chapter 2 on top of the raw observability data. They move beyond efficiency to  assess the agent’s reasoning and final output quality itself.</p>
+<p>质量指标是通过在原始可观测性数据之上应用第 2 章详述的判断框架而得出的<strong>二阶指标</strong>。它们超越效率，评估智能体的推理和最终输出质量本身。</p>
+<p>These are not simple counters or averages. They are second-order metrics derived by  applying a judgment layer on top of the raw observability data. They assess the quality of the  agent’s reasoning and final output. </p>
+<p>这些不是简单的计数器或平均值。它们是通过在原始可观测性数据之上应用判断层而得出的二阶指标。它们评估智能体推理和最终输出的质量。</p>
+<p>Examples of critical Quality Metrics include: </p>
+<p>关键质量指标的示例包括：</p>
+<p><strong>• Correctness &amp; Accuracy:</strong> Did the agent provide a factually correct answer? If it  summarized a document, was the summary faithful to the source? </p>
+<p><strong>• 正确性与准确性：</strong> 智能体是否提供了事实上正确的答案？如果它总结了一份文档，总结是否忠实于原文？</p>
+<p><strong>• Trajectory Adherence:</strong> Did the agent follow the intended path or “ideal recipe” for a  given task? Did it call the right tools in the right order? </p>
+<p><strong>• 轨迹遵循：</strong> 智能体是否遵循了给定任务的预期路径或”理想配方”？它是否按正确顺序调用了正确的工具？</p>
+<p><strong>• Safety &amp; Responsibility:</strong> Did the agent’s response avoid harmful, biased, or  inappropriate content? </p>
+<p><strong>• 安全性与责任：</strong> 智能体的响应是否避免了有害、有偏见或不适当的内容？</p>
+<p><strong>• Helpfulness &amp; Relevance:</strong> Was the agent’s final response actually helpful to the user and  relevant to their query? </p>
+<p><strong>• 有用性与相关性：</strong> 智能体的最终响应是否真正对用户有帮助并与其查询相关？</p>
+<p>Generating these metrics requires more than a simple database query. It often involves  comparing the agent’s output against a “golden” dataset or using a sophisticated <strong>LLM-as-a Judge</strong> to score the response against a rubric. </p>
+<p>生成这些指标需要的不仅仅是简单的数据库查询。它通常涉及将智能体的输出与”黄金”数据集进行比较，或使用复杂的 <strong>LLM 即评判者</strong>根据评估准则对响应进行评分。</p>
+<p>The observability data from our logs and traces is the essential evidence needed to calculate  these scores, but the process of judgment itself is a separate, critical discipline. </p>
+<p>来自我们日志和追踪的可观测性数据是计算这些分数所需的基本证据，但判断过程本身是一门独立的关键学科。</p>
+<p><strong>Putting It All Together: From Raw Data to Actionable Insights</strong> </p>
+<p><strong>整合一切：从原始数据到可行洞察</strong></p>
+<p>Having logs, traces, and metrics is like having a talented chef, a well-stocked pantry, and a  judging rubric. But these are just the components. To run a successful restaurant, you need  to assemble them into a working system for a busy dinner service. This section is about that  practical assembly - turning your observability data into real-time actions and insights during  live operations. </p>
+<p>拥有日志、追踪和指标就像拥有一位才华横溢的厨师、一个储备充足的食品储藏室和一份评判准则。但这些只是组件。要经营一家成功的餐厅，您需要将它们组装成一个为繁忙晚餐服务运作的系统。本节是关于这种实际组装的——在实时运营期间将您的可观测性数据转化为实时行动和洞察。</p>
+<p>This involves three key operational practices: </p>
+<p>这涉及三个关键的运营实践：</p>
+<p><strong>1. Dashboards &amp; Alerting: Separating System Health from Model Quality</strong> A single dashboard is not enough. To effectively manage an AI agent, you need distinct  views for your System Metrics and your Quality Metrics, as they serve different purposes  and different teams. </p>
+<p><strong>1. 仪表板与警报：分离系统健康与模型质量</strong> 单一仪表板是不够的。要有效管理 AI 智能体，您需要为系统指标和质量指标提供不同的视图，因为它们服务于不同的目的和不同的团队。</p>
+<p><strong>• Operational Dashboards (for System Metrics):</strong> This dashboard category focuses  on real-time operational health. It tracks the agent’s core vital signs and is primarily  intended for Site Reliability Engineers (SREs), DevOps, and operations teams  responsible for system uptime and performance. </p>
+<p><strong>• 运营仪表板（用于系统指标）：</strong> 此类仪表板专注于实时运营健康。它跟踪智能体的核心生命体征，主要面向负责系统正常运行时间和性能的站点可靠性工程师（SRE）、DevOps 和运营团队。</p>
+<p><strong>• What it tracks:</strong> P99 Latency, Error Rates, API Costs, Token Consumption. </p>
+<p><strong>• 跟踪内容：</strong> P99 延迟、错误率、API 成本、Token 消耗。</p>
+<p><strong>• Purpose:</strong> To immediately spot system failures, performance degradation, or  budget overruns. </p>
+<p><strong>• 目的：</strong> 立即发现系统故障、性能下降或预算超支。</p>
+<p><strong>• Example Alert:</strong> <code>ALERT: P99 latency &gt; 3s for 5 minutes</code>. This indicates a  system bottleneck that requires immediate engineering attention. </p>
+<p><strong>• 示例警报：</strong> <code>ALERT: P99 latency &gt; 3s for 5 minutes</code>。这表明系统瓶颈需要工程团队立即关注。</p>
+<p><strong>• Quality Dashboards (for Quality Metrics):</strong> This category tracks the more nuanced,  slower-moving indicators of agent effectiveness and correctness. It is essential for  product owners, data scientists, and AgentOps teams who are responsible for the  quality of the agent’s decisions and outputs.</p>
+<p><strong>• 质量仪表板（用于质量指标）：</strong> 此类仪表板跟踪更细微、变化更缓慢的智能体有效性和正确性指标。它对于负责智能体决策和输出质量的产品负责人、数据科学家和 AgentOps 团队至关重要。</p>
+<p><strong>• What it tracks:</strong> Factual Correctness Score, Trajectory Adherence, Helpfulness  Ratings, Hallucination Rate. </p>
+<p><strong>• 跟踪内容：</strong> 事实正确性分数、轨迹遵循度、有用性评分、幻觉率。</p>
+<p><strong>• Purpose:</strong> To detect subtle drifts in agent quality, especially after a new model or  prompt is deployed. </p>
+<p><strong>• 目的：</strong> 检测智能体质量的微妙漂移，特别是在部署新模型或提示之后。</p>
+<p><strong>• Example Alert: ALERT:</strong> <code>&#39;Helpfulness Score&#39; has dropped by 10% over  the last 24 hours</code>. This signals that while the system may be running fine  (System Metrics are OK), the quality of the agent’s output is degrading, requiring an  investigation into its logic or data.</p>
+<p><strong>• 示例警报：</strong> <code>&#39;Helpfulness Score&#39; has dropped by 10% over the last 24 hours</code>。这表明虽然系统可能运行良好（系统指标正常），但智能体输出的质量正在下降，需要调查其逻辑或数据。 </p>
+<p><strong>2. Security &amp; PII: Protecting Your Data</strong> </p>
+<p><strong>2. 安全与 PII：保护您的数据</strong></p>
+<p>This is a non-negotiable aspect of production operations. User inputs captured in logs  and traces often contain Personally Identifiable Information (PII). A robust PII scrubbing  mechanism must be an integrated part of your logging pipeline before data is stored long term to ensure compliance with privacy regulations and protect your users. </p>
+<p>这是生产运营中不可妥协的方面。日志和追踪中捕获的用户输入通常包含个人身份信息（PII）。强大的 PII 清洗机制必须作为日志管道的集成部分，在数据长期存储之前执行，以确保符合隐私法规并保护您的用户。</p>
+<p><strong>3. The Core Trade-off: Granularity vs. Overhead</strong> </p>
+<p><strong>3. 核心权衡：粒度 vs. 开销</strong></p>
+<p>Capturing highly detailed logs and traces for every single request in production  can be prohibitively expensive and add latency to your system. The key is to find a  strategic balance. </p>
+<p>在生产中为每个请求捕获高度详细的日志和追踪可能成本过高，并会给系统增加延迟。关键是找到战略平衡。</p>
+<p><strong>• Best Practice - Dynamic Sampling:</strong> Use high-granularity logging (<code>DEBUG</code> level) in  development environments. In production, set a lower default log level (<code>INFO</code>) but  implement dynamic sampling. For example, you might decide to trace only 10% of  successful requests but 100% of all errors. This gives you broad performance data for  your metrics without overwhelming your system, while still capturing the rich diagnostic  detail you need to debug every failure.</p>
+<p><strong>• 最佳实践——动态采样：</strong> 在开发环境中使用高粒度日志记录（<code>DEBUG</code> 级别）。在生产中，设置较低的默认日志级别（<code>INFO</code>），但实施动态采样。例如，您可能决定只追踪 10% 的成功请求，但追踪 100% 的所有错误。这为您的指标提供了广泛的性能数据，而不会使系统不堪重负，同时仍然捕获调试每个失败所需的丰富诊断细节。</p>
+<p><strong>Summary &amp; What’s Next</strong> </p>
+<p><strong>总结与展望</strong></p>
+<p>To trust an autonomous agent, you must first be able to understand its process. You wouldn’t  judge a gourmet chef’s final dish without having some insight into their recipe, technique,  and decision-making along the way. This chapter has established that <strong>Observability</strong> is the  framework that gives us this crucial insight into our agents. It provides the “eyes and ears”  inside the kitchen. </p>
+<p>要信任一个自主智能体，您必须首先能够理解其过程。您不会在没有了解其食谱、技术和决策过程的情况下评判美食大厨的最终菜肴。本章确立了<strong>可观测性</strong>是为我们提供对智能体这种关键洞察的框架。它提供了厨房内部的”眼睛和耳朵”。</p>
+<p>We’ve learned that a robust observability practice is built upon three foundational pillars,  which work together to transform raw data into a complete picture: </p>
+<p>我们已经了解到，强大的可观测性实践建立在三个基础支柱之上，它们协同工作，将原始数据转化为完整的画面：</p>
+<p><strong>• Logs:</strong> The structured diary, providing the granular, factual record of what happened at  every step. </p>
+<p><strong>• 日志：</strong> 结构化日记，提供每一步发生情况的细粒度事实记录。</p>
+<p><strong>• Traces:</strong> The narrative story that connects individual logs, showing the causal path to  reveal why it happened. </p>
+<p><strong>• 追踪：</strong> 连接单个日志的叙事故事，显示因果路径以揭示为什么会发生。</p>
+<p><strong>• Metrics:</strong> The aggregated report card, summarizing performance at scale to tell us how  well it happened. We further divided these into vital <strong>System Metrics</strong> (like latency and  cost) and crucial <strong>Quality Metrics</strong> (like correctness and helpfulness). </p>
+<p><strong>• 指标：</strong> 汇总的成绩单，大规模总结性能以告诉我们执行得有多好。我们进一步将这些分为关键的<strong>系统指标</strong>（如延迟和成本）和重要的<strong>质量指标</strong>（如正确性和有用性）。</p>
+<p>By assembling these pillars into a coherent operational system, we move from flying blind to  having a clear, data-driven view of our agent’s behavior, efficiency, and effectiveness. </p>
+<p>通过将这些支柱组装成一个连贯的运营系统，我们从盲目飞行转变为对智能体的行为、效率和有效性拥有清晰的、数据驱动的视图。</p>
+<p>We now have all the pieces: the <strong>why</strong> (the problem of non-determinism in Chapter 1), the  <strong>what</strong> (the evaluation framework in Chapter 2), and the <strong>how</strong> (the observability architecture in  Chapter 3). </p>
+<p>我们现在拥有所有的部分：<strong>为什么</strong>（第 1 章中的非确定性问题）、<strong>是什么</strong>（第 2 章中的评估框架）和<strong>如何做</strong>（第 3 章中的可观测性架构）。</p>
+<p>In <strong>Chapter 4</strong>, we will bring this all together into a single, operational playbook, showing how  these components form the “Agent Quality Flywheel” - a continuous improvement loop to  build agents that are not just capable, but truly trustworthy.</p>
+<p>在<strong>第 4 章</strong>中，我们将把所有这些整合到一个单一的操作手册中，展示这些组件如何形成”智能体质量飞轮”——一个构建不仅有能力而且真正值得信赖的智能体的持续改进循环。</p>
+<p><strong>Conclusion: Building Trust in an  Autonomous World</strong> </p>
+<p><strong>结论：在自主世界中建立信任</strong></p>
+<p><strong>Introduction: From Autonomous Capability to  Enterprise Trust</strong> </p>
+<p><strong>引言：从自主能力到企业信任</strong></p>
+<p>In the opening of this whitepaper, we posed a fundamental challenge: AI agents, with their  non-deterministic and autonomous nature, shatter our traditional models of software quality.  We likened the task of assessing an agent to evaluating a new employee - you don’t just ask  if the task was done, you ask how it was done. Was it efficient? Was it safe? Did it create a  good experience? Flying blind is not an option when the consequence is business risk. </p>
+<p>在本白皮书的开头，我们提出了一个根本性挑战：AI 智能体以其非确定性和自主性的特性，打破了我们传统的软件质量模型。我们将评估智能体的任务比作评估一名新员工——你不仅仅问任务是否完成了，你还问它是如何完成的。它高效吗？它安全吗？它创造了良好的体验吗？当后果是业务风险时，盲目飞行不是一个选项。</p>
+<p>The journey since that opening has been about building the blueprint for trust in this new  paradigm. We established the need for a new discipline by defining the Four Pillars of Agent  Quality: Effectiveness, Cost-Efficiency, Safety, and User Trust. We then showed how to  gain “eyes and ears” inside the agent’s mind through Observability (<strong>Chapter 3</strong>) and how  to judge its performance with a holistic Evaluation framework (<strong>Chapter 2</strong>). This paper has  laid the foundation for what to measure and how to see it. The critical next step, covered  in the subsequent whitepaper, <strong>“Day 5: Prototype to Production”</strong> is to operationalize  these principles. This involves taking an evaluated agent and successfully running it in  a production environment through robust CI&#x2F;CD pipelines, safe rollout strategies, and  scalable infrastructure. </p>
+<p>自那开头以来的旅程一直是关于在这一新范式中构建信任蓝图的。我们通过定义智能体质量的四大支柱来确立对新学科的需求：有效性、成本效率、安全性和用户信任。然后我们展示了如何通过可观测性（<strong>第 3 章</strong>）在智能体的思维中获得”眼睛和耳朵”，以及如何使用整体评估框架（<strong>第 2 章</strong>）来判断其性能。本文为衡量什么和如何看待它奠定了基础。后续白皮书**”第 5 天：从原型到生产”**涵盖的关键下一步是将这些原则付诸实施。这涉及通过强大的 CI&#x2F;CD 管道、安全的发布策略和可扩展的基础设施，将评估过的智能体成功运行在生产环境中。</p>
+<p>Now, we bring it all together. This isn’t just a summary; it’s the operational playbook for  turning abstract principles into a reliable, self-improving system, bridging the gap between  evaluation and production.</p>
+<p>现在，我们把所有这些整合在一起。这不仅仅是一个总结；它是将抽象原则转化为可靠的、自我改进系统的操作手册，弥合评估和生产之间的差距。</p>
+<p><strong>The Agent Quality Flywheel: A Synthesis of the Framework</strong> </p>
+<p><strong>智能体质量飞轮：框架综合</strong></p>
+<p>A great agent doesn’t just perform; it improves. This discipline of continuous evaluation is  what separates a clever demo from an enterprise-grade system. This practice creates a  powerful, self-reinforcing system we call the <strong>Agent Quality Flywheel</strong>. </p>
+<p>一个优秀的智能体不仅仅是执行；它还在改进。这种持续评估的纪律是区分聪明演示与企业级系统的关键。这种实践创造了一个强大的、自我强化的系统，我们称之为<strong>智能体质量飞轮</strong>。</p>
+<p>Think of it like starting a massive, heavy flywheel. The first push is the hardest. But the  structured practice of evaluation provides subsequent, consistent pushes. Each push adds  to the momentum until the wheel is spinning with unstoppable force, creating a virtuous cycle  of quality and trust. This flywheel is the operational embodiment of the entire framework  we’ve discussed. </p>
+<p>把它想象成启动一个巨大而沉重的飞轮。第一推是最困难的。但结构化的评估实践提供了后续一致的推动。每一次推动都增加了动力，直到飞轮以不可阻挡的力量旋转，创造出质量和信任的良性循环。这个飞轮是我们讨论的整个框架的运营体现。</p>
+<p>![][image15]<br>Figure 6: The Agent Quality Flywheel</p>
+<p>图 6：智能体质量飞轮</p>
+<p>Here’s how the components from each chapter work together to build that momentum: </p>
+<p>以下是每章的组件如何协同工作以建立这种动力：</p>
+<p><strong>• Step 1: Define Quality (The Target):</strong> A flywheel needs a direction. As we defined in  Chapter 1, it all starts with the Four Pillars of Quality: Effectiveness, Cost-Efficiency, Safety,  and User Trust. These pillars are not abstract ideals; they are the concrete targets that  give our evaluation efforts meaning and align the flywheel with true business value. </p>
+<p><strong>• 步骤 1：定义质量（目标）：</strong> 飞轮需要一个方向。正如我们在第 1 章中定义的，一切都始于质量的四大支柱：有效性、成本效率、安全性和用户信任。这些支柱不是抽象的理想；它们是赋予我们评估工作意义并使飞轮与真正的业务价值保持一致的具体目标。</p>
+<p><strong>• Step 2: Instrument for Visibility (The Foundation):</strong> You cannot manage what you  cannot see. As detailed in our chapter on Observability, we must instruct our agents to  produce structured Logs (the agent’s diary) and end-to-end Traces (the narrative thread).  This observability is the foundational practice that generates the rich evidence needed to  measure our Four Pillars, providing the essential fuel for the flywheel. </p>
+<p><strong>• 步骤 2：为可见性进行检测（基础）：</strong> 你无法管理你看不到的东西。正如我们在可观测性章节中详述的，我们必须指导我们的智能体生成结构化日志（智能体的日记）和端到端追踪（叙事线索）。这种可观测性是生成衡量四大支柱所需丰富证据的基础实践，为飞轮提供必要的燃料。</p>
+<p><strong>• Step 3: Evaluate the Process (The Engine):</strong> With visibility established, we can now judge  performance. As explored in our Evaluation chapter, this involves a strategic “outside-in”  assessment, judging both the final Output and the entire reasoning Process. This is the  powerful push that spins the wheel - a hybrid engine using scalable LLM-as-a-Judge  systems for speed and the Human-in-the-Loop (HITL) “gold standard” for ground truth. </p>
+<p><strong>• 步骤 3：评估过程（引擎）：</strong> 建立可见性后，我们现在可以判断性能。正如我们在评估章节中探讨的，这涉及战略性的”由外而内”评估，同时评判最终输出和整个推理过程。这是推动飞轮旋转的强大推力——一个混合引擎，使用可扩展的 LLM 即评判者系统来提高速度，使用人机协同（HITL）”黄金标准”来获取真实值。</p>
+<p><strong>• Step 4: Architect the Feedback Loop (The Momentum):</strong> This is where the “evaluatable by-design” architecture from Chapter 1 comes to life. By building the critical feedback  loop, we ensure that every production failure, when captured and annotated, is  programmatically converted into a permanent regression test in our “Golden” Evaluation  Set. Every failure makes the system smarter, spinning the flywheel faster and driving  relentless, continuous improvement.</p>
+<p><strong>• 步骤 4：构建反馈循环（动力）：</strong> 这是第 1 章中”设计时可评估”架构付诸实践的地方。通过构建关键的反馈循环，我们确保每个生产失败在被捕获和标注后，都被程序化地转换为我们”黄金”评估集中的永久回归测试。每次失败都使系统更智能，使飞轮旋转得更快，推动持续不断的改进。 </p>
+<p><strong>Three Core Principles for Building Trustworthy Agents</strong> </p>
+<p><strong>构建可信智能体的三大核心原则</strong></p>
+<p>If you take nothing else away from this whitepaper, let it be these three principles. They  represent the foundational mindset for any leader aiming to build truly reliable autonomous  systems in this new, agentic state of the art.</p>
+<p>如果您从这份白皮书中只带走一件事，那就是这三个原则。它们代表了任何旨在在这一新的智能体技术前沿构建真正可靠的自主系统的领导者的基础心态。</p>
+<p><strong>• Principle 1: Treat Evaluation as an Architectural Pillar, Not a Final Step:</strong> Remember  the race car analogy from Chapter 1? You don’t build a Formula 1 car and then bolt on  sensors. You design it from the ground up with telemetry ports. Agentic workloads  demand the same DevOps paradigm. Reliable agents are “evaluatable-by-design,”  instrumented from the first line of code to emit the logs and traces essential for judgment.  Quality is an architectural choice, not a final QA phase. </p>
+<p><strong>• 原则 1：将评估视为架构支柱，而非最终步骤：</strong> 还记得第 1 章的赛车类比吗？你不会先造一辆一级方程式赛车，然后再装上传感器。你从一开始就设计好遥测端口。智能体工作负载需要相同的 DevOps 范式。可靠的智能体是”设计时可评估的”，从第一行代码开始就被检测以发出判断所需的日志和追踪。质量是一种架构选择，而非最终的 QA 阶段。</p>
+<p><strong>• Principle 2: The Trajectory is the Truth:</strong> For agents, the final answer is merely the last  sentence of a long story. As we established in our Evaluation chapter, the true measure  of an agent’s logic, safety, and efficiency lies in its end-to-end “thought process” - the  trajectory. This is Process Evaluation. To truly understand why an agent succeeded or  failed, you must analyze this path. This is only possible through the deep Observability  practices we detailed in Chapter 3. </p>
+<p><strong>• 原则 2：轨迹即真理：</strong> 对于智能体，最终答案只是长篇故事的最后一句话。正如我们在评估章节中建立的，衡量智能体逻辑、安全性和效率的真正标准在于其端到端的”思维过程”——轨迹。这就是过程评估。要真正理解智能体成功或失败的原因，你必须分析这条路径。这只有通过我们在第 3 章详述的深度可观测性实践才能实现。</p>
+<p><strong>• Principle 3: The Human is the Arbiter:</strong> Automation is our tool for scale; humanity is  our source of truth. Automation, from LLM-as-a-Judge systems to safety classifiers,  is essential. However, as established in our deep dive on Human-in-the-Loop (HITL)  evaluation, the fundamental definition of “good,” the validation of nuanced outputs, and  the final judgment on safety and fairness must be anchored to human values. An AI can  help grade the test, but a human writes the rubric and decides what an ‘A+’ really means.</p>
+<p><strong>• 原则 3：人类是仲裁者：</strong> 自动化是我们扩展规模的工具；人类是我们真理的来源。自动化，从 LLM 即评判者系统到安全分类器，是必不可少的。然而，正如我们在人机协同（HITL）评估的深入探讨中所建立的，”好”的基本定义、细微输出的验证以及对安全性和公平性的最终判断必须锚定于人类价值观。AI 可以帮助评分，但人类编写评估准则并决定”A+”真正意味着什么。 </p>
+<p><strong>The Future is Agentic - and Reliable</strong> </p>
+<p><strong>未来是智能体的——也是可靠的</strong></p>
+<p>We are at the dawn of the agentic era. The ability to create AI that can reason, plan, and act  will be one of the most transformative technological shifts of our time. But with great power  comes the profound responsibility to build systems that are worthy of our trust. </p>
+<p>我们正处于智能体时代的黎明。创造能够推理、规划和行动的 AI 的能力将是我们时代最具变革性的技术转变之一。但能力越大，责任越大——我们有深刻的责任构建值得我们信任的系统。</p>
+<p>Mastering the concepts in this whitepaper - what one can call <strong>“Evaluation Engineering”</strong> - is the key competitive differentiator for the next wave of AI. Organizations that continue  to treat agent quality as an afterthought will be stuck in a cycle of promising demos and </p>
+<p>掌握本白皮书中的概念——可以称之为**”评估工程”**——是下一波 AI 浪潮的关键竞争差异化因素。继续将智能体质量视为事后考虑的组织将陷入有前景的演示和</p>
+<p>failed deployments. In contrast, those who invest in this rigorous, architecturally-integrated  approach to evaluation will be the ones who move beyond the hype to deploy truly  transformative, enterprise-grade AI systems.</p>
+<p>失败部署的循环中。相比之下，那些投资于这种严格的、架构集成的评估方法的组织将是那些超越炒作、部署真正具有变革性的企业级 AI 系统的组织。 </p>
+<p>The ultimate goal is not just to build agents that work, but to build agents that are trusted.  And that trust, as we have shown, is not a matter of hope or chance. It is forged in the  crucible of continuous, comprehensive, and architecturally-sound evaluation.</p>
+<p>最终目标不仅仅是构建能工作的智能体，而是构建被信任的智能体。而这种信任，正如我们所展示的，不是希望或机会的问题。它是在持续的、全面的、架构健全的评估熔炉中锻造的。</p>
+<p><strong>References</strong> </p>
+<p><strong>参考文献</strong></p>
+<p>Academic Papers, Books, &amp; Formal Reports</p>
+<p>学术论文、书籍与正式报告 </p>
+<p>1. Lewis, P., Perez, E., Piktus, A., Petroni, F., Karpukhin, V., Goyal, N., … &amp; Rocktäschel, T. (2020). Retrieval Augmented Generation for Knowledge-Intensive NLP Tasks. Advances in Neural Information Processing  Systems, 33, 9459-9474. </p>
+<p>2. Lin, S., Hilton, J., &amp; Evans, O. (2022). TruthfulQA: Measuring how models mimic human falsehoods. In  Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics (Volume 1:  Long Papers) (pp. 3214–3252). </p>
+<p>3. Li, D., Jiang, B., Huang, L., Beigi, A., Zhao, C., Tan, Z.,… &amp; Liu, H. (2024). From Generation to Judgment:  Opportunities and Challenges of LLM-as-a-judge. arXiv preprint arXiv:2411.16594. </p>
+<p>4. Zhuge, M., Wang, M., Shen, X., Zhang, Y., Wang, Y., Zhang, C., … &amp; Liu, N. (2024). Agent-as-a-Judge: Evaluate  Agents with Agents. arXiv preprint arXiv:2410.10934.Amodei, D., Olah, C., Steinhardt, J., Christiano, P.,  Schulman, J., &amp; Mané, D. (2016). Concrete Problems in AI Safety. arXiv preprint arXiv:1606.06565. </p>
+<p>Baysan, M. S., Uysal, S., İşlek, İ., Çığ Karaman, Ç., &amp; Güngör, T. (2025). LLM-as-a-Judge: automated evaluation of  search query parsing using large language models. Frontiers in Big Data, 8.  </p>
+<p>Available at: <a target="_blank" rel="noopener" href="https://doi.org/10.3389/fdata.2025.1611389">https://doi.org/10.3389/fdata.2025.1611389</a>. </p>
+<p>Felderer, M., &amp; Ramler, R. (2021). Quality Assurance for AI-Based Systems: Overview and Challenges. In Software  Quality: The Complexity and Challenges of Software Engineering and Software Quality in the Cloud (pp. 38-51).  Springer International Publishing. </p>
+<p>Hendrycks, D., Carlini, N., Schulman, J., &amp; Steinhardt, J. (2023). Unsolved Problems in ML Safety. arXiv  preprint arXiv:2306.04944. </p>
+<p>Ji, Z., Lee, N., Fries, R., Yu, T., Su, D., Xu, Y.,… &amp; Fung, P. (2023). AI-generated text: A survey of tasks, evaluation  criteria, and methods. arXiv preprint arXiv:2303.07233. </p>
+<p>Lin, C. Y. (2004). ROUGE: A package for automatic evaluation of summaries. In Proceedings of the ACL-04  workshop on text summarization branches out (pp. 74-81). </p>
+<p>National Institute of Standards and Technology. (2023). AI Risk Management Framework (AI RMF 1.0). U.S.  Department of Commerce.</p>
+<p>Papineni, K., Roukos, S., Ward, T., &amp; Zhu, W. J. (2002). BLEU: a method for automatic evaluation of machine  translation. In Proceedings of the 40th annual meeting of the Association for Computational Linguistics  (pp. 311-318). </p>
+<p>Retzlaff, C., Das, S., Wayllace, C., Mousavi, P., Afshari, M., Yang, T., … &amp; Holzinger, A. (2024). Human-in-the-Loop  Reinforcement Learning: A Survey and Position on Requirements, Challenges, and Opportunities. Journal of  Artificial Intelligence Research, 79, 359-415. </p>
+<p>Slattery, F., Costello, E., &amp; Holland, J. (2024). A taxonomy of risks posed by language models. arXiv  preprint arXiv:2401.12903. </p>
+<p>Taylor, M. E. (2023). Reinforcement Learning Requires Human-in-the-Loop Framing and Approaches. Paper  presented at the Adaptive and Learning Agents (ALA) Workshop 2023. </p>
+<p>Wei, J., Wang, X., Schuurmans, D., Bosma, M., Xia, F., Chi, E.,… &amp; Zhou, D. (2022). Chain-of-thought prompting  elicits reasoning in large language models. Advances in Neural Information Processing Systems, 35, 24824-24837. </p>
+<p>Zhang, T., Kishore, V., Wu, F., Weinberger, K. Q., &amp; Artzi, Y. (2020). BERTScore: Evaluating text generation with  BERT. In International Conference on Learning Representations. </p>
+<p>Web Articles, Blog Posts, &amp; General Web Pages</p>
+<p>网络文章、博客帖子与一般网页 </p>
+<p>Bunnyshell. (n.d.). LLM-as-a-Judge: How AI Can Evaluate AI Faster and Smarter. Retrieved September 16, 2025,  from <a target="_blank" rel="noopener" href="https://www.bunnyshell.com/blog/when-ai-becomes-the-judge-understanding-llm-as-a-j/">https://www.bunnyshell.com/blog/when-ai-becomes-the-judge-understanding-llm-as-a-j/</a>. </p>
+<p>Coralogix. (n.d.). OpenTelemetry for AI: Tracing Prompts, Tools, and Inferences. Retrieved September 16, 2025,  from <a target="_blank" rel="noopener" href="https://coralogix.com/ai-blog/opentelemetry-for-ai-tracing-prompts-tools-and-inferences/">https://coralogix.com/ai-blog/opentelemetry-for-ai-tracing-prompts-tools-and-inferences/</a>. </p>
+<p>Drapkin, A. (2025, September 2). AI Gone Wrong: The Errors, Mistakes, and Hallucinations of AI (2023 – 2025).  Tech.co. Retrieved September 16, 2025, from <a target="_blank" rel="noopener" href="https://tech.co/news/list-ai-failures-mistakes-errors">https://tech.co/news/list-ai-failures-mistakes-errors</a>. </p>
+<p>Dynatrace. (n.d.). What is OpenTelemetry? An open-source standard for logs, metrics, and traces. Retrieved  September 16, 2025, from <a target="_blank" rel="noopener" href="https://www.dynatrace.com/news/blog/what-is-opentelemetry/">https://www.dynatrace.com/news/blog/what-is-opentelemetry/</a>. </p>
+<p>Galileo. (n.d.). Comprehensive Guide to LLM-as-a-Judge Evaluation. Retrieved September 16, 2025,  from <a target="_blank" rel="noopener" href="https://galileo.ai/blog/llm-as-a-judge-guide-evaluation">https://galileo.ai/blog/llm-as-a-judge-guide-evaluation</a>.</p>
+<p>Gofast.ai. (n.d.). Agent Hallucinations in the Real World: When AI Tools Go Wrong. Retrieved September 16, 2025,  from <a target="_blank" rel="noopener" href="https://www.gofast.ai/blog/ai-bias-fairness-agent-hallucinations-validation-drift-2025">https://www.gofast.ai/blog/ai-bias-fairness-agent-hallucinations-validation-drift-2025</a>. </p>
+<p>IBM. (2025, February 25). What is LLM Observability? Retrieved September 16, 2025,  from <a target="_blank" rel="noopener" href="https://www.ibm.com/think/topics/llm-observability">https://www.ibm.com/think/topics/llm-observability</a>. </p>
+<p>MIT Sloan Teaching &amp; Learning Technologies. (n.d.). When AI Gets It Wrong:  </p>
+<p>Addressing AI Hallucinations and Bias. Retrieved September 16, 2025,  </p>
+<p>from <a target="_blank" rel="noopener" href="https://mitsloanedtech.mit.edu/ai/basics/addressing-ai-hallucinations-and-bias/">https://mitsloanedtech.mit.edu/ai/basics/addressing-ai-hallucinations-and-bias/</a>. </p>
+<p>ResearchGate. (n.d.). (PDF) A Survey on LLM-as-a-Judge. Retrieved September 16, 2025,  from <a target="_blank" rel="noopener" href="https://www.researchgate.net/publication/386112851/_A/_Survey/_on/_LLM-as-a-Judge">https://www.researchgate.net/publication/386112851\_A\_Survey\_on\_LLM-as-a-Judge</a>. </p>
+<p>TrustArc. (n.d.). The National Institute of Standards and Technology (NIST) Artificial Intelligence Risk  Management. Retrieved September 16, 2025, from <a target="_blank" rel="noopener" href="https://trustarc.com/regulations/nist-ai-rmf/">https://trustarc.com/regulations/nist-ai-rmf/</a>.</p>
+
+        
+      </div>
+
+         
+    </div>
+    
+     
+  </div>
+  
+    
+<nav id="article-nav">
+  <a class="article-nav-btn left "
+    
+      href="/2025/12/20/Context%20Engineering_%20Sessions%20&%20Memory/"
+      title="AI-Agent 白皮书 - Context Engineering: Sessions & Memory"
+     >
+    <i class="fa-solid fa-angle-left"></i>
+    <p class="title-text">
+      
+        AI-Agent 白皮书 - Context Engineering: Sessions &amp; Memory
+        
+    </p>
+  </a>
+  <a class="article-nav-btn right "
+    
+      href="/2025/12/19/Agent%20Tools%20&%20%20Interoperability%20%20with%20MCP/"
+      title="AI-Agent 白皮书 - Agent Tools & Interoperability with MCP"
+     >
+
+    <p class="title-text">
+      
+        AI-Agent 白皮书 - Agent Tools &amp; Interoperability with MCP
+        
+    </p>
+    <i class="fa-solid fa-angle-right"></i>
+  </a>
+</nav>
+
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div id="footer-wrapper">
+      <footer id="footer">
+  
+  <div id="footer-info" class="inner">
+    
+    &copy; 2025 bruin<br>
+    Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & Theme <a target="_blank" rel="noopener" href="https://github.com/saicaca/hexo-theme-vivia">Vivia</a>
+  </div>
+</footer>
+
+    </div>
+    <div class="back-to-top-wrapper">
+    <button id="back-to-top-btn" class="back-to-top-btn hide" onclick="topFunction()">
+        <i class="fa-solid fa-angle-up"></i>
+    </button>
+</div>
+
+<script>
+    function topFunction() {
+        window.scroll({ top: 0, behavior: 'smooth' });
+    }
+    let btn = document.getElementById('back-to-top-btn');
+    function scrollFunction() {
+        if (document.body.scrollTop > 600 || document.documentElement.scrollTop > 600) {
+            btn.classList.remove('hide')
+        } else {
+            btn.classList.add('hide')
+        }
+    }
+    window.onscroll = function() {
+        scrollFunction();
+    }
+</script>
+
+  </div>
+  <script src="/js/light-dark-switch.js"></script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>
