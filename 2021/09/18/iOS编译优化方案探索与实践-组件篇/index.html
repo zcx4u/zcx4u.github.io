@@ -14,7 +14,7 @@
   
 
   
-  <title>iOS编译优化方案探索与实践-组件篇 | 我的博客</title>
+  <title>iOS编译优化方案探索与实践-组件篇 | bruin&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
   <link rel="preload" href="/css/fonts/Roboto-Regular.ttf" as="font" type="font/ttf" crossorigin="anonymous">
@@ -24,7 +24,7 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="iOS编译优化方案探索与实践-组件篇">
 <meta property="og:url" content="https://zcx4u.github.io/2021/09/18/iOS%E7%BC%96%E8%AF%91%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%E6%8E%A2%E7%B4%A2%E4%B8%8E%E5%AE%9E%E8%B7%B5-%E7%BB%84%E4%BB%B6%E7%AF%87/index.html">
-<meta property="og:site_name" content="我的博客">
+<meta property="og:site_name" content="bruin&#39;s blog">
 <meta property="og:description" content="iOS编译优化方案探索与实践-组件篇序言目前主流的项目构建方案中几乎都使用cocoapods进行组件库管理，不论是第三方开源库还是自研的私有库，都会生成.podspec文件使用cocoapods工具进行维护。 为了便于进行调试，第三方开源库或私有代码库 我们都以源码的方式进行引入。 每次在本机进行全量编译或者ci机器进行打包的时候都会先编译pod仓库中的源代码，然后链接到主项目中。 这个流程没有问">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://cdn.zcx.info/008i3skNly1gukuhvxnh2j613i0u0gr602.jpg">
@@ -35,13 +35,13 @@
 <meta property="og:image" content="https://cdn.zcx.info/008i3skNly1gukw3brvajj60x0038gly02.jpg">
 <meta property="og:image" content="https://cdn.zcx.info/008i3skNly1gukw38z5bdj60nu05eq3w02.jpg">
 <meta property="article:published_time" content="2021-09-17T16:00:00.000Z">
-<meta property="article:modified_time" content="2025-12-18T15:54:01.755Z">
+<meta property="article:modified_time" content="2026-01-12T16:29:07.586Z">
 <meta property="article:author" content="bruin">
 <meta property="article:tag" content="技术调研">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://cdn.zcx.info/008i3skNly1gukuhvxnh2j613i0u0gr602.jpg">
   
-    <link rel="alternate" href="/atom.xml" title="我的博客" type="application/atom+xml">
+    <link rel="alternate" href="/atom.xml" title="bruin's blog" type="application/atom+xml">
   
   
     <link rel="icon" media="(prefers-color-scheme: light)" href="/images/favicon-light-32.png" sizes="32x32">
@@ -63,7 +63,7 @@
   
     
 <div id="banner" class="">
-  <img src="/images/banner.webp" itemprop="image">
+  <img src="/images/banner.jpg" itemprop="image">
   <div id="banner-dim"></div>
 </div>
  
@@ -79,16 +79,16 @@
         <div class="dot"></div>
         <div class="dot"></div>
       </div>
-      <div>我的博客 </div>
+      <div>bruin's blog </div>
     </a>
   </nav>
   <nav id="main-nav">
     
-      <a class="main-nav-link" href="/">Home</a>
+      <a class="main-nav-link" href="/">首页</a>
     
-      <a class="main-nav-link" href="/archives">Archives</a>
+      <a class="main-nav-link" href="/archives">归档</a>
     
-      <a class="main-nav-link" href="/about">About</a>
+      <a class="main-nav-link" href="/about">关于</a>
     
   </nav>
   <nav id="sub-nav">
@@ -109,11 +109,11 @@
 <div id="nav-dropdown" class="hidden">
   <div id="dropdown-link-list">
     
-      <a class="nav-dropdown-link" href="/">Home</a>
+      <a class="nav-dropdown-link" href="/">首页</a>
     
-      <a class="nav-dropdown-link" href="/archives">Archives</a>
+      <a class="nav-dropdown-link" href="/archives">归档</a>
     
-      <a class="nav-dropdown-link" href="/about">About</a>
+      <a class="nav-dropdown-link" href="/about">关于</a>
     
     
       <a class="nav-dropdown-link" href="/atom.xml" title="RSS 订阅">RSS</a>
@@ -135,14 +135,14 @@
   <div class="info-card">
     <div class="avatar">
       
-        <image src=/images/bruin.png></image>
+        <image src=/images/avatar.jpeg></image>
       
       <div class="img-dim"></div>
     </div>
     <div class="info">
       <div class="username">bruin </div>
       <div class="dot"></div>
-      <div class="subtitle">个人技术博客 </div>
+      <div class="subtitle">我与我周旋久 </div>
       <div class="link-list">
         
           <a class="link-btn" target="_blank" rel="noopener" href="https://github.com/zcx4u" title="GitHub"><i class="fa-brands fa-github"></i></a>
@@ -169,24 +169,19 @@
                 <div class="category-count">21</div>
             </a>
         
-            <a class="category-link" href="/categories/%E6%8A%80%E6%9C%AF/">
-                技术
-                <div class="category-count">1</div>
+            <a class="category-link" href="/categories/AI-Agent/">
+                AI-Agent
+                <div class="category-count">5</div>
             </a>
         
             <a class="category-link" href="/categories/tech-sharing/">
                 技术分享
-                <div class="category-count">3</div>
+                <div class="category-count">4</div>
             </a>
         
             <a class="category-link" href="/categories/ios-development/">
                 iOS开发
                 <div class="category-count">1</div>
-            </a>
-        
-            <a class="category-link" href="/categories/AI-Agent/">
-                AI-Agent
-                <div class="category-count">5</div>
             </a>
         </div>
     </div>
@@ -198,7 +193,7 @@
   <div class="widget-wrap">
     <div class="widget">
       <h3 class="widget-title">标签</h3>
-      <ul class="widget-tag-list" itemprop="keywords"><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/AI/" rel="tag">AI</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/AIGC/" rel="tag">AIGC</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/BUG%E8%AE%B0%E5%BD%95%E5%92%8C%E7%BB%8F%E9%AA%8C%E6%94%B6%E9%9B%86/" rel="tag">BUG记录和经验收集</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/ChatGPT/" rel="tag">ChatGPT</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/Cursor/" rel="tag">Cursor</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/IDE/" rel="tag">IDE</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/Webview/" rel="tag">Webview</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/Xcode/" rel="tag">Xcode</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/asr/" rel="tag">asr</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/i18n/" rel="tag">i18n</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/ios/" rel="tag">iOS</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E4%B8%80%E9%94%AE%E5%94%A4%E8%B5%B7/" rel="tag">一键唤起</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/" rel="tag">图像处理</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%A4%9A%E8%AF%BB%E6%96%87%E6%A1%A3/" rel="tag">多读文档</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%B0%8F%E7%BB%84%E4%BB%B6/" rel="tag">小组件</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/" rel="tag">开发工具</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/performance/" rel="tag">性能优化</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%8A%80%E6%9C%AF%E8%B0%83%E7%A0%94/" rel="tag">技术调研</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%95%88%E7%8E%87/" rel="tag">效率</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%95%88%E7%8E%87%E6%8F%90%E5%8D%87/" rel="tag">效率提升</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%9C%89%E7%94%A8%E7%9A%84/" rel="tag">有用的</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/architecture/" rel="tag">架构设计</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E7%9F%A5%E8%AF%86%E7%82%B9/" rel="tag">知识点</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E7%BB%8F%E9%AA%8C%E8%AE%B0%E5%BD%95/" rel="tag">经验记录</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B%E6%80%9D%E7%BB%B4/" rel="tag">编程思维</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" rel="tag">语音识别</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E8%B0%83%E8%AF%95/" rel="tag">调试</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86/" rel="tag">错误处理</a></li></ul>
+      <ul class="widget-tag-list" itemprop="keywords"><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/AI/" rel="tag">AI</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/AI-Agent/" rel="tag">AI-Agent</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/Cursor/" rel="tag">Cursor</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/IDE/" rel="tag">IDE</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/ios/" rel="tag">iOS</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/" rel="tag">开发工具</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%8A%80%E6%9C%AF%E8%B0%83%E7%A0%94/" rel="tag">技术调研</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%95%88%E7%8E%87/" rel="tag">效率</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E7%9F%A5%E8%AF%86%E7%82%B9/" rel="tag">知识点</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" rel="tag">经验总结</a></li></ul>
     </div>
   </div>
 
@@ -583,7 +578,7 @@
 
 <p>坑点：cocoapods-imy-bin配置私有源时只支持ssh，因此要修改以前的https的源，对ssh操作不熟练的需要google出现的问题及解决方案。</p>
 <blockquote>
-<p><a href="mailto:&#x67;&#105;&#116;&#x40;&#x78;&#120;&#x78;&#x2e;&#99;&#x6f;&#x6d;">&#x67;&#105;&#116;&#x40;&#x78;&#120;&#x78;&#x2e;&#99;&#x6f;&#x6d;</a> ssh一直报错，之前的公钥有密码,通过ssh连接私有库的时候一直报错让输入密码，但是输入之后还是不行,报错无授权,重新生成rsa秘钥对之后尝试还是不行，报同样的错误。最后发现是git地址没有给对，从cocoapods file中拷贝出来的时候带了一个source字符串，所以ssh授权一直失败（地址都错了授权肯定失败啊）</p>
+<p><a href="mailto:&#103;&#105;&#116;&#64;&#120;&#x78;&#120;&#x2e;&#99;&#x6f;&#109;">&#103;&#105;&#116;&#64;&#120;&#x78;&#120;&#x2e;&#99;&#x6f;&#109;</a> ssh一直报错，之前的公钥有密码,通过ssh连接私有库的时候一直报错让输入密码，但是输入之后还是不行,报错无授权,重新生成rsa秘钥对之后尝试还是不行，报同样的错误。最后发现是git地址没有给对，从cocoapods file中拷贝出来的时候带了一个source字符串，所以ssh授权一直失败（地址都错了授权肯定失败啊）</p>
 </blockquote>
 <p>创建repo不能仅仅拉一个git仓库就行了，还得找一个已有的仓库进行.podspec文件push ，否则添加此源之后 执行pod repo update 会一直失败。</p>
 <blockquote>
@@ -702,8 +697,7 @@
   
   <div id="footer-info" class="inner">
     
-    &copy; 2026 bruin<br>
-    Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & Theme <a target="_blank" rel="noopener" href="https://github.com/saicaca/hexo-theme-vivia">Vivia</a>
+    &copy; 2026 bruin
   </div>
 </footer>
 
