@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+
+
+<html theme="dark" showBanner="true" hasBanner="true" > 
+<link href="https://cdn.staticfile.org/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet">
+<link href="https://cdn.staticfile.org/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet">
+<link href="https://cdn.staticfile.org/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet">
+<script src="/js/color.global.min.js" ></script>
+<script src="/js/load-settings.js" ></script>
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+
+  
+  <title>我的博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <link rel="preload" href="/css/fonts/Roboto-Regular.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+  <link rel="preload" href="/css/fonts/Roboto-Bold.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+
+  <meta name="description" content="分享技术文章和学习心得">
+<meta property="og:type" content="website">
+<meta property="og:title" content="我的博客">
+<meta property="og:url" content="https://zcx4u.github.io/page/2/index.html">
+<meta property="og:site_name" content="我的博客">
+<meta property="og:description" content="分享技术文章和学习心得">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="bruin">
+<meta property="article:tag" content="技术,博客,编程">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="我的博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" media="(prefers-color-scheme: light)" href="/images/favicon-light-32.png" sizes="32x32">
+    <link rel="icon" media="(prefers-color-scheme: light)" href="/images/favicon-light-128.png" sizes="128x128">
+    <link rel="icon" media="(prefers-color-scheme: light)" href="/images/favicon-light-180.png" sizes="180x180">
+    <link rel="icon" media="(prefers-color-scheme: light)" href="/images/favicon-light-192.png" sizes="192x192">
+    <link rel="icon" media="(prefers-color-scheme: dark)" href="/images/favicon-dark-32.png" sizes="32x32">
+    <link rel="icon" media="(prefers-color-scheme: dark)" href="/images/favicon-dark-128.png" sizes="128x128">
+    <link rel="icon" media="(prefers-color-scheme: dark)" href="/images/favicon-dark-180.png" sizes="180x180">
+    <link rel="icon" media="(prefers-color-scheme: dark)" href="/images/favicon-dark-192.png" sizes="192x192">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  
+  
+    
+<div id="banner" class=" is_home ">
+  <img src="/images/banner.webp" itemprop="image">
+  <div id="banner-dim"></div>
+</div>
+ 
+   
+  <div id="main-grid" class="  ">
+    <div id="nav" class=" is_home "  >
+      <navbar id="navbar">
+  <nav id="title-nav">
+    <a href="/">
+      <div id="vivia-logo">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+      <div>我的博客 </div>
+    </a>
+  </nav>
+  <nav id="main-nav">
+    
+      <a class="main-nav-link" href="/">Home</a>
+    
+      <a class="main-nav-link" href="/archives">Archives</a>
+    
+      <a class="main-nav-link" href="/about">About</a>
+    
+  </nav>
+  <nav id="sub-nav">
+    <a id="theme-btn" class="nav-icon">
+      <span class="light-mode-icon"><svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="M438.5-829.913v-48q0-17.452 11.963-29.476 11.964-12.024 29.326-12.024 17.363 0 29.537 12.024t12.174 29.476v48q0 17.452-11.963 29.476-11.964 12.024-29.326 12.024-17.363 0-29.537-12.024T438.5-829.913Zm0 747.826v-48q0-17.452 11.963-29.476 11.964-12.024 29.326-12.024 17.363 0 29.537 12.024t12.174 29.476v48q0 17.452-11.963 29.476-11.964 12.024-29.326 12.024-17.363 0-29.537-12.024T438.5-82.087ZM877.913-438.5h-48q-17.452 0-29.476-11.963-12.024-11.964-12.024-29.326 0-17.363 12.024-29.537t29.476-12.174h48q17.452 0 29.476 11.963 12.024 11.964 12.024 29.326 0 17.363-12.024 29.537T877.913-438.5Zm-747.826 0h-48q-17.452 0-29.476-11.963-12.024-11.964-12.024-29.326 0-17.363 12.024-29.537T82.087-521.5h48q17.452 0 29.476 11.963 12.024 11.964 12.024 29.326 0 17.363-12.024 29.537T130.087-438.5Zm660.174-290.87-34.239 32q-12.913 12.674-29.565 12.174-16.653-.5-29.327-13.174-12.674-12.673-12.554-28.826.12-16.152 12.794-28.826l33-35q12.913-12.674 30.454-12.674t30.163 12.847q12.709 12.846 12.328 30.826-.38 17.98-13.054 30.653ZM262.63-203.978l-32 34q-12.913 12.674-30.454 12.674t-30.163-12.847q-12.709-12.846-12.328-30.826.38-17.98 13.054-30.653l33.239-31q12.913-12.674 29.565-12.174 16.653.5 29.327 13.174 12.674 12.673 12.554 28.826-.12 16.152-12.794 28.826Zm466.74 33.239-32-33.239q-12.674-12.913-12.174-29.565.5-16.653 13.174-29.327 12.673-12.674 28.826-13.054 16.152-.38 28.826 12.294l35 33q12.674 12.913 12.674 30.454t-12.847 30.163q-12.846 12.709-30.826 12.328-17.98-.38-30.653-13.054ZM203.978-697.37l-34-33q-12.674-12.913-13.174-29.945-.5-17.033 12.174-29.707t31.326-13.293q18.653-.62 31.326 13.054l32 34.239q11.674 12.913 11.174 29.565-.5 16.653-13.174 29.327-12.673 12.674-28.826 12.554-16.152-.12-28.826-12.794ZM480-240q-100 0-170-70t-70-170q0-100 70-170t170-70q100 0 170 70t70 170q0 100-70 170t-170 70Zm-.247-82q65.703 0 111.475-46.272Q637-414.544 637-480.247t-45.525-111.228Q545.95-637 480.247-637t-111.475 45.525Q323-545.95 323-480.247t45.525 111.975Q414.05-322 479.753-322ZM481-481Z"/></svg></span>
+      <span class="dark-mode-icon"><svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="M480.239-116.413q-152.63 0-258.228-105.478Q116.413-327.37 116.413-480q0-130.935 77.739-227.435t206.304-125.043q43.022-9.631 63.87 10.869t3.478 62.805q-8.891 22.043-14.315 44.463-5.424 22.42-5.424 46.689 0 91.694 64.326 155.879 64.325 64.186 156.218 64.186 24.369 0 46.978-4.946 22.609-4.945 44.413-14.076 42.826-17.369 62.967 1.142 20.142 18.511 10.511 61.054Q807.174-280 712.63-198.206q-94.543 81.793-232.391 81.793Zm0-95q79.783 0 143.337-40.217 63.554-40.218 95.793-108.283-15.608 4.044-31.097 5.326-15.49 1.283-31.859.805-123.706-4.066-210.777-90.539-87.071-86.473-91.614-212.092-.24-16.369.923-31.978 1.164-15.609 5.446-30.978-67.826 32.478-108.282 96.152Q211.652-559.543 211.652-480q0 111.929 78.329 190.258 78.329 78.329 190.258 78.329ZM466.13-465.891Z"/></svg></span>
+    </a>
+    
+      <a id="nav-rss-link" class="nav-icon mobile-hide" href="/atom.xml" title="RSS 订阅">
+        <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="M198-120q-25.846 0-44.23-18.384-18.384-18.385-18.384-44.23 0-25.846 18.384-44.23 18.384-18.385 44.23-18.385 25.846 0 44.23 18.385 18.384 18.384 18.384 44.23 0 25.845-18.384 44.23Q223.846-120 198-120Zm538.385 0q-18.846 0-32.923-13.769-14.076-13.769-15.922-33.23-8.692-100.616-51.077-188.654-42.385-88.039-109.885-155.539-67.5-67.501-155.539-109.885Q283-663.462 182.385-672.154q-19.461-1.846-33.23-16.23-13.769-14.385-13.769-33.846t14.076-32.922q14.077-13.461 32.923-12.23 120.076 8.692 226.038 58.768 105.961 50.077 185.73 129.846 79.769 79.769 129.846 185.731 50.077 105.961 58.769 226.038 1.231 18.846-12.538 32.922Q756.461-120 736.385-120Zm-252 0q-18.231 0-32.423-13.461t-18.653-33.538Q418.155-264.23 348.886-333.5q-69.27-69.27-166.501-84.423-20.077-4.462-33.538-18.961-13.461-14.5-13.461-33.346 0-19.076 13.884-33.23 13.884-14.153 33.115-10.922 136.769 15.384 234.384 112.999 97.615 97.615 112.999 234.384 3.231 19.23-10.538 33.115Q505.461-120 484.385-120Z"/></svg>
+      </a>
+    
+    <div id="nav-menu-btn" class="nav-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="M177.37-252.282q-17.453 0-29.477-11.964-12.024-11.963-12.024-29.326t12.024-29.537q12.024-12.174 29.477-12.174h605.26q17.453 0 29.477 11.964 12.024 11.963 12.024 29.326t-12.024 29.537q-12.024 12.174-29.477 12.174H177.37Zm0-186.218q-17.453 0-29.477-11.963-12.024-11.964-12.024-29.326 0-17.363 12.024-29.537T177.37-521.5h605.26q17.453 0 29.477 11.963 12.024 11.964 12.024 29.326 0 17.363-12.024 29.537T782.63-438.5H177.37Zm0-186.217q-17.453 0-29.477-11.964-12.024-11.963-12.024-29.326t12.024-29.537q12.024-12.174 29.477-12.174h605.26q17.453 0 29.477 11.964 12.024 11.963 12.024 29.326t-12.024 29.537q-12.024 12.174-29.477 12.174H177.37Z"/></svg>
+    </div>
+  </nav>
+</navbar>
+<div id="nav-dropdown" class="hidden">
+  <div id="dropdown-link-list">
+    
+      <a class="nav-dropdown-link" href="/">Home</a>
+    
+      <a class="nav-dropdown-link" href="/archives">Archives</a>
+    
+      <a class="nav-dropdown-link" href="/about">About</a>
+    
+    
+      <a class="nav-dropdown-link" href="/atom.xml" title="RSS 订阅">RSS</a>
+     
+    </div>
+</div>
+<script>
+  let dropdownBtn = document.getElementById("nav-menu-btn");
+  let dropdownEle = document.getElementById("nav-dropdown");
+  dropdownBtn.onclick = function() {
+    dropdownEle.classList.toggle("hidden");
+  }
+</script>
+    </div>
+    <div id="sidebar-wrapper">
+      <sidebar id="sidebar">
+  
+    <div class="widget-wrap">
+  <div class="info-card">
+    <div class="avatar">
+      
+        <image src=/images/bruin.png></image>
+      
+      <div class="img-dim"></div>
+    </div>
+    <div class="info">
+      <div class="username">bruin </div>
+      <div class="dot"></div>
+      <div class="subtitle">个人技术博客 </div>
+      <div class="link-list">
+        
+          <a class="link-btn" target="_blank" rel="noopener" href="https://github.com/zcx4u" title="GitHub"><i class="fa-brands fa-github"></i></a>
+        
+          <a class="link-btn" href="mailto:your-email@example.com" title="Email"><i class="fa-solid fa-envelope"></i></a>
+         
+      </div>  
+    </div>
+  </div>
+</div>
+
+  
+  <div class="sticky">
+    
+      
+
+
+  <div class="widget-wrap">
+    <div class="widget">
+      <h3 class="widget-title">分类</h3>
+      <div class="category-box">
+            <a class="category-link" href="/categories/iOS/">
+                iOS
+                <div class="category-count">21</div>
+            </a>
+        
+            <a class="category-link" href="/categories/%E6%8A%80%E6%9C%AF/">
+                技术
+                <div class="category-count">1</div>
+            </a>
+        
+            <a class="category-link" href="/categories/tech-sharing/">
+                技术分享
+                <div class="category-count">3</div>
+            </a>
+        
+            <a class="category-link" href="/categories/ios-development/">
+                iOS开发
+                <div class="category-count">1</div>
+            </a>
+        
+            <a class="category-link" href="/categories/AI-Agent/">
+                AI-Agent
+                <div class="category-count">5</div>
+            </a>
+        </div>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget-wrap">
+    <div class="widget">
+      <h3 class="widget-title">标签</h3>
+      <ul class="widget-tag-list" itemprop="keywords"><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/AI/" rel="tag">AI</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/AIGC/" rel="tag">AIGC</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/BUG%E8%AE%B0%E5%BD%95%E5%92%8C%E7%BB%8F%E9%AA%8C%E6%94%B6%E9%9B%86/" rel="tag">BUG记录和经验收集</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/ChatGPT/" rel="tag">ChatGPT</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/Cursor/" rel="tag">Cursor</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/IDE/" rel="tag">IDE</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/Webview/" rel="tag">Webview</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/Xcode/" rel="tag">Xcode</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/asr/" rel="tag">asr</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/i18n/" rel="tag">i18n</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/ios/" rel="tag">iOS</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E4%B8%80%E9%94%AE%E5%94%A4%E8%B5%B7/" rel="tag">一键唤起</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%9B%BE%E5%83%8F%E5%A4%84%E7%90%86/" rel="tag">图像处理</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%A4%9A%E8%AF%BB%E6%96%87%E6%A1%A3/" rel="tag">多读文档</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%B0%8F%E7%BB%84%E4%BB%B6/" rel="tag">小组件</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/" rel="tag">开发工具</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/performance/" rel="tag">性能优化</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%8A%80%E6%9C%AF%E8%B0%83%E7%A0%94/" rel="tag">技术调研</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%95%88%E7%8E%87/" rel="tag">效率</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%95%88%E7%8E%87%E6%8F%90%E5%8D%87/" rel="tag">效率提升</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%9C%89%E7%94%A8%E7%9A%84/" rel="tag">有用的</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/architecture/" rel="tag">架构设计</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E7%9F%A5%E8%AF%86%E7%82%B9/" rel="tag">知识点</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E7%BB%8F%E9%AA%8C%E8%AE%B0%E5%BD%95/" rel="tag">经验记录</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E7%BC%96%E7%A8%8B%E6%80%9D%E7%BB%B4/" rel="tag">编程思维</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" rel="tag">语音识别</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E8%B0%83%E8%AF%95/" rel="tag">调试</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86/" rel="tag">错误处理</a></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget-wrap">
+    <div class="widget">
+      <h3 class="widget-title">归档</h3>
+      
+      
+        <a class="archive-link" href="/archives/2025/12 ">
+          十二月 2025 
+          <div class="archive-count">5 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2025/07 ">
+          七月 2025 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2025/05 ">
+          五月 2025 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2025/04 ">
+          四月 2025 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2025/03 ">
+          三月 2025 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2024/11 ">
+          十一月 2024 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2024/05 ">
+          五月 2024 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2024/01 ">
+          一月 2024 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2023/03 ">
+          三月 2023 
+          <div class="archive-count">2 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2022/11 ">
+          十一月 2022 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2022/07 ">
+          七月 2022 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2022/02 ">
+          二月 2022 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/12 ">
+          十二月 2021 
+          <div class="archive-count">2 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/09 ">
+          九月 2021 
+          <div class="archive-count">2 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/08 ">
+          八月 2021 
+          <div class="archive-count">3 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/04 ">
+          四月 2021 
+          <div class="archive-count">2 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/02 ">
+          二月 2021 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/01 ">
+          一月 2021 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2020/09 ">
+          九月 2020 
+          <div class="archive-count">3 </div>
+        </a>
+      
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget-wrap">
+    <div class="widget">
+      <h3 class="widget-title">最新文章</h3>
+      <ul>
+        
+          <a class="recent-link" href="/2025/12/23/Agent-5%20Prototype%20to%20Production/" title="AI-Agent 白皮书 5 - Prototype to Production" >
+            <div class="recent-link-text">
+              AI-Agent 白皮书 5 - Prototype to Production
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/12/21/Agent-4%20%20Agent%20Quality/" title="AI-Agent 白皮书 4 - Agent Quality" >
+            <div class="recent-link-text">
+              AI-Agent 白皮书 4 - Agent Quality
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/12/20/Agent-3%20Context%20Engineering/" title="AI-Agent 白皮书 3 - Context Engineering: Sessions & Memory" >
+            <div class="recent-link-text">
+              AI-Agent 白皮书 3 - Context Engineering: Sessions &amp; Memory
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/12/19/Agent-2%20Agent%20Tools%20&%20%20Interoperability%20%20with%20MCP/" title="AI-Agent 白皮书 2 - Agent Tools & Interoperability with MCP" >
+            <div class="recent-link-text">
+              AI-Agent 白皮书 2 - Agent Tools &amp; Interoperability with MCP
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/12/18/Agent-1%20Introduction%20to%20Agents/" title="AI-Agent 白皮书 1 - Introduction to Agents whitepaper" >
+            <div class="recent-link-text">
+              AI-Agent 白皮书 1 - Introduction to Agents whitepaper
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/07/04/Cursor-%E7%BB%93%E6%9E%84%E5%92%8C%E6%8E%A7%E5%88%B6%E6%98%AF%E8%83%9C%E5%88%A9%E4%B9%8B%E9%81%93/" title="Cursor-结构和控制是胜利之道" >
+            <div class="recent-link-text">
+              Cursor-结构和控制是胜利之道
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/05/09/%E5%9F%BA%E4%BA%8EWeb%20Vitals%E7%9A%84%E7%A7%92%E5%BC%80%E4%BC%98%E5%8C%96%E8%B0%83%E7%A0%94/" title="基于Web Vitals的秒开优化调研" >
+            <div class="recent-link-text">
+              基于Web Vitals的秒开优化调研
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/04/02/iOS%E4%BD%BF%E7%94%A8Cursor%E5%BC%80%E5%8F%91%E9%85%8D%E7%BD%AE/" title="iOS使用Cursor开发配置指南" >
+            <div class="recent-link-text">
+              iOS使用Cursor开发配置指南
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/03/27/iOS-i18n%E5%8A%A8%E6%80%81%E5%8C%96%E6%80%9D%E8%80%83/" title="iOS-i18n动态化思考" >
+            <div class="recent-link-text">
+              iOS-i18n动态化思考
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2024/11/29/iOS%E8%83%8C%E6%99%AF%E6%A8%A1%E7%B3%8A%E5%AE%9E%E7%8E%B0%E6%8A%80%E6%9C%AF%E6%96%B9%E6%A1%88/" title="AI作业背景模糊实现技术方案" >
+            <div class="recent-link-text">
+              AI作业背景模糊实现技术方案
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2024/05/20/iOS%E7%AB%AF%20ASR%E4%BC%98%E5%8C%96/" title="iOS端 ASR优化" >
+            <div class="recent-link-text">
+              iOS端 ASR优化
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2024/01/15/ChatGPT%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7%E6%89%8B%E5%86%8C/" title="ChatGPT使用技巧手册" >
+            <div class="recent-link-text">
+              ChatGPT使用技巧手册
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2023/03/12/iOSCrash%E7%B1%BB%E5%9E%8B/" title="iOS Crash类型总结" >
+            <div class="recent-link-text">
+              iOS Crash类型总结
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2023/03/12/iOS%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B%E6%8C%87%E5%8D%97/" title="iOS文件系统编程指南" >
+            <div class="recent-link-text">
+              iOS文件系统编程指南
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2022/11/05/iOS%E7%AD%BE%E5%90%8D%E6%9C%BA%E5%88%B6/" title="iOS签名机制" >
+            <div class="recent-link-text">
+              iOS签名机制
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2022/07/06/SwiftUI/" title="SwiftUI 从入门到放弃" >
+            <div class="recent-link-text">
+              SwiftUI 从入门到放弃
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2022/02/28/XCUITest%E6%8E%A2%E7%B4%A2/" title="XCUITest iOS自动化UI测试框架" >
+            <div class="recent-link-text">
+              XCUITest iOS自动化UI测试框架
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/12/06/iOS%20Web%E5%94%A4%E8%B5%B7APP%E6%96%B9%E6%A1%88%E5%8F%82%E8%80%83/" title="iOS 一键唤起APP方案参考" >
+            <div class="recent-link-text">
+              iOS 一键唤起APP方案参考
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/12/06/%E4%BF%A1%E6%81%AF%E6%B5%81GIF%E8%BD%AE%E6%92%AD%E6%A1%86%E6%9E%B6/" title="iOS 如何做一个九宫格GIF播放器" >
+            <div class="recent-link-text">
+              iOS 如何做一个九宫格GIF播放器
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/09/18/iOS%E7%BC%96%E8%AF%91%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%E6%8E%A2%E7%B4%A2%E4%B8%8E%E5%AE%9E%E8%B7%B5-%E7%BB%84%E4%BB%B6%E7%AF%87/" title="iOS编译优化方案探索与实践-组件篇" >
+            <div class="recent-link-text">
+              iOS编译优化方案探索与实践-组件篇
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/09/09/module-importing%20failed-invalid%20pathname/" title="module importing failed invalid pathname 问题解决" >
+            <div class="recent-link-text">
+              module importing failed invalid pathname 问题解决
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/08/31/iOS-OCR%E5%AE%9E%E8%B7%B5/" title="iOS-OCR实践" >
+            <div class="recent-link-text">
+              iOS-OCR实践
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/08/25/AVPlayer%E7%9B%B8%E5%85%B3BUG%E8%AE%B0%E5%BD%95/" title="AVPlayer相关BUG记录" >
+            <div class="recent-link-text">
+              AVPlayer相关BUG记录
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/08/25/Xcode%E4%BB%A3%E7%A0%81%E5%9D%97%E4%BA%91%E5%90%8C%E6%AD%A5+%E6%9C%AC%E5%9C%B0%E5%AE%89%E8%A3%85%E8%84%9A%E6%9C%AC/" title="Xcode代码块云同步+本地安装脚本" >
+            <div class="recent-link-text">
+              Xcode代码块云同步+本地安装脚本
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/04/22/iOS%E5%AD%97%E7%AC%A6%E5%92%8C%E5%AD%97%E7%B4%A0%E7%B0%87/" title="iOS字符串安全截取及任意位置插入" >
+            <div class="recent-link-text">
+              iOS字符串安全截取及任意位置插入
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/04/20/NSCache/" title="NSCache" >
+            <div class="recent-link-text">
+              NSCache
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/02/23/%E4%B8%80%E5%B8%96%E7%9C%8B%E9%80%8FiOS14%20%E5%B0%8F%E7%BB%84%E4%BB%B6/" title="一帖看透iOS14 小组件" >
+            <div class="recent-link-text">
+              一帖看透iOS14 小组件
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/01/18/APP%E4%BB%A3%E7%90%86/" title="APP内部代理" >
+            <div class="recent-link-text">
+              APP内部代理
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2020/09/25/runloop/" title="runloop 学习笔记" >
+            <div class="recent-link-text">
+              runloop 学习笔记
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2020/09/23/block/" title="__block 关键字探究" >
+            <div class="recent-link-text">
+              __block 关键字探究
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2020/09/22/GCD/" title="GCD相关知识学习笔记" >
+            <div class="recent-link-text">
+              GCD相关知识学习笔记
+            </div>
+          </a>
+        
+      </ul>
+    </div>
+  </div>
+
+    
+  </div>
+</sidebar>
+    </div>
+    <div id="content-body">
+      
+   
+
+
+<article id="post-iOS端 ASR优化" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+   
+  <div class="article-inner">
+    <div class="article-main">
+      <header class="article-header">
+        
+<div class="main-title-bar">
+  <div class="main-title-dot"></div>
+  
+    
+      <h1 itemprop="name">
+        <a class="p-name article-title" href="/2024/05/20/iOS%E7%AB%AF%20ASR%E4%BC%98%E5%8C%96/">iOS端 ASR优化</a>
+      </h1>
+    
+  
+</div>
+
+        <div class='meta-info-bar'>
+          <div class="meta-info">
+  <time class="dt-published" datetime="2024-05-19T16:00:00.000Z" itemprop="datePublished">2024-05-20</time>
+</div>
+          <div class="need-seperator meta-info">
+            <div class="meta-cate-flex">
+  
+  <a class="meta-cate-link" href="/categories/ios-development/">iOS开发</a>
+   
+</div>
+  
+          </div>
+          <div class="wordcount need-seperator meta-info">
+            2.5k 词 
+          </div>
+        </div>
+        
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/asr/" rel="tag">asr</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ios/" rel="tag">iOS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/performance/" rel="tag">性能优化</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/architecture/" rel="tag">架构设计</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AF%AD%E9%9F%B3%E8%AF%86%E5%88%AB/" rel="tag">语音识别</a></li></ul>
+
+      </header>
+      <div class="e-content article-entry" itemprop="articleBody">
+        
+          <div class="truncate-text">
+            
+              iOS端 ASR优化一、ASR(Automatic Speech Recognition)简介ASR是一种将语音信号转换为文本的技术，它可以帮助人们更方便地与计算机进行交互。我们的AI作业小节在录制过程中会同步调用ASR服务商实时将用户录制的语音转成为文字，在录制完成后根据ASR结果计算流畅度、语速评分，在上传作业的时候将ASR结果同时上传到服务端进行AI分析。
+可见AI作业的流畅度维度评分、语速维度评分和AI分析报告中的关键词分析、口头禅分析、停顿分析都是建立在获得准确的ASR结果上的。所以构建一个准确可靠的语音识别服务是AI作业小节的基本要求，也是AI作业小节的分析准确度和用户满意度的关键。
+二、ASR存在的问题2.1 热词&#x2F;词库问题ASR服务需要手工校准一些生僻专业词语的发音或同音词识别，这也就意味着需要ASR服务商提供词库&#x2F;热词功能，同时对不同的用户&#x2F;企业甚至每一次ASR识别过程都可能需要不同的热词。
+解决方案:
+针对CN、CO、COM&#x2F;TW&#x2F;IO 这三个环境平台，调研支持热词的服务商并测试效果。CN 采用了阿里听悟，CO...
+            
+          </div>
+        
+      </div>
+
+         
+    </div>
+    
+     
+    <a class="right-panel  non-pic  "
+      
+      href="/2024/05/20/iOS%E7%AB%AF%20ASR%E4%BC%98%E5%8C%96/" 
+    >
+       
+      <i class="fa-solid fa-angle-right non-pic"></i>
+       
+    </a>
+     
+  </div>
+  
+</article>
+
+
+
+
+
+
+   
+
+
+<article id="post-ChatGPT使用技巧手册" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+   
+  <div class="article-inner">
+    <div class="article-main">
+      <header class="article-header">
+        
+<div class="main-title-bar">
+  <div class="main-title-dot"></div>
+  
+    
+      <h1 itemprop="name">
+        <a class="p-name article-title" href="/2024/01/15/ChatGPT%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7%E6%89%8B%E5%86%8C/">ChatGPT使用技巧手册</a>
+      </h1>
+    
+  
+</div>
+
+        <div class='meta-info-bar'>
+          <div class="meta-info">
+  <time class="dt-published" datetime="2024-01-14T16:00:00.000Z" itemprop="datePublished">2024-01-15</time>
+</div>
+          <div class="need-seperator meta-info">
+            <div class="meta-cate-flex">
+  
+  <a class="meta-cate-link" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a>
+   
+</div>
+  
+          </div>
+          <div class="wordcount need-seperator meta-info">
+            1.1k 词 
+          </div>
+        </div>
+        
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AIGC/" rel="tag">AIGC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ChatGPT/" rel="tag">ChatGPT</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/" rel="tag">开发工具</a></li></ul>
+
+      </header>
+      <div class="e-content article-entry" itemprop="articleBody">
+        
+          <div class="truncate-text">
+            
+              ChatGPT使用技巧手册
+目录
+核心技巧
+代码优化与重构
+多语言处理
+开发辅助
+跨平台适配
+扩展应用
+
+
+核心技巧Prompt生成方法论
+多Prompt生成
+
+通过生成多个prompt迭代优化输出质量
+示例流程：1# 生成初始Prompt → 评估结果 → 生成改进Prompt → 最终优化
+
+
+角色扮演
+
+作为超级语言解释器（处理复杂语义）
+作为提示词训练器（生成领域专用Prompt）
+
+
+格式规范
+
+强制JSON&#x2F;YAML结构化输出
+表格化数据呈现
+
+
+
+
+代码优化与重构10大即时代码重构技巧
+
+
+优化方向
+典型操作
+适用场景
+
+
+
+性能优化
+算法复杂度分析
+循环结构
+
+
+兼容性
+多语言语法适配
+跨平台项目
+
+
+可维护性
+模块化拆分
+大型工程
+
+
+重构步骤示例：
+
+使用最新库版本替换过时代码
+将ArrayList改为ConcurrentHashMap（数据结构优化）
+添加try-with-resources错误处理
+
+
+多语言处理多语种翻译工作流关键注意事项：
+
+使用 LANG_CODE作为字典key
+保留原始文本占位符（如 &#123;0&#125;）
+优先处理...
+            
+          </div>
+        
+      </div>
+
+         
+    </div>
+    
+     
+    <a class="right-panel  non-pic  "
+      
+      href="/2024/01/15/ChatGPT%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7%E6%89%8B%E5%86%8C/" 
+    >
+       
+      <i class="fa-solid fa-angle-right non-pic"></i>
+       
+    </a>
+     
+  </div>
+  
+</article>
+
+
+
+
+
+
+   
+
+
+<article id="post-iOSCrash类型" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+   
+  <div class="article-inner">
+    <div class="article-main">
+      <header class="article-header">
+        
+<div class="main-title-bar">
+  <div class="main-title-dot"></div>
+  
+    
+      <h1 itemprop="name">
+        <a class="p-name article-title" href="/2023/03/12/iOSCrash%E7%B1%BB%E5%9E%8B/">iOS Crash类型总结</a>
+      </h1>
+    
+  
+</div>
+
+        <div class='meta-info-bar'>
+          <div class="meta-info">
+  <time class="dt-published" datetime="2023-03-11T16:00:00.000Z" itemprop="datePublished">2023-03-12</time>
+</div>
+          <div class="need-seperator meta-info">
+            <div class="meta-cate-flex">
+  
+  <a class="meta-cate-link" href="/categories/iOS/">iOS</a>
+   
+</div>
+  
+          </div>
+          <div class="wordcount need-seperator meta-info">
+            4.5k 词 
+          </div>
+        </div>
+        
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ios/" rel="tag">iOS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%B0%83%E8%AF%95/" rel="tag">调试</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86/" rel="tag">错误处理</a></li></ul>
+
+      </header>
+      <div class="e-content article-entry" itemprop="articleBody">
+        
+          <div class="truncate-text">
+            
+              iOS Crash类型总结iOS APP系统crash主要分两类：一类是Objective-C Exception，一类是Unix Signal Exception。下面详细介绍。
+
+崩溃日志路径：~&#x2F;Library&#x2F;Logs&#x2F;CrashReporter&#x2F;MobileDevice
+
+一、Objective-C Exception例如NSDictionary加入nil、数组访问越界等。主要有如下类型：
+1. NSInvalidArgumentException非法参数异常(NSInvalidArgumentException)是Objective-C代码最常出现的错误。平时在写代码时需要多加注意，加强对参数的检查，避免传入非法参数导致异常，其中尤以nil参数为甚。
+主要场景包括：
+1.1 集合数据的参数传递比如NSMutableArray、NSMutableDictionary的数据操作：
+
+NSDictionary不能删除nil的key
+NSDictionary不能添加nil的对象
+不能插入nil的对象
+其他一些nil参数
+
+1.2 其他A...
+            
+          </div>
+        
+      </div>
+
+         
+    </div>
+    
+     
+    <a class="right-panel  non-pic  "
+      
+      href="/2023/03/12/iOSCrash%E7%B1%BB%E5%9E%8B/" 
+    >
+       
+      <i class="fa-solid fa-angle-right non-pic"></i>
+       
+    </a>
+     
+  </div>
+  
+</article>
+
+
+
+
+
+
+   
+
+
+<article id="post-iOS文件系统编程指南" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+   
+  <div class="article-inner">
+    <div class="article-main">
+      <header class="article-header">
+        
+<div class="main-title-bar">
+  <div class="main-title-dot"></div>
+  
+    
+      <h1 itemprop="name">
+        <a class="p-name article-title" href="/2023/03/12/iOS%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B%E6%8C%87%E5%8D%97/">iOS文件系统编程指南</a>
+      </h1>
+    
+  
+</div>
+
+        <div class='meta-info-bar'>
+          <div class="meta-info">
+  <time class="dt-published" datetime="2023-03-11T16:00:00.000Z" itemprop="datePublished">2023-03-12</time>
+</div>
+          <div class="need-seperator meta-info">
+            <div class="meta-cate-flex">
+  
+  <a class="meta-cate-link" href="/categories/iOS/">iOS</a>
+   
+</div>
+  
+          </div>
+          <div class="wordcount need-seperator meta-info">
+            4.2k 词 
+          </div>
+        </div>
+        
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ios/" rel="tag">iOS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%A4%9A%E8%AF%BB%E6%96%87%E6%A1%A3/" rel="tag">多读文档</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%9F%A5%E8%AF%86%E7%82%B9/" rel="tag">知识点</a></li></ul>
+
+      </header>
+      <div class="e-content article-entry" itemprop="articleBody">
+        
+          <div class="truncate-text">
+            
+              iOS文件系统编程指南iOS文件系统编程指南
+
+文件系统处理数据文件、应用程序以及与操作系统本身关联的文件的持久存储。因此，文件系统是所有进程使用的基本资源之一。
+APFS 是 macOS、iOS、watchOS 和 tvOS 中的默认文件系统。APFS 取代 HFS+ 作为 iOS 10.3 及更高版本以及 macOS High Sierra 及更高版本的默认文件系统。
+
+关于 iOS 文件系统iOS 文件系统面向独立运行的应用程序。为了保持系统简单，iOS 设备的用户无法直接访问文件系统，应用应遵循此约定。
+
+
+iOS 标准目录：文件所在的位置
+
+
+目录
+描述
+
+
+
+AppName.app
+这是应用程序的捆绑包。此目录包含应用程序及其所有资源。您不能写入此目录。为防止篡改，捆绑目录在安装时进行了签名。写入此目录会更改签名并阻止您的应用程序启动。但是，您可以获得对存储在应用程序包中的任何资源的只读访问权限。此目录的内容未由 iTunes 或 iCloud 备份。但是，iTunes 会对从 App Store 购买的任何应用程序执行初始同步。
+
+
+Documents/
+使用此目录...
+            
+          </div>
+        
+      </div>
+
+         
+    </div>
+    
+     
+    <a class="right-panel  non-pic  "
+      
+      href="/2023/03/12/iOS%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B%E6%8C%87%E5%8D%97/" 
+    >
+       
+      <i class="fa-solid fa-angle-right non-pic"></i>
+       
+    </a>
+     
+  </div>
+  
+</article>
+
+
+
+
+
+
+   
+
+
+<article id="post-iOS签名机制" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+   
+  <div class="article-inner">
+    <div class="article-main">
+      <header class="article-header">
+        
+<div class="main-title-bar">
+  <div class="main-title-dot"></div>
+  
+    
+      <h1 itemprop="name">
+        <a class="p-name article-title" href="/2022/11/05/iOS%E7%AD%BE%E5%90%8D%E6%9C%BA%E5%88%B6/">iOS签名机制</a>
+      </h1>
+    
+  
+</div>
+
+        <div class='meta-info-bar'>
+          <div class="meta-info">
+  <time class="dt-published" datetime="2022-11-04T16:00:00.000Z" itemprop="datePublished">2022-11-05</time>
+</div>
+          <div class="need-seperator meta-info">
+            <div class="meta-cate-flex">
+  
+  <a class="meta-cate-link" href="/categories/iOS/">iOS</a>
+   
+</div>
+  
+          </div>
+          <div class="wordcount need-seperator meta-info">
+            2.6k 词 
+          </div>
+        </div>
+        
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a></li></ul>
+
+      </header>
+      <div class="e-content article-entry" itemprop="articleBody">
+        
+          <div class="truncate-text">
+            
+              iOS签名机制概要背景在iOS开发中，配置证书总是一件繁琐的工作，网上的教程有很多，基本都是手把手的教操作，但是如果不了解为什么要配置这些东西，对配置流程就不会有深刻的印象。
+配置证书最大的作用就是保证安全性，安全性主要表现在以下的几个方面：
+1.保证苹果手机下载的App是从苹果官网认证的途径下载
+2.保证App在苹果官方注册过的设备上运行
+3.保证App在特定的设备中运行（开发需要）
+技术支持苹果采用的是数字签名进行加密，它是基于非对称加密算法和摘要算法实现的，和对称加密算法不同的是，对称加密通过同一份密钥加密和解密数据，而非对称加密有两个密钥，分别是公钥和私钥，用公钥加密的数据，要用私钥才能解密；用私钥加密的数据，要用公钥才能解密。这里的非对称加密就是我们熟知的RSA，想要深入理解的童鞋可以自主了解。
+为了更好的理解非对称加密的好处，我举一个场景例子：A要发送邮件给B，这个过程中要确保在传输中邮件内容没有被篡改，也就是只有B可以查看邮件的内容；还要确保这个邮件是A发送过来的，不是其他人发送的。我们用非对称加密的方式来处理：首先存A和B各有一对公私钥，A持有他自己的私钥和B的公...
+            
+          </div>
+        
+      </div>
+
+         
+    </div>
+    
+     
+    <a class="right-panel  non-pic  "
+      
+      href="/2022/11/05/iOS%E7%AD%BE%E5%90%8D%E6%9C%BA%E5%88%B6/" 
+    >
+       
+      <i class="fa-solid fa-angle-right non-pic"></i>
+       
+    </a>
+     
+  </div>
+  
+</article>
+
+
+
+
+
+
+   
+
+
+<article id="post-SwiftUI" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+   
+  <div class="article-inner">
+    <div class="article-main">
+      <header class="article-header">
+        
+<div class="main-title-bar">
+  <div class="main-title-dot"></div>
+  
+    
+      <h1 itemprop="name">
+        <a class="p-name article-title" href="/2022/07/06/SwiftUI/">SwiftUI 从入门到放弃</a>
+      </h1>
+    
+  
+</div>
+
+        <div class='meta-info-bar'>
+          <div class="meta-info">
+  <time class="dt-published" datetime="2022-07-05T16:00:00.000Z" itemprop="datePublished">2022-07-06</time>
+</div>
+          <div class="need-seperator meta-info">
+            <div class="meta-cate-flex">
+  
+  <a class="meta-cate-link" href="/categories/iOS/">iOS</a>
+   
+</div>
+  
+          </div>
+          <div class="wordcount need-seperator meta-info">
+            25k 词 
+          </div>
+        </div>
+        
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a></li></ul>
+
+      </header>
+      <div class="e-content article-entry" itemprop="articleBody">
+        
+          <div class="truncate-text">
+            
+              
+什么是SwiftUISwiftUI 于 2019 年度 WWDC 全球开发者大会上发布，它是基于 Swift 建立的声明式UI框架。
+该框架可以用于 watchOS、tvOS、macOS、iOS 等平台的应用开发，等于说统一了苹果生态圈的开发工具。
+
+SwiftUI provides views, controls, and layout structures for declaring your app’s user interface. The framework provides event handlers for delivering taps, gestures, and other types of input to your app, and tools to manage the flow of data from your app’s models down to the views and controls that users will see and interact with.
+
+SwiftUI Hello World创建新项目并预览画布
+和平时创建...
+            
+          </div>
+        
+      </div>
+
+         
+    </div>
+    
+     
+    <a class="right-panel  non-pic  "
+      
+      href="/2022/07/06/SwiftUI/" 
+    >
+       
+      <i class="fa-solid fa-angle-right non-pic"></i>
+       
+    </a>
+     
+  </div>
+  
+</article>
+
+
+
+
+
+
+   
+
+
+<article id="post-XCUITest探索" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+   
+  <div class="article-inner">
+    <div class="article-main">
+      <header class="article-header">
+        
+<div class="main-title-bar">
+  <div class="main-title-dot"></div>
+  
+    
+      <h1 itemprop="name">
+        <a class="p-name article-title" href="/2022/02/28/XCUITest%E6%8E%A2%E7%B4%A2/">XCUITest iOS自动化UI测试框架</a>
+      </h1>
+    
+  
+</div>
+
+        <div class='meta-info-bar'>
+          <div class="meta-info">
+  <time class="dt-published" datetime="2022-02-27T16:00:00.000Z" itemprop="datePublished">2022-02-28</time>
+</div>
+          <div class="need-seperator meta-info">
+            <div class="meta-cate-flex">
+  
+  <a class="meta-cate-link" href="/categories/iOS/">iOS</a>
+   
+</div>
+  
+          </div>
+          <div class="wordcount need-seperator meta-info">
+            6.7k 词 
+          </div>
+        </div>
+        
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8A%80%E6%9C%AF%E8%B0%83%E7%A0%94/" rel="tag">技术调研</a></li></ul>
+
+      </header>
+      <div class="e-content article-entry" itemprop="articleBody">
+        
+          <div class="truncate-text">
+            
+              XCUITest iOS自动化UI测试框架XCUITest简介XCUITest是Apple提供的内嵌到xcode中的一套UI自动化测试框架。
+
+UI测试依赖于两项核心技术:XCTest框架和Accessibility。
+XCTest提供了UI测试功能的框架，与Xcode集成在一起。创建和使用UI测试扩展了您对使用XCTest和创建单元测试的了解。您创建了一个UI测试目标，并将创建UI测试类和UI测试方法作为项目的一部分。您可以使用XCTest断言来验证预期结果是否为真。你也可以通过Xcode Server和xcodebuild实现持续集成。XCTest与Objective-C和Swift完全兼容。
+Accessibility是一项核心技术，它允许残疾用户获得与其他用户相同的iOS和macOS丰富体验。它包含了一组丰富的UI语义数据，用户可以使用它来指导他们使用你的应用。可访问性集成了UIKit和AppKit，并有api允许你调整行为和对外公开的使用。UI测试使用这些数据来执行其功能。
+在源代码中创建UI测试类似于创建单元测试。你为你的应用创建一个UI测试目标;然后Xcode为你创...
+            
+          </div>
+        
+      </div>
+
+         
+    </div>
+    
+     
+    <a class="right-panel  non-pic  "
+      
+      href="/2022/02/28/XCUITest%E6%8E%A2%E7%B4%A2/" 
+    >
+       
+      <i class="fa-solid fa-angle-right non-pic"></i>
+       
+    </a>
+     
+  </div>
+  
+</article>
+
+
+
+
+
+
+   
+
+
+<article id="post-iOS Web唤起APP方案参考" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+   
+  <div class="article-inner">
+    <div class="article-main">
+      <header class="article-header">
+        
+<div class="main-title-bar">
+  <div class="main-title-dot"></div>
+  
+    
+      <h1 itemprop="name">
+        <a class="p-name article-title" href="/2021/12/06/iOS%20Web%E5%94%A4%E8%B5%B7APP%E6%96%B9%E6%A1%88%E5%8F%82%E8%80%83/">iOS 一键唤起APP方案参考</a>
+      </h1>
+    
+  
+</div>
+
+        <div class='meta-info-bar'>
+          <div class="meta-info">
+  <time class="dt-published" datetime="2021-12-05T16:00:00.000Z" itemprop="datePublished">2021-12-06</time>
+</div>
+          <div class="need-seperator meta-info">
+            <div class="meta-cate-flex">
+  
+  <a class="meta-cate-link" href="/categories/iOS/">iOS</a>
+   
+</div>
+  
+          </div>
+          <div class="wordcount need-seperator meta-info">
+            7.7k 词 
+          </div>
+        </div>
+        
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%B8%80%E9%94%AE%E5%94%A4%E8%B5%B7/" rel="tag">一键唤起</a></li></ul>
+
+      </header>
+      <div class="e-content article-entry" itemprop="articleBody">
+        
+          <div class="truncate-text">
+            
+              iOS 一键唤起APP方案参考移动端业务发展过程中，几乎每个公司都会有活动宣传或者运营引流的需求。这些需求的实现不外乎开发一些吸引人的HTML页面，在页面的某些事件的响应中引导用户下载APP或者打开已经下载的APP。
+基本流程为：
+
+策划运营投放活动链接（新用户送红包或者PDD砍一刀）
+
+用户点击活动链接进入活动页面
+
+用户被吸引或诱导点击某个按钮触发事件
+
+H5页面调起相关APP
+
+APP响应调起并接力打开对应页面
+
+
+我们这里主要说一说4、5两步其中的细节处理，也是对最近相关的业务的一个总结。
+DeepLink技术在iOS9之前只有通过URL Scheme能够唤起一个APP。
+Scheme可以理解为一个APP的名字，因为是URL Scheme所以遵循URL的书写格式，类比于http://www.baidu.com，其中http就是它的Scheme。
+每个APP可以设置自己的Scheme，即给自己起个名字，方便”别人“叫我的时候我可以听得懂。
+例如我们起了个Scheme叫kr，那么在H5页面内可以通过 openURL()的方式打开 kr://testPage链接调起我们的APP...
+            
+          </div>
+        
+      </div>
+
+         
+    </div>
+    
+     
+    <a class="right-panel  non-pic  "
+      
+      href="/2021/12/06/iOS%20Web%E5%94%A4%E8%B5%B7APP%E6%96%B9%E6%A1%88%E5%8F%82%E8%80%83/" 
+    >
+       
+      <i class="fa-solid fa-angle-right non-pic"></i>
+       
+    </a>
+     
+  </div>
+  
+</article>
+
+
+
+
+
+
+   
+
+
+<article id="post-信息流GIF轮播框架" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+   
+  <div class="article-inner">
+    <div class="article-main">
+      <header class="article-header">
+        
+<div class="main-title-bar">
+  <div class="main-title-dot"></div>
+  
+    
+      <h1 itemprop="name">
+        <a class="p-name article-title" href="/2021/12/06/%E4%BF%A1%E6%81%AF%E6%B5%81GIF%E8%BD%AE%E6%92%AD%E6%A1%86%E6%9E%B6/">iOS 如何做一个九宫格GIF播放器</a>
+      </h1>
+    
+  
+</div>
+
+        <div class='meta-info-bar'>
+          <div class="meta-info">
+  <time class="dt-published" datetime="2021-12-05T16:00:00.000Z" itemprop="datePublished">2021-12-06</time>
+</div>
+          <div class="need-seperator meta-info">
+            <div class="meta-cate-flex">
+  
+  <a class="meta-cate-link" href="/categories/iOS/">iOS</a>
+   
+</div>
+  
+          </div>
+          <div class="wordcount need-seperator meta-info">
+            11k 词 
+          </div>
+        </div>
+        
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BB%8F%E9%AA%8C%E8%AE%B0%E5%BD%95/" rel="tag">经验记录</a></li></ul>
+
+      </header>
+      <div class="e-content article-entry" itemprop="articleBody">
+        
+          <div class="truncate-text">
+            
+              如何做一个九宫格GIF播放器需求背景APP V9.4.0版本上线了类似朋友圈的动态，包含文字及最多9张图片。
+动态2期内容中九宫格图片内追加了GIF格式的图片，并要求多张GIF图片在九宫格内循环播放，且优先播放信息流内第一个动态中包含的GIF图片。可参考微博信息流内GIF组的播放表现。
+技术实现GIF播放GIF图是包含若干帧图片的图片组，由于阿里云存储或者其他存储容器中的文件特征，许多图片路径并不带.gif或.GIF的后缀，所以不能仅通过比对文件名来识别GIF图。而通过二进制数据中来标记其文件类型的固定的位特征来区分较为准确。
+目前我们项目中集成了优秀的开源网络图片框架 &#39;Kingfisher&#39;，其中包含的 AnimatedImageView类能有效识别GIF文件类型和实现精细的播放控制，且使用方便，仅需要给图片view设置网络图片的URL。
+图片对齐方式需求中同时需要支持图片设置顶部对齐裁剪和左部对齐裁剪，1期项目中 KrShortContentImageView类已使用 UIImageViewAlignmentMask来实现此需求。
+UIImageViewAl...
+            
+          </div>
+        
+      </div>
+
+         
+    </div>
+    
+     
+    <a class="right-panel  non-pic  "
+      
+      href="/2021/12/06/%E4%BF%A1%E6%81%AF%E6%B5%81GIF%E8%BD%AE%E6%92%AD%E6%A1%86%E6%9E%B6/" 
+    >
+       
+      <i class="fa-solid fa-angle-right non-pic"></i>
+       
+    </a>
+     
+  </div>
+  
+</article>
+
+
+
+
+
+
+   
+
+
+<article id="post-iOS编译优化方案探索与实践-组件篇" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+   
+  <div class="article-inner">
+    <div class="article-main">
+      <header class="article-header">
+        
+<div class="main-title-bar">
+  <div class="main-title-dot"></div>
+  
+    
+      <h1 itemprop="name">
+        <a class="p-name article-title" href="/2021/09/18/iOS%E7%BC%96%E8%AF%91%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%E6%8E%A2%E7%B4%A2%E4%B8%8E%E5%AE%9E%E8%B7%B5-%E7%BB%84%E4%BB%B6%E7%AF%87/">iOS编译优化方案探索与实践-组件篇</a>
+      </h1>
+    
+  
+</div>
+
+        <div class='meta-info-bar'>
+          <div class="meta-info">
+  <time class="dt-published" datetime="2021-09-17T16:00:00.000Z" itemprop="datePublished">2021-09-18</time>
+</div>
+          <div class="need-seperator meta-info">
+            <div class="meta-cate-flex">
+  
+  <a class="meta-cate-link" href="/categories/iOS/">iOS</a>
+   
+</div>
+  
+          </div>
+          <div class="wordcount need-seperator meta-info">
+            9.2k 词 
+          </div>
+        </div>
+        
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8A%80%E6%9C%AF%E8%B0%83%E7%A0%94/" rel="tag">技术调研</a></li></ul>
+
+      </header>
+      <div class="e-content article-entry" itemprop="articleBody">
+        
+          <div class="truncate-text">
+            
+              iOS编译优化方案探索与实践-组件篇序言目前主流的项目构建方案中几乎都使用cocoapods进行组件库管理，不论是第三方开源库还是自研的私有库，都会生成.podspec文件使用cocoapods工具进行维护。
+为了便于进行调试，第三方开源库或私有代码库 我们都以源码的方式进行引入。
+每次在本机进行全量编译或者ci机器进行打包的时候都会先编译pod仓库中的源代码，然后链接到主项目中。
+这个流程没有问题，但是随着项目的的大量迭代和长时间维护，引入的仓库会越来越多。以我们的项目为例，项目迭代了3年左右，引入的第三方仓库达到了30+个。在我的mac上进行一次全量编译时间达到了500s，性能稍差的设备编译消耗的时间更长。
+针对组件库的编译时长的优化方案很简单，把cocoapods仓库中引入的需要编译的源码改成不需要编译的二进制库即可。
+当然一刀切的引入方式切换是不可取的，根据自身的实际情况，对一些基本不会进入调试的代码和一些稳定版本的常用的仓库进行二进制化较为合适。
+针对以上想法有了一些cocoapods插件可以使用。
+Cocoapods-Binarycocoapods 1.6.x版本的时...
+            
+          </div>
+        
+      </div>
+
+         
+    </div>
+    
+     
+    <a class="right-panel  non-pic  "
+      
+      href="/2021/09/18/iOS%E7%BC%96%E8%AF%91%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%E6%8E%A2%E7%B4%A2%E4%B8%8E%E5%AE%9E%E8%B7%B5-%E7%BB%84%E4%BB%B6%E7%AF%87/" 
+    >
+       
+      <i class="fa-solid fa-angle-right non-pic"></i>
+       
+    </a>
+     
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+  <nav id="page-nav">
+    <!-- 在第二页时 page.prev_link 不知为何无法返回正确的链接 -->
+    <a id="prev-btn" class="page-nav-btn " href=" /  ">
+      <i class="fa-solid fa-angle-left"></i>
+    </a>
+    <div id="num-bar">
+      <a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a>  
+    </div>
+    <a id="next-btn" class="page-nav-btn " href="/page/3/">
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+  </nav>
+
+
+    </div>
+    <div id="footer-wrapper">
+      <footer id="footer">
+  
+  <div id="footer-info" class="inner">
+    
+    &copy; 2026 bruin<br>
+    Powered by <a href="https://hexo.io/" target="_blank">Hexo</a> & Theme <a target="_blank" rel="noopener" href="https://github.com/saicaca/hexo-theme-vivia">Vivia</a>
+  </div>
+</footer>
+
+    </div>
+    <div class="back-to-top-wrapper">
+    <button id="back-to-top-btn" class="back-to-top-btn hide" onclick="topFunction()">
+        <i class="fa-solid fa-angle-up"></i>
+    </button>
+</div>
+
+<script>
+    function topFunction() {
+        window.scroll({ top: 0, behavior: 'smooth' });
+    }
+    let btn = document.getElementById('back-to-top-btn');
+    function scrollFunction() {
+        if (document.body.scrollTop > 600 || document.documentElement.scrollTop > 600) {
+            btn.classList.remove('hide')
+        } else {
+            btn.classList.add('hide')
+        }
+    }
+    window.onscroll = function() {
+        scrollFunction();
+    }
+</script>
+
+  </div>
+  <script src="/js/light-dark-switch.js"></script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</body>
+</html>
