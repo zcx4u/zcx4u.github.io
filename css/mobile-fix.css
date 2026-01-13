@@ -1,0 +1,128 @@
+/* 移动端修复 - 防止宽度溢出 */
+
+/* 全局溢出修复 */
+html {
+  overflow-x: hidden !important;
+}
+
+body {
+  overflow-x: hidden !important;
+  width: 100% !important;
+  max-width: 100vw !important;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+@media screen and (max-width: 767px) {
+  /* 主容器宽度限制 */
+  #main-grid {
+    width: 100% !important;
+    max-width: 100vw !important;
+    padding: 0 8px !important;
+    overflow-x: hidden !important;
+  }
+  
+  /* 导航栏 */
+  navbar, #nav {
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+  
+  /* Banner 修复 */
+  #banner {
+    height: 30vh !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+  }
+  
+  #banner img {
+    object-fit: cover;
+    object-position: center;
+    width: 100% !important;
+  }
+  
+  #nav.is_home {
+    height: calc(30vh - 72px) !important;
+  }
+  
+  /* 内容区域 */
+  #content-body {
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+    padding: 0 !important;
+  }
+  
+  /* 文章卡片 */
+  .article, article {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+  
+  .article-inner {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  
+  /* 文章内容 */
+  .article-entry {
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+  
+  .article-entry img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  
+  .article-entry pre {
+    overflow-x: auto !important;
+    max-width: 100% !important;
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+  }
+  
+  .article-entry code {
+    word-wrap: break-word !important;
+    white-space: pre-wrap !important;
+  }
+  
+  .article-entry table {
+    display: block !important;
+    overflow-x: auto !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+  
+  /* 侧边栏 */
+  #sidebar-wrapper {
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+  
+  /* 页脚 */
+  #footer-wrapper, footer {
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+  
+  /* 代码高亮块 */
+  .highlight, .code, figure.highlight {
+    overflow-x: auto !important;
+    max-width: 100% !important;
+  }
+  
+  /* 长链接和文字 */
+  a, p, span, div {
+    word-break: break-word;
+  }
+}
