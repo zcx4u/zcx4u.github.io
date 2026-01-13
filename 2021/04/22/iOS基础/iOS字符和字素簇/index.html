@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+
+
+<html theme="dark" showBanner="true" hasBanner="true" > 
+<link href="https://cdn.staticfile.org/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet">
+<link href="https://cdn.staticfile.org/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet">
+<link href="https://cdn.staticfile.org/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet">
+<script src="/js/color.global.min.js" ></script>
+<script src="/js/load-settings.js" ></script>
+<head>
+  <meta charset="utf-8">
+  
+  
+  
+
+  
+  <title>iOS字符串安全截取及任意位置插入 | bruin&#39;s blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <link rel="preload" href="/css/fonts/Roboto-Regular.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+  <link rel="preload" href="/css/fonts/Roboto-Bold.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+
+  <meta name="description" content="一个小问题引起的思考最近做一个输入框粘贴插入文字的需求时遇到了一个问题： 输入框中输入了文字和表情符😃😃😃（emoji）计算出的光标location和实际感官上的字符个数不一致，最后导致文字插入的位置不对。 这是为什么呢？ 查阅资料发现是Unicode编码和UTF-16编码的设计特点导致的此现象。 字符和字素簇定义说明 Characters and Grapheme Clusters   I">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS字符串安全截取及任意位置插入">
+<meta property="og:url" content="https://zcx4u.github.io/2021/04/22/iOS%E5%9F%BA%E7%A1%80/iOS%E5%AD%97%E7%AC%A6%E5%92%8C%E5%AD%97%E7%B4%A0%E7%B0%87/index.html">
+<meta property="og:site_name" content="bruin&#39;s blog">
+<meta property="og:description" content="一个小问题引起的思考最近做一个输入框粘贴插入文字的需求时遇到了一个问题： 输入框中输入了文字和表情符😃😃😃（emoji）计算出的光标location和实际感官上的字符个数不一致，最后导致文字插入的位置不对。 这是为什么呢？ 查阅资料发现是Unicode编码和UTF-16编码的设计特点导致的此现象。 字符和字素簇定义说明 Characters and Grapheme Clusters   I">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-04-21T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-01-12T16:30:59.285Z">
+<meta property="article:author" content="bruin">
+<meta property="article:tag" content="知识点">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="bruin's blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" media="(prefers-color-scheme: light)" href="/images/favicon-light-32.png" sizes="32x32">
+    <link rel="icon" media="(prefers-color-scheme: light)" href="/images/favicon-light-128.png" sizes="128x128">
+    <link rel="icon" media="(prefers-color-scheme: light)" href="/images/favicon-light-180.png" sizes="180x180">
+    <link rel="icon" media="(prefers-color-scheme: light)" href="/images/favicon-light-192.png" sizes="192x192">
+    <link rel="icon" media="(prefers-color-scheme: dark)" href="/images/favicon-dark-32.png" sizes="32x32">
+    <link rel="icon" media="(prefers-color-scheme: dark)" href="/images/favicon-dark-128.png" sizes="128x128">
+    <link rel="icon" media="(prefers-color-scheme: dark)" href="/images/favicon-dark-180.png" sizes="180x180">
+    <link rel="icon" media="(prefers-color-scheme: dark)" href="/images/favicon-dark-192.png" sizes="192x192">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body>
+  
+  
+    
+<div id="banner" class="">
+  <img src="/images/banner.jpeg" itemprop="image">
+  <div id="banner-dim"></div>
+</div>
+ 
+   
+  <div id="main-grid" class="  ">
+    <div id="nav" class=""  >
+      <navbar id="navbar">
+  <nav id="title-nav">
+    <a href="/">
+      <div id="vivia-logo">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+      <div>bruin's blog </div>
+    </a>
+  </nav>
+  <nav id="main-nav">
+    
+      <a class="main-nav-link" href="/">首页</a>
+    
+      <a class="main-nav-link" href="/archives">归档</a>
+    
+      <a class="main-nav-link" href="/about">关于</a>
+    
+  </nav>
+  <nav id="sub-nav">
+    <a id="theme-btn" class="nav-icon">
+      <span class="light-mode-icon"><svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="M438.5-829.913v-48q0-17.452 11.963-29.476 11.964-12.024 29.326-12.024 17.363 0 29.537 12.024t12.174 29.476v48q0 17.452-11.963 29.476-11.964 12.024-29.326 12.024-17.363 0-29.537-12.024T438.5-829.913Zm0 747.826v-48q0-17.452 11.963-29.476 11.964-12.024 29.326-12.024 17.363 0 29.537 12.024t12.174 29.476v48q0 17.452-11.963 29.476-11.964 12.024-29.326 12.024-17.363 0-29.537-12.024T438.5-82.087ZM877.913-438.5h-48q-17.452 0-29.476-11.963-12.024-11.964-12.024-29.326 0-17.363 12.024-29.537t29.476-12.174h48q17.452 0 29.476 11.963 12.024 11.964 12.024 29.326 0 17.363-12.024 29.537T877.913-438.5Zm-747.826 0h-48q-17.452 0-29.476-11.963-12.024-11.964-12.024-29.326 0-17.363 12.024-29.537T82.087-521.5h48q17.452 0 29.476 11.963 12.024 11.964 12.024 29.326 0 17.363-12.024 29.537T130.087-438.5Zm660.174-290.87-34.239 32q-12.913 12.674-29.565 12.174-16.653-.5-29.327-13.174-12.674-12.673-12.554-28.826.12-16.152 12.794-28.826l33-35q12.913-12.674 30.454-12.674t30.163 12.847q12.709 12.846 12.328 30.826-.38 17.98-13.054 30.653ZM262.63-203.978l-32 34q-12.913 12.674-30.454 12.674t-30.163-12.847q-12.709-12.846-12.328-30.826.38-17.98 13.054-30.653l33.239-31q12.913-12.674 29.565-12.174 16.653.5 29.327 13.174 12.674 12.673 12.554 28.826-.12 16.152-12.794 28.826Zm466.74 33.239-32-33.239q-12.674-12.913-12.174-29.565.5-16.653 13.174-29.327 12.673-12.674 28.826-13.054 16.152-.38 28.826 12.294l35 33q12.674 12.913 12.674 30.454t-12.847 30.163q-12.846 12.709-30.826 12.328-17.98-.38-30.653-13.054ZM203.978-697.37l-34-33q-12.674-12.913-13.174-29.945-.5-17.033 12.174-29.707t31.326-13.293q18.653-.62 31.326 13.054l32 34.239q11.674 12.913 11.174 29.565-.5 16.653-13.174 29.327-12.673 12.674-28.826 12.554-16.152-.12-28.826-12.794ZM480-240q-100 0-170-70t-70-170q0-100 70-170t170-70q100 0 170 70t70 170q0 100-70 170t-170 70Zm-.247-82q65.703 0 111.475-46.272Q637-414.544 637-480.247t-45.525-111.228Q545.95-637 480.247-637t-111.475 45.525Q323-545.95 323-480.247t45.525 111.975Q414.05-322 479.753-322ZM481-481Z"/></svg></span>
+      <span class="dark-mode-icon"><svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="M480.239-116.413q-152.63 0-258.228-105.478Q116.413-327.37 116.413-480q0-130.935 77.739-227.435t206.304-125.043q43.022-9.631 63.87 10.869t3.478 62.805q-8.891 22.043-14.315 44.463-5.424 22.42-5.424 46.689 0 91.694 64.326 155.879 64.325 64.186 156.218 64.186 24.369 0 46.978-4.946 22.609-4.945 44.413-14.076 42.826-17.369 62.967 1.142 20.142 18.511 10.511 61.054Q807.174-280 712.63-198.206q-94.543 81.793-232.391 81.793Zm0-95q79.783 0 143.337-40.217 63.554-40.218 95.793-108.283-15.608 4.044-31.097 5.326-15.49 1.283-31.859.805-123.706-4.066-210.777-90.539-87.071-86.473-91.614-212.092-.24-16.369.923-31.978 1.164-15.609 5.446-30.978-67.826 32.478-108.282 96.152Q211.652-559.543 211.652-480q0 111.929 78.329 190.258 78.329 78.329 190.258 78.329ZM466.13-465.891Z"/></svg></span>
+    </a>
+    
+      <a id="nav-rss-link" class="nav-icon mobile-hide" href="/atom.xml" title="RSS 订阅">
+        <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="M198-120q-25.846 0-44.23-18.384-18.384-18.385-18.384-44.23 0-25.846 18.384-44.23 18.384-18.385 44.23-18.385 25.846 0 44.23 18.385 18.384 18.384 18.384 44.23 0 25.845-18.384 44.23Q223.846-120 198-120Zm538.385 0q-18.846 0-32.923-13.769-14.076-13.769-15.922-33.23-8.692-100.616-51.077-188.654-42.385-88.039-109.885-155.539-67.5-67.501-155.539-109.885Q283-663.462 182.385-672.154q-19.461-1.846-33.23-16.23-13.769-14.385-13.769-33.846t14.076-32.922q14.077-13.461 32.923-12.23 120.076 8.692 226.038 58.768 105.961 50.077 185.73 129.846 79.769 79.769 129.846 185.731 50.077 105.961 58.769 226.038 1.231 18.846-12.538 32.922Q756.461-120 736.385-120Zm-252 0q-18.231 0-32.423-13.461t-18.653-33.538Q418.155-264.23 348.886-333.5q-69.27-69.27-166.501-84.423-20.077-4.462-33.538-18.961-13.461-14.5-13.461-33.346 0-19.076 13.884-33.23 13.884-14.153 33.115-10.922 136.769 15.384 234.384 112.999 97.615 97.615 112.999 234.384 3.231 19.23-10.538 33.115Q505.461-120 484.385-120Z"/></svg>
+      </a>
+    
+    <div id="nav-menu-btn" class="nav-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="M177.37-252.282q-17.453 0-29.477-11.964-12.024-11.963-12.024-29.326t12.024-29.537q12.024-12.174 29.477-12.174h605.26q17.453 0 29.477 11.964 12.024 11.963 12.024 29.326t-12.024 29.537q-12.024 12.174-29.477 12.174H177.37Zm0-186.218q-17.453 0-29.477-11.963-12.024-11.964-12.024-29.326 0-17.363 12.024-29.537T177.37-521.5h605.26q17.453 0 29.477 11.963 12.024 11.964 12.024 29.326 0 17.363-12.024 29.537T782.63-438.5H177.37Zm0-186.217q-17.453 0-29.477-11.964-12.024-11.963-12.024-29.326t12.024-29.537q12.024-12.174 29.477-12.174h605.26q17.453 0 29.477 11.964 12.024 11.963 12.024 29.326t-12.024 29.537q-12.024 12.174-29.477 12.174H177.37Z"/></svg>
+    </div>
+  </nav>
+</navbar>
+<div id="nav-dropdown" class="hidden">
+  <div id="dropdown-link-list">
+    
+      <a class="nav-dropdown-link" href="/">首页</a>
+    
+      <a class="nav-dropdown-link" href="/archives">归档</a>
+    
+      <a class="nav-dropdown-link" href="/about">关于</a>
+    
+    
+      <a class="nav-dropdown-link" href="/atom.xml" title="RSS 订阅">RSS</a>
+     
+    </div>
+</div>
+<script>
+  let dropdownBtn = document.getElementById("nav-menu-btn");
+  let dropdownEle = document.getElementById("nav-dropdown");
+  dropdownBtn.onclick = function() {
+    dropdownEle.classList.toggle("hidden");
+  }
+</script>
+    </div>
+    <div id="sidebar-wrapper">
+      <sidebar id="sidebar">
+  
+    <div class="widget-wrap">
+  <div class="info-card">
+    <div class="avatar">
+      
+        <image src=/images/avatar.jpeg></image>
+      
+      <div class="img-dim"></div>
+    </div>
+    <div class="info">
+      <div class="username">bruin </div>
+      <div class="dot"></div>
+      <div class="subtitle">我与我周旋久 </div>
+      <div class="link-list">
+        
+          <a class="link-btn" target="_blank" rel="noopener" href="https://github.com/zcx4u" title="GitHub"><i class="fa-brands fa-github"></i></a>
+        
+          <a class="link-btn" href="mailto:your-email@example.com" title="Email"><i class="fa-solid fa-envelope"></i></a>
+         
+      </div>  
+    </div>
+  </div>
+</div>
+
+  
+  <div class="sticky">
+    
+      
+
+
+  <div class="widget-wrap">
+    <div class="widget">
+      <h3 class="widget-title">分类</h3>
+      <div class="category-box">
+            <a class="category-link" href="/categories/AI-Agent/">
+                AI-Agent
+                <div class="category-count">5</div>
+            </a>
+        
+            <a class="category-link" href="/categories/tech-sharing/">
+                技术分享
+                <div class="category-count">4</div>
+            </a>
+        
+            <a class="category-link" href="/categories/iOS/">
+                iOS
+                <div class="category-count">21</div>
+            </a>
+        
+            <a class="category-link" href="/categories/ios-development/">
+                iOS开发
+                <div class="category-count">1</div>
+            </a>
+        </div>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget-wrap">
+    <div class="widget">
+      <h3 class="widget-title">标签</h3>
+      <ul class="widget-tag-list" itemprop="keywords"><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/AI/" rel="tag">AI</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/AI-Agent/" rel="tag">AI-Agent</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/Cursor/" rel="tag">Cursor</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/IDE/" rel="tag">IDE</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/ios/" rel="tag">iOS</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">学习笔记</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/" rel="tag">开发工具</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%8A%80%E6%9C%AF%E8%B0%83%E7%A0%94/" rel="tag">技术调研</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E6%95%88%E7%8E%87/" rel="tag">效率</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E7%9F%A5%E8%AF%86%E7%82%B9/" rel="tag">知识点</a></li><li class="widget-tag-list-item"><a class="widget-tag-list-link" href="/tags/%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" rel="tag">经验总结</a></li></ul>
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget-wrap">
+    <div class="widget">
+      <h3 class="widget-title">归档</h3>
+      
+      
+        <a class="archive-link" href="/archives/2025/12 ">
+          十二月 2025 
+          <div class="archive-count">5 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2025/07 ">
+          七月 2025 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2025/05 ">
+          五月 2025 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2025/04 ">
+          四月 2025 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2025/03 ">
+          三月 2025 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2024/11 ">
+          十一月 2024 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2024/05 ">
+          五月 2024 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2024/01 ">
+          一月 2024 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2023/03 ">
+          三月 2023 
+          <div class="archive-count">2 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2022/11 ">
+          十一月 2022 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2022/07 ">
+          七月 2022 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2022/02 ">
+          二月 2022 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/12 ">
+          十二月 2021 
+          <div class="archive-count">2 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/09 ">
+          九月 2021 
+          <div class="archive-count">2 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/08 ">
+          八月 2021 
+          <div class="archive-count">3 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/04 ">
+          四月 2021 
+          <div class="archive-count">2 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/02 ">
+          二月 2021 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2021/01 ">
+          一月 2021 
+          <div class="archive-count">1 </div>
+        </a>
+      
+        <a class="archive-link" href="/archives/2020/09 ">
+          九月 2020 
+          <div class="archive-count">3 </div>
+        </a>
+      
+    </div>
+  </div>
+
+
+    
+      
+  <div class="widget-wrap">
+    <div class="widget">
+      <h3 class="widget-title">最新文章</h3>
+      <ul>
+        
+          <a class="recent-link" href="/2025/12/23/AI-Agent/Agent-5%20Prototype%20to%20Production/" title="AI-Agent 白皮书 5 - Prototype to Production" >
+            <div class="recent-link-text">
+              AI-Agent 白皮书 5 - Prototype to Production
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/12/21/AI-Agent/Agent-4%20%20Agent%20Quality/" title="AI-Agent 白皮书 4 - Agent Quality" >
+            <div class="recent-link-text">
+              AI-Agent 白皮书 4 - Agent Quality
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/12/20/AI-Agent/Agent-3%20Context%20Engineering/" title="AI-Agent 白皮书 3 - Context Engineering: Sessions & Memory" >
+            <div class="recent-link-text">
+              AI-Agent 白皮书 3 - Context Engineering: Sessions &amp; Memory
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/12/19/AI-Agent/Agent-2%20Agent%20Tools%20&%20%20Interoperability%20%20with%20MCP/" title="AI-Agent 白皮书 2 - Agent Tools & Interoperability with MCP" >
+            <div class="recent-link-text">
+              AI-Agent 白皮书 2 - Agent Tools &amp; Interoperability with MCP
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/12/18/AI-Agent/Agent-1%20Introduction%20to%20Agents/" title="AI-Agent 白皮书 1 - Introduction to Agents whitepaper" >
+            <div class="recent-link-text">
+              AI-Agent 白皮书 1 - Introduction to Agents whitepaper
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/07/04/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/Cursor-%E7%BB%93%E6%9E%84%E5%92%8C%E6%8E%A7%E5%88%B6%E6%98%AF%E8%83%9C%E5%88%A9%E4%B9%8B%E9%81%93/" title="Cursor-结构和控制是胜利之道" >
+            <div class="recent-link-text">
+              Cursor-结构和控制是胜利之道
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/05/09/iOS%E5%AE%9E%E8%B7%B5/%E5%9F%BA%E4%BA%8EWeb%20Vitals%E7%9A%84%E7%A7%92%E5%BC%80%E4%BC%98%E5%8C%96%E8%B0%83%E7%A0%94/" title="基于Web Vitals的秒开优化调研" >
+            <div class="recent-link-text">
+              基于Web Vitals的秒开优化调研
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/04/02/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/iOS%E4%BD%BF%E7%94%A8Cursor%E5%BC%80%E5%8F%91%E9%85%8D%E7%BD%AE/" title="iOS使用Cursor开发配置指南" >
+            <div class="recent-link-text">
+              iOS使用Cursor开发配置指南
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2025/03/27/iOS%E5%AE%9E%E8%B7%B5/iOS-i18n%E5%8A%A8%E6%80%81%E5%8C%96%E6%80%9D%E8%80%83/" title="iOS-i18n动态化思考" >
+            <div class="recent-link-text">
+              iOS-i18n动态化思考
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2024/11/29/iOS%E5%AE%9E%E8%B7%B5/iOS%E8%83%8C%E6%99%AF%E6%A8%A1%E7%B3%8A%E5%AE%9E%E7%8E%B0%E6%8A%80%E6%9C%AF%E6%96%B9%E6%A1%88/" title="AI作业背景模糊实现技术方案" >
+            <div class="recent-link-text">
+              AI作业背景模糊实现技术方案
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2024/05/20/iOS%E5%AE%9E%E8%B7%B5/iOS%E7%AB%AF%20ASR%E4%BC%98%E5%8C%96/" title="iOS端 ASR优化" >
+            <div class="recent-link-text">
+              iOS端 ASR优化
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2024/01/15/AI-Agent/ChatGPT%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7%E6%89%8B%E5%86%8C/" title="ChatGPT使用技巧手册" >
+            <div class="recent-link-text">
+              ChatGPT使用技巧手册
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2023/03/12/iOS%E5%9F%BA%E7%A1%80/iOSCrash%E7%B1%BB%E5%9E%8B/" title="iOS Crash类型总结" >
+            <div class="recent-link-text">
+              iOS Crash类型总结
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2023/03/12/iOS%E5%9F%BA%E7%A1%80/iOS%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B%E6%8C%87%E5%8D%97/" title="iOS文件系统编程指南" >
+            <div class="recent-link-text">
+              iOS文件系统编程指南
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2022/11/05/iOS%E5%9F%BA%E7%A1%80/iOS%E7%AD%BE%E5%90%8D%E6%9C%BA%E5%88%B6/" title="iOS签名机制" >
+            <div class="recent-link-text">
+              iOS签名机制
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2022/07/06/iOS%E5%9F%BA%E7%A1%80/SwiftUI/" title="SwiftUI 从入门到放弃" >
+            <div class="recent-link-text">
+              SwiftUI 从入门到放弃
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2022/02/28/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/XCUITest%E6%8E%A2%E7%B4%A2/" title="XCUITest iOS自动化UI测试框架" >
+            <div class="recent-link-text">
+              XCUITest iOS自动化UI测试框架
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/12/06/iOS%E5%AE%9E%E8%B7%B5/iOS%20Web%E5%94%A4%E8%B5%B7APP%E6%96%B9%E6%A1%88%E5%8F%82%E8%80%83/" title="iOS 一键唤起APP方案参考" >
+            <div class="recent-link-text">
+              iOS 一键唤起APP方案参考
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/12/06/iOS%E5%AE%9E%E8%B7%B5/%E4%BF%A1%E6%81%AF%E6%B5%81GIF%E8%BD%AE%E6%92%AD%E6%A1%86%E6%9E%B6/" title="iOS 如何做一个九宫格GIF播放器" >
+            <div class="recent-link-text">
+              iOS 如何做一个九宫格GIF播放器
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/09/18/iOS%E5%AE%9E%E8%B7%B5/iOS%E7%BC%96%E8%AF%91%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88%E6%8E%A2%E7%B4%A2%E4%B8%8E%E5%AE%9E%E8%B7%B5-%E7%BB%84%E4%BB%B6%E7%AF%87/" title="iOS编译优化方案探索与实践-组件篇" >
+            <div class="recent-link-text">
+              iOS编译优化方案探索与实践-组件篇
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/09/09/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/module-importing%20failed-invalid%20pathname/" title="module importing failed invalid pathname 问题解决" >
+            <div class="recent-link-text">
+              module importing failed invalid pathname 问题解决
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/08/31/iOS%E5%AE%9E%E8%B7%B5/iOS-OCR%E5%AE%9E%E8%B7%B5/" title="iOS-OCR实践" >
+            <div class="recent-link-text">
+              iOS-OCR实践
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/08/25/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/Xcode%E4%BB%A3%E7%A0%81%E5%9D%97%E4%BA%91%E5%90%8C%E6%AD%A5+%E6%9C%AC%E5%9C%B0%E5%AE%89%E8%A3%85%E8%84%9A%E6%9C%AC/" title="Xcode代码块云同步+本地安装脚本" >
+            <div class="recent-link-text">
+              Xcode代码块云同步+本地安装脚本
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/08/25/%E7%BB%8F%E9%AA%8C%E8%AE%B0%E5%BD%95/AVPlayer%E7%9B%B8%E5%85%B3BUG%E8%AE%B0%E5%BD%95/" title="AVPlayer相关BUG记录" >
+            <div class="recent-link-text">
+              AVPlayer相关BUG记录
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/04/22/iOS%E5%9F%BA%E7%A1%80/iOS%E5%AD%97%E7%AC%A6%E5%92%8C%E5%AD%97%E7%B4%A0%E7%B0%87/" title="iOS字符串安全截取及任意位置插入" >
+            <div class="recent-link-text">
+              iOS字符串安全截取及任意位置插入
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/04/20/iOS%E5%9F%BA%E7%A1%80/NSCache/" title="NSCache" >
+            <div class="recent-link-text">
+              NSCache
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/02/23/iOS%E5%AE%9E%E8%B7%B5/%E4%B8%80%E5%B8%96%E7%9C%8B%E9%80%8FiOS14%20%E5%B0%8F%E7%BB%84%E4%BB%B6/" title="一帖看透iOS14 小组件" >
+            <div class="recent-link-text">
+              一帖看透iOS14 小组件
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2021/01/18/%E7%BB%8F%E9%AA%8C%E8%AE%B0%E5%BD%95/APP%E4%BB%A3%E7%90%86/" title="APP内部代理" >
+            <div class="recent-link-text">
+              APP内部代理
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2020/09/25/iOS%E5%9F%BA%E7%A1%80/runloop/" title="runloop 学习笔记" >
+            <div class="recent-link-text">
+              runloop 学习笔记
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2020/09/23/iOS%E5%9F%BA%E7%A1%80/block/" title="__block 关键字探究" >
+            <div class="recent-link-text">
+              __block 关键字探究
+            </div>
+          </a>
+        
+          <a class="recent-link" href="/2020/09/22/iOS%E5%9F%BA%E7%A1%80/GCD/" title="GCD相关知识学习笔记" >
+            <div class="recent-link-text">
+              GCD相关知识学习笔记
+            </div>
+          </a>
+        
+      </ul>
+    </div>
+  </div>
+
+    
+  </div>
+</sidebar>
+    </div>
+    <div id="content-body">
+       
+
+
+<article id="post-iOS基础/iOS字符和字素簇" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+    
+   
+  <div class="article-inner">
+    <div class="article-main">
+      <header class="article-header">
+        
+<div class="main-title-bar">
+  <div class="main-title-dot"></div>
+  
+    
+      <h1 class="p-name article-title" itemprop="headline name">
+        iOS字符串安全截取及任意位置插入
+      </h1>
+    
+  
+</div>
+
+        <div class='meta-info-bar'>
+          <div class="meta-info">
+  <time class="dt-published" datetime="2021-04-21T16:00:00.000Z" itemprop="datePublished">2021-04-22</time>
+</div>
+          <div class="need-seperator meta-info">
+            <div class="meta-cate-flex">
+  
+  <a class="meta-cate-link" href="/categories/iOS/">iOS</a>
+   
+</div>
+  
+          </div>
+          <div class="wordcount need-seperator meta-info">
+            9.7k 词 
+          </div>
+        </div>
+        
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%9F%A5%E8%AF%86%E7%82%B9/" rel="tag">知识点</a></li></ul>
+
+      </header>
+      <div class="e-content article-entry" itemprop="articleBody">
+        
+          <h2 id="一个小问题引起的思考"><a href="#一个小问题引起的思考" class="headerlink" title="一个小问题引起的思考"></a>一个小问题引起的思考</h2><p>最近做一个输入框粘贴插入文字的需求时遇到了一个问题：</p>
+<p>输入框中输入了文字和表情符😃😃😃（emoji）计算出的光标location和实际感官上的字符个数不一致，最后导致文字插入的位置不对。</p>
+<p>这是为什么呢？</p>
+<p>查阅资料发现是Unicode编码和UTF-16编码的设计特点导致的此现象。</p>
+<h2 id="字符和字素簇定义说明"><a href="#字符和字素簇定义说明" class="headerlink" title="字符和字素簇定义说明"></a>字符和字素簇定义说明</h2><blockquote>
+<p>Characters and Grapheme Clusters</p>
+</blockquote>
+<blockquote>
+<p>It’s common to think of a string as a sequence of characters, but when working with <code>NSString</code> objects, or with Unicode strings in general, in most cases it is better to deal with substrings rather than with individual characters. The reason for this is that what the user perceives as a character in text may in many cases be represented by multiple characters in the string. <code>NSString</code> has a large inventory of methods for properly handling Unicode strings, which in general make Unicode compliance easy, but there are a few precautions you should observe.</p>
+</blockquote>
+<p>我们通常将<code>String</code>视为<code>Characters</code>序列，用户能看到的文本中的<code>String</code>可能由字符串中的多个<code>Characters</code>表示，所以在处理<code>NSString</code>对象或一般的<code>Unicode</code>字符串时，处理子字符串大多数情况下比处理单个字符更好。尽管<code>NSString</code>有大量正确处理<code>Unicode</code>字符串的方法清单，但是仍有一些你需要注意的预防措施。</p>
+<hr>
+<blockquote>
+<p><code>NSString</code> objects are conceptually UTF-16 with platform endianness. That doesn’t necessarily imply anything about their internal storage mechanism; what it means is that <code>NSString</code> lengths, character indexes, and ranges are expressed in terms of UTF-16 units, and that the term “character” in <code>NSString</code> method names refers to 16-bit platform-endian UTF-16 units. This is a common convention for string objects. In most cases, clients don’t need to be overly concerned with this; as long as you are dealing with substrings, the precise interpretation of the range indexes is not necessarily significant.</p>
+</blockquote>
+<p>从概念上讲<code>NSString</code>是<code>UTF-16</code>平台字节序编码,但这并不一定意味着其内部存储机制。这意味着**<code>NSString</code>长度，字符索引和范围以<code>UTF-16</code>单位表示**，<code>NSString</code>方法名称中的<code>“character”</code>一词是指16位平台字节序的<code>UTF-16</code>单位。这是字符串对象的通用约定。在大多数情况下不必对此太在意，只要您正在处理子字符串，范围索引的精确解释就不一定很重要。(精确索引常用在处理emoji相关，常规一个字符型对应的长度是1，emoji不同的表情对应的是2或3)</p>
+<hr>
+<blockquote>
+<p>The vast majority of Unicode code points used for writing living languages are represented by single UTF-16 units. However, some less common Unicode code points are represented in UTF-16 by surrogate pairs. A surrogate pair is a sequence of two UTF-16 units, taken from specific reserved ranges, that together represent a single Unicode code point. CFString has functions for converting between surrogate pairs and the UTF-32 representation of the corresponding Unicode code point. When dealing with <code>NSString</code> objects, one constraint is that substring boundaries usually should not separate the two halves of a surrogate pair. This is generally automatic for ranges returned from most Cocoa methods, but if you are constructing substring ranges yourself you should keep this in mind. However, this is not the only constraint you should consider.</p>
+</blockquote>
+<blockquote>
+<p>名词解释</p>
+<p><strong>surrogate pairs: 代理对</strong></p>
+<p>UTF-16是早期Unicode遗留下的历史产物，原本被设计成具有固定宽度的16位编码格式。为支持超过U+FFFF的增补字符，设立了代理机制</p>
+<p>在BMP内的字符，仍然按照<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/UTF-16">UTF-16</a>的编码规则，使用两个字符来表示。 [1] （注：BMP内的字符编码，不包含从U+D800到U+DFFF的预留码位。这些预留码位就恰好用于扩展字符编码）</p>
+<p>增补字符的编码值已经超过了BMP的编码范围，所以，需要使用一对UTF-16字符来表示一个字符。UTF-16编码以16位无符号整数为单位。我们把Unicode编码记作U。编码规则如下：</p>
+<ul>
+<li><p>如果U&lt;0x10000，U的UTF-16编码就是U对应的16位无符号整数。</p>
+</li>
+<li><p>如果U≥0x10000，</p>
+</li>
+<li><ul>
+<li>我们先计算U’&#x3D;U-0x10000，</li>
+<li>然后将U’写成二进制形式：yyyy yyyy yyxx xxxx xxxx，</li>
+<li>U的UTF-16编码（二进制）就是：110110yyyyyyyyyy 110111xxxxxxxxxx。</li>
+</ul>
+</li>
+</ul>
+<p>这两个字符就称为surrogate pair（代理对）。第一个代理字符为16位编码，范围为U+D800到U+DFFF，第二个代理字符也是一个16位编码，范围为U+DC00 to U+DFFF。</p>
+</blockquote>
+<p>世界上存在的语言中绝大多数的<code>Unicode </code>编码都由单个<code>UTF-16</code>单元表示，但是仍然有少部分<code>Unicode</code>编码是使用代理对<code>surrogate pairs</code>来表示。代理对是从特定保留范围中提取的两个<code>UTF-16</code>单元的序列，它们一起代表一个<code>Unicode</code>代码点。<code>CFString</code>具有在代理对和相应<code>Unicode</code>代码点的<code>UTF-32</code>表示之间进行转换的功能。处理<code>NSString</code>时，子字符串边界不应将代理对的两半分开，**大多数<code>Cocoa </code>方法会自动返回正确的<code>Range</code>**，但是如果您自己构造子字符串范围，则应牢记这一点。但是，这不是您应该考虑的唯一约束。</p>
+<hr>
+<blockquote>
+<p>In many writing systems, a single character may be composed of a base letter plus an accent or other decoration. The number of possible letters and accents precludes Unicode from representing each combination as a single code point, so in general such combinations are represented by a base character followed by one or more combining marks. For compatibility reasons, Unicode does have single code points for a number of the most common combinations; these are referred to as precomposed forms, and Unicode normalization transformations can be used to convert between precomposed and decomposed representations. However, even if a string is fully precomposed, there are still many combinations that must be represented using a base character and combining marks. For most text processing, substring ranges should be arranged so that their boundaries do not separate a base character from its associated combining marks.</p>
+</blockquote>
+<p>在许多书写系统中，单个字符可以由一个基本字母加上一个重音符号或其他装饰组成。可能的字母和重音的数量使Unicode无法将每个组合表示为单个代码点，因此，通常，此类组合用基本字符表示，后跟一个或多个组合标记。出于兼容性原因，Unicode确实为许多最常见的组合提供了单个代码点。这些被称为预组合形式，并且Unicode规范化转换可用于在预组合和分解表示之间进行转换。但是，即使完全预先组成了字符串，对于大多数文本处理，<strong>也应该使子字符串范围的边界不会将基字符与其相关的组合标记分开</strong>。</p>
+<hr>
+<blockquote>
+<p>In addition, there are writing systems in which characters represent a combination of parts that are more complicated than accent marks. In Korean, for example, a single Hangul syllable can be composed of two or three subparts known as jamo. In the Indic and Indic-influenced writing systems common throughout South and Southeast Asia, single written characters often represent combinations of consonants, vowels, and marks such as viramas, and the Unicode representations of these writing systems often use code points for these individual parts, so that a single character may be composed of multiple code points. For most text processing, substring ranges should also be arranged so that their boundaries do not separate the jamo in a single Hangul syllable, or the components of an Indic consonant cluster.</p>
+</blockquote>
+<p>此外，有些书写系统中，字符代表的是比重音符号更复杂的部分的组合。例如，在韩语中，一个单字音节可以由两个或三个被称为jamo的子音节组成。在遍及南亚和东南亚的印度语和受印度语影响的书写系统中，单个书写字符通常代表辅音、元音和诸如viramas等标记的组合，而这些书写系统的Unicode表示通常使用代码点来表示这些单独的部分，使单个字符可以由多个代码点组成。对于大多数文本处理，还应该使子字符串范围的边界不会将jamo分隔在单个韩文音节中，也不会将印度语辅音集群的组成部分分开。<strong>（相对于重音符号还有更复杂的编码结构，例如韩文和印度文，对于这些更复杂的结构也应该保持代理对不能被拆分）</strong></p>
+<hr>
+<p>In general, these combinations—surrogate pairs, base characters plus combining marks, Hangul jamo, and Indic consonant clusters—are referred to as grapheme clusters. In order to take them into account, you can use <code>NSString</code>’s <code>rangeOfComposedCharacterSequencesForRange:</code> or <code>rangeOfComposedCharacterSequenceAtIndex:</code> methods, or <code>CFStringGetRangeOfComposedCharactersAtIndex</code>. These can be used to adjust string indexes or substring ranges so that they fall on grapheme cluster boundaries, taking into account all of the constraints mentioned above. These methods should be the default choice for programmatically determining the boundaries of user-perceived characters.:</p>
+<p>通常，这些组合（代理对，基本字符加组合标记，Hangul jamo和印度辅音簇）被称为字素簇。为了将它们考虑在内，您可以使用<code>NSString</code>的<a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/foundation/nsstring/1410993-rangeofcomposedcharactersequence"><code>rangeOfComposedCharacterSequencesForRange:</code></a>或<code>rangeOfComposedCharacterSequenceAtIndex:</code>方法，或<code>CFStringGetRangeOfComposedCharactersAtIndex</code>。考虑到上述所有约束，这些可用于调整字符串索引或子字符串范围，使它们落在字素簇边界上。这些方法应该是通过编程确定用户感知字符边界的默认选择。</p>
+<hr>
+<blockquote>
+<p>In some cases, Unicode algorithms deal with multiple characters in ways that go beyond even grapheme cluster boundaries. Unicode casing algorithms may convert a single character into multiple characters when going from lowercase to uppercase; for example, the standard uppercase equivalent of the German character “ß” is the two-letter sequence “SS”. Localized collation algorithms in many languages consider multiple-character sequences as single units; for example, the sequence “ch” is treated as a single letter for sorting purposes in some European languages. In order to deal properly with cases like these, it is important to use standard <code>NSString</code> methods for such operations as casing, sorting, and searching, and to use them on the entire string to which they are to apply. Use <code>NSString</code> methods such as <code>lowercaseString</code>, <code>uppercaseString</code>, <code>capitalizedString</code>, <code>compare:</code> and its variants, <code>rangeOfString:</code> and its variants, and <code>rangeOfCharacterFromSet:</code> and its variants, or their CFString equivalents. These all take into account the complexities of Unicode string processing, and the searching and sorting methods in particular have many options to control the types of equivalences they are to recognize.</p>
+</blockquote>
+<p>在某些情况下，Unicode算法以甚至超出字素簇边界的方式处理多个字符。从小写变为大写时，Unicode大小写算法可以将单个字符转换为多个字符。例如，德语字符“ß”的标准大写字母等同于两个字母的序列“ SS”。</p>
+<p>许多语言中的本地化排序规则算法将多字符序列视为单个单元。例如在某些欧洲语言中，出于排序目的，序列“ ch”被视为单个字母。</p>
+<p>在整个字符串上使用标准<code>NSString</code>方法进行诸如大小写，排序和搜索之类的操作可以正确处理此类情况。使用<code>NSString</code>方法，如<code>lowercaseString</code>，<code>uppercaseString</code>，<code>capitalizedString</code>，<code>compare:</code>和其变体，<code>rangeOfString:</code>和其变体，和<code>rangeOfCharacterFromSet:</code>其变体，或它们的等价CFString字符串方法。</p>
+<p>所有这些都考虑到了Unicode字符串处理的复杂性，特别是搜索和排序方法具有许多选项来控制它们要识别的等价类型。</p>
+<hr>
+<blockquote>
+<p>In some less common cases, it may be necessary to tailor the definition of grapheme clusters to a particular need. The issues involved in determining and tailoring grapheme cluster boundaries are covered in detail in <a target="_blank" rel="noopener" href="http://unicode.org/reports/tr29/">Unicode Standard Annex #29</a>, which gives a number of examples and some algorithms. The Unicode standard in general is the best source for information about Unicode algorithms and the considerations involved in processing Unicode strings.</p>
+<p>If you are interested in grapheme cluster boundaries from the point of view of cursor movement and insertion point positioning, and you are using the Cocoa text system, you should know that on OS X v10.5 and later, <code>NSLayoutManager</code> has API support for determining insertion point positions within a line of text as it is laid out. Note that insertion point boundaries are not identical to glyph boundaries; a ligature glyph in some cases, such as an “fi” ligature in Latin script, may require an internal insertion point on a user-perceived character boundary. See <em><a target="_blank" rel="noopener" href="https://developer.apple.com/library/archive/documentation/TextFonts/Conceptual/CocoaTextArchitecture/Introduction/Introduction.html#//apple_ref/doc/uid/TP40009459">Cocoa Text Architecture Guide</a></em> for more information.</p>
+</blockquote>
+<p>在一些不太常见的情况下，可能有必要根据特定需要定制字素簇的定义。<a target="_blank" rel="noopener" href="http://unicode.org/reports/tr29/">Unicode标准附件＃29</a>中详细介绍了确定和调整字素簇边界的问题，该<a target="_blank" rel="noopener" href="http://unicode.org/reports/tr29/">附件</a>提供了许多示例和一些算法。通常，Unicode标准是有关Unicode算法以及处理Unicode字符串所涉及的注意事项的最佳信息来源。</p>
+<p>如果您从光标移动和插入点定位的角度对字形簇边界感兴趣，并且您正在使用Cocoa文本系统，则应该知道在OS X v10.5和更高版本中，<code>NSLayoutManager</code>API支持确定插入点布置在一行文本中的位置。请注意，插入点边界与字形边界不同；在某些情况下，连字字形（例如拉丁语脚本中的“ fi”连字）可能需要在用户感知的字符边界上的内部插入点。有关更多信息，请参见《*<a target="_blank" rel="noopener" href="https://developer.apple.com/library/archive/documentation/TextFonts/Conceptual/CocoaTextArchitecture/Introduction/Introduction.html#//apple_ref/doc/uid/TP40009459">Cocoa文本体系结构指南》</a>*。</p>
+<h2 id="一种安全截取的方法"><a href="#一种安全截取的方法" class="headerlink" title="一种安全截取的方法"></a>一种安全截取的方法</h2><p>由上文可知 String 提供系统方法来识别完整的可见字符</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">rangeOfComposedCharacterSequencesForRange:</span><br><span class="line">rangeOfComposedCharacterSequenceAtIndex:</span><br><span class="line">这两个方法返回了给定range内包含的完整字符的索引地址</span><br><span class="line">给定初始 range <span class="operator">=</span> <span class="number">0</span> <span class="number">0</span>（location <span class="operator">=</span> <span class="number">0</span>， length <span class="operator">=</span> <span class="number">0</span>）</span><br><span class="line">“hello” 返回 <span class="number">0</span> <span class="number">1</span> 截取为 “h”</span><br><span class="line">“😀hello” 返回 <span class="number">0</span> <span class="number">2</span> 截取为 “😀”</span><br></pre></td></tr></table></figure>
+
+<p><strong>字符串截取或者在光标处插入字符应默认使用这两个方法来获取可视字符边界来避免代理对被拆开导致的显示bug</strong></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// 在字符串中光标位置插入子字符串的方法 </span></span><br><span class="line"><span class="comment">/// - Parameters:</span></span><br><span class="line"><span class="comment">///   - baseString: 被插入的字符串</span></span><br><span class="line"><span class="comment">///   - location: 光标位置 selectedRange.location</span></span><br><span class="line"><span class="comment">///   - insertString: 要插入的字符串</span></span><br><span class="line"><span class="comment">/// - Returns: 插入后完整字符串</span></span><br><span class="line"><span class="keyword">func</span> <span class="title function_">insertStringTo</span>(<span class="params">baseString</span>: <span class="type">String</span>, <span class="params">location</span>: <span class="type">Int</span>, <span class="params">insertString</span>: <span class="type">String</span>) -&gt; <span class="type">String</span> &#123;</span><br><span class="line">        <span class="keyword">var</span> leadingString <span class="operator">=</span> <span class="string">&quot;&quot;</span></span><br><span class="line">        <span class="keyword">var</span> trailingString <span class="operator">=</span> <span class="string">&quot;&quot;</span></span><br><span class="line">        <span class="keyword">var</span> range <span class="operator">=</span> <span class="type">NSRange</span>(location: <span class="number">0</span>, length: <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">while</span> range.length <span class="operator">&lt;</span> baseString.count &#123;</span><br><span class="line">            <span class="keyword">let</span> r <span class="operator">=</span> baseString.rangeOfComposedCharacterSequence(at: baseString.index(baseString.startIndex,</span><br><span class="line">                                                                                     offsetBy: range.length))</span><br><span class="line">            leadingString <span class="operator">=</span> <span class="type">String</span>(baseString[<span class="operator">..&lt;</span>r.upperBound])</span><br><span class="line">            trailingString <span class="operator">=</span> <span class="type">String</span>(baseString[r.upperBound<span class="operator">...</span>])  </span><br><span class="line">            <span class="keyword">if</span> location <span class="operator">&lt;=</span> leftString.count &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="string">&quot;<span class="subst">\(leadingString)</span><span class="subst">\(insertString)</span><span class="subst">\(trailingString)</span>&quot;</span></span><br><span class="line">            &#125;</span><br><span class="line">            range <span class="operator">=</span> <span class="type">NSRange</span>(location: <span class="number">0</span>, length: leadingString.unicodeScalars.count)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="相关链接及资料"><a href="#相关链接及资料" class="headerlink" title="相关链接及资料"></a>相关链接及资料</h2><p><a target="_blank" rel="noopener" href="https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Strings/Articles/stringsClusters.html">原文链接字符和字素簇</a></p>
+<p><a target="_blank" rel="noopener" href="https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Strings/introStrings.html#//apple_ref/doc/uid/10000035-SW1">字符串编程指南</a></p>
+
+        
+      </div>
+
+         
+    </div>
+    
+     
+  </div>
+  
+    
+<nav id="article-nav">
+  <a class="article-nav-btn left "
+    
+      href="/2021/08/25/%E7%BB%8F%E9%AA%8C%E8%AE%B0%E5%BD%95/AVPlayer%E7%9B%B8%E5%85%B3BUG%E8%AE%B0%E5%BD%95/"
+      title="AVPlayer相关BUG记录"
+     >
+    <i class="fa-solid fa-angle-left"></i>
+    <p class="title-text">
+      
+        AVPlayer相关BUG记录
+        
+    </p>
+  </a>
+  <a class="article-nav-btn right "
+    
+      href="/2021/04/20/iOS%E5%9F%BA%E7%A1%80/NSCache/"
+      title="NSCache"
+     >
+
+    <p class="title-text">
+      
+        NSCache
+        
+    </p>
+    <i class="fa-solid fa-angle-right"></i>
+  </a>
+</nav>
+
+
+  
+</article>
+
+
+
+
+
+    </div>
+    <div id="footer-wrapper">
+      <footer id="footer">
+  
+  <div id="footer-info" class="inner">
+    
+    &copy; 2026 bruin
+  </div>
+</footer>
+
+    </div>
+    <div class="back-to-top-wrapper">
+    <button id="back-to-top-btn" class="back-to-top-btn hide" onclick="topFunction()">
+        <i class="fa-solid fa-angle-up"></i>
+    </button>
+</div>
+
+<script>
+    function topFunction() {
+        window.scroll({ top: 0, behavior: 'smooth' });
+    }
+    let btn = document.getElementById('back-to-top-btn');
+    function scrollFunction() {
+        if (document.body.scrollTop > 600 || document.documentElement.scrollTop > 600) {
+            btn.classList.remove('hide')
+        } else {
+            btn.classList.add('hide')
+        }
+    }
+    window.onscroll = function() {
+        scrollFunction();
+    }
+</script>
+
+  </div>
+  <script src="/js/light-dark-switch.js"></script>
+</body>
+</html>
