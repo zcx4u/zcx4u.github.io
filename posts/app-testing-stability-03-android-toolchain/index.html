@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>APP自动化测试实践 稳定性·03：Android 工具链——adb 怎么采集数据，Fastbot 怎么驱动 App — fatbruin</title>
+<meta name="description" content="Android 侧用 adb 采集数据、Fastbot 驱动 App，两端如何产出同一套报告。"><meta property="og:type" content="article"><meta property="og:site_name" content="fatbruin"><meta property="og:title" content="APP自动化测试实践 稳定性·03：Android 工具链——adb 怎么采集数据，Fastbot 怎么驱动 App"><meta property="og:description" content="Android 侧用 adb 采集数据、Fastbot 驱动 App，两端如何产出同一套报告。"><meta property="og:url" content="https://www.umuer.com/posts/app-testing-stability-03-android-toolchain/"><meta property="og:image" content="https://www.umuer.com/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://www.umuer.com/posts/app-testing-stability-03-android-toolchain/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="fatbruin" href="/rss.xml">
+<script>(function(){var n=null;try{n=localStorage.getItem('fatbruin-night')}catch(e){}var h=new Date().getHours();if(n?n==='1':(h>=19||h<6))document.documentElement.classList.add('night')})()</script>
+<link rel="stylesheet" href="/styles/base.0282236f.css">
+<link rel="stylesheet" href="/styles/post.0bb29940.css"></head>
+<body class="post">
+<div id="scene"></div>
+<div class="topbar"><div class="navl"><a class="back" href="/#writing">← 回到小屋</a><a class="back nav-fallback" href="/posts/">全部文章 →</a></div><div class="brand">fat<span>bruin</span></div></div>
+<main><nav class="toc" aria-label="目录"><p class="toc-h">目录</p><ol><li class="l2"><a href="#%E4%B8%80%E3%80%81adb%EF%BC%9Aandroid-%E7%9A%84%22%E4%B8%87%E8%83%BD%E9%81%A5%E6%8E%A7%E5%99%A8%22">一、adb：Android 的&amp;quot;万能遥控器&amp;quot;</a></li><li class="l2"><a href="#%E4%BA%8C%E3%80%81fastbot-%E5%9C%A8-android-%E4%B8%8A%E6%80%8E%E4%B9%88%E8%B7%91%EF%BC%9A%E4%B8%8D%E7%94%A8%E5%AE%89%E8%A3%85%E7%9A%84-jar">二、Fastbot 在 Android 上怎么跑：不用安装的 jar</a></li><li class="l3"><a href="#%E9%BB%91%E5%90%8D%E5%8D%95%EF%BC%9A%E5%88%AB%E8%AE%A9%E7%8C%B4%E5%AD%90%E7%82%B9%E4%BA%86%22%E9%80%80%E5%87%BA%E7%99%BB%E5%BD%95%22">黑名单：别让猴子点了&amp;quot;退出登录&amp;quot;</a></li><li class="l2"><a href="#%E4%B8%89%E3%80%81%E5%86%85%E5%AD%98%E9%87%87%E9%9B%86%EF%BC%9Adumpsys-meminfo">三、内存采集：dumpsys meminfo</a></li><li class="l3"><a href="#%E4%B8%BA%E4%BB%80%E4%B9%88-android-%E7%94%A8-pss">为什么 Android 用 PSS</a></li><li class="l2"><a href="#%E5%9B%9B%E3%80%81cpu-%E9%87%87%E9%9B%86%EF%BC%9A%E7%9B%B4%E6%8E%A5%E8%AF%BB-%2Fproc">四、CPU 采集：直接读 /proc</a></li><li class="l3"><a href="#fps-%E6%B2%A1%E6%9C%89%E9%87%87%E9%9B%86">FPS 没有采集</a></li><li class="l2"><a href="#%E4%BA%94%E3%80%81%E5%B4%A9%E6%BA%83%E6%8D%95%E8%8E%B7%EF%BC%9A%E4%BB%8E-logcat-%E9%87%8C%E5%AE%9E%E6%97%B6%E7%AD%9B">五、崩溃捕获：从 logcat 里实时筛</a></li><li class="l3"><a href="#java-%E5%B1%82%E5%B4%A9%E6%BA%83">Java 层崩溃</a></li><li class="l3"><a href="#%E5%8E%9F%E7%94%9F%E5%B1%82%E5%B4%A9%E6%BA%83">原生层崩溃</a></li><li class="l3"><a href="#flutter-%E5%B1%82%E5%B4%A9%E6%BA%83">Flutter 层崩溃</a></li><li class="l3"><a href="#anr">ANR</a></li><li class="l3"><a href="#fastbot-%E8%87%AA%E5%B7%B1%E7%9A%84%E8%AE%B0%E5%BD%95">Fastbot 自己的记录</a></li><li class="l2"><a href="#%E5%85%AD%E3%80%81%E9%A1%B5%E9%9D%A2%E8%A6%86%E7%9B%96%E7%8E%87%EF%BC%9A%E4%B8%8D%E6%8F%92%E6%A1%A9%E4%B9%9F%E8%83%BD%E7%BB%9F%E8%AE%A1">六、页面覆盖率：不插桩也能统计</a></li><li class="l2"><a href="#%E4%B8%83%E3%80%81%E6%8A%8A%E5%90%84%E9%83%A8%E5%88%86%E4%B8%B2%E8%B5%B7%E6%9D%A5">七、把各部分串起来</a></li><li class="l2"><a href="#%E5%85%AB%E3%80%81ios-%E4%B8%8E-android-%E5%B7%A5%E5%85%B7%E9%93%BE%E5%85%A8%E5%AF%B9%E6%AF%94">八、iOS 与 Android 工具链全对比</a></li><li class="l2"><a href="#%E4%B8%8B%E4%B8%80%E7%AF%87%E9%A2%84%E5%91%8A">下一篇预告</a></li></ol><a class="toc-all" href="/posts/">全部文章 →</a></nav><article id="art"><p class="meta"><span>2026.10.04</span><span>Testing</span><span>11 分钟</span></p><h1>APP自动化测试实践 稳定性·03：Android 工具链——adb 怎么采集数据，Fastbot 怎么驱动 App</h1><p class="sum">Android 侧用 adb 采集数据、Fastbot 驱动 App，两端如何产出同一套报告。</p><details class="series"><summary><small>系列</small><b>AI背景下的APP端自动化测试实践</b><span>第 4 / 9 篇</span></summary><ol><li><a href="/posts/app-testing-00-map/">APP自动化测试实践·00：APP 测试这件事——完整地图</a></li><li><a href="/posts/app-testing-stability-01-concepts/">APP自动化测试实践 稳定性·01：稳定性测试——概念与核心机制</a></li><li><a href="/posts/app-testing-stability-02-ios-toolchain/">APP自动化测试实践 稳定性·02：iOS 工具链——从 tidevice 到 CoreDevice 的工具演进</a></li><li class="on">APP自动化测试实践 稳定性·03：Android 工具链——adb 怎么采集数据，Fastbot 怎么驱动 App</li><li><a href="/posts/app-testing-stability-04-reporter-pipeline/">APP自动化测试实践 稳定性·04：从数据到结论——报告、判定与页面覆盖率</a></li><li><a href="/posts/app-testing-e2e-01-concepts/">APP自动化测试实践 E2E·01：E2E 测试——从零讲透概念与核心机制</a></li><li><a href="/posts/app-testing-e2e-02-tool-selection/">APP自动化测试实践 E2E·02：工具选型——业界 E2E 方案对比与我们的选择</a></li><li><a href="/posts/app-testing-e2e-03-llm-appium-plugin/">APP自动化测试实践 E2E·03：让大模型来写用例、跑用例——Appium 插件与 stub 直驱</a></li><li><a href="/posts/app-testing-e2e-04-ai-drive-real-device/">APP自动化测试实践 E2E·04：让 AI 直接操作真机 App——注入式 stub 的思路与取舍</a></li></ol></details><blockquote>
+<p>本文是系列《AI背景下的APP端自动化测试实践》稳定性测试部分的第三篇。</p>
+<p>上一篇讲了 iOS 侧的工具链，这一篇讲 Android。两端要做的事情一样：驱动 Fastbot、采集性能数据、捕获崩溃，但实现方式差别很大。理解这些差别，就能看明白框架为什么在两端做了不同的设计选择，又是怎么让两边最终产出同一套报告的。</p>
+</blockquote>
+<hr>
+<h2 id="%E4%B8%80%E3%80%81adb%EF%BC%9Aandroid-%E7%9A%84%22%E4%B8%87%E8%83%BD%E9%81%A5%E6%8E%A7%E5%99%A8%22" tabindex="-1">一、adb：Android 的&quot;万能遥控器&quot; <a class="anchor" href="#%E4%B8%80%E3%80%81adb%EF%BC%9Aandroid-%E7%9A%84%22%E4%B8%87%E8%83%BD%E9%81%A5%E6%8E%A7%E5%99%A8%22">#</a></h2>
+<p>iOS 侧用 Apple 官方的 <code>xcrun devicectl</code> 和设备通信，Android 侧对应的是 <strong>adb</strong>（Android Debug Bridge）。两者角色相同，来历和使用体验却不太一样：</p>
+<div class="tw"><table><thead>
+<tr>
+<th></th>
+<th>xcrun devicectl（iOS）</th>
+<th>adb（Android）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>出处</td>
+<td>Apple 官方，随 Xcode 附带</td>
+<td>Google 官方，随 Android SDK 附带</td>
+</tr>
+<tr>
+<td>协议</td>
+<td>CoreDevice，私有</td>
+<td>ADB 协议，开放</td>
+</tr>
+<tr>
+<td>安装</td>
+<td>随 Xcode 自动安装</td>
+<td><code>brew install android-platform-tools</code></td>
+</tr>
+<tr>
+<td>前提</td>
+<td>设备信任这台电脑</td>
+<td>设备开启&quot;USB 调试&quot;</td>
+</tr>
+</tbody>
+</table></div><p>相比 iOS 那边&quot;官方工具也只开放了有限能力&quot;的处境，adb 要自由得多。它的命令体系成熟、文档完善，几乎能做任何事：</p>
+<div class="cb"><span class="cb-l">bash</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-bash">adb devices                                       <span class="hljs-comment"># 列出已连接设备</span>
+adb install -r -g app-release.apk                 <span class="hljs-comment"># 覆盖安装，并自动授予运行时权限</span>
+adb shell am start -n com.umu.app/.MainActivity   <span class="hljs-comment"># 启动 App</span>
+adb logcat                                        <span class="hljs-comment"># 实时查看系统日志</span>
+adb shell dumpsys meminfo com.umu.app             <span class="hljs-comment"># 查看进程内存</span>
+adb pull /sdcard/report.txt ./                    <span class="hljs-comment"># 从设备拉取文件</span>
+</code></pre>
+</div><p>其中最关键的是 <code>adb shell</code>。它让我们在 Mac 的终端里直接执行设备上的 Linux 命令，就像 SSH 登录进了手机。框架里绝大多数的数据采集，走的都是这个入口。</p>
+<hr>
+<h2 id="%E4%BA%8C%E3%80%81fastbot-%E5%9C%A8-android-%E4%B8%8A%E6%80%8E%E4%B9%88%E8%B7%91%EF%BC%9A%E4%B8%8D%E7%94%A8%E5%AE%89%E8%A3%85%E7%9A%84-jar" tabindex="-1">二、Fastbot 在 Android 上怎么跑：不用安装的 jar <a class="anchor" href="#%E4%BA%8C%E3%80%81fastbot-%E5%9C%A8-android-%E4%B8%8A%E6%80%8E%E4%B9%88%E8%B7%91%EF%BC%9A%E4%B8%8D%E7%94%A8%E5%AE%89%E8%A3%85%E7%9A%84-jar">#</a></h2>
+<p>在 iOS 上，Fastbot 以 XCTest Runner 的形式存在，借用系统测试框架的壳来操作 App。Android 上的思路完全不同，它用的是 <strong><code>app_process</code></strong>。</p>
+<p><code>app_process</code> 是 Android 系统自带的一个底层进程启动器，可以直接在 Android 运行时里加载并执行 Java 代码，<strong>不需要打包成 APK，也不需要安装</strong>。系统自带的 <code>monkey</code> 命令就是这样跑起来的，Fastbot 沿用了同样的方式：先把自己的 jar 包和原生库推送到设备上，再用 <code>app_process</code> 启动。</p>
+<div class="cb"><span class="cb-l">bash</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-bash"><span class="hljs-comment"># 1. 推送 Fastbot 的 jar 和原生库</span>
+adb push monkeyq.jar framework.jar fastbot-thirdpart.jar /sdcard/
+adb push libfastbot_native.so /data/local/tmp/arm64-v8a/
+
+<span class="hljs-comment"># 2. 用 app_process 启动 Fastbot</span>
+adb shell CLASSPATH=/sdcard/monkeyq.jar:/sdcard/framework.jar:/sdcard/fastbot-thirdpart.jar \
+  <span class="hljs-built_in">exec</span> app_process /system/bin com.android.commands.monkey.Monkey \
+  -p com.umu.app \
+  --agent reuseq \
+  --running-minutes 300 \
+  --throttle 300
+</code></pre>
+</div><p>这里有个小坑：原生库必须放在带 CPU 架构子目录的路径下（如 <code>/data/local/tmp/arm64-v8a/</code>），否则 Fastbot 启动时会报找不到库。</p>
+<p>Fastbot 通过系统的 UI 自动化接口读取当前界面的控件树。这个接口对所有 App 开放，不区分 Debug 和 Release，也不需要改 App 的任何代码。所以和 iOS 一样，我们在 Android 上测的也是 Release 包本身。</p>
+<p>两端的运行方式可以这样对照：</p>
+<div class="tw"><table><thead>
+<tr>
+<th></th>
+<th>iOS</th>
+<th>Android</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>启动方式</td>
+<td><code>xcodebuild test-without-building</code></td>
+<td><code>adb shell app_process</code> 直接执行 jar</td>
+</tr>
+<tr>
+<td>Fastbot 的形态</td>
+<td>XCTest Runner，一个独立的测试 App</td>
+<td>一组 jar 包，无需安装</td>
+</tr>
+<tr>
+<td>读取界面</td>
+<td>系统无障碍树，加上 App 内注入的 stub</td>
+<td>系统 UI 自动化接口</td>
+</tr>
+<tr>
+<td>对被测 App 的改动</td>
+<td>注入 stub（不改源码）</td>
+<td>无</td>
+</tr>
+</tbody>
+</table></div><p>有意思的是，iOS 因为自定义控件&quot;看不见&quot;，不得不往 App 里注入 stub；Android 的控件树本身就足够完整，至今没有遇到需要插桩的情况。</p>
+<h3 id="%E9%BB%91%E5%90%8D%E5%8D%95%EF%BC%9A%E5%88%AB%E8%AE%A9%E7%8C%B4%E5%AD%90%E7%82%B9%E4%BA%86%22%E9%80%80%E5%87%BA%E7%99%BB%E5%BD%95%22" tabindex="-1">黑名单：别让猴子点了&quot;退出登录&quot; <a class="anchor" href="#%E9%BB%91%E5%90%8D%E5%8D%95%EF%BC%9A%E5%88%AB%E8%AE%A9%E7%8C%B4%E5%AD%90%E7%82%B9%E4%BA%86%22%E9%80%80%E5%87%BA%E7%99%BB%E5%BD%95%22">#</a></h3>
+<p>随机操作最怕误触破坏性的入口：一旦点了&quot;退出登录&quot;，后面几个小时都只能在登录页打转。Fastbot 支持 Activity 黑名单，主控脚本会把配置好的黑名单文件推送到设备，并通过启动参数告诉 Fastbot 哪些页面不要进入。</p>
+<hr>
+<h2 id="%E4%B8%89%E3%80%81%E5%86%85%E5%AD%98%E9%87%87%E9%9B%86%EF%BC%9Adumpsys-meminfo" tabindex="-1">三、内存采集：dumpsys meminfo <a class="anchor" href="#%E4%B8%89%E3%80%81%E5%86%85%E5%AD%98%E9%87%87%E9%9B%86%EF%BC%9Adumpsys-meminfo">#</a></h2>
+<p>iOS 上有 <code>xctrace</code> 这样现成的录制工具，Android 上没有对应的封装，需要自己定时调用系统命令。内存用的是 <code>dumpsys meminfo</code>：</p>
+<div class="cb"><span class="cb-l">bash</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-bash">adb shell dumpsys meminfo com.umu.app
+</code></pre>
+</div><p>输出截取如下：</p>
+<div class="cb"><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code>** MEMINFO in pid 12345 [com.umu.app] **
+                   Pss  Private  Private  SwapPss      Rss
+                 Total    Dirty    Clean    Dirty    Total
+                ------   ------   ------   ------   ------
+  Native Heap    82316    82276        0      120    84204
+  Dalvik Heap    46012    45876        0        0    48216
+  ...
+     TOTAL PSS:  198472            TOTAL RSS:  312844
+</code></pre>
+</div><p>采集器每 5 秒执行一次，从输出里取出 <code>TOTAL PSS</code>，换算成 MB 写入 <code>perf_raw.jsonl</code>。不同 Android 版本的输出格式略有差异，解析时对新旧两种写法都做了兼容。</p>
+<h3 id="%E4%B8%BA%E4%BB%80%E4%B9%88-android-%E7%94%A8-pss" tabindex="-1">为什么 Android 用 PSS <a class="anchor" href="#%E4%B8%BA%E4%BB%80%E4%B9%88-android-%E7%94%A8-pss">#</a></h3>
+<p>Android 上同样有 RSS 这个口径，但我们选的是 <strong>PSS</strong>（Proportional Set Size，按比例分摊的内存）。原因在于 Android 大量使用共享内存：很多系统库被多个 App 同时加载，RSS 会把共享的部分完整地算进每一个进程，显得虚高；PSS 则按共享的进程数把这部分平摊。</p>
+<div class="cb"><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code>假设某个系统库占 10MB，被 5 个 App 共享：
+
+  RSS 算法：每个 App 各算 10MB  → 加起来 50MB（重复计算）
+  PSS 算法：每个 App 各算 2MB   → 加起来 10MB（真实占用）
+</code></pre>
+</div><p>需要注意的是，iOS 侧用的是 Physical Footprint，Android 侧用的是 PSS，两者口径不同，<strong>不能直接拿绝对值做跨平台比较</strong>。但在各自平台内部看趋势、判断是否泄漏、对照阈值告警，都是可靠的。</p>
+<hr>
+<h2 id="%E5%9B%9B%E3%80%81cpu-%E9%87%87%E9%9B%86%EF%BC%9A%E7%9B%B4%E6%8E%A5%E8%AF%BB-%2Fproc" tabindex="-1">四、CPU 采集：直接读 /proc <a class="anchor" href="#%E5%9B%9B%E3%80%81cpu-%E9%87%87%E9%9B%86%EF%BC%9A%E7%9B%B4%E6%8E%A5%E8%AF%BB-%2Fproc">#</a></h2>
+<p>Android 是 Linux 内核，进程的 CPU 时间就记录在 <code>/proc</code> 文件系统里，直接读就行：</p>
+<div class="cb"><span class="cb-l">bash</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-bash"><span class="hljs-comment"># 系统总 CPU 时间</span>
+adb shell <span class="hljs-built_in">cat</span> /proc/stat
+
+<span class="hljs-comment"># 目标进程的 CPU 时间</span>
+adb shell <span class="hljs-built_in">cat</span> /proc/&lt;pid&gt;/stat
+</code></pre>
+</div><p>这两个文件记录的都是累计值，单位是 jiffies（内核时钟的滴答数）。采集器隔一小段时间读两次，用差值计算这段时间里目标进程占了多少 CPU：</p>
+<div class="cb"><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code>CPU% = (进程 CPU 时间的增量 / 系统总 CPU 时间的增量) × 100
+</code></pre>
+</div><p>这和 <code>top</code> 命令显示的口径一致。之所以不直接解析 <code>top</code> 的输出，是因为不同厂商、不同系统版本的 <code>top</code> 格式五花八门，而 <code>/proc</code> 是内核接口，格式稳定，也不依赖任何额外工具。</p>
+<h3 id="fps-%E6%B2%A1%E6%9C%89%E9%87%87%E9%9B%86" tabindex="-1">FPS 没有采集 <a class="anchor" href="#fps-%E6%B2%A1%E6%9C%89%E9%87%87%E9%9B%86">#</a></h3>
+<p>Android 可以用 <code>dumpsys gfxinfo</code> 获取帧渲染数据，但频繁调用本身就有明显的性能开销，会干扰被测 App；而且在 Monkey 这种高频随机操作的场景下，帧率数据的参考意义也有限。所以 Android 侧目前只采内存和 CPU，不采 FPS。</p>
+<hr>
+<h2 id="%E4%BA%94%E3%80%81%E5%B4%A9%E6%BA%83%E6%8D%95%E8%8E%B7%EF%BC%9A%E4%BB%8E-logcat-%E9%87%8C%E5%AE%9E%E6%97%B6%E7%AD%9B" tabindex="-1">五、崩溃捕获：从 logcat 里实时筛 <a class="anchor" href="#%E4%BA%94%E3%80%81%E5%B4%A9%E6%BA%83%E6%8D%95%E8%8E%B7%EF%BC%9A%E4%BB%8E-logcat-%E9%87%8C%E5%AE%9E%E6%97%B6%E7%AD%9B">#</a></h2>
+<p>iOS 的崩溃会落成 <code>.ips</code> 文件，框架要定时去设备上轮询拉取。Android 的崩溃则会实时出现在 <strong>logcat</strong> 里，框架可以边跑边监听。</p>
+<p>logcat 是 Android 的系统日志流，系统、App、内核各层的日志都实时汇入这条流，类似 macOS 的&quot;控制台&quot;，但更底层，信息量也大得多。崩溃收集器开跑前会先清空日志缓存，然后以 <code>adb logcat -v threadtime *:W</code> 持续读取警告及以上级别的日志，从中识别四类事件。</p>
+<h3 id="java-%E5%B1%82%E5%B4%A9%E6%BA%83" tabindex="-1">Java 层崩溃 <a class="anchor" href="#java-%E5%B1%82%E5%B4%A9%E6%BA%83">#</a></h3>
+<div class="cb"><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code>E/AndroidRuntime: FATAL EXCEPTION: main
+    Process: com.umu.app, PID: 12345
+    java.lang.NullPointerException: Attempt to invoke virtual method...
+        at com.umu.module.HomeFragment.onResume(HomeFragment.java:87)
+</code></pre>
+</div><p>看到 <code>FATAL EXCEPTION</code>，就把它和紧随其后的栈帧作为一个完整的块收集起来，提取异常类型和调用栈。</p>
+<h3 id="%E5%8E%9F%E7%94%9F%E5%B1%82%E5%B4%A9%E6%BA%83" tabindex="-1">原生层崩溃 <a class="anchor" href="#%E5%8E%9F%E7%94%9F%E5%B1%82%E5%B4%A9%E6%BA%83">#</a></h3>
+<p>原生代码（C/C++ 编写的部分）崩溃时，系统会生成一份 tombstone（墓碑）报告，并在 logcat 里输出摘要，开头是一行醒目的 <code>*** *** ***</code> 分隔符，里面会写明是哪个进程崩溃了：</p>
+<div class="cb"><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code>F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+F DEBUG   : pid: 12345, tid: 12345, name: com.umu.app  &gt;&gt;&gt; com.umu.app &lt;&lt;&lt;
+F DEBUG   : signal 11 (SIGSEGV), code 1 (SEGV_MAPERR)
+</code></pre>
+</div><p>这里有一个重要的去噪设计：收集器会检查块里有没有 <code>&gt;&gt;&gt; 被测包名 &lt;&lt;&lt;</code> 这一行，没有就丢弃。因为 Fastbot 自己也运行在设备上，它偶尔崩溃时同样会产生 tombstone，如果不做这一步过滤，Fastbot 的问题就会被误报成 App 的崩溃。</p>
+<h3 id="flutter-%E5%B1%82%E5%B4%A9%E6%BA%83" tabindex="-1">Flutter 层崩溃 <a class="anchor" href="#flutter-%E5%B1%82%E5%B4%A9%E6%BA%83">#</a></h3>
+<p>Flutter 的 Dart 层异常走的是 <code>flutter</code> 这个日志标签：</p>
+<div class="cb"><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code>E/flutter: [ERROR:flutter/runtime/dart_vm_initializer.cc]
+  Unhandled Exception: Null check operator used on a null value
+  #0  HomeBloc.loadData (package:umu_app/home/bloc.dart:42:5)
+</code></pre>
+</div><p>和 iOS 不同，Android 上 Dart 的栈帧直接就是可读的函数名和行号，不需要额外符号化。收集器识别到这类日志时，会标记为 Flutter 崩溃。</p>
+<h3 id="anr" tabindex="-1">ANR <a class="anchor" href="#anr">#</a></h3>
+<div class="cb"><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code>E/ActivityManager: ANR in com.umu.app
+    PID: 12345
+    Reason: Input dispatching timed out
+</code></pre>
+</div><p>ANR（应用无响应）单独计数，<strong>不计入崩溃数</strong>：出现 ANR 时报告判为 WARN，但不会因此判 FAIL，以保持崩溃判定的干净。</p>
+<h3 id="fastbot-%E8%87%AA%E5%B7%B1%E7%9A%84%E8%AE%B0%E5%BD%95" tabindex="-1">Fastbot 自己的记录 <a class="anchor" href="#fastbot-%E8%87%AA%E5%B7%B1%E7%9A%84%E8%AE%B0%E5%BD%95">#</a></h3>
+<p>除了 logcat，Fastbot 也会把它捕获到的崩溃摘要和 ANR 时的线程堆栈写到设备的 <code>/sdcard/crash-dump.log</code> 和 <code>/sdcard/oom-traces.log</code> 里。测试结束后，框架把这两个文件拉回本地，作为补充信息附在报告里。它们和 logcat 的内容有重叠，但在某些原生崩溃场景下，Fastbot 记录的上下文比 logcat 更完整。</p>
+<hr>
+<h2 id="%E5%85%AD%E3%80%81%E9%A1%B5%E9%9D%A2%E8%A6%86%E7%9B%96%E7%8E%87%EF%BC%9A%E4%B8%8D%E6%8F%92%E6%A1%A9%E4%B9%9F%E8%83%BD%E7%BB%9F%E8%AE%A1" tabindex="-1">六、页面覆盖率：不插桩也能统计 <a class="anchor" href="#%E5%85%AD%E3%80%81%E9%A1%B5%E9%9D%A2%E8%A6%86%E7%9B%96%E7%8E%87%EF%BC%9A%E4%B8%8D%E6%8F%92%E6%A1%A9%E4%B9%9F%E8%83%BD%E7%BB%9F%E8%AE%A1">#</a></h2>
+<p>iOS 侧靠注入的 stub 拦截页面出现事件来统计到过哪些页面。Android 侧不插桩，但 Fastbot 每次跳转到新的 Activity 时，都会在自己的日志里留下一行记录：</p>
+<div class="cb"><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code>Allowing start of Intent { cmp=cn.tc.umu/cn.tc.umu.ui.home.HomeActivity }
+</code></pre>
+</div><p>测试结束后，覆盖率脚本解析 Fastbot 的日志，提取所有这样的行，按包名精确过滤掉系统 App 和 LeakCanary 这类工具页面，得到本次访问过的 Activity 列表。</p>
+<p>为什么不直接从 logcat 里取页面跳转记录？因为从 Android 11 开始，相关日志的标签从 <code>ActivityManager</code> 迁移到了 <code>ActivityTaskManager</code>，按标签过滤变得不稳定。Fastbot 的日志是它自己输出的，格式稳定，包名也来自它的内部逻辑，更可信。</p>
+<p>覆盖率的分母则来自对安装包的静态扫描，做法和 iOS 同源：用 <code>aapt2</code> 解析安装包的清单文件，列出所有属于本 App 的 Activity；再从 Flutter 的编译产物里提取所有 <code>umu://</code> 开头的路由。每次运行时自动扫描当前安装包，保证分母和被测版本一致。</p>
+<p>有一点需要说明：Android 的 Release 包里没有 Flutter 路由的访问日志，所以<strong>目前 Android 只能统计原生页面的覆盖率</strong>，Flutter 页面虽然有分母，却还没有办法知道到过哪些。</p>
+<hr>
+<h2 id="%E4%B8%83%E3%80%81%E6%8A%8A%E5%90%84%E9%83%A8%E5%88%86%E4%B8%B2%E8%B5%B7%E6%9D%A5" tabindex="-1">七、把各部分串起来 <a class="anchor" href="#%E4%B8%83%E3%80%81%E6%8A%8A%E5%90%84%E9%83%A8%E5%88%86%E4%B8%B2%E8%B5%B7%E6%9D%A5">#</a></h2>
+<p>一次 Android 测试的整体流程如下：</p>
+<div class="cb"><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code>run.py（主控）
+  ├── 唤醒屏幕并解除锁屏（确保 Fastbot 操作的是 App 而不是锁屏界面）
+  ├── 安装 APK（指定的文件不存在时，使用设备上已有的版本）
+  ├── 扫描安装包，生成覆盖率分母
+  │
+  ├── 启动 Fastbot（adb shell app_process ...）
+  │     └── 设备上 App 被持续操作，输出 fastbot.log
+  │
+  ├── 启动 perf_collector.py
+  │     ├── 每 5 秒 dumpsys meminfo → PSS
+  │     └── 每 5 秒 /proc/stat 差分 → CPU%
+  │           → perf_raw.jsonl
+  │
+  └── 启动 crash_watcher.py
+        └── adb logcat 实时流
+              ├── FATAL EXCEPTION            → Java 崩溃
+              ├── tombstone + 包名校验       → 原生崩溃
+              ├── flutter 标签异常           → Flutter 崩溃
+              └── ANR in &lt;包名&gt;              → ANR（单独计数）
+                    → crashes.jsonl
+
+测试结束
+  ├── 拉取 crash-dump.log / oom-traces.log
+  ├── 解析 fastbot.log → coverage.json
+  └── reporter.py → report.json + report.html，FAIL 时推送告警
+</code></pre>
+</div><hr>
+<h2 id="%E5%85%AB%E3%80%81ios-%E4%B8%8E-android-%E5%B7%A5%E5%85%B7%E9%93%BE%E5%85%A8%E5%AF%B9%E6%AF%94" tabindex="-1">八、iOS 与 Android 工具链全对比 <a class="anchor" href="#%E5%85%AB%E3%80%81ios-%E4%B8%8E-android-%E5%B7%A5%E5%85%B7%E9%93%BE%E5%85%A8%E5%AF%B9%E6%AF%94">#</a></h2>
+<div class="tw"><table><thead>
+<tr>
+<th>能力</th>
+<th>iOS</th>
+<th>Android</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>设备通信</td>
+<td><code>xcrun devicectl</code>（CoreDevice）</td>
+<td>adb</td>
+</tr>
+<tr>
+<td>Fastbot 运行方式</td>
+<td>XCTest Runner，xcodebuild 启动</td>
+<td>jar 包，<code>app_process</code> 直接执行</td>
+</tr>
+<tr>
+<td>读取界面</td>
+<td>无障碍树 + 注入的 stub</td>
+<td>系统 UI 自动化接口</td>
+</tr>
+<tr>
+<td>内存</td>
+<td><code>xctrace</code> 录制，Physical Footprint</td>
+<td><code>dumpsys meminfo</code> 每 5 秒，PSS</td>
+</tr>
+<tr>
+<td>CPU</td>
+<td><code>xctrace</code> 录制</td>
+<td><code>/proc</code> 差分，每 5 秒</td>
+</tr>
+<tr>
+<td>FPS</td>
+<td>未采集</td>
+<td>未采集</td>
+</tr>
+<tr>
+<td>崩溃来源</td>
+<td>设备上的 <code>.ips</code> 文件，每 30 秒轮询</td>
+<td>logcat 实时流，四类事件</td>
+</tr>
+<tr>
+<td>Flutter 崩溃识别</td>
+<td>栈帧特征（<code>DART_MIRROR</code>、<code>dart::</code>）</td>
+<td><code>flutter</code> 日志标签</td>
+</tr>
+<tr>
+<td>工具自身的误报过滤</td>
+<td>排除系统模拟报告，stub 崩溃单独计数</td>
+<td>tombstone 必须带被测包名，过滤 Fastbot 自身崩溃</td>
+</tr>
+<tr>
+<td>ANR</td>
+<td>无此概念</td>
+<td>单独计数，判 WARN 不判 FAIL</td>
+</tr>
+<tr>
+<td>页面访问记录</td>
+<td>stub 拦截页面出现事件，含 Flutter 路由</td>
+<td>fastbot.log 中的 Activity 跳转，暂无 Flutter</td>
+</tr>
+<tr>
+<td>覆盖率分母</td>
+<td>注入时静态分析 IPA</td>
+<td>运行时用 aapt2 和 strings 扫描 APK</td>
+</tr>
+</tbody>
+</table></div><p>两端的采集机制几乎没有一处相同，但框架让它们的产物保持一致：<code>perf_raw.jsonl</code>、<code>crashes.jsonl</code>、<code>coverage.json</code> 的字段格式两端统一，报告模块拿到数据时完全不需要区分平台。这正是把报告逻辑放在两端共享层的价值所在。</p>
+<hr>
+<h2 id="%E4%B8%8B%E4%B8%80%E7%AF%87%E9%A2%84%E5%91%8A" tabindex="-1">下一篇预告 <a class="anchor" href="#%E4%B8%8B%E4%B8%80%E7%AF%87%E9%A2%84%E5%91%8A">#</a></h2>
+<p>下一篇进入报告模块。它是整个框架的&quot;大脑&quot;：接收两端采集的原始数据，计算各项指标，对照阈值给出 PASS、WARN 或 FAIL，生成可读的报告，并在失败时推送告警。下一篇会把&quot;数据怎么变成结论&quot;这件事讲清楚。</p>
+<div class="pnav"><a class="l" href="/posts/app-testing-stability-04-reporter-pipeline/"><small>上一篇</small><b>APP自动化测试实践 稳定性·04：从数据到结论——报告、判定与页面覆盖率</b></a><a class="r" href="/posts/app-testing-stability-02-ios-toolchain/"><small>下一篇</small><b>APP自动化测试实践 稳定性·02：iOS 工具链——从 tidevice 到 CoreDevice 的工具演进</b></a></div></article></main>
+
+<div id="mascot" title="戳一下">
+  <div id="m-say"></div>
+  <button id="m-top" title="回到顶部" aria-label="回到顶部">↑</button>
+</div>
+<script type="module" src="/scene2d.js"></script>
+<script type="module" src="/mascot.js"></script>
+<script>
+addEventListener('keydown', function(e){
+  var P = {"prev":"/posts/app-testing-stability-04-reporter-pipeline/","next":"/posts/app-testing-stability-02-ios-toolchain/"};
+  // 灯箱打开时 Esc 只关灯箱,方向键不翻页
+  var lb = document.querySelector('.lb');
+  if (lb) { if (e.key === 'Escape') lb.remove(); return; }
+  if (e.key === 'ArrowLeft'  && P.prev) location.href = P.prev;
+  if (e.key === 'ArrowRight' && P.next) location.href = P.next;
+  if (e.key === 'Escape') location.href = '/#writing';
+});
+</script>
+<script>
+// 大纲高亮:滚动容器是 #art(不是 window),直接按滚动位置算当前节最可靠
+(function(){
+  var toc = document.querySelector('.toc');
+  if (!toc) return;
+  var art = document.getElementById('art');
+  var links = [].slice.call(toc.querySelectorAll('a'));
+  var map = {};
+  // id 本身已是百分号编码,直接用原始 href 做 key,不要 decode
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var heads = [].slice.call(art.querySelectorAll('h2[id],h3[id]'));
+  if (!heads.length) return;
+  var cur = null;
+
+  function paint(){
+    var top = art.getBoundingClientRect().top + 100;   // 判定线:卡片顶部下方 100px
+    var found = heads[0];
+    for (var i = 0; i < heads.length; i++){
+      if (heads[i].getBoundingClientRect().top <= top) found = heads[i]; else break;
+    }
+    // 已滚到底时强制选中最后一节,否则末节永远高亮不到
+    if (art.scrollTop + art.clientHeight >= art.scrollHeight - 4) found = heads[heads.length - 1];
+    if (found === cur) return;
+    cur = found;
+    links.forEach(function(a){ a.classList.remove('on'); });
+    var a = map[found.id];
+    if (!a) return;
+    a.classList.add('on');
+    var box = a.getBoundingClientRect(), tb = toc.getBoundingClientRect();
+    if (box.top < tb.top || box.bottom > tb.bottom) a.scrollIntoView({block:'nearest'});
+  }
+
+  var tick = false;
+  art.addEventListener('scroll', function(){
+    if (tick) return;
+    tick = true;
+    requestAnimationFrame(function(){ tick = false; paint(); });
+  }, {passive:true});
+
+  toc.addEventListener('click', function(e){
+    var a = e.target.closest('a'); if (!a) return;
+    var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if (!t) return;
+    e.preventDefault();
+    art.scrollTo({ top: art.scrollTop + t.getBoundingClientRect().top - art.getBoundingClientRect().top - 24, behavior:'smooth' });
+    history.replaceState(null, '', a.getAttribute('href'));
+  });
+  paint();
+})();
+</script>
+<script>
+// 图片灯箱:点正文图片或 Mermaid 图放大,点击 / Esc / 滚轮关闭
+document.getElementById('art').addEventListener('click', function(e){
+  var t = e.target.closest('img,.mm svg');
+  if (!t || t.closest('a')) return;
+  var lb = document.createElement('div'), c = t.cloneNode(true);
+  lb.className = 'lb';
+  if (c.tagName !== 'IMG') {
+    // SVG 没有固有的"原图尺寸",按视口等比放大
+    var r = t.getBoundingClientRect();
+    var k = Math.min(innerWidth * .92 / r.width, innerHeight * .9 / r.height);
+    c.style.width = r.width * k + 'px';
+    c.style.height = r.height * k + 'px';
+  }
+  lb.appendChild(c);
+  lb.onclick = lb.onwheel = function(){ lb.remove(); };
+  document.body.appendChild(lb);
+});
+</script>
+<script>
+// 代码块复制
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('.cb-c');
+  if (!btn) return;
+  var pre = btn.parentElement.querySelector('pre');
+  if (!pre) return;
+  var text = pre.innerText;
+  var done = function(){
+    btn.textContent = '已复制'; btn.classList.add('ok');
+    setTimeout(function(){ btn.textContent = '复制'; btn.classList.remove('ok'); }, 1600);
+  };
+  // clipboard API 需要安全上下文(https 或 localhost),否则回退到 execCommand
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else fallback();
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (err) { btn.textContent = '复制失败'; }
+    document.body.removeChild(ta);
+  }
+});
+</script>
+</body></html>

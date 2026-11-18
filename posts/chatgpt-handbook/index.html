@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>ChatGPT使用技巧手册 — fatbruin</title>
+<meta name="description" content="ChatGPT 实用手册:Prompt 迭代方法论,以及代码重构、多语言与开发辅助场景。"><meta property="og:type" content="article"><meta property="og:site_name" content="fatbruin"><meta property="og:title" content="ChatGPT使用技巧手册"><meta property="og:description" content="ChatGPT 实用手册:Prompt 迭代方法论,以及代码重构、多语言与开发辅助场景。"><meta property="og:url" content="https://www.umuer.com/posts/chatgpt-handbook/"><meta property="og:image" content="https://www.umuer.com/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://www.umuer.com/posts/chatgpt-handbook/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="fatbruin" href="/rss.xml">
+<script>(function(){var n=null;try{n=localStorage.getItem('fatbruin-night')}catch(e){}var h=new Date().getHours();if(n?n==='1':(h>=19||h<6))document.documentElement.classList.add('night')})()</script>
+<link rel="stylesheet" href="/styles/base.0282236f.css">
+<link rel="stylesheet" href="/styles/post.0bb29940.css"></head>
+<body class="post">
+<div id="scene"></div>
+<div class="topbar"><div class="navl"><a class="back" href="/#writing">← 回到小屋</a><a class="back nav-fallback" href="/posts/">全部文章 →</a></div><div class="brand">fat<span>bruin</span></div></div>
+<main><nav class="toc" aria-label="目录"><p class="toc-h">目录</p><ol><li class="l2"><a href="#%E7%9B%AE%E5%BD%95">目录</a></li><li class="l2"><a href="#%E6%A0%B8%E5%BF%83%E6%8A%80%E5%B7%A7">核心技巧</a></li><li class="l3"><a href="#prompt%E7%94%9F%E6%88%90%E6%96%B9%E6%B3%95%E8%AE%BA">Prompt生成方法论</a></li><li class="l2"><a href="#%E4%BB%A3%E7%A0%81%E4%BC%98%E5%8C%96%E4%B8%8E%E9%87%8D%E6%9E%84">代码优化与重构</a></li><li class="l3"><a href="#10%E5%A4%A7%E5%8D%B3%E6%97%B6%E4%BB%A3%E7%A0%81%E9%87%8D%E6%9E%84%E6%8A%80%E5%B7%A7">10大即时代码重构技巧</a></li><li class="l2"><a href="#%E5%A4%9A%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86">多语言处理</a></li><li class="l3"><a href="#%E5%A4%9A%E8%AF%AD%E7%A7%8D%E7%BF%BB%E8%AF%91%E5%B7%A5%E4%BD%9C%E6%B5%81">多语种翻译工作流</a></li><li class="l2"><a href="#%E5%BC%80%E5%8F%91%E8%BE%85%E5%8A%A9">开发辅助</a></li><li class="l3"><a href="#%E6%B5%8B%E8%AF%95%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91%EF%BC%88tdd%EF%BC%89">测试驱动开发（TDD）</a></li><li class="l2"><a href="#%E8%B7%A8%E5%B9%B3%E5%8F%B0%E9%80%82%E9%85%8D">跨平台适配</a></li><li class="l3"><a href="#ios%E5%B8%83%E5%B1%80%E8%BD%AC%E6%8D%A2">iOS布局转换</a></li><li class="l2"><a href="#%E6%89%A9%E5%B1%95%E5%BA%94%E7%94%A8">扩展应用</a></li><li class="l3"><a href="#figma%2Bchatgpt%E5%8D%8F%E4%BD%9C">Figma+ChatGPT协作</a></li><li class="l2"><a href="#%E9%99%84%E5%BD%95">附录</a></li><li class="l3"><a href="#%E5%AE%9E%E7%94%A8%E8%B5%84%E6%BA%90">实用资源</a></li></ol><a class="toc-all" href="/posts/">全部文章 →</a></nav><article id="art"><p class="meta"><span>2024.01.15</span><span>Agent</span><span>2 分钟</span></p><h1>ChatGPT使用技巧手册</h1><p class="sum">ChatGPT 实用手册:Prompt 迭代方法论,以及代码重构、多语言与开发辅助场景。</p><hr>
+<h2 id="%E7%9B%AE%E5%BD%95" tabindex="-1">目录 <a class="anchor" href="#%E7%9B%AE%E5%BD%95">#</a></h2>
+<ul>
+<li><a href="#%E6%A0%B8%E5%BF%83%E6%8A%80%E5%B7%A7">核心技巧</a></li>
+<li><a href="#%E4%BB%A3%E7%A0%81%E4%BC%98%E5%8C%96%E4%B8%8E%E9%87%8D%E6%9E%84">代码优化与重构</a></li>
+<li><a href="#%E5%A4%9A%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86">多语言处理</a></li>
+<li><a href="#%E5%BC%80%E5%8F%91%E8%BE%85%E5%8A%A9">开发辅助</a></li>
+<li><a href="#%E8%B7%A8%E5%B9%B3%E5%8F%B0%E9%80%82%E9%85%8D">跨平台适配</a></li>
+<li><a href="#%E6%89%A9%E5%B1%95%E5%BA%94%E7%94%A8">扩展应用</a></li>
+</ul>
+<hr>
+<h2 id="%E6%A0%B8%E5%BF%83%E6%8A%80%E5%B7%A7" tabindex="-1">核心技巧 <a class="anchor" href="#%E6%A0%B8%E5%BF%83%E6%8A%80%E5%B7%A7">#</a></h2>
+<h3 id="prompt%E7%94%9F%E6%88%90%E6%96%B9%E6%B3%95%E8%AE%BA" tabindex="-1">Prompt生成方法论 <a class="anchor" href="#prompt%E7%94%9F%E6%88%90%E6%96%B9%E6%B3%95%E8%AE%BA">#</a></h3>
+<ol>
+<li>
+<p><strong>多Prompt生成</strong></p>
+<ul>
+<li>通过生成多个prompt迭代优化输出质量</li>
+<li>示例流程：<div class="cb"><span class="cb-l">python</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-python"><span class="hljs-comment"># 生成初始Prompt → 评估结果 → 生成改进Prompt → 最终优化</span>
+</code></pre>
+</div></li>
+</ul>
+</li>
+<li>
+<p><strong>角色扮演</strong></p>
+<ul>
+<li>作为超级语言解释器（处理复杂语义）</li>
+<li>作为提示词训练器（生成领域专用Prompt）</li>
+</ul>
+</li>
+<li>
+<p><strong>格式规范</strong></p>
+<ul>
+<li>强制JSON/YAML结构化输出</li>
+<li>表格化数据呈现</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="%E4%BB%A3%E7%A0%81%E4%BC%98%E5%8C%96%E4%B8%8E%E9%87%8D%E6%9E%84" tabindex="-1">代码优化与重构 <a class="anchor" href="#%E4%BB%A3%E7%A0%81%E4%BC%98%E5%8C%96%E4%B8%8E%E9%87%8D%E6%9E%84">#</a></h2>
+<h3 id="10%E5%A4%A7%E5%8D%B3%E6%97%B6%E4%BB%A3%E7%A0%81%E9%87%8D%E6%9E%84%E6%8A%80%E5%B7%A7" tabindex="-1">10大即时代码重构技巧 <a class="anchor" href="#10%E5%A4%A7%E5%8D%B3%E6%97%B6%E4%BB%A3%E7%A0%81%E9%87%8D%E6%9E%84%E6%8A%80%E5%B7%A7">#</a></h3>
+<div class="tw"><table><thead>
+<tr>
+<th>优化方向</th>
+<th>典型操作</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>性能优化</td>
+<td>算法复杂度分析</td>
+<td>循环结构</td>
+</tr>
+<tr>
+<td>兼容性</td>
+<td>多语言语法适配</td>
+<td>跨平台项目</td>
+</tr>
+<tr>
+<td>可维护性</td>
+<td>模块化拆分</td>
+<td>大型工程</td>
+</tr>
+</tbody>
+</table></div><p><strong>重构步骤示例：</strong></p>
+<ol>
+<li>使用最新库版本替换过时代码</li>
+<li>将ArrayList改为ConcurrentHashMap（数据结构优化）</li>
+<li>添加try-with-resources错误处理</li>
+</ol>
+<hr>
+<h2 id="%E5%A4%9A%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86" tabindex="-1">多语言处理 <a class="anchor" href="#%E5%A4%9A%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86">#</a></h2>
+<h3 id="%E5%A4%9A%E8%AF%AD%E7%A7%8D%E7%BF%BB%E8%AF%91%E5%B7%A5%E4%BD%9C%E6%B5%81" tabindex="-1">多语种翻译工作流 <a class="anchor" href="#%E5%A4%9A%E8%AF%AD%E7%A7%8D%E7%BF%BB%E8%AF%91%E5%B7%A5%E4%BD%9C%E6%B5%81">#</a></h3>
+<p><strong>关键注意事项：</strong></p>
+<ul>
+<li>使用 <code>LANG_CODE</code>作为字典key</li>
+<li>保留原始文本占位符（如 <code>{0}</code>）</li>
+<li>优先处理数字/日期格式</li>
+</ul>
+<hr>
+<h2 id="%E5%BC%80%E5%8F%91%E8%BE%85%E5%8A%A9" tabindex="-1">开发辅助 <a class="anchor" href="#%E5%BC%80%E5%8F%91%E8%BE%85%E5%8A%A9">#</a></h2>
+<h3 id="%E6%B5%8B%E8%AF%95%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91%EF%BC%88tdd%EF%BC%89" tabindex="-1">测试驱动开发（TDD） <a class="anchor" href="#%E6%B5%8B%E8%AF%95%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91%EF%BC%88tdd%EF%BC%89">#</a></h3>
+<ol>
+<li>
+<p><strong>UT生成</strong></p>
+<ul>
+<li>输入：方法签名 + 边界条件</li>
+<li>输出：JUnit/TestNG测试套件</li>
+<li>覆盖率分析建议</li>
+</ul>
+</li>
+<li>
+<p><strong>Mock数据生成</strong></p>
+<div class="cb"><span class="cb-l">json</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;user&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;##number(1,100)&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;##name.fullName&quot;</span>
+  <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+</div></li>
+</ol>
+<hr>
+<h2 id="%E8%B7%A8%E5%B9%B3%E5%8F%B0%E9%80%82%E9%85%8D" tabindex="-1">跨平台适配 <a class="anchor" href="#%E8%B7%A8%E5%B9%B3%E5%8F%B0%E9%80%82%E9%85%8D">#</a></h2>
+<h3 id="ios%E5%B8%83%E5%B1%80%E8%BD%AC%E6%8D%A2" tabindex="-1">iOS布局转换 <a class="anchor" href="#ios%E5%B8%83%E5%B1%80%E8%BD%AC%E6%8D%A2">#</a></h3>
+<p><strong>Objective-C框架迁移流程：</strong></p>
+<div class="cb"><span class="cb-l">objective-c</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-objective-c">// 原始Frame布局
+CGRectMake(10, 20, 30, 40);
+
+// Masonry转换后
+make.top.equalTo(20);
+make.left.equalTo(10);
+make.width.equalTo(30);
+make.height.equalTo(40);
+</code></pre>
+</div><p><strong>优化建议：</strong></p>
+<ul>
+<li>将布局逻辑拆分为 <code>setupConstraints</code>方法</li>
+<li>使用 <code>MAS_SHORTHAND</code>简化语法</li>
+</ul>
+<hr>
+<h2 id="%E6%89%A9%E5%B1%95%E5%BA%94%E7%94%A8" tabindex="-1">扩展应用 <a class="anchor" href="#%E6%89%A9%E5%B1%95%E5%BA%94%E7%94%A8">#</a></h2>
+<h3 id="figma%2Bchatgpt%E5%8D%8F%E4%BD%9C" tabindex="-1">Figma+ChatGPT协作 <a class="anchor" href="#figma%2Bchatgpt%E5%8D%8F%E4%BD%9C">#</a></h3>
+<div class="cb"><span class="cb-l">plantuml</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-plantuml">@startuml
+frame Figma设计稿 {
+  component 图层结构
+  component 样式参数
+}
+
+frame ChatGPT {
+  component 设计规范解析
+  component 代码生成
+}
+
+Figma设计稿 --&gt; ChatGPT : 导出设计规范
+ChatGPT --&gt; 前端工程 : 生成组件代码
+@enduml
+</code></pre>
+</div><hr>
+<h2 id="%E9%99%84%E5%BD%95" tabindex="-1">附录 <a class="anchor" href="#%E9%99%84%E5%BD%95">#</a></h2>
+<h3 id="%E5%AE%9E%E7%94%A8%E8%B5%84%E6%BA%90" tabindex="-1">实用资源 <a class="anchor" href="#%E5%AE%9E%E7%94%A8%E8%B5%84%E6%BA%90">#</a></h3>
+<ul>
+<li><a href="https://www.aishort.top/?tags=code">Prompt精选库</a></li>
+<li>Recharts数据可视化库</li>
+<li>Lucide React图标集</li>
+</ul>
+<div class="pnav"><a class="l" href="/posts/s3-resumable-upload/"><small>上一篇</small><b>S3 大文件断点续传</b></a><a class="r" href="/posts/ios-crash-types/"><small>下一篇</small><b>iOS Crash类型总结</b></a></div></article></main>
+
+<div id="mascot" title="戳一下">
+  <div id="m-say"></div>
+  <button id="m-top" title="回到顶部" aria-label="回到顶部">↑</button>
+</div>
+<script type="module" src="/scene2d.js"></script>
+<script type="module" src="/mascot.js"></script>
+<script>
+addEventListener('keydown', function(e){
+  var P = {"prev":"/posts/s3-resumable-upload/","next":"/posts/ios-crash-types/"};
+  // 灯箱打开时 Esc 只关灯箱,方向键不翻页
+  var lb = document.querySelector('.lb');
+  if (lb) { if (e.key === 'Escape') lb.remove(); return; }
+  if (e.key === 'ArrowLeft'  && P.prev) location.href = P.prev;
+  if (e.key === 'ArrowRight' && P.next) location.href = P.next;
+  if (e.key === 'Escape') location.href = '/#writing';
+});
+</script>
+<script>
+// 大纲高亮:滚动容器是 #art(不是 window),直接按滚动位置算当前节最可靠
+(function(){
+  var toc = document.querySelector('.toc');
+  if (!toc) return;
+  var art = document.getElementById('art');
+  var links = [].slice.call(toc.querySelectorAll('a'));
+  var map = {};
+  // id 本身已是百分号编码,直接用原始 href 做 key,不要 decode
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var heads = [].slice.call(art.querySelectorAll('h2[id],h3[id]'));
+  if (!heads.length) return;
+  var cur = null;
+
+  function paint(){
+    var top = art.getBoundingClientRect().top + 100;   // 判定线:卡片顶部下方 100px
+    var found = heads[0];
+    for (var i = 0; i < heads.length; i++){
+      if (heads[i].getBoundingClientRect().top <= top) found = heads[i]; else break;
+    }
+    // 已滚到底时强制选中最后一节,否则末节永远高亮不到
+    if (art.scrollTop + art.clientHeight >= art.scrollHeight - 4) found = heads[heads.length - 1];
+    if (found === cur) return;
+    cur = found;
+    links.forEach(function(a){ a.classList.remove('on'); });
+    var a = map[found.id];
+    if (!a) return;
+    a.classList.add('on');
+    var box = a.getBoundingClientRect(), tb = toc.getBoundingClientRect();
+    if (box.top < tb.top || box.bottom > tb.bottom) a.scrollIntoView({block:'nearest'});
+  }
+
+  var tick = false;
+  art.addEventListener('scroll', function(){
+    if (tick) return;
+    tick = true;
+    requestAnimationFrame(function(){ tick = false; paint(); });
+  }, {passive:true});
+
+  toc.addEventListener('click', function(e){
+    var a = e.target.closest('a'); if (!a) return;
+    var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if (!t) return;
+    e.preventDefault();
+    art.scrollTo({ top: art.scrollTop + t.getBoundingClientRect().top - art.getBoundingClientRect().top - 24, behavior:'smooth' });
+    history.replaceState(null, '', a.getAttribute('href'));
+  });
+  paint();
+})();
+</script>
+<script>
+// 图片灯箱:点正文图片或 Mermaid 图放大,点击 / Esc / 滚轮关闭
+document.getElementById('art').addEventListener('click', function(e){
+  var t = e.target.closest('img,.mm svg');
+  if (!t || t.closest('a')) return;
+  var lb = document.createElement('div'), c = t.cloneNode(true);
+  lb.className = 'lb';
+  if (c.tagName !== 'IMG') {
+    // SVG 没有固有的"原图尺寸",按视口等比放大
+    var r = t.getBoundingClientRect();
+    var k = Math.min(innerWidth * .92 / r.width, innerHeight * .9 / r.height);
+    c.style.width = r.width * k + 'px';
+    c.style.height = r.height * k + 'px';
+  }
+  lb.appendChild(c);
+  lb.onclick = lb.onwheel = function(){ lb.remove(); };
+  document.body.appendChild(lb);
+});
+</script>
+<script>
+// 代码块复制
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('.cb-c');
+  if (!btn) return;
+  var pre = btn.parentElement.querySelector('pre');
+  if (!pre) return;
+  var text = pre.innerText;
+  var done = function(){
+    btn.textContent = '已复制'; btn.classList.add('ok');
+    setTimeout(function(){ btn.textContent = '复制'; btn.classList.remove('ok'); }, 1600);
+  };
+  // clipboard API 需要安全上下文(https 或 localhost),否则回退到 execCommand
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else fallback();
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (err) { btn.textContent = '复制失败'; }
+    document.body.removeChild(ta);
+  }
+});
+</script>
+</body></html>

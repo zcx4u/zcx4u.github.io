@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>S3 大文件断点续传 — fatbruin</title>
+<meta name="description" content="把单文件上传改成分片续传:文件内容哈希做唯一标识,靠 NSURLSession 抗网络抖动。"><meta property="og:type" content="article"><meta property="og:site_name" content="fatbruin"><meta property="og:title" content="S3 大文件断点续传"><meta property="og:description" content="把单文件上传改成分片续传:文件内容哈希做唯一标识,靠 NSURLSession 抗网络抖动。"><meta property="og:url" content="https://www.umuer.com/posts/s3-resumable-upload/"><meta property="og:image" content="https://www.umuer.com/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://www.umuer.com/posts/s3-resumable-upload/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="fatbruin" href="/rss.xml">
+<script>(function(){var n=null;try{n=localStorage.getItem('fatbruin-night')}catch(e){}var h=new Date().getHours();if(n?n==='1':(h>=19||h<6))document.documentElement.classList.add('night')})()</script>
+<link rel="stylesheet" href="/styles/base.0282236f.css">
+<link rel="stylesheet" href="/styles/post.0bb29940.css"></head>
+<body class="post">
+<div id="scene"></div>
+<div class="topbar"><div class="navl"><a class="back" href="/#writing">← 回到小屋</a><a class="back nav-fallback" href="/posts/">全部文章 →</a></div><div class="brand">fat<span>bruin</span></div></div>
+<main><nav class="toc" aria-label="目录"><p class="toc-h">目录</p><ol><li class="l2"><a href="#%E9%9C%80%E6%B1%82%E7%94%B1%E6%9D%A5">需求由来</a></li><li class="l2"><a href="#%E4%B8%A4%E4%B8%AA%E5%89%8D%E6%8F%90">两个前提</a></li><li class="l2"><a href="#%E5%88%86%E7%89%87%E4%B8%8A%E4%BC%A0%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F">分片上传的生命周期</a></li><li class="l2"><a href="#%E4%B8%A4%E4%B8%AA%E5%9D%91">两个坑</a></li><li class="l3"><a href="#%E5%9D%91-1%EF%BC%9A%E5%88%86%E7%89%87%E4%B8%80%E8%87%B4%E6%80%A7">坑 1：分片一致性</a></li><li class="l3"><a href="#%E5%9D%91-2%EF%BC%9A%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86%EF%BC%88%E5%90%8E%E5%8F%B0-%2F-%E6%9D%80-app%EF%BC%89">坑 2：状态管理（后台 / 杀 APP）</a></li><li class="l2"><a href="#%E8%90%BD%E5%9C%B0%E5%AE%9E%E7%8E%B0">落地实现</a></li><li class="l3"><a href="#%E5%BF%85%E9%A1%BB%E6%8C%82%E7%9A%84-appdelegate-%E5%9B%9E%E8%B0%83">必须挂的 AppDelegate 回调</a></li><li class="l3"><a href="#%E5%85%B3%E9%94%AE%E9%85%8D%E7%BD%AE">关键配置</a></li><li class="l3"><a href="#%E6%8F%90%E5%8F%96%E6%9C%AA%E5%AE%8C%E6%88%90%E4%BB%BB%E5%8A%A1%EF%BC%88%E6%9C%80%E5%AE%B9%E6%98%93%E8%B8%A9%E7%9A%84%E5%9C%B0%E6%96%B9%EF%BC%89">提取未完成任务（最容易踩的地方）</a></li><li class="l2"><a href="#%E7%BD%91%E7%BB%9C%E6%8A%96%E5%8A%A8%E5%AF%BC%E8%87%B4%E7%9A%84%E3%80%8C%E5%BC%B1%E7%BD%91%E5%81%87%E6%AD%BB%E3%80%8D">网络抖动导致的「弱网假死」</a></li><li class="l2"><a href="#%E6%80%9D%E8%80%83">思考</a></li><li class="l2"><a href="#see-also">See Also</a></li></ol><a class="toc-all" href="/posts/">全部文章 →</a></nav><article id="art"><p class="meta"><span>2024.05</span><span>iOS</span><span>5 分钟</span></p><h1>S3 大文件断点续传</h1><p class="sum">把单文件上传改成分片续传:文件内容哈希做唯一标识,靠 NSURLSession 抗网络抖动。</p><h2 id="%E9%9C%80%E6%B1%82%E7%94%B1%E6%9D%A5" tabindex="-1">需求由来 <a class="anchor" href="#%E9%9C%80%E6%B1%82%E7%94%B1%E6%9D%A5">#</a></h2>
+<p>日本客户反馈：网络不好时上传 AI 作业视频耗时极长，常见「进度条走了一大半后长时间卡住 → 只能杀 APP 重传」。诉求是上传失败后接着上次进度继续。</p>
+<p>日本站点文件存储用 AWS，iOS 端已接入 AWS S3 SDK。改造方向：<strong>单文件上传 → 支持断点续传的分片上传</strong>。</p>
+<h2 id="%E4%B8%A4%E4%B8%AA%E5%89%8D%E6%8F%90" tabindex="-1">两个前提 <a class="anchor" href="#%E4%B8%A4%E4%B8%AA%E5%89%8D%E6%8F%90">#</a></h2>
+<p>断点续传成立的前提只有一条本质要求：<strong>本地文件与云端文件一对一映射</strong>。</p>
+<p>拆开是两个条件：</p>
+<ol>
+<li>文件一致</li>
+<li>bucket 信息与上传地址一致</li>
+</ol>
+<p>业务逻辑必须能判断&quot;不同的上传请求负载是不是同一个文件&quot;；确认是同一个文件后，从缓存取出<strong>上次用的 bucket 和 path</strong> 初始化 SDK，继续未完成的任务。</p>
+<p><strong>文件唯一标识不能用文件 Path 的 MD5</strong>——文件在多次任务间可能被改动，Path 不变而内容变了，续传会拼出残缺文件。正确做法是<strong>对文件内容本身做哈希校验</strong>。</p>
+<p>本地缓存视项目情况选数据库或直接 <code>NSUserDefaults</code>。</p>
+<h2 id="%E5%88%86%E7%89%87%E4%B8%8A%E4%BC%A0%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F" tabindex="-1">分片上传的生命周期 <a class="anchor" href="#%E5%88%86%E7%89%87%E4%B8%8A%E4%BC%A0%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F">#</a></h2>
+<p>本质是本地维护一个多分片上传任务的生命周期：</p>
+<ol>
+<li>开始分片上传任务 → 返回一个 upload id</li>
+<li>本地记录每个分片的上传结果</li>
+<li>全部完成 → 调合并分片接口</li>
+<li>中途失败 → 下次启动时跳过已完成分片（严格说应以<strong>服务端查询到的已完成分片</strong>为准，本地记录是简化理解）</li>
+</ol>
+<h2 id="%E4%B8%A4%E4%B8%AA%E5%9D%91" tabindex="-1">两个坑 <a class="anchor" href="#%E4%B8%A4%E4%B8%AA%E5%9D%91">#</a></h2>
+<h3 id="%E5%9D%91-1%EF%BC%9A%E5%88%86%E7%89%87%E4%B8%80%E8%87%B4%E6%80%A7" tabindex="-1">坑 1：分片一致性 <a class="anchor" href="#%E5%9D%91-1%EF%BC%9A%E5%88%86%E7%89%87%E4%B8%80%E8%87%B4%E6%80%A7">#</a></h3>
+<p>分片不一致的后果分级：<strong>缺分片 → 内容丢失；顺序或内容错 → 视频跳帧/黑屏，极大概率转码失败</strong>。合并后才暴露，代价高。</p>
+<p>另外大文件切分片本身消耗大、耗时长，<strong>不应该每次开始上传都重新切</strong>。</p>
+<p>移动端解法是文件沙盒 + 缓存：</p>
+<ul>
+<li><strong>物理分片</strong>：拿到新任务先切片，分片文件缓存本地并配任务 id；下次匹配到相同 id 直接取缓存分片上传。</li>
+<li><strong>逻辑分片</strong>（更优）：只要确定是同一个文件，<strong>只保存每个分片的 range</strong>，上传时按 range 读取对应数据段。首次分片的时间开销也一并省掉。</li>
+</ul>
+<h3 id="%E5%9D%91-2%EF%BC%9A%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86%EF%BC%88%E5%90%8E%E5%8F%B0-%2F-%E6%9D%80-app%EF%BC%89" tabindex="-1">坑 2：状态管理（后台 / 杀 APP） <a class="anchor" href="#%E5%9D%91-2%EF%BC%9A%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86%EF%BC%88%E5%90%8E%E5%8F%B0-%2F-%E6%9D%80-app%EF%BC%89">#</a></h3>
+<p>iOS 靠 <code>NSURLSession</code> 的 <strong>Background Session</strong> 模式把上传任务交给系统：</p>
+<ul>
+<li>通过 <code>URLSessionConfiguration.background(withIdentifier:)</code> 创建的任务，App 不运行甚至已终止时仍可执行。</li>
+<li>App 被挂起/终止时系统接管；网络恢复后系统尝试继续；任务完成时唤醒 App 处理。</li>
+</ul>
+<p>这是系统级、比任何应用层重试都更强的自动恢复机制。</p>
+<p>单分片失败的重试策略见仁见智，一般用指数回退。</p>
+<h2 id="%E8%90%BD%E5%9C%B0%E5%AE%9E%E7%8E%B0" tabindex="-1">落地实现 <a class="anchor" href="#%E8%90%BD%E5%9C%B0%E5%AE%9E%E7%8E%B0">#</a></h2>
+<p><strong>核心只有一句话</strong>：SDK 在初始化 <code>AWSS3TransferUtility</code> 时会自动恢复未完成的任务。重复调上传业务时，<strong>取出未完成任务，重新赋值进度回调和结果回调即可</strong>——不要重建任务。</p>
+<h3 id="%E5%BF%85%E9%A1%BB%E6%8C%82%E7%9A%84-appdelegate-%E5%9B%9E%E8%B0%83" tabindex="-1">必须挂的 AppDelegate 回调 <a class="anchor" href="#%E5%BF%85%E9%A1%BB%E6%8C%82%E7%9A%84-appdelegate-%E5%9B%9E%E8%B0%83">#</a></h3>
+<p>想让 Background Session 正常记录每个后台分片任务的完成状态，这个回调是硬前提：</p>
+<div class="cb"><span class="cb-l">objectivec</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-objectivec">- (<span class="hljs-type">void</span>)application:(<span class="hljs-built_in">UIApplication</span> *)application
+    handleEventsForBackgroundURLSession:(<span class="hljs-built_in">NSString</span> *)identifier
+                      completionHandler:(<span class="hljs-type">void</span> (^)(<span class="hljs-type">void</span>))completionHandler {
+    [AWSS3TransferUtility interceptApplication:application
+          handleEventsForBackgroundURLSession:identifier
+                            completionHandler:completionHandler];
+}
+</code></pre>
+</div><h3 id="%E5%85%B3%E9%94%AE%E9%85%8D%E7%BD%AE" tabindex="-1">关键配置 <a class="anchor" href="#%E5%85%B3%E9%94%AE%E9%85%8D%E7%BD%AE">#</a></h3>
+<div class="cb"><span class="cb-l">objectivec</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-objectivec">AWSS3TransferUtilityConfiguration *transferConfig = [[AWSS3TransferUtilityConfiguration alloc] init];
+transferConfig.accelerateModeEnabled = <span class="hljs-literal">NO</span>;
+transferConfig.retryLimit = <span class="hljs-number">1</span>;
+transferConfig.multiPartConcurrencyLimit = @(<span class="hljs-number">5</span>);          <span class="hljs-comment">// 并发分片数，控制带宽占用</span>
+transferConfig.timeoutIntervalForResource = <span class="hljs-number">60</span> * <span class="hljs-number">60</span> * <span class="hljs-number">2</span>;  <span class="hljs-comment">// 120 分钟</span>
+</code></pre>
+</div><p>注册必须走 <code>completionHandler</code> 异步等待内部数据库等操作完成后再取实例——<strong>官方推荐用法</strong>：</p>
+<div class="cb"><span class="cb-l">objectivec</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-objectivec">[AWSS3TransferUtility registerS3TransferUtilityWithConfiguration:configuration
+                                    transferUtilityConfiguration:transferConfig
+                                                          forKey:configKey
+                                               completionHandler:^(<span class="hljs-built_in">NSError</span> * _Nullable error) {
+    AWSS3TransferUtility *s3 = [AWSS3TransferUtility S3TransferUtilityForKey:configKey];
+    <span class="hljs-comment">// ...</span>
+}];
+</code></pre>
+</div><h3 id="%E6%8F%90%E5%8F%96%E6%9C%AA%E5%AE%8C%E6%88%90%E4%BB%BB%E5%8A%A1%EF%BC%88%E6%9C%80%E5%AE%B9%E6%98%93%E8%B8%A9%E7%9A%84%E5%9C%B0%E6%96%B9%EF%BC%89" tabindex="-1">提取未完成任务（最容易踩的地方） <a class="anchor" href="#%E6%8F%90%E5%8F%96%E6%9C%AA%E5%AE%8C%E6%88%90%E4%BB%BB%E5%8A%A1%EF%BC%88%E6%9C%80%E5%AE%B9%E6%98%93%E8%B8%A9%E7%9A%84%E5%9C%B0%E6%96%B9%EF%BC%89">#</a></h3>
+<div class="cb"><span class="cb-l">objectivec</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-objectivec"><span class="hljs-comment">// 注意：这是异步任务，必须用 continueWithSuccessBlock 回调。</span>
+<span class="hljs-comment">// SDK 对同步/异步任务标识不清，很容易掉进去。</span>
+[[s3 getMultiPartUploadTasks] continueWithSuccessBlock:^<span class="hljs-type">id</span>(AWSTask&lt;<span class="hljs-built_in">NSArray</span>&lt;AWSS3TransferUtilityMultiPartUploadTask *&gt; *&gt; *t) {
+    AWSS3TransferUtilityMultiPartUploadTask *progressTask;
+    <span class="hljs-keyword">for</span> (AWSS3TransferUtilityMultiPartUploadTask *task <span class="hljs-keyword">in</span> t.result) {
+        <span class="hljs-keyword">if</span> ([task.key isEqualToString:<span class="hljs-keyword">self</span>.context.path]) {   <span class="hljs-comment">// key 即云端文件 path</span>
+            progressTask = task;
+        } <span class="hljs-keyword">else</span> {
+            [task suspend];   <span class="hljs-comment">// 其他任务只暂停，不要 cancel —— cancel 会丢进度</span>
+        }
+    }
+    fulfill(progressTask);
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>;
+}];
+</code></pre>
+</div><p>拿到匹配任务后<strong>直接设回调 + resume，不要重建</strong>：</p>
+<div class="cb"><span class="cb-l">objectivec</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-objectivec"><span class="hljs-keyword">if</span> (progressTask
+    &amp;&amp; progressTask.status != AWSS3TransferUtilityTransferStatusError
+    &amp;&amp; progressTask.status != AWSS3TransferUtilityTransferStatusCancelled) {
+    [progressTask setProgressBlock:uploadTaskProgressBlock];
+    [progressTask setCompletionHandler:uploadTaskCompletionBlock];
+    [progressTask resume];
+} <span class="hljs-keyword">else</span> {
+    <span class="hljs-comment">// 走新建分支。注意：SDK 内部即使是相同文件也会重新创建新任务，比较坑</span>
+    [<span class="hljs-keyword">self</span>.transferUtility uploadFileUsingMultiPart:... ];
+}
+</code></pre>
+</div><h2 id="%E7%BD%91%E7%BB%9C%E6%8A%96%E5%8A%A8%E5%AF%BC%E8%87%B4%E7%9A%84%E3%80%8C%E5%BC%B1%E7%BD%91%E5%81%87%E6%AD%BB%E3%80%8D" tabindex="-1">网络抖动导致的「弱网假死」 <a class="anchor" href="#%E7%BD%91%E7%BB%9C%E6%8A%96%E5%8A%A8%E5%AF%BC%E8%87%B4%E7%9A%84%E3%80%8C%E5%BC%B1%E7%BD%91%E5%81%87%E6%AD%BB%E3%80%8D">#</a></h2>
+<p>分片上传等待时间长，<code>timeoutIntervalForResource</code> 一般设得很大。而 SDK 内部开了 Background Session 会自动处理断网恢复——<strong>断网时不会回调任务失败</strong>。</p>
+<p>对有前台进度展示的业务，后果是：断网了，既不报错、进度也不动，<strong>用户被无限等待锁死在上传界面</strong>。</p>
+<p><strong>处理原则</strong>：</p>
+<ul>
+<li>业务层自行检测断网或其他业务报错，<strong>解锁 UI 反馈</strong>，让用户有机会去做别的事。</li>
+<li><strong>只做业务层回调，不要手动显式暂停或取消任务</strong>——<code>NSURLSession</code> 会自己处理。不必关心上传时机，只接收结果。</li>
+<li>全局维护上传成功状态：用户重复上传相同文件（且两个前提一致）且已检测到成功，直接回调成功——<strong>&quot;秒传&quot;</strong>，体验提升明显。</li>
+</ul>
+<h2 id="%E6%80%9D%E8%80%83" tabindex="-1">思考 <a class="anchor" href="#%E6%80%9D%E8%80%83">#</a></h2>
+<p><strong>关于 AWSS3TransferUtility</strong>：API 很封闭，很多想手工介入的地方要么没接口要么没效果。且大量方法不标注同步/异步，有些明明是异步处理却不在参数里给结果回调，必须靠额外封装的 <code>AWSTask</code> 处理。</p>
+<p><strong>但结论是正向的</strong>：SDK 内部做得比较完善，业务层不必要手工介入，只负责处理过程和结果回调即可。</p>
+<p><strong>更普适的一条</strong>：这套断点续传的效果绝大部分依赖系统 <code>NSURLSession</code> 的能力特性。做网络请求相关的优化或基建时，<strong>先研究官方系统提供的能力</strong>——不论谁家的 SDK，只要还在 APP 应用层，最终都必须调底层 API 才能实现功能。</p>
+<h2 id="see-also" tabindex="-1">See Also <a class="anchor" href="#see-also">#</a></h2>
+<ul>
+<li><a href="/posts/asr-optimization/">ASR 语音识别服务优化</a> — ASR 断连降级后正是导向这条上传流程</li>
+<li><a href="/posts/portrait-blur/">人像分割与背景模糊</a> — 上传的正是背景模糊处理后的 AI 作业录制视频</li>
+</ul>
+<div class="pnav"><a class="l" href="/posts/asr-optimization/"><small>上一篇</small><b>iOS端 ASR优化</b></a><a class="r" href="/posts/chatgpt-handbook/"><small>下一篇</small><b>ChatGPT使用技巧手册</b></a></div></article></main>
+
+<div id="mascot" title="戳一下">
+  <div id="m-say"></div>
+  <button id="m-top" title="回到顶部" aria-label="回到顶部">↑</button>
+</div>
+<script type="module" src="/scene2d.js"></script>
+<script type="module" src="/mascot.js"></script>
+<script>
+addEventListener('keydown', function(e){
+  var P = {"prev":"/posts/asr-optimization/","next":"/posts/chatgpt-handbook/"};
+  // 灯箱打开时 Esc 只关灯箱,方向键不翻页
+  var lb = document.querySelector('.lb');
+  if (lb) { if (e.key === 'Escape') lb.remove(); return; }
+  if (e.key === 'ArrowLeft'  && P.prev) location.href = P.prev;
+  if (e.key === 'ArrowRight' && P.next) location.href = P.next;
+  if (e.key === 'Escape') location.href = '/#writing';
+});
+</script>
+<script>
+// 大纲高亮:滚动容器是 #art(不是 window),直接按滚动位置算当前节最可靠
+(function(){
+  var toc = document.querySelector('.toc');
+  if (!toc) return;
+  var art = document.getElementById('art');
+  var links = [].slice.call(toc.querySelectorAll('a'));
+  var map = {};
+  // id 本身已是百分号编码,直接用原始 href 做 key,不要 decode
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var heads = [].slice.call(art.querySelectorAll('h2[id],h3[id]'));
+  if (!heads.length) return;
+  var cur = null;
+
+  function paint(){
+    var top = art.getBoundingClientRect().top + 100;   // 判定线:卡片顶部下方 100px
+    var found = heads[0];
+    for (var i = 0; i < heads.length; i++){
+      if (heads[i].getBoundingClientRect().top <= top) found = heads[i]; else break;
+    }
+    // 已滚到底时强制选中最后一节,否则末节永远高亮不到
+    if (art.scrollTop + art.clientHeight >= art.scrollHeight - 4) found = heads[heads.length - 1];
+    if (found === cur) return;
+    cur = found;
+    links.forEach(function(a){ a.classList.remove('on'); });
+    var a = map[found.id];
+    if (!a) return;
+    a.classList.add('on');
+    var box = a.getBoundingClientRect(), tb = toc.getBoundingClientRect();
+    if (box.top < tb.top || box.bottom > tb.bottom) a.scrollIntoView({block:'nearest'});
+  }
+
+  var tick = false;
+  art.addEventListener('scroll', function(){
+    if (tick) return;
+    tick = true;
+    requestAnimationFrame(function(){ tick = false; paint(); });
+  }, {passive:true});
+
+  toc.addEventListener('click', function(e){
+    var a = e.target.closest('a'); if (!a) return;
+    var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if (!t) return;
+    e.preventDefault();
+    art.scrollTo({ top: art.scrollTop + t.getBoundingClientRect().top - art.getBoundingClientRect().top - 24, behavior:'smooth' });
+    history.replaceState(null, '', a.getAttribute('href'));
+  });
+  paint();
+})();
+</script>
+<script>
+// 图片灯箱:点正文图片或 Mermaid 图放大,点击 / Esc / 滚轮关闭
+document.getElementById('art').addEventListener('click', function(e){
+  var t = e.target.closest('img,.mm svg');
+  if (!t || t.closest('a')) return;
+  var lb = document.createElement('div'), c = t.cloneNode(true);
+  lb.className = 'lb';
+  if (c.tagName !== 'IMG') {
+    // SVG 没有固有的"原图尺寸",按视口等比放大
+    var r = t.getBoundingClientRect();
+    var k = Math.min(innerWidth * .92 / r.width, innerHeight * .9 / r.height);
+    c.style.width = r.width * k + 'px';
+    c.style.height = r.height * k + 'px';
+  }
+  lb.appendChild(c);
+  lb.onclick = lb.onwheel = function(){ lb.remove(); };
+  document.body.appendChild(lb);
+});
+</script>
+<script>
+// 代码块复制
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('.cb-c');
+  if (!btn) return;
+  var pre = btn.parentElement.querySelector('pre');
+  if (!pre) return;
+  var text = pre.innerText;
+  var done = function(){
+    btn.textContent = '已复制'; btn.classList.add('ok');
+    setTimeout(function(){ btn.textContent = '复制'; btn.classList.remove('ok'); }, 1600);
+  };
+  // clipboard API 需要安全上下文(https 或 localhost),否则回退到 execCommand
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else fallback();
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (err) { btn.textContent = '复制失败'; }
+    document.body.removeChild(ta);
+  }
+});
+</script>
+</body></html>

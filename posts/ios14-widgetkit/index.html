@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>一帖看透iOS14 小组件 — fatbruin</title>
+<meta name="description" content="一帖看透 iOS 14 小组件:WidgetKit 的结构、刷新机制与开发要点。"><meta property="og:type" content="article"><meta property="og:site_name" content="fatbruin"><meta property="og:title" content="一帖看透iOS14 小组件"><meta property="og:description" content="一帖看透 iOS 14 小组件:WidgetKit 的结构、刷新机制与开发要点。"><meta property="og:url" content="https://www.umuer.com/posts/ios14-widgetkit/"><meta property="og:image" content="https://www.umuer.com/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://www.umuer.com/posts/ios14-widgetkit/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="fatbruin" href="/rss.xml">
+<script>(function(){var n=null;try{n=localStorage.getItem('fatbruin-night')}catch(e){}var h=new Date().getHours();if(n?n==='1':(h>=19||h<6))document.documentElement.classList.add('night')})()</script>
+<link rel="stylesheet" href="/styles/base.0282236f.css">
+<link rel="stylesheet" href="/styles/post.0bb29940.css"></head>
+<body class="post">
+<div id="scene"></div>
+<div class="topbar"><div class="navl"><a class="back" href="/#writing">← 回到小屋</a><a class="back nav-fallback" href="/posts/">全部文章 →</a></div><div class="brand">fat<span>bruin</span></div></div>
+<main><nav class="toc" aria-label="目录"><p class="toc-h">目录</p><ol><li class="l3"><a href="#widget%E4%BB%8B%E7%BB%8D">Widget介绍</a></li><li class="l3"><a href="#widget%E8%AE%BE%E8%AE%A1%E6%8C%87%E5%8D%97">Widget设计指南</a></li><li class="l3"><a href="#widget%3A-helloworld">Widget: HelloWorld</a></li><li class="l3"><a href="#widget%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90">Widget结构解析</a></li><li class="l3"><a href="#widget%E8%BF%9B%E9%98%B6">Widget进阶</a></li><li class="l3"><a href="#widget%E8%B8%A9%E5%9D%91">Widget踩坑</a></li></ol><a class="toc-all" href="/posts/">全部文章 →</a></nav><article id="art"><p class="meta"><span>2021.02.23</span><span>iOS</span><span>15 分钟</span></p><h1>一帖看透iOS14 小组件</h1><p class="sum">一帖看透 iOS 14 小组件:WidgetKit 的结构、刷新机制与开发要点。</p><blockquote>
+<p>自iOS8之后，苹果支持了扩展（Extension）的开发，开发者可以通过系统提供给我们的扩展接入点 (Extension point) 来为系统特定的服务提供某些附加的功能。
+但iOS14后，苹果更新了扩展组件，引入了新的UI组件：<code>WidgetKit</code> 而舍弃了iOS14以下版本的Today Extension组件</p>
+</blockquote>
+<h3 id="widget%E4%BB%8B%E7%BB%8D" tabindex="-1">Widget介绍 <a class="anchor" href="#widget%E4%BB%8B%E7%BB%8D">#</a></h3>
+<p><a href="https://support.apple.com/zh-cn/HT207122">这里有一份官方的小组件使用指南</a></p>
+<p>简单来说：小组件相当于一个动态程序入口，在有限的空间内展示你想看到的重要的信息</p>
+<img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/iOS14Widget/008eGmZEly1gnu0x3a5faj305g05p0tr.jpg" alt="电池小组件" style="zoom:50%;" />
+<p>苹果自带的日历使用起来非常不适，下载第三方日历又不想被捆绑的无用功能打扰。有了小组件之后这个问题就很好的解决了，比如上面的日历小组件，清晰的展示了今天的日期和农历以及周几，打开手机锁屏就能看见。</p>
+<p>此外系统自带的电量小组件，方便的展示了需要下滑去状态栏才能看到的耳机电量：</p>
+<img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/iOS14Widget/008eGmZEly1gnu0y70jk5j30ae0bgjuv.jpg" alt="电池小组件" style="zoom:50%;" />
+<p>之前发布的时候觉得这都是安卓系统玩剩下的东西，没什么卵用，不过现在是真香！</p>
+<hr>
+<h3 id="widget%E8%AE%BE%E8%AE%A1%E6%8C%87%E5%8D%97" tabindex="-1">Widget设计指南 <a class="anchor" href="#widget%E8%AE%BE%E8%AE%A1%E6%8C%87%E5%8D%97">#</a></h3>
+<p><a href="https://developer.apple.com/design/human-interface-guidelines/ios/system-capabilities/widgets/">这里有一份官方的设计指南</a></p>
+<p>简而言之，设计一个简单漂亮吸引人并且快速显示内容的小组件。</p>
+<hr>
+<h3 id="widget%3A-helloworld" tabindex="-1">Widget: HelloWorld <a class="anchor" href="#widget%3A-helloworld">#</a></h3>
+<p><a href="https://developer.apple.com/documentation/widgetkit/creating-a-widget-extension">这里有一份官方的开发文档可以参考</a></p>
+<p>一个小组件需要经过</p>
+<p><code>FIle</code> &gt; <code>New</code> &gt;<code>Target</code> &gt;<code>Wiget Extension</code>  来创建</p>
+<img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/iOS14Widget/008eGmZEly1gnu1b833goj30g90gdadn.jpg" style="zoom:100%;" />
+<p>找到我们需要的 <code>Widget Extension</code></p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/iOS14Widget/008eGmZEly1gnu1b7z83jj30kb0eodh5.jpg" alt=""></p>
+<p>命名小组件</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/iOS14Widget/008eGmZEly1gnu1b7vu85j30ke0eoq3v.jpg" alt=""></p>
+<p>图中圈着的选项控制了我们的小组件能否配置属性，例如天气相关的小组件就可能需要你手动配置地址来获取你想要知道的城市的天气数据。</p>
+<p>这样就创建好了一个小组件。小组件的文件结构如下：</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/iOS14Widget/008eGmZEgy1gnu587og7mj30e902s3yi.jpg" alt="不带配置项的小组件结构"></p>
+<p>这里我们选则了不带配置项的小组件</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/iOS14Widget/008eGmZEly1gnu1ge3kbuj30eb03hglp.jpg" alt="带配置项的结构"></p>
+<p>带配置项的小组件的结构 主要区别在于 <code>TestWidget.intentdefinition</code>文件上，这个文件内部可以添加配置选项。</p>
+<p>TestWidget代码如下</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">import</span> WidgetKit
+<span class="hljs-keyword">import</span> SwiftUI
+
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">Provider</span>: <span class="hljs-title class_ inherited__">TimelineProvider</span> {
+   	<span class="hljs-comment">/// 默认显示（无自定数据情况下显示）</span>
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">placeholder</span>(<span class="hljs-params">in</span> <span class="hljs-params">context</span>: <span class="hljs-type">Context</span>) -&gt; <span class="hljs-type">SimpleEntry</span> {
+        <span class="hljs-type">SimpleEntry</span>(date: <span class="hljs-type">Date</span>())
+    }
+	
+    <span class="hljs-comment">///getSnapshot方法是提供一个预览数据，可以让用户看到该组件的一个大致情况，是长什么样、显示什么数据的，可以写成固定数据，国外的			文章里叫它“fake information”</span>
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">getSnapshot</span>(<span class="hljs-params">in</span> <span class="hljs-params">context</span>: <span class="hljs-type">Context</span>, <span class="hljs-params">completion</span>: <span class="hljs-keyword">@escaping</span> (<span class="hljs-type">SimpleEntry</span>) -&gt; ()) {
+        <span class="hljs-keyword">let</span> entry <span class="hljs-operator">=</span> <span class="hljs-type">SimpleEntry</span>(date: <span class="hljs-type">Date</span>())
+        completion(entry)
+    }
+  
+		<span class="hljs-comment">///包含要显示的所有条目：预期显示的时间（条目的日期）以及时间轴“过期”的时间</span>
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">getTimeline</span>(<span class="hljs-params">in</span> <span class="hljs-params">context</span>: <span class="hljs-type">Context</span>, <span class="hljs-params">completion</span>: <span class="hljs-keyword">@escaping</span> (<span class="hljs-type">Timeline</span>&lt;<span class="hljs-type">Entry</span>&gt;) -&gt; ()) {
+        <span class="hljs-keyword">var</span> entries: [<span class="hljs-type">SimpleEntry</span>] <span class="hljs-operator">=</span> []
+
+        <span class="hljs-comment">// Generate a timeline consisting of five entries an hour apart, starting from the current date.</span>
+        <span class="hljs-keyword">let</span> currentDate <span class="hljs-operator">=</span> <span class="hljs-type">Date</span>()
+        <span class="hljs-keyword">for</span> hourOffset <span class="hljs-keyword">in</span> <span class="hljs-number">0</span> <span class="hljs-operator">..&lt;</span> <span class="hljs-number">5</span> {
+            <span class="hljs-comment">//需要在这里从网络加载数据回来 同步进行初始化</span>
+            <span class="hljs-keyword">let</span> entryDate <span class="hljs-operator">=</span> <span class="hljs-type">Calendar</span>.current.date(byAdding: .hour, value: hourOffset, to: currentDate)<span class="hljs-operator">!</span>
+            <span class="hljs-keyword">let</span> entry <span class="hljs-operator">=</span> <span class="hljs-type">SimpleEntry</span>(date: entryDate)
+            entries.append(entry)
+        }
+				<span class="hljs-comment">// atEnd 指在最后一个显示时间点的小组件完毕后重新刷新TimeLine</span>
+        <span class="hljs-keyword">let</span> timeline <span class="hljs-operator">=</span> <span class="hljs-type">Timeline</span>(entries: entries, policy: .atEnd)
+        completion(timeline)
+    }
+}
+
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">SimpleEntry</span>: <span class="hljs-title class_ inherited__">TimelineEntry</span> {
+    <span class="hljs-keyword">let</span> date: <span class="hljs-type">Date</span>
+  	<span class="hljs-comment">// 下面可以自己添加自定义的model</span>
+}
+
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">TestWidgetEntryView</span> : <span class="hljs-title class_ inherited__">View</span> {
+    <span class="hljs-keyword">var</span> entry: <span class="hljs-type">Provider</span>.<span class="hljs-type">Entry</span>
+		<span class="hljs-comment">// swiftUI的View 可以返回一系列View 具体请参看SwiftUI文档</span>
+    <span class="hljs-keyword">var</span> body: <span class="hljs-keyword">some</span> <span class="hljs-type">View</span> {
+        <span class="hljs-type">Text</span>(entry.date, style: .time)
+    }
+}
+<span class="hljs-comment">// 小组件主入口</span>
+<span class="hljs-keyword">@main</span>
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">TestWidget</span>: <span class="hljs-title class_ inherited__">Widget</span> {
+    <span class="hljs-keyword">let</span> kind: <span class="hljs-type">String</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;TestWidget&quot;</span>
+		<span class="hljs-comment">// StaticConfiguration 不带配置项的小组件初始化方式</span>
+    <span class="hljs-keyword">var</span> body: <span class="hljs-keyword">some</span> <span class="hljs-type">WidgetConfiguration</span> {
+        <span class="hljs-type">StaticConfiguration</span>(kind: kind, provider: <span class="hljs-type">Provider</span>()) { entry <span class="hljs-keyword">in</span>
+            <span class="hljs-type">TestWidgetEntryView</span>(entry: entry)
+        }
+        .configurationDisplayName(<span class="hljs-string">&quot;My Widget&quot;</span>)
+        .description(<span class="hljs-string">&quot;This is an example widget.&quot;</span>)
+    }
+}
+<span class="hljs-comment">// 实时预览view</span>
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">TestWidget_Previews</span>: <span class="hljs-title class_ inherited__">PreviewProvider</span> {
+    <span class="hljs-keyword">static</span> <span class="hljs-keyword">var</span> previews: <span class="hljs-keyword">some</span> <span class="hljs-type">View</span> {
+        <span class="hljs-type">TestWidgetEntryView</span>(entry: <span class="hljs-type">SimpleEntry</span>(date: <span class="hljs-type">Date</span>()))
+            .previewContext(<span class="hljs-type">WidgetPreviewContext</span>(family: .systemSmall))
+    }
+}
+
+</code></pre>
+</div><p>于是我们获得了第一个小组件：</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/iOS14Widget/008eGmZEly1gnu2oixw72j304o051mx9.jpg" alt=""></p>
+<p>看起来很简单吧！</p>
+<hr>
+<h3 id="widget%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90" tabindex="-1">Widget结构解析 <a class="anchor" href="#widget%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90">#</a></h3>
+<h4>至关重要 TimeLine</h4>
+<p><code>getTimeLine</code> 方法获取小组件整个显示周期。</p>
+<p>为了管理系统负载，<code>WidgetKit</code>使用预算来分配一天中的窗口小部件重新负载。</p>
+<blockquote>
+<p>Widgets use SwiftUI views to display their content. WidgetKit renders the views on your behalf in a separate process. As a result, your widget extension is not continually active, even if the widget is onscreen. Despite your widget not always being active, there are several ways you can keep its content up to date.</p>
+</blockquote>
+<p>抛开 <code>SwiftUI</code>不谈，单说 <code>your widget extension is not continually active</code> ，这段文字清晰的说明了小组件所面临的问题：不能实时刷新。即使你的小组件在你目光注视中，小组件也不能保持最新状态。</p>
+<p>重新加载窗口小部件会消耗系统资源，并会由于额外的联网和处理而导致电池消耗。为了减少对性能的影响并保持全天的电池寿命，请求的更新频率和更新次数将会限制为必要。</p>
+<p>那么小组件如何刷新？</p>
+<blockquote>
+<p>Many widgets have predictable points in time where it makes sense to update their content. For example, a widget that displays weather information might update the temperature hourly throughout the day. A stock market widget could update its content frequently during open market hours, but not at all over the weekend. By planning these times in advance, WidgetKit automatically refreshes your widget when the appropriate time arrives.</p>
+</blockquote>
+<p>许多APP需要定时刷新数据，这些刷新时间是可预测的，比如日历APP每天刷新当日的日期信息，股市APP则会在工作日频繁刷新交易信息，但是在休息日不频繁刷新。</p>
+<p>当我们能够为小组件提供一个可预测的时间点和刷新策略，系统便会按照既定的顺序刷新。</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/iOS14Widget/008eGmZEly1gnwiq5qmqfj30n80rugn1.jpg" alt=""></p>
+<p>如图所示，我们在 <code>.Now</code>和每隔1小时共三小时设置四个显示时间点，系统在get到我们给定的 <code>TimeLine</code>之后会在当前、一小时后、两小时后、三小时后总计四个时间点进行小组件UI渲染,由于我们第一次给定的重新刷新策略为 <code>.atEnd</code>所以会在三个小时时间点渲染完毕之后重新获取 <code>TimeLine</code>。</p>
+<p>第二个 <code>TimeLine(Provide timeline)</code>中设置的重新刷新策略为 <code>.never</code>所以在这个时间点的小组件渲染完毕之后就不再刷新了。</p>
+<h4>添加预览 Snapshot</h4>
+<p><code>getSnapshot</code>方法比较简单，这个方法获取我们在打开小组件预览界面时所看到的三个小组件的 <code>Entry</code>。</p>
+<p>这里如果不需要展示实时数据的时候可以放入固定的预览数据以获得最好的体验(不需要请求网络直接渲染数据)。</p>
+<h4>界面美化 Placeholder</h4>
+<p><code>placeholder</code>方法目的在于获取一个没有数据或者没有网络情况下的默认View,一般是进行美化小组件的时候在这个view上做文章，</p>
+<h4>数据支撑 TimelineEntry</h4>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">SimpleEntry</span>: <span class="hljs-title class_ inherited__">TimelineEntry</span> {
+    <span class="hljs-keyword">let</span> date: <span class="hljs-type">Date</span>
+}
+</code></pre>
+</div><p><code>TimelineEntry</code>协议必须包含一个 <code>date</code>属性，用于计算需要渲染页面的时间点</p>
+<p>自定义的模型可以实现这个协议用于承载内容数据。</p>
+<h4>内容基石 WidgetEntryView</h4>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">TestWidgetEntryView</span> : <span class="hljs-title class_ inherited__">View</span> {
+    <span class="hljs-keyword">var</span> entry: <span class="hljs-type">Provider</span>.<span class="hljs-type">Entry</span>
+
+    <span class="hljs-keyword">var</span> body: <span class="hljs-keyword">some</span> <span class="hljs-type">View</span> {
+        <span class="hljs-type">Text</span>(entry.date, style: .time)
+    }
+}
+</code></pre>
+</div><p>小组件的 <code>View</code>就是一个普通的包含 <code>Provider.Entry</code>的 <code>View(swiftUI)</code>，一般创建timeline的时候会提供 <code>Provider.Entry</code>给 <code>View</code>进行渲染。</p>
+<p><code>body</code>属性下包含一系列 <code>VIew</code>控件用于渲染页面，更多 <code>SwiftUI</code>相关的知识看<a href="https://developer.apple.com/tutorials/swiftui/creating-and-combining-views">SwiftUI文档</a>。</p>
+<p>以上就是小组件的结构拆分和解析，只要明白组成结构和运行机制就能根据自己的需求去定制开发了。</p>
+<hr>
+<h3 id="widget%E8%BF%9B%E9%98%B6" tabindex="-1">Widget进阶 <a class="anchor" href="#widget%E8%BF%9B%E9%98%B6">#</a></h3>
+<h4>功能和限制</h4>
+<p><code>iOS14 Widget</code>的功能对比着以前的 <code>TodayExtension</code>要少了很多，官方对小组件添加了很多限制。</p>
+<ul>
+<li>小组件扩展整体需要使用 <code>SwiftUI</code>结构，<code>WidgetEntryView</code>需要提供 <code>SwiftUIView</code>。</li>
+<li>页面滚动、动画和视频是被禁止的，<code>SwiftUI</code> 中 <code> List</code> 控件是无法使用的，扩展的 <code>UIKit</code>中 <code>UIVisualEffectView</code>是被禁用的(毛玻璃效果)，更多被禁用的 <code>View</code>还需要在开发中发现。</li>
+<li>只支持点击事件交互。</li>
+<li>无法主动更新数据 刷新数据使用 <code>Timeline</code>方式手动设置。</li>
+<li>每次重置刷新轮次的间隔不能低于5分钟，低于5分钟无效 ，我们在填充 <code>entries</code>时应该为其填充5分钟内需要显示的数据。不建议显示实时时间，和手机系统显示的时间可能会出现偏差。</li>
+</ul>
+<h4>小组件样式区分  supportedFamilies</h4>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">@main</span>
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">TestWidget</span>: <span class="hljs-title class_ inherited__">Widget</span> {
+    <span class="hljs-keyword">let</span> kind: <span class="hljs-type">String</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;TestWidget&quot;</span>
+		<span class="hljs-comment">// StaticConfiguration 不带配置项的小组件初始化方式</span>
+    <span class="hljs-keyword">var</span> body: <span class="hljs-keyword">some</span> <span class="hljs-type">WidgetConfiguration</span> {
+        <span class="hljs-type">StaticConfiguration</span>(kind: kind, provider: <span class="hljs-type">Provider</span>()) { entry <span class="hljs-keyword">in</span>
+            <span class="hljs-type">TestWidgetEntryView</span>(entry: entry)
+        }
+        .configurationDisplayName(<span class="hljs-string">&quot;My Widget&quot;</span>)
+        .description(<span class="hljs-string">&quot;This is an example widget.&quot;</span>)
+        .supportedFamilies([.systemSmall])<span class="hljs-comment">// 注意这里增加了一个方法来限制小组件支持的类型 这里只支持2x2小方块</span>
+    }
+}
+</code></pre>
+</div><p>从主入口可以看到我们定义了一个 <code>TestWidget的</code>小组件，这个小组件默认支持三种样式。</p>
+<p>我们常常只需要某一个小组件只支持一种样式，比如最小的方块形状的组件设计的时候由于尺寸及形状往往不考虑其他显示格式。</p>
+<p>这时我们可以在 <code>StaticConfiguration</code>后跟上配置支持的样式方法 <code>supportedFamilies()</code>，小组件按照体积大小分为   <code>systemSmall</code>, <code> systemMedium</code>，<code>systemLarge</code>三种。</p>
+<h4>多小组件容器  WidgetBundle</h4>
+<p>在设计完成并确定要展示的小组件之后，我们会遇到一个问题，如何在入口方法处展示多个不同类型的小组件。</p>
+<p>比如我们确定了三个小组件，<code>2x2</code>、<code>2x4</code>、<code>4x4</code>三种尺寸各一个，展示的内容也不相同。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">@main</span> <span class="hljs-comment">// 移除原来的标记 放在这里 main只能存在一个</span>
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">KrWidget</span>: <span class="hljs-title class_ inherited__">WidgetBundle</span> {
+    <span class="hljs-keyword">var</span> body: <span class="hljs-keyword">some</span> <span class="hljs-type">Widget</span> {
+        <span class="hljs-type">KrSmallWidget</span>()
+        <span class="hljs-type">KrMediumWidget</span>()
+        <span class="hljs-type">KrLargeWidget</span>()
+      	<span class="hljs-type">TestWidget</span>()<span class="hljs-comment">// 声明好的小组件可以在WidgetBundle下直接初始化</span>
+    }
+}
+</code></pre>
+</div><p>这时我们可以将入口方法标记改成 <code>WidgetBundle</code>来适应多个小组件，<code>KrSmallWidget</code>、<code>KrMediumWidget</code>、<code>KrLargeWidget</code>为我们自定义的小组件，其结构和 <code>TestWidget</code>一致。</p>
+<h4>所见即所得   PreviewProvider</h4>
+<p>如果对 <code>swiftUI</code>比较熟悉的胖友对这个会比较熟悉。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">TestWidget_Previews</span>: <span class="hljs-title class_ inherited__">PreviewProvider</span> {
+    <span class="hljs-keyword">static</span> <span class="hljs-keyword">var</span> previews: <span class="hljs-keyword">some</span> <span class="hljs-type">View</span> {
+        <span class="hljs-type">TestWidgetEntryView</span>(entry: <span class="hljs-type">SimpleEntry</span>(date: <span class="hljs-type">Date</span>()))
+            .previewContext(<span class="hljs-type">WidgetPreviewContext</span>(family: .systemSmall))
+    }
+}
+</code></pre>
+</div><p>这个 <code>PreviewProvider</code>可以呼出实时预览的页面，方便我们码UI。</p>
+<p>可以点编辑器右边的resume按钮进行预览</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/iOS14Widget/008eGmZEly1gnwfwkcrujj30il04f3yq.jpg" alt=""></p>
+<p>经过build可以看到预览的结果，在你代码改动的时候会实时变化，十分方便。</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/iOS14Widget/008eGmZEly1gnwfux3fiej31310ibn10.jpg" alt=""></p>
+<p>不小心把页面关掉的话可以在右上角五条横线按钮中找到 <code>Canvas</code>选项勾选即可 <code>(Xcode12)</code></p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/iOS14Widget/008eGmZEly1gnwfqmmkj4j305r06waag.jpg" alt=""></p>
+<h4>APP内刷新小组件   WidgetCenter</h4>
+<p>如果你需要在主工程里干预小组件的刷新，你可以使用 <code>WidgetCenter（单例）</code>类来进行操作。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"> 		<span class="hljs-comment">/// Reloads the timelines for all widgets of a particular kind.</span>
+    <span class="hljs-comment">/// - Parameter kind: A string that identifies the widget and matches the</span>
+    <span class="hljs-comment">///   value you used when you created the widget&#x27;s configuration.</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">func</span> <span class="hljs-title function_">reloadTimelines</span>(<span class="hljs-params">ofKind</span> <span class="hljs-params">kind</span>: <span class="hljs-type">String</span>)
+
+    <span class="hljs-comment">/// Reloads the timelines for all configured widgets belonging to the</span>
+    <span class="hljs-comment">/// containing app.</span>
+    <span class="hljs-keyword">public</span> <span class="hljs-keyword">func</span> <span class="hljs-title function_">reloadAllTimelines</span>()
+</code></pre>
+</div><p>一般使用这两个方法，来实现主APP内刷新小组件。</p>
+<h4>为小组件启用定位</h4>
+<p>一些天气类型的小组件经常会获取当前的定位，小组件中如果要请求定位信息，需要在小组件目录下的 <code>info.plist</code>文件中添加 <code>NSWidgetWantsLocation</code>字段来请求权限</p>
+<p>更多定位权限相关的信息请参考<a href="https://developer.apple.com/documentation/widgetkit/accessing-location-information-in-widgets">给你的小组件添加定位信息</a></p>
+<h4>和主APP数据共享</h4>
+<p>由于widget跟APP间相互独立，如果想用相同的数据则需要两者间数据共享，创建**<code>App Group</code>**
+主APP中  <code>Target</code> -&gt; <code>Signing &amp; Capability</code> -&gt; <code>+Capability</code> -&gt; <code>添加 App Group</code></p>
+<p>不过如果开发者账号开启 <code>Automatically manage signing</code>的话苹果会自动给你创建相关联的APPID。</p>
+<p>两者间的数据共享主要通过**<code>UserDefaults</code><strong>和</strong> <code>FileManager</code>**两种形式。</p>
+<h4>点击交互和跳转方式</h4>
+<p>点击Widget窗口唤起APP进行交互指定跳转支持两种方式：</p>
+<ul>
+<li><code>.widgetURL</code>：点击区域是Widget的所有区域，适合元素、逻辑简单的小部件，一个小组件只能响应一个 <code>widgetURL</code>，其中**<code>systemSmall</code>**类型的小组件只能使用此方式进行跳转</li>
+<li><code>Link</code>：通过Link修饰，允许让界面上不同元素产生点击响应，一个小组件可以包含多个 <code>Link</code></li>
+</ul>
+<p>以上两种小组件链接点击后，可以在主 <code>APP</code>中的 <code>APPDelegate</code>类中进行响应</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">func</span> <span class="hljs-title function_">application</span>(<span class="hljs-keyword">_</span> <span class="hljs-params">app</span>: <span class="hljs-type">UIApplication</span>, <span class="hljs-params">open</span> <span class="hljs-params">url</span>: <span class="hljs-type">URL</span>, <span class="hljs-params">options</span>: [<span class="hljs-type">UIApplication</span>.<span class="hljs-params">OpenURLOptionsKey</span> : <span class="hljs-keyword">Any</span>] <span class="hljs-operator">=</span> [:]) -&gt; <span class="hljs-type">Bool</span> {
+  		 <span class="hljs-comment">// 一般为小组件链接定义特殊的host进行区分</span>
+       <span class="hljs-keyword">if</span> url.host <span class="hljs-operator">==</span> <span class="hljs-type">WidgetExtensionHost</span> {
+         <span class="hljs-comment">//处理小组件点击事件源</span>
+       }
+}
+</code></pre>
+</div><p>如果 <code>APP</code>内做了切屏适配，实现了 <code>SceneDelegate</code>则需要在 <code>SceneDelegate</code>里面实现跳转处理</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">func</span> <span class="hljs-title function_">scene</span>(<span class="hljs-keyword">_</span> <span class="hljs-params">scene</span>: <span class="hljs-type">UIScene</span>, <span class="hljs-params">openURLContexts</span> <span class="hljs-params">URLContexts</span>: <span class="hljs-type">Set</span>&lt;<span class="hljs-type">UIOpenURLContext</span>&gt;) {
+    <span class="hljs-keyword">for</span> context <span class="hljs-keyword">in</span> <span class="hljs-type">URLContexts</span> {
+        <span class="hljs-built_in">print</span>(context.url)
+    }
+}
+</code></pre>
+</div><h4>调试小组件</h4>
+<p>开发的过程中总是充满了不确定性，一些东西需要断点进行调试。那么针对小组件如何调试？其实很简单，安装APP之后把 <code>Scheme</code>修改为我们的 <code>WidgetExtension</code>，选择测试机，然后运行，在手机上添加小组件后即可看到代码进入断点。</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/iOS14Widget/008eGmZEly1gnwg0oh85cj30iw06ljsr.jpg" alt=""></p>
+<h4>机型适配</h4>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/iOS14Widget/008eGmZEly1gnwgzuiadlj30rh09g751.jpg" alt=""></p>
+<p>不同的设备尺寸所拥有的小组件的尺寸也是不同的，目前（iPhone12时代）小组件有以上几种尺寸。</p>
+<p>在设计界面的时候和布局时需要考虑不同大小的区域的布局区别。</p>
+<p>官方建议保证大的组件看起来比较好，其他尺寸的小组件根据大尺寸的进行微调。（毕竟屏幕一天比一天大）</p>
+<h4>暗黑模式</h4>
+<p>开发过程中有遇到使用双模式的图片素材时，手机切换暗黑模式后页面的图标配图没有及时更新。总觉的目前小组件还有许多问题，不是很完善。</p>
+<p>解决方案为使用单模式的图，使用两套图进行根据环境切换。</p>
+<p>swiftUI中使用ColorScheme判断暗黑模式</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-meta">@Environment</span>(\.colorScheme) <span class="hljs-keyword">var</span> colorScheme: <span class="hljs-type">ColorScheme</span>
+<span class="hljs-comment">//根据不同模式填充不同颜色</span>
+<span class="hljs-type">Rectangle</span>().fill(<span class="hljs-type">Color</span>(colorScheme <span class="hljs-operator">==</span> .dark <span class="hljs-operator">?</span> <span class="hljs-type">UIColor</span>(hex: <span class="hljs-number">0x262626</span>) <span class="hljs-operator">??</span> <span class="hljs-type">UIColor</span>.black : .white))
+</code></pre>
+</div><h4>网络请求</h4>
+<p>如果主项目是使用swift进行开发的，可以将对应的网络请求库分享到小组件的target进行使用。在对应的类文件的Target Membership选项勾选小组件target即可。</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/iOS14Widget/008eGmZEly1gnwha6k9wsj30970g3dgy.jpg" alt=""></p>
+<p>但是一般主项目中的网络框架往往会夹杂很多定制化的插件或其他需求，这么分享会使项目工程代码依赖十分混乱。</p>
+<p>小组件中要使用的接口服务不会很多，所以我建议这里使用简单的网络请求即可。</p>
+<p>当然由于widget类似于todayExtension，这里可以和todayExtension的网络请求策略保持一致。</p>
+<h4>网络图片</h4>
+<p>SwiftUI中的Image没有提供直接加载URL方式的图片显示。在 <code>getTimeline</code>中进行数据请求中 <code>completion(timeline)</code>执行完之后，不再支持图片的异步回调，用异步加载的方式就无法加载网络图片，所以必须在数据请求回来的处理中采用<strong>同步方式</strong>，将图片的data获取，转换成UIImage，再赋值给Image展示</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">KrBaseWidgetEntity</span>: <span class="hljs-title class_ inherited__">Mappable</span> {
+    <span class="hljs-keyword">var</span> itemId: <span class="hljs-type">Int</span>?
+    <span class="hljs-keyword">var</span> itemType: <span class="hljs-type">Int</span>?
+    <span class="hljs-keyword">var</span> widgetTitle: <span class="hljs-type">String</span>?
+    <span class="hljs-keyword">var</span> widgetImageURL: <span class="hljs-type">URL</span>?
+    <span class="hljs-keyword">var</span> widgetImage: <span class="hljs-type">UIImage</span>?
+    <span class="hljs-keyword">var</span> route: <span class="hljs-type">String</span>?
+
+    <span class="hljs-keyword">init?</span>(<span class="hljs-params">map</span>: <span class="hljs-type">Map</span>) { }
+
+    <span class="hljs-keyword">mutating</span> <span class="hljs-keyword">func</span> <span class="hljs-title function_">mapping</span>(<span class="hljs-params">map</span>: <span class="hljs-type">Map</span>) {
+        itemId <span class="hljs-operator">&lt;-</span> map[<span class="hljs-string">&quot;itemId&quot;</span>]
+        itemType <span class="hljs-operator">&lt;-</span> map[<span class="hljs-string">&quot;itemType&quot;</span>]
+        widgetTitle <span class="hljs-operator">&lt;-</span> map[<span class="hljs-string">&quot;widgetTitle&quot;</span>]
+        widgetImageURL <span class="hljs-operator">&lt;-</span> (map[<span class="hljs-string">&quot;widgetImage&quot;</span>], <span class="hljs-type">CustomURLTransform</span>())
+        route <span class="hljs-operator">&lt;-</span> map[<span class="hljs-string">&quot;route&quot;</span>]
+      	<span class="hljs-comment">//获取到图片地址后直接同步获取图片数据转换为UIImage然后在View里面转换为Image显示</span>
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> url <span class="hljs-operator">=</span>  widgetImageURL,<span class="hljs-keyword">let</span> img <span class="hljs-operator">=</span> <span class="hljs-keyword">try?</span> <span class="hljs-type">Data</span>(contentsOf: url) {
+            widgetImage <span class="hljs-operator">=</span> <span class="hljs-type">UIImage</span>(data: img)
+        }
+
+    }
+
+    <span class="hljs-keyword">init</span>(<span class="hljs-params">id</span>: <span class="hljs-type">Int</span>, <span class="hljs-params">img</span>: <span class="hljs-type">UIImage</span>) {
+        <span class="hljs-keyword">self</span>.itemId <span class="hljs-operator">=</span> id
+        <span class="hljs-keyword">self</span>.itemType <span class="hljs-operator">=</span> <span class="hljs-number">0</span>
+        <span class="hljs-keyword">self</span>.widgetTitle <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&quot;</span>
+        <span class="hljs-keyword">self</span>.widgetImage <span class="hljs-operator">=</span> img
+        <span class="hljs-keyword">self</span>.route <span class="hljs-operator">=</span> defultRoute
+    }
+
+}
+</code></pre>
+</div><h4>埋点传值</h4>
+<p>小组件中埋点不宜设计过于复杂，因为小组件能够一直在操作系统界面上留存，但是主APP却不一定，需要传递埋点的时候只能在点击事件传递的URL中附带埋点值然后在APP内接收和处理的时候再提取固定的埋点字段。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift">		<span class="hljs-comment">//目前有一个自定义的埋点传值 类似&quot;media_event_value=click_mor_and_eve_widget&quot;</span>
+		<span class="hljs-keyword">let</span> routeStr <span class="hljs-operator">=</span> route <span class="hljs-operator">??</span> defultRoute
+    <span class="hljs-keyword">var</span> pathURL <span class="hljs-operator">=</span>  <span class="hljs-type">URL</span>(string: <span class="hljs-string">&quot;TestWidget://<span class="hljs-subst">\(widgetHost)</span>?<span class="hljs-subst">\(routeStr)</span>&quot;</span>)<span class="hljs-operator">!</span>
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> trackStr <span class="hljs-operator">=</span> track {
+        pathURL <span class="hljs-operator">=</span>  <span class="hljs-type">URL</span>(string: <span class="hljs-string">&quot;TestWidget://<span class="hljs-subst">\(widgetHost)</span>?<span class="hljs-subst">\(routeStr)</span>&amp;<span class="hljs-subst">\(trackStr)</span>&quot;</span>)<span class="hljs-operator">!</span>
+    }
+</code></pre>
+</div><h3 id="widget%E8%B8%A9%E5%9D%91" tabindex="-1">Widget踩坑 <a class="anchor" href="#widget%E8%B8%A9%E5%9D%91">#</a></h3>
+<h4>强制使用SwiftUI</h4>
+<p>这次的小组件更新强制使用SwiftUI可以看到苹果的目标和态度。对这个UI库不熟的话开发起来还是有点困难，不过正好也可以通过Widget对swiftUI进行一次实战训练。</p>
+<h4>偶现第一次添加小组件到桌面UI渲染失败(系统不调用getTimeLine)</h4>
+<p>测试过程中发现的一个问题</p>
+<p>APP第一次安装，第一次添加小组件的的时候，如果不等待小组件预览渲染完成就直接点 <code>添加到桌面</code>会触发初始化失败问题</p>
+<p>断点调试发现这个时候操作系统不调用（有时候会等很久才调貌似是线程被阻塞了）<code>getTimeLine</code>方法，导致页面加载不成功，由于timeline获取失败，其后续的刷新时间点也没法确定，则最后全部都不能刷新。</p>
+<h4>刷新不及时</h4>
+<p>自己使用的一些其他家的小组件，例如上文提到的日历，偶尔能看到小组件上还保持着昨天的日期，这让我感觉体验很差。</p>
+<p>这个新兴事物还有待优化呀。</p>
+<div class="pnav"><a class="l" href="/posts/ios-nscache/"><small>上一篇</small><b>NSCache</b></a><a class="r" href="/posts/app-proxy/"><small>下一篇</small><b>APP内部代理</b></a></div></article></main>
+
+<div id="mascot" title="戳一下">
+  <div id="m-say"></div>
+  <button id="m-top" title="回到顶部" aria-label="回到顶部">↑</button>
+</div>
+<script type="module" src="/scene2d.js"></script>
+<script type="module" src="/mascot.js"></script>
+<script>
+addEventListener('keydown', function(e){
+  var P = {"prev":"/posts/ios-nscache/","next":"/posts/app-proxy/"};
+  // 灯箱打开时 Esc 只关灯箱,方向键不翻页
+  var lb = document.querySelector('.lb');
+  if (lb) { if (e.key === 'Escape') lb.remove(); return; }
+  if (e.key === 'ArrowLeft'  && P.prev) location.href = P.prev;
+  if (e.key === 'ArrowRight' && P.next) location.href = P.next;
+  if (e.key === 'Escape') location.href = '/#writing';
+});
+</script>
+<script>
+// 大纲高亮:滚动容器是 #art(不是 window),直接按滚动位置算当前节最可靠
+(function(){
+  var toc = document.querySelector('.toc');
+  if (!toc) return;
+  var art = document.getElementById('art');
+  var links = [].slice.call(toc.querySelectorAll('a'));
+  var map = {};
+  // id 本身已是百分号编码,直接用原始 href 做 key,不要 decode
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var heads = [].slice.call(art.querySelectorAll('h2[id],h3[id]'));
+  if (!heads.length) return;
+  var cur = null;
+
+  function paint(){
+    var top = art.getBoundingClientRect().top + 100;   // 判定线:卡片顶部下方 100px
+    var found = heads[0];
+    for (var i = 0; i < heads.length; i++){
+      if (heads[i].getBoundingClientRect().top <= top) found = heads[i]; else break;
+    }
+    // 已滚到底时强制选中最后一节,否则末节永远高亮不到
+    if (art.scrollTop + art.clientHeight >= art.scrollHeight - 4) found = heads[heads.length - 1];
+    if (found === cur) return;
+    cur = found;
+    links.forEach(function(a){ a.classList.remove('on'); });
+    var a = map[found.id];
+    if (!a) return;
+    a.classList.add('on');
+    var box = a.getBoundingClientRect(), tb = toc.getBoundingClientRect();
+    if (box.top < tb.top || box.bottom > tb.bottom) a.scrollIntoView({block:'nearest'});
+  }
+
+  var tick = false;
+  art.addEventListener('scroll', function(){
+    if (tick) return;
+    tick = true;
+    requestAnimationFrame(function(){ tick = false; paint(); });
+  }, {passive:true});
+
+  toc.addEventListener('click', function(e){
+    var a = e.target.closest('a'); if (!a) return;
+    var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if (!t) return;
+    e.preventDefault();
+    art.scrollTo({ top: art.scrollTop + t.getBoundingClientRect().top - art.getBoundingClientRect().top - 24, behavior:'smooth' });
+    history.replaceState(null, '', a.getAttribute('href'));
+  });
+  paint();
+})();
+</script>
+<script>
+// 图片灯箱:点正文图片或 Mermaid 图放大,点击 / Esc / 滚轮关闭
+document.getElementById('art').addEventListener('click', function(e){
+  var t = e.target.closest('img,.mm svg');
+  if (!t || t.closest('a')) return;
+  var lb = document.createElement('div'), c = t.cloneNode(true);
+  lb.className = 'lb';
+  if (c.tagName !== 'IMG') {
+    // SVG 没有固有的"原图尺寸",按视口等比放大
+    var r = t.getBoundingClientRect();
+    var k = Math.min(innerWidth * .92 / r.width, innerHeight * .9 / r.height);
+    c.style.width = r.width * k + 'px';
+    c.style.height = r.height * k + 'px';
+  }
+  lb.appendChild(c);
+  lb.onclick = lb.onwheel = function(){ lb.remove(); };
+  document.body.appendChild(lb);
+});
+</script>
+<script>
+// 代码块复制
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('.cb-c');
+  if (!btn) return;
+  var pre = btn.parentElement.querySelector('pre');
+  if (!pre) return;
+  var text = pre.innerText;
+  var done = function(){
+    btn.textContent = '已复制'; btn.classList.add('ok');
+    setTimeout(function(){ btn.textContent = '复制'; btn.classList.remove('ok'); }, 1600);
+  };
+  // clipboard API 需要安全上下文(https 或 localhost),否则回退到 execCommand
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else fallback();
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (err) { btn.textContent = '复制失败'; }
+    document.body.removeChild(ta);
+  }
+});
+</script>
+</body></html>

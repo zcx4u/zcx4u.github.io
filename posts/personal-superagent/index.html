@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>个人 superagent 的思考与实践 — fatbruin</title>
+<meta name="description" content="用常驻 Claude Code 会话接管线下缺陷修复链路：事件驱动唤醒、Slack 异步审批，以「薄 Agent + 厚护栏」把自动化落到日常研发。"><meta property="og:type" content="article"><meta property="og:site_name" content="fatbruin"><meta property="og:title" content="个人 superagent 的思考与实践"><meta property="og:description" content="用常驻 Claude Code 会话接管线下缺陷修复链路：事件驱动唤醒、Slack 异步审批，以「薄 Agent + 厚护栏」把自动化落到日常研发。"><meta property="og:url" content="https://www.umuer.com/posts/personal-superagent/"><meta property="og:image" content="https://www.umuer.com/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://www.umuer.com/posts/personal-superagent/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="fatbruin" href="/rss.xml">
+<script>(function(){var n=null;try{n=localStorage.getItem('fatbruin-night')}catch(e){}var h=new Date().getHours();if(n?n==='1':(h>=19||h<6))document.documentElement.classList.add('night')})()</script>
+<link rel="stylesheet" href="/styles/base.0282236f.css">
+<link rel="stylesheet" href="/styles/post.0bb29940.css"></head>
+<body class="post">
+<div id="scene"></div>
+<div class="topbar"><div class="navl"><a class="back" href="/#writing">← 回到小屋</a><a class="back nav-fallback" href="/posts/">全部文章 →</a></div><div class="brand">fat<span>bruin</span></div></div>
+<main><nav class="toc" aria-label="目录"><p class="toc-h">目录</p><ol><li class="l2"><a href="#%E8%B5%B7%E5%9B%A0">起因</a></li><li class="l2"><a href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84">基本结构</a></li><li class="l2"><a href="#%E7%94%A8%E8%B5%B7%E6%9D%A5%E4%BB%80%E4%B9%88%E6%A0%B7">用起来什么样</a></li><li class="l3"><a href="#%E9%AB%98%E9%A3%8E%E9%99%A9%E5%8F%98%E6%9B%B4%E5%89%8D%E7%A7%BB%E5%86%B3%E7%AD%96%EF%BC%9A%E5%85%88%E8%BE%93%E5%87%BA%E6%A0%B9%E5%9B%A0%E5%88%86%E6%9E%90%E4%B8%8E%E6%96%B9%E6%A1%88%E7%9F%A9%E9%98%B5">高风险变更前移决策：先输出根因分析与方案矩阵</a></li><li class="l3"><a href="#%E4%BD%8E%E9%A3%8E%E9%99%A9%E5%8F%98%E6%9B%B4%E9%97%AD%E7%8E%AF%EF%BC%9A%E8%87%AA%E4%B8%BB%E4%BF%AE%E5%A4%8D%E3%80%81%E9%AA%8C%E8%AF%81%E4%B8%8E%E4%BA%A4%E4%BB%98%E6%B5%81%E8%BD%AC">低风险变更闭环：自主修复、验证与交付流转</a></li><li class="l3"><a href="#%E6%9C%AC%E5%9C%B0%E6%8E%A7%E5%88%B6%E5%8F%B0%EF%BC%9A%E7%BB%99%E5%90%8E%E5%8F%B0%E8%B7%91%E7%9D%80%E7%9A%84-agent-%E5%BC%80%E4%B8%AA%E3%80%8C%E5%A4%A9%E7%AA%97%E3%80%8D">本地控制台：给后台跑着的 Agent 开个「天窗」</a></li><li class="l2"><a href="#%E8%BE%B9%E7%95%8C">边界</a></li><li class="l2"><a href="#%E5%B7%A5%E7%A8%8B%E5%A4%8D%E7%9B%98">工程复盘</a></li><li class="l2"><a href="#%E6%9E%B6%E6%9E%84%E5%8F%8D%E6%80%9D%EF%BC%9A%E4%BB%A5%E3%80%8C%E8%96%84-agent-%2B-%E5%8E%9A%E6%8A%A4%E6%A0%8F%E3%80%8D%E6%9E%84%E5%BB%BA%E9%AB%98%E5%8F%AF%E9%9D%A0%E7%A0%94%E5%8F%91%E5%B7%A5%E4%BD%9C%E6%B5%81">架构反思：以「薄 Agent + 厚护栏」构建高可靠研发工作流</a></li></ol><a class="toc-all" href="/posts/">全部文章 →</a></nav><article id="art"><p class="meta"><span>2026.11.18</span><span>Agent</span><span>9 分钟</span></p><h1>个人 superagent 的思考与实践</h1><p class="sum">用常驻 Claude Code 会话接管线下缺陷修复链路：事件驱动唤醒、Slack 异步审批，以「薄 Agent + 厚护栏」把自动化落到日常研发。</p><h2 id="%E8%B5%B7%E5%9B%A0" tabindex="-1">起因 <a class="anchor" href="#%E8%B5%B7%E5%9B%A0">#</a></h2>
+<p>需求进入提测阶段后，QA 的线下缺陷单便会接踵而至。过去的修复链路高度重复：梳理缺陷描述与上下文、定位需求分支、初始化 worktree，随后完成排查、修复、编译、push 与打包自测，最后更新 Jira 状态为「代码修复完成」并流转回 QA。</p>
+<p>整条链路中，唯有「问题定位」与「代码修复」属于高价值的脑力决策，其余均是高摩擦的机械操作，极易割裂开发心流。</p>
+<p>为此，我部署了一个常驻的 Claude Code 会话作为后台守护进程来接管这一工作流：仅在需要关键决策时通过 Slack 私聊向我确认，其余常规链路全部由它自主推进。</p>
+<h2 id="%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84" tabindex="-1">基本结构 <a class="anchor" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84">#</a></h2>
+<p>交互界面收敛在 Slack 私聊机器人 umu-app-bot 中，采用「单事件单线程」隔离上下文。决策时，我只需回复数字选择预设方案，或直接输入文本补充指令。</p>
+<p>在事件接入层，我设计了一套零 token 消耗的混合监听机制：socket.mjs 基于 Slack Socket Mode 实时接收指令，poll.sh 以 60 秒为周期提供状态兜底，同时每 2 分钟轮询一次 Jira 缺陷池与 Jenkins 构建流水线。仅当捕获到增量事件时，系统才会将其写入收件箱并唤醒 Claude。</p>
+<p>唤醒后的 Claude 依据 SKILL.md 完成意图路由，将任务分发至对应模块。排查、修复与编译等长耗时任务全部下沉至后台子 Agent 异步执行，主会话则保持非阻塞响应，确保我的每一条消息都能得到即时反馈。</p>
+<p>此外，整套工作流还具备清晰的生命周期管理：工作日 8:50 由 LaunchAgent 定时拉起，21:00 自动终止进程并清理终端。由于运行状态均已持久化至本地 JSON，跨天重启后依然能够实现无损的状态恢复与续跑。</p>
+<p>目前这套系统主要挂载了四个核心模块：</p>
+<ul>
+<li><strong>bug-patrol（线下缺陷巡检与修复）</strong>：从评估定级、定位需求分支并拉起 worktree，到代码修复与自动化验证（iOS 编译真机目标，Flutter 跑 analyze 和 test），最后根据改动量级智能决定后续的推进策略。</li>
+<li><strong>jenkins-watch（构建异常诊断）</strong>：一旦 iOS 通用打包失败，自动抓取构建日志、定位报错根因，并直接给出可落地的修复建议。</li>
+<li><strong>ms-patrol（需求进度盯盘）</strong>：每日例行扫描 MonsterDev 需求池，一旦发现状态流转或进度卡点，第一时间向我发出预警。</li>
+<li><strong>sprint-check（迭代拆解检查）</strong>：每周一自动巡检当前迭代（Sprint）的任务拆分情况，确保排期无遗漏。</li>
+</ul>
+<h2 id="%E7%94%A8%E8%B5%B7%E6%9D%A5%E4%BB%80%E4%B9%88%E6%A0%B7" tabindex="-1">用起来什么样 <a class="anchor" href="#%E7%94%A8%E8%B5%B7%E6%9D%A5%E4%BB%80%E4%B9%88%E6%A0%B7">#</a></h2>
+<h3 id="%E9%AB%98%E9%A3%8E%E9%99%A9%E5%8F%98%E6%9B%B4%E5%89%8D%E7%A7%BB%E5%86%B3%E7%AD%96%EF%BC%9A%E5%85%88%E8%BE%93%E5%87%BA%E6%A0%B9%E5%9B%A0%E5%88%86%E6%9E%90%E4%B8%8E%E6%96%B9%E6%A1%88%E7%9F%A9%E9%98%B5" tabindex="-1">高风险变更前移决策：先输出根因分析与方案矩阵 <a class="anchor" href="#%E9%AB%98%E9%A3%8E%E9%99%A9%E5%8F%98%E6%9B%B4%E5%89%8D%E7%A7%BB%E5%86%B3%E7%AD%96%EF%BC%9A%E5%85%88%E8%BE%93%E5%87%BA%E6%A0%B9%E5%9B%A0%E5%88%86%E6%9E%90%E4%B8%8E%E6%96%B9%E6%A1%88%E7%9F%A9%E9%98%B5">#</a></h3>
+<p>以缺陷 AI-9203（练习完成后分析报告页持续加载失败）为例，系统评估后发现修复涉及轮询策略与数据刷新链路的重构，属于中高风险变更。它没有直接触发代码修改，而是先在线程中输出完整的根因推演与 A/B/C 备选方案对比，明确给出推荐项及决策依据，待我回复数字确认后才进入编码阶段。</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/superagent/slack-decision.webp" alt="高风险缺陷：先给根因与方案，等我选"></p>
+<p>截图左侧上方展示了 jenkins-watch 的一次典型排障：构建与导出阶段均正常通过，但在上传 TestFlight 环节触发 403 异常。日志分析直接锁定症结为 App Store Connect 存在未签署的新协议——迅速排除了代码层面的干扰，避免了无效的排障投入。</p>
+<h3 id="%E4%BD%8E%E9%A3%8E%E9%99%A9%E5%8F%98%E6%9B%B4%E9%97%AD%E7%8E%AF%EF%BC%9A%E8%87%AA%E4%B8%BB%E4%BF%AE%E5%A4%8D%E3%80%81%E9%AA%8C%E8%AF%81%E4%B8%8E%E4%BA%A4%E4%BB%98%E6%B5%81%E8%BD%AC" tabindex="-1">低风险变更闭环：自主修复、验证与交付流转 <a class="anchor" href="#%E4%BD%8E%E9%A3%8E%E9%99%A9%E5%8F%98%E6%9B%B4%E9%97%AD%E7%8E%AF%EF%BC%9A%E8%87%AA%E4%B8%BB%E4%BF%AE%E5%A4%8D%E3%80%81%E9%AA%8C%E8%AF%81%E4%B8%8E%E4%BA%A4%E4%BB%98%E6%B5%81%E8%BD%AC">#</a></h3>
+<p>面对 AI-9205（调整合规卡片默认展开状态）这类仅需修改单行初始值的低风险缺陷，系统会直接启用全自动流转策略：自主完成代码修改，在通过 analyze 静态检查与 266 项自动化测试后自动执行 push，并同步将 Jira 状态推进至「代码修复完成」。</p>
+<p>随后，我仅需回复一句自然语言指令「触发一次打包」，它便自动将 AI-9203 与 AI-9205 的修复合并构建，出包后直接推送测试链接供我真机验收。同时，系统在汇报中严格保持了状态透明度，会明确声明当前的验证边界（如标注「未真机验证」），确保人机协同的每一步都清晰可控。</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/superagent/slack-autofix.webp" alt="低风险缺陷：自主修复、push、流转 Jira，再按指令打包"></p>
+<h3 id="%E6%9C%AC%E5%9C%B0%E6%8E%A7%E5%88%B6%E5%8F%B0%EF%BC%9A%E7%BB%99%E5%90%8E%E5%8F%B0%E8%B7%91%E7%9D%80%E7%9A%84-agent-%E5%BC%80%E4%B8%AA%E3%80%8C%E5%A4%A9%E7%AA%97%E3%80%8D" tabindex="-1">本地控制台：给后台跑着的 Agent 开个「天窗」 <a class="anchor" href="#%E6%9C%AC%E5%9C%B0%E6%8E%A7%E5%88%B6%E5%8F%B0%EF%BC%9A%E7%BB%99%E5%90%8E%E5%8F%B0%E8%B7%91%E7%9D%80%E7%9A%84-agent-%E5%BC%80%E4%B8%AA%E3%80%8C%E5%A4%A9%E7%AA%97%E3%80%8D">#</a></h3>
+<p>一件事一件事处理，Slack 确实够用；但想一眼看清全局盘子，光靠刷聊天记录就太费劲了。</p>
+<p>干脆，我又顺手搭了个只在本机打开的 Web 控制台：最顶部一句话直白交代「眼下在干嘛」，往下紧跟着手头正在跑的任务（直接挂着 Jira 标题、MonsterDev 阶段和所在 Sprint）、实时架构图和文件树。</p>
+<p>平时排查或调优也特别顺手：鼠标往模块文档上一停，立马就能看到它的「说明书」——负责哪摊事、什么时候跑、哪些红线绝不自己越过。看哪里不顺眼，直接在网页里就能预览、改文档，热更新它的工作流。</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/superagent/console-files.webp" alt="控制台文件树，悬停模块查看说明"></p>
+<h2 id="%E8%BE%B9%E7%95%8C" tabindex="-1">边界 <a class="anchor" href="#%E8%BE%B9%E7%95%8C">#</a></h2>
+<p>在生产级 Agent 工程中，核心原则是默认拒绝一切外部副作用（Side Effects）。无论是代码 push、Jira 状态流转还是 MonsterDev 制品提交，均需在对应线程内逐项申请人工审批。</p>
+<p>当前仅对两类场景开放有限授权：低风险简单改动可自主完成 push 与 Jira 流转；需真机验证的变更可前置执行 push 与构建打包，但 Jira 状态变更仍需等待人工验收并回复 1 后方可触发。</p>
+<p>在执行层，所有代码推送均被强制收敛至网关脚本 push-gate.sh：严格校验分支规范（仅放行 feature/*）、工作区洁净度及远端分支拓扑一致性。</p>
+<p>同时，将「简单改动」的度量阈值（&lt; 2 个文件且 &lt; 30 行变更）以确定性规则固化在脚本中，彻底剥离模型对变更风险的主观裁量权。</p>
+<p>在运行时安全与审计层面，系统内置了三项防御策略：</p>
+<ul>
+<li><strong>审批超时熔断</strong>：敏感操作确认请求路由至 Slack，回复 1 授权，9 分钟无响应自动降级为拒绝。</li>
+<li><strong>间接提示词注入防御</strong>：严格隔离数据平面与指令平面，Jira 描述、评论及 Jenkins 日志中的「请执行」「请删除」等潜在诱导文本均作纯文本脱敏处理，杜绝指令劫持。</li>
+<li><strong>变更前置披露</strong>：每次本地提交后，强制要求模型在线程内完整输出变更文件列表与 diff 快照，完成可观测性披露后方可进入 push 流程。</li>
+</ul>
+<h2 id="%E5%B7%A5%E7%A8%8B%E5%A4%8D%E7%9B%98" tabindex="-1">工程复盘 <a class="anchor" href="#%E5%B7%A5%E7%A8%8B%E5%A4%8D%E7%9B%98">#</a></h2>
+<p>在将这套工作流推向日常实战的过程中，最具挑战性的并非 Agent 的推理能力，而是守护进程治理与人机边界的工程落地：</p>
+<ul>
+<li><strong>守护进程与阻塞风险</strong>：早期因重启清理不彻底，曾出现多实例并发冲突；启动路径采用相对路径也导致状态检测与进程回收失效。此外，长耗时编译或操作系统级权限弹窗均会直接阻塞终端会话，引发系统假死。</li>
+<li><strong>指令遵循漂移（Instruction Drift）</strong>：纯文本声明的软性规范无法保证 100% 刚性执行。模型曾因主观判断变更微小，擅自跳过「先通知后修改」的前置流程。此后我将所有强约束彻底代码化，凡可通过脚本拦截的规则均下沉至确定性网关。</li>
+<li><strong>异步化人机确认链路</strong>：在无人值守场景下，任何同步阻塞的终端交互（TTY Prompt）都会导致自动化中断。为此，我将全部人工审批环节剥离出终端，统一收口至 Slack 异步消息流。</li>
+</ul>
+<p>在 Token 成本控制（FinOps） 方面，系统通过「事件驱动唤醒 + 周期性上下文重置」实现了极高的性价比：前置监听与轮询由零成本脚本承担，仅在增量事件到达时激活模型；配合每日定时重启清理上下文窗口，有效遏制了长会话带来的 Token 膨胀。</p>
+<h2 id="%E6%9E%B6%E6%9E%84%E5%8F%8D%E6%80%9D%EF%BC%9A%E4%BB%A5%E3%80%8C%E8%96%84-agent-%2B-%E5%8E%9A%E6%8A%A4%E6%A0%8F%E3%80%8D%E6%9E%84%E5%BB%BA%E9%AB%98%E5%8F%AF%E9%9D%A0%E7%A0%94%E5%8F%91%E5%B7%A5%E4%BD%9C%E6%B5%81" tabindex="-1">架构反思：以「薄 Agent + 厚护栏」构建高可靠研发工作流 <a class="anchor" href="#%E6%9E%B6%E6%9E%84%E5%8F%8D%E6%80%9D%EF%BC%9A%E4%BB%A5%E3%80%8C%E8%96%84-agent-%2B-%E5%8E%9A%E6%8A%A4%E6%A0%8F%E3%80%8D%E6%9E%84%E5%BB%BA%E9%AB%98%E5%8F%AF%E9%9D%A0%E7%A0%94%E5%8F%91%E5%B7%A5%E4%BD%9C%E6%B5%81">#</a></h2>
+<p>审视当下市面上各类 SuperAgent 产品，其核心架构本质上高度同构：具备 Tool-Use 能力的推理内核 + 事件驱动触发器 + 异步交互界面。基于现有开源生态，开发者完全可以在两天内完成最小可行性系统的搭建。</p>
+<p>然而，决定一套系统能否从 Demo 跨越到日常生产环境的分水岭，在于其与本地研发工作流的贴合度，以及异常边界的兜底能力。</p>
+<p>在实践中，我总结出的核心架构原则是「薄 Agent，厚确定性底座」：</p>
+<ul>
+<li><strong>推理层最小化</strong>：仅将高度依赖上下文理解与动态决策的任务（如缺陷语义解析、日志根因推理、补丁生成）交由大模型处理；</li>
+<li><strong>控制面代码化</strong>：将所有要求零误差、强一致性的流程约束（如零成本事件监听、push-gate.sh 变更阈值拦截、状态机流转校验）全部下沉至确定性脚本，从架构层面消除模型幻觉带来的副作用。</li>
+</ul>
+<p>评估此类自动化系统的投入产出比，核心指标并非代码生成量，而是开发者注意力的净节省量（Attention Saved）。倘若系统在运行期间仍需人工频繁巡检、干预或善后，本质上只是将「执行成本」转移为了「心智监控成本」。</p>
+<p>在系统演进的优先级上，可靠性与可观测性永远高于功能扩展——唯有先筑牢确定性护栏，自动化才能真正转化为可持续的研发生产力。</p>
+<div class="pnav"><span class="l"><small>上一篇</small><b>已是最新</b></span><a class="r" href="/posts/app-testing-e2e-04-ai-drive-real-device/"><small>下一篇</small><b>APP自动化测试实践 E2E·04：让 AI 直接操作真机 App——注入式 stub 的思路与取舍</b></a></div></article></main>
+
+<div id="mascot" title="戳一下">
+  <div id="m-say"></div>
+  <button id="m-top" title="回到顶部" aria-label="回到顶部">↑</button>
+</div>
+<script type="module" src="/scene2d.js"></script>
+<script type="module" src="/mascot.js"></script>
+<script>
+addEventListener('keydown', function(e){
+  var P = {"prev":null,"next":"/posts/app-testing-e2e-04-ai-drive-real-device/"};
+  // 灯箱打开时 Esc 只关灯箱,方向键不翻页
+  var lb = document.querySelector('.lb');
+  if (lb) { if (e.key === 'Escape') lb.remove(); return; }
+  if (e.key === 'ArrowLeft'  && P.prev) location.href = P.prev;
+  if (e.key === 'ArrowRight' && P.next) location.href = P.next;
+  if (e.key === 'Escape') location.href = '/#writing';
+});
+</script>
+<script>
+// 大纲高亮:滚动容器是 #art(不是 window),直接按滚动位置算当前节最可靠
+(function(){
+  var toc = document.querySelector('.toc');
+  if (!toc) return;
+  var art = document.getElementById('art');
+  var links = [].slice.call(toc.querySelectorAll('a'));
+  var map = {};
+  // id 本身已是百分号编码,直接用原始 href 做 key,不要 decode
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var heads = [].slice.call(art.querySelectorAll('h2[id],h3[id]'));
+  if (!heads.length) return;
+  var cur = null;
+
+  function paint(){
+    var top = art.getBoundingClientRect().top + 100;   // 判定线:卡片顶部下方 100px
+    var found = heads[0];
+    for (var i = 0; i < heads.length; i++){
+      if (heads[i].getBoundingClientRect().top <= top) found = heads[i]; else break;
+    }
+    // 已滚到底时强制选中最后一节,否则末节永远高亮不到
+    if (art.scrollTop + art.clientHeight >= art.scrollHeight - 4) found = heads[heads.length - 1];
+    if (found === cur) return;
+    cur = found;
+    links.forEach(function(a){ a.classList.remove('on'); });
+    var a = map[found.id];
+    if (!a) return;
+    a.classList.add('on');
+    var box = a.getBoundingClientRect(), tb = toc.getBoundingClientRect();
+    if (box.top < tb.top || box.bottom > tb.bottom) a.scrollIntoView({block:'nearest'});
+  }
+
+  var tick = false;
+  art.addEventListener('scroll', function(){
+    if (tick) return;
+    tick = true;
+    requestAnimationFrame(function(){ tick = false; paint(); });
+  }, {passive:true});
+
+  toc.addEventListener('click', function(e){
+    var a = e.target.closest('a'); if (!a) return;
+    var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if (!t) return;
+    e.preventDefault();
+    art.scrollTo({ top: art.scrollTop + t.getBoundingClientRect().top - art.getBoundingClientRect().top - 24, behavior:'smooth' });
+    history.replaceState(null, '', a.getAttribute('href'));
+  });
+  paint();
+})();
+</script>
+<script>
+// 图片灯箱:点正文图片或 Mermaid 图放大,点击 / Esc / 滚轮关闭
+document.getElementById('art').addEventListener('click', function(e){
+  var t = e.target.closest('img,.mm svg');
+  if (!t || t.closest('a')) return;
+  var lb = document.createElement('div'), c = t.cloneNode(true);
+  lb.className = 'lb';
+  if (c.tagName !== 'IMG') {
+    // SVG 没有固有的"原图尺寸",按视口等比放大
+    var r = t.getBoundingClientRect();
+    var k = Math.min(innerWidth * .92 / r.width, innerHeight * .9 / r.height);
+    c.style.width = r.width * k + 'px';
+    c.style.height = r.height * k + 'px';
+  }
+  lb.appendChild(c);
+  lb.onclick = lb.onwheel = function(){ lb.remove(); };
+  document.body.appendChild(lb);
+});
+</script>
+<script>
+// 代码块复制
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('.cb-c');
+  if (!btn) return;
+  var pre = btn.parentElement.querySelector('pre');
+  if (!pre) return;
+  var text = pre.innerText;
+  var done = function(){
+    btn.textContent = '已复制'; btn.classList.add('ok');
+    setTimeout(function(){ btn.textContent = '复制'; btn.classList.remove('ok'); }, 1600);
+  };
+  // clipboard API 需要安全上下文(https 或 localhost),否则回退到 execCommand
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else fallback();
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (err) { btn.textContent = '复制失败'; }
+    document.body.removeChild(ta);
+  }
+});
+</script>
+</body></html>

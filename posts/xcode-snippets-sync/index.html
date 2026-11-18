@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>Xcode代码块云同步+本地安装脚本 — fatbruin</title>
+<meta name="description" content="把常用 Xcode 代码块放进私有仓库,用脚本一键下载合并,多机同步。"><meta property="og:type" content="article"><meta property="og:site_name" content="fatbruin"><meta property="og:title" content="Xcode代码块云同步+本地安装脚本"><meta property="og:description" content="把常用 Xcode 代码块放进私有仓库,用脚本一键下载合并,多机同步。"><meta property="og:url" content="https://www.umuer.com/posts/xcode-snippets-sync/"><meta property="og:image" content="https://www.umuer.com/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://www.umuer.com/posts/xcode-snippets-sync/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="fatbruin" href="/rss.xml">
+<script>(function(){var n=null;try{n=localStorage.getItem('fatbruin-night')}catch(e){}var h=new Date().getHours();if(n?n==='1':(h>=19||h<6))document.documentElement.classList.add('night')})()</script>
+<link rel="stylesheet" href="/styles/base.0282236f.css">
+<link rel="stylesheet" href="/styles/post.0bb29940.css"></head>
+<body class="post no-toc">
+<div id="scene"></div>
+<div class="topbar"><div class="navl"><a class="back" href="/#writing">← 回到小屋</a><a class="back nav-fallback" href="/posts/">全部文章 →</a></div><div class="brand">fat<span>bruin</span></div></div>
+<main><article id="art"><p class="meta"><span>2021.08.25</span><span>Tools</span><span>2 分钟</span></p><h1>Xcode代码块云同步+本地安装脚本</h1><p class="sum">把常用 Xcode 代码块放进私有仓库,用脚本一键下载合并,多机同步。</p><p>今天整理了最近半年内使用频率高的一些代码，做了一些代码块 <code>codesnippet</code>使用，并在github上创建了一个私有仓库用来云端维护和同步，写了一个脚本进行代码块下载和合并。</p>
+<p>创建方式：</p>
+<ol>
+<li>
+<p>选中要创建的代码块，右键选择Create Code Snippte</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/Xcode/008i3skNly1gtt9tybj9gj611y0q8djc02.jpg" alt=""></p>
+</li>
+<li>
+<p>右上角 <code>+</code>框快速查看系统和自定义代码块</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/Xcode/008i3skNly1gtt9ty5ejxj61gj0u043502.jpg" alt=""></p>
+</li>
+<li>
+<p>填写代码块描述，以及快捷方式，修改代码块</p>
+</li>
+</ol>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/Xcode/008i3skNly1gtt9txvjapj61c50u00wu02.jpg" alt=""></p>
+<p>xcode中用户自定义的 代码块保存在~/Library/Developer/Xcode/UserData/CodeSnippets路径下，每个代码块都是一个.codesnippet格式的配置文件。</p>
+<div class="cb"><span class="cb-l">ruby</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-ruby">~<span class="hljs-regexp">/Library/</span><span class="hljs-title class_">Developer</span>/<span class="hljs-title class_">Xcode</span>/<span class="hljs-title class_">UserData</span>/<span class="hljs-title class_">CodeSnippets</span><span class="hljs-variable">$:</span> ls -l
+total <span class="hljs-number">72</span>
+-rw-r--r--  <span class="hljs-number">1</span> zcx  staff  <span class="hljs-number">1008</span> <span class="hljs-title class_">Aug</span> <span class="hljs-number">25</span> <span class="hljs-number">19</span><span class="hljs-symbol">:</span><span class="hljs-number">36</span> 1BF011CF-<span class="hljs-number">9292</span>-4B72-9D44-<span class="hljs-variable constant_">F7C3BC89AFE0</span>.codesnippet
+-rw-r--r--  <span class="hljs-number">1</span> zcx  staff  <span class="hljs-number">1036</span> <span class="hljs-title class_">Aug</span> <span class="hljs-number">25</span> <span class="hljs-number">16</span><span class="hljs-symbol">:</span><span class="hljs-number">03</span> 28DDA843-<span class="hljs-variable constant_">AD69</span>-4A09-87C4-3D1DB320EDB5.codesnippet
+-rw-r--r--  <span class="hljs-number">1</span> zcx  staff   <span class="hljs-number">864</span> <span class="hljs-title class_">Aug</span> <span class="hljs-number">25</span> <span class="hljs-number">16</span><span class="hljs-symbol">:</span><span class="hljs-number">37</span> 8BEF45E5-0B98-4CC5-9CB8-86203CA29A69.codesnippet
+-rw-r--r--  <span class="hljs-number">1</span> zcx  staff  <span class="hljs-number">1699</span> <span class="hljs-title class_">Aug</span> <span class="hljs-number">25</span> <span class="hljs-number">19</span><span class="hljs-symbol">:</span><span class="hljs-number">37</span> <span class="hljs-variable constant_">B42EC618</span>-1BF8-<span class="hljs-number">4E30</span>-<span class="hljs-variable constant_">AC73</span>-12E1282FEAFC.codesnippet
+-rw-r--r--  <span class="hljs-number">1</span> zcx  staff   <span class="hljs-number">994</span> <span class="hljs-title class_">Aug</span> <span class="hljs-number">25</span> <span class="hljs-number">17</span><span class="hljs-symbol">:</span><span class="hljs-number">48</span> <span class="hljs-variable constant_">BA1B105B</span>-<span class="hljs-variable constant_">F02A</span>-<span class="hljs-number">4925</span>-<span class="hljs-variable constant_">A7FD</span>-<span class="hljs-variable constant_">B7E6081438E2</span>.codesnippet
+-rw-r--r--  <span class="hljs-number">1</span> zcx  staff  <span class="hljs-number">1099</span> <span class="hljs-title class_">Aug</span> <span class="hljs-number">25</span> <span class="hljs-number">15</span><span class="hljs-symbol">:</span><span class="hljs-number">30</span> <span class="hljs-variable constant_">BB31C5F1</span>-<span class="hljs-variable constant_">D74A</span>-4CD4-968D-<span class="hljs-variable constant_">F707DADF07C1</span>.codesnippet
+-rw-r--r--  <span class="hljs-number">1</span> zcx  staff  <span class="hljs-number">1144</span> <span class="hljs-title class_">Aug</span> <span class="hljs-number">25</span> <span class="hljs-number">17</span><span class="hljs-symbol">:</span><span class="hljs-number">48</span> <span class="hljs-variable constant_">DDA53283</span>-7F1F-49EC-9D76-87D876EA67FC.codesnippet
+-rw-r--r--  <span class="hljs-number">1</span> zcx  staff  <span class="hljs-number">1557</span> <span class="hljs-title class_">Aug</span> <span class="hljs-number">25</span> <span class="hljs-number">17</span><span class="hljs-symbol">:</span><span class="hljs-number">48</span> <span class="hljs-variable constant_">E12D24FC</span>-<span class="hljs-number">2098</span>-413F-<span class="hljs-variable constant_">B12E</span>-<span class="hljs-variable constant_">CBB79181EBDA</span>.codesnippet
+-rw-r--r--  <span class="hljs-number">1</span> zcx  staff  <span class="hljs-number">1085</span> <span class="hljs-title class_">Aug</span> <span class="hljs-number">25</span> <span class="hljs-number">17</span><span class="hljs-symbol">:</span><span class="hljs-number">48</span> <span class="hljs-variable constant_">E7CFEE5D</span>-<span class="hljs-variable constant_">D2F0</span>-42D7-<span class="hljs-variable constant_">AD6E</span>-258BC0A67D75.codesnippet
+</code></pre>
+</div><p>所以对个人的代码块的维护方式也显而易见变成了对此文件夹内的文件的维护。</p>
+<hr>
+<p><a href="https://github.com/zcx4u/XCode_CodeSnippet">创建私有库用来保存创建的代码块</a></p>
+<p>每次下载过文件之后再手动批量向本地复制粘贴挺麻烦（主要是懒...）所以通过脚本命令进行合并再好不过了！</p>
+<div class="cb"><span class="cb-l">ruby</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-ruby"><span class="hljs-comment">#!/bin/bash</span>
+<span class="hljs-comment"># GitHub: https://github.com/zcx4u/XCode_CodeSnippet</span>
+<span class="hljs-comment"># 将代码块到本地并安装到xcode</span>
+
+<span class="hljs-variable constant_">SRC_HOME</span>=<span class="hljs-string">`pwd`</span>
+echo <span class="hljs-string">&quot;备份旧代码块~/Library/Developer/Xcode/UserData/CodeSnippets_Backup.zip&quot;</span>
+cd ~<span class="hljs-regexp">/Library/</span><span class="hljs-title class_">Developer</span>/<span class="hljs-title class_">Xcode</span>/<span class="hljs-title class_">UserData</span>
+zip -r <span class="hljs-title class_">CodeSnippets</span>_Backup.zip <span class="hljs-title class_">CodeSnippets</span>
+echo <span class="hljs-string">&quot;合并代码块&quot;</span>
+ditto -V <span class="hljs-variable">${</span><span class="hljs-variable constant_">SRC_HOME</span>}/<span class="hljs-title class_">CodeSnippets</span> ~<span class="hljs-regexp">/Library/</span><span class="hljs-title class_">Developer</span>/<span class="hljs-title class_">Xcode</span>/<span class="hljs-title class_">UserData</span>/<span class="hljs-title class_">CodeSnippets</span>
+echo <span class="hljs-string">&quot;done&quot;</span>
+</code></pre>
+</div><p>记得先备份旧的文件夹以防不测😄</p>
+<p>以前也零零碎碎的增加过代码块，但是换工作换电脑后就清空了，客户端业务变化较大重复性的编码还是比较多。</p>
+<p>积累一些使用的顺手的工具和方法能有效提升效率，高效完成coding早点homing可以gaming还能shopping，岂不美哉！</p>
+<div class="pnav"><a class="l" href="/posts/avplayer-bugs/"><small>上一篇</small><b>AVPlayer相关BUG记录</b></a><a class="r" href="/posts/ios-grapheme-clusters/"><small>下一篇</small><b>iOS字符串安全截取及任意位置插入</b></a></div></article></main>
+
+<div id="mascot" title="戳一下">
+  <div id="m-say"></div>
+  <button id="m-top" title="回到顶部" aria-label="回到顶部">↑</button>
+</div>
+<script type="module" src="/scene2d.js"></script>
+<script type="module" src="/mascot.js"></script>
+<script>
+addEventListener('keydown', function(e){
+  var P = {"prev":"/posts/avplayer-bugs/","next":"/posts/ios-grapheme-clusters/"};
+  // 灯箱打开时 Esc 只关灯箱,方向键不翻页
+  var lb = document.querySelector('.lb');
+  if (lb) { if (e.key === 'Escape') lb.remove(); return; }
+  if (e.key === 'ArrowLeft'  && P.prev) location.href = P.prev;
+  if (e.key === 'ArrowRight' && P.next) location.href = P.next;
+  if (e.key === 'Escape') location.href = '/#writing';
+});
+</script>
+<script>
+// 大纲高亮:滚动容器是 #art(不是 window),直接按滚动位置算当前节最可靠
+(function(){
+  var toc = document.querySelector('.toc');
+  if (!toc) return;
+  var art = document.getElementById('art');
+  var links = [].slice.call(toc.querySelectorAll('a'));
+  var map = {};
+  // id 本身已是百分号编码,直接用原始 href 做 key,不要 decode
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var heads = [].slice.call(art.querySelectorAll('h2[id],h3[id]'));
+  if (!heads.length) return;
+  var cur = null;
+
+  function paint(){
+    var top = art.getBoundingClientRect().top + 100;   // 判定线:卡片顶部下方 100px
+    var found = heads[0];
+    for (var i = 0; i < heads.length; i++){
+      if (heads[i].getBoundingClientRect().top <= top) found = heads[i]; else break;
+    }
+    // 已滚到底时强制选中最后一节,否则末节永远高亮不到
+    if (art.scrollTop + art.clientHeight >= art.scrollHeight - 4) found = heads[heads.length - 1];
+    if (found === cur) return;
+    cur = found;
+    links.forEach(function(a){ a.classList.remove('on'); });
+    var a = map[found.id];
+    if (!a) return;
+    a.classList.add('on');
+    var box = a.getBoundingClientRect(), tb = toc.getBoundingClientRect();
+    if (box.top < tb.top || box.bottom > tb.bottom) a.scrollIntoView({block:'nearest'});
+  }
+
+  var tick = false;
+  art.addEventListener('scroll', function(){
+    if (tick) return;
+    tick = true;
+    requestAnimationFrame(function(){ tick = false; paint(); });
+  }, {passive:true});
+
+  toc.addEventListener('click', function(e){
+    var a = e.target.closest('a'); if (!a) return;
+    var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if (!t) return;
+    e.preventDefault();
+    art.scrollTo({ top: art.scrollTop + t.getBoundingClientRect().top - art.getBoundingClientRect().top - 24, behavior:'smooth' });
+    history.replaceState(null, '', a.getAttribute('href'));
+  });
+  paint();
+})();
+</script>
+<script>
+// 图片灯箱:点正文图片或 Mermaid 图放大,点击 / Esc / 滚轮关闭
+document.getElementById('art').addEventListener('click', function(e){
+  var t = e.target.closest('img,.mm svg');
+  if (!t || t.closest('a')) return;
+  var lb = document.createElement('div'), c = t.cloneNode(true);
+  lb.className = 'lb';
+  if (c.tagName !== 'IMG') {
+    // SVG 没有固有的"原图尺寸",按视口等比放大
+    var r = t.getBoundingClientRect();
+    var k = Math.min(innerWidth * .92 / r.width, innerHeight * .9 / r.height);
+    c.style.width = r.width * k + 'px';
+    c.style.height = r.height * k + 'px';
+  }
+  lb.appendChild(c);
+  lb.onclick = lb.onwheel = function(){ lb.remove(); };
+  document.body.appendChild(lb);
+});
+</script>
+<script>
+// 代码块复制
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('.cb-c');
+  if (!btn) return;
+  var pre = btn.parentElement.querySelector('pre');
+  if (!pre) return;
+  var text = pre.innerText;
+  var done = function(){
+    btn.textContent = '已复制'; btn.classList.add('ok');
+    setTimeout(function(){ btn.textContent = '复制'; btn.classList.remove('ok'); }, 1600);
+  };
+  // clipboard API 需要安全上下文(https 或 localhost),否则回退到 execCommand
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else fallback();
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (err) { btn.textContent = '复制失败'; }
+    document.body.removeChild(ta);
+  }
+});
+</script>
+</body></html>

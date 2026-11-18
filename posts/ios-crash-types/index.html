@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>iOS Crash类型总结 — fatbruin</title>
+<meta name="description" content="iOS 崩溃分类总结:Objective-C Exception 与 Unix Signal 的常见类型与成因。"><meta property="og:type" content="article"><meta property="og:site_name" content="fatbruin"><meta property="og:title" content="iOS Crash类型总结"><meta property="og:description" content="iOS 崩溃分类总结:Objective-C Exception 与 Unix Signal 的常见类型与成因。"><meta property="og:url" content="https://www.umuer.com/posts/ios-crash-types/"><meta property="og:image" content="https://www.umuer.com/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://www.umuer.com/posts/ios-crash-types/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="fatbruin" href="/rss.xml">
+<script>(function(){var n=null;try{n=localStorage.getItem('fatbruin-night')}catch(e){}var h=new Date().getHours();if(n?n==='1':(h>=19||h<6))document.documentElement.classList.add('night')})()</script>
+<link rel="stylesheet" href="/styles/base.0282236f.css">
+<link rel="stylesheet" href="/styles/post.0bb29940.css"></head>
+<body class="post">
+<div id="scene"></div>
+<div class="topbar"><div class="navl"><a class="back" href="/#writing">← 回到小屋</a><a class="back nav-fallback" href="/posts/">全部文章 →</a></div><div class="brand">fat<span>bruin</span></div></div>
+<main><nav class="toc" aria-label="目录"><p class="toc-h">目录</p><ol><li class="l2"><a href="#%E4%B8%80%E3%80%81objective-c-exception">一、Objective-C Exception</a></li><li class="l3"><a href="#1.-nsinvalidargumentexception">1. NSInvalidArgumentException</a></li><li class="l3"><a href="#2.-nsrangeexception">2. NSRangeException</a></li><li class="l3"><a href="#3.-nsgenericexception">3. NSGenericException</a></li><li class="l3"><a href="#4.-nsinternalinconsistencyexception">4. NSInternalInconsistencyException</a></li><li class="l3"><a href="#5.-nsfilehandleoperationexception">5. NSFileHandleOperationException</a></li><li class="l3"><a href="#6.-nsmallocexception">6. NSMallocException</a></li><li class="l3"><a href="#7.-%E5%85%B6%E4%BB%96%E5%B8%B8%E8%A7%81crash">7. 其他常见Crash</a></li><li class="l2"><a href="#%E4%BA%8C%E3%80%81unix-signal-exception">二、Unix Signal Exception</a></li><li class="l3"><a href="#%E5%B8%B8%E8%A7%81%E4%BF%A1%E5%8F%B7%E7%B1%BB%E5%9E%8B">常见信号类型</a></li><li class="l3"><a href="#ios%E4%B8%AD%E5%B8%B8%E8%A7%81%E7%9A%84%E7%B3%BB%E7%BB%9F%E4%BF%A1%E5%8F%B7">iOS中常见的系统信号</a></li><li class="l3"><a href="#%E7%89%B9%E6%AE%8A%E7%B1%BB%E5%9E%8Bcrash">特殊类型Crash</a></li><li class="l2"><a href="#%E4%B8%89%E3%80%81crash%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88">三、Crash解决方案</a></li><li class="l3"><a href="#1.-objective-c-exception%E5%A4%84%E7%90%86">1. Objective-C Exception处理</a></li><li class="l3"><a href="#2.-%E4%BF%A1%E5%8F%B7%E7%B1%BBcrash%E5%A4%84%E7%90%86">2. 信号类Crash处理</a></li><li class="l3"><a href="#3.-crash%E4%B8%8A%E6%8A%A5%E6%9C%BA%E5%88%B6">3. Crash上报机制</a></li></ol><a class="toc-all" href="/posts/">全部文章 →</a></nav><article id="art"><p class="meta"><span>2023.03.12</span><span>iOS</span><span>6 分钟</span></p><h1>iOS Crash类型总结</h1><p class="sum">iOS 崩溃分类总结:Objective-C Exception 与 Unix Signal 的常见类型与成因。</p><p>iOS APP系统crash主要分两类：一类是Objective-C Exception，一类是Unix Signal Exception。下面详细介绍。</p>
+<blockquote>
+<p>崩溃日志路径：~/Library/Logs/CrashReporter/MobileDevice</p>
+</blockquote>
+<h2 id="%E4%B8%80%E3%80%81objective-c-exception" tabindex="-1">一、Objective-C Exception <a class="anchor" href="#%E4%B8%80%E3%80%81objective-c-exception">#</a></h2>
+<p>例如NSDictionary加入nil、数组访问越界等。主要有如下类型：</p>
+<h3 id="1.-nsinvalidargumentexception" tabindex="-1">1. NSInvalidArgumentException <a class="anchor" href="#1.-nsinvalidargumentexception">#</a></h3>
+<p>非法参数异常(NSInvalidArgumentException)是Objective-C代码最常出现的错误。平时在写代码时需要多加注意，加强对参数的检查，避免传入非法参数导致异常，其中尤以nil参数为甚。</p>
+<p>主要场景包括：</p>
+<h4>1.1 集合数据的参数传递</h4>
+<p>比如NSMutableArray、NSMutableDictionary的数据操作：</p>
+<ul>
+<li>NSDictionary不能删除nil的key</li>
+<li>NSDictionary不能添加nil的对象</li>
+<li>不能插入nil的对象</li>
+<li>其他一些nil参数</li>
+</ul>
+<h4>1.2 其他API的使用</h4>
+<p>APP一般都会有网络操作，免不了使用网络相关接口，比如NSURL的初始化，不能传入nil的http地址。</p>
+<h4>1.3 未实现的方法</h4>
+<ul>
+<li>.h文件里函数名，却忘了修改.m文件里对应的函数名</li>
+<li>使用第三方库时，没有添加&quot;-ObjC&quot; flag</li>
+<li>MRC时，大部分情况下是因为对象被提前release了，在你心里不希望他release的情况下，指针还在，对象已经不在了</li>
+</ul>
+<h3 id="2.-nsrangeexception" tabindex="-1">2. NSRangeException <a class="anchor" href="#2.-nsrangeexception">#</a></h3>
+<p>越界异常(NSRangeException)也是比较常出现的异常，有如下几种类型：</p>
+<ol>
+<li>数组最大下标处理错误
+<ul>
+<li>比如数组长度count，index的下标范围[0, count-1]，在开发时，可能index的最大值超过数组的范围</li>
+</ul>
+</li>
+<li>下标的值是其他变量赋值
+<ul>
+<li>这样会有很大的不确定性，可能是一个很大的整数值</li>
+</ul>
+</li>
+<li>使用空数组
+<ul>
+<li>如果一个数组刚刚初始化，还是空的，就对它进行相关操作</li>
+</ul>
+</li>
+</ol>
+<blockquote>
+<p>为了避免NSRangeException的发生，必须对传入的index参数进行合法性检查，是否在集合数据的个数范围内。</p>
+</blockquote>
+<h3 id="3.-nsgenericexception" tabindex="-1">3. NSGenericException <a class="anchor" href="#3.-nsgenericexception">#</a></h3>
+<p>NSGenericException这个异常最容易出现在foreach操作中。在for-in循环中如果修改所遍历的数组，无论你是add或remove，都会出错。&quot;for-in&quot;的内部遍历使用了类似Iterator进行迭代遍历，一旦元素变动，之前的元素全部被失效。</p>
+<blockquote>
+<p>在foreach的循环当中，最好不要去进行元素的修改动作，若需要修改，循环改为for遍历，由于内部机制不同，不会产生修改后结果失效的问题。</p>
+</blockquote>
+<h3 id="4.-nsinternalinconsistencyexception" tabindex="-1">4. NSInternalInconsistencyException <a class="anchor" href="#4.-nsinternalinconsistencyexception">#</a></h3>
+<p>不一致导致出现的异常，例如：</p>
+<ul>
+<li>NSDictionary当做NSMutableDictionary来使用，从他们内部的机理来说，就会产生一些错误</li>
+</ul>
+<div class="cb"><span class="cb-l">objc</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-objc"><span class="hljs-built_in">NSMutableDictionary</span> *info = method <span class="hljs-keyword">return</span> to <span class="hljs-built_in">NSDictionary</span> type;
+[info setObject:<span class="hljs-string">@&quot;sxm&quot;</span> forKey:<span class="hljs-string">@&quot;name&quot;</span>];
+</code></pre>
+</div><ul>
+<li>xib界面使用或者约束设置不当</li>
+</ul>
+<h3 id="5.-nsfilehandleoperationexception" tabindex="-1">5. NSFileHandleOperationException <a class="anchor" href="#5.-nsfilehandleoperationexception">#</a></h3>
+<p>处理文件时的一些异常，最常见的还是存储空间不足的问题，比如应用频繁的保存文档，缓存资料或者处理比较大的数据。</p>
+<blockquote>
+<p>在文件处理里，需要考虑到手机存储空间的问题。</p>
+</blockquote>
+<h3 id="6.-nsmallocexception" tabindex="-1">6. NSMallocException <a class="anchor" href="#6.-nsmallocexception">#</a></h3>
+<p>这也是内存不足的问题，无法分配足够的内存空间。</p>
+<h3 id="7.-%E5%85%B6%E4%BB%96%E5%B8%B8%E8%A7%81crash" tabindex="-1">7. 其他常见Crash <a class="anchor" href="#7.-%E5%85%B6%E4%BB%96%E5%B8%B8%E8%A7%81crash">#</a></h3>
+<ul>
+<li>KVO相关Crash
+<ul>
+<li>移除未注册的观察者</li>
+<li>重复移除观察者</li>
+<li>添加了观察者但是没有实现 <code>-observeValueForKeyPath:ofObject:change:context:</code>方法</li>
+<li>添加移除keypath=nil</li>
+<li>添加移除observer=nil</li>
+</ul>
+</li>
+<li>unrecognized selector sent to instance（这种也经常是野指针问题）</li>
+</ul>
+<h2 id="%E4%BA%8C%E3%80%81unix-signal-exception" tabindex="-1">二、Unix Signal Exception <a class="anchor" href="#%E4%BA%8C%E3%80%81unix-signal-exception">#</a></h2>
+<h3 id="%E5%B8%B8%E8%A7%81%E4%BF%A1%E5%8F%B7%E7%B1%BB%E5%9E%8B" tabindex="-1">常见信号类型 <a class="anchor" href="#%E5%B8%B8%E8%A7%81%E4%BF%A1%E5%8F%B7%E7%B1%BB%E5%9E%8B">#</a></h3>
+<ol>
+<li>
+<p><strong>SIGHUP</strong></p>
+<ul>
+<li>本信号在用户终端连接(正常或非正常)结束时发出</li>
+<li>通常是在终端的控制进程结束时，通知同一session内的各个作业</li>
+</ul>
+</li>
+<li>
+<p><strong>SIGINT</strong></p>
+<ul>
+<li>程序终止(interrupt)信号</li>
+<li>在用户键入INTR字符(通常是Ctrl-C)时发出，用于通知前台进程组终止进程</li>
+</ul>
+</li>
+<li>
+<p><strong>SIGQUIT</strong></p>
+<ul>
+<li>类似SIGINT，但由QUIT字符(通常是Ctrl-)来控制</li>
+<li>进程在因收到SIGQUIT退出时会产生core文件</li>
+</ul>
+</li>
+<li>
+<p><strong>SIGABRT</strong></p>
+<ul>
+<li>调用abort函数生成的信号</li>
+</ul>
+</li>
+<li>
+<p><strong>SIGBUS</strong></p>
+<ul>
+<li>非法地址，包括内存地址对齐(alignment)出错</li>
+<li>与SIGSEGV的区别在于后者是由于对合法存储地址的非法访问触发的</li>
+</ul>
+</li>
+<li>
+<p><strong>SIGFPE</strong></p>
+<ul>
+<li>致命的算术运算错误信号</li>
+<li>包括浮点运算错误、溢出及除数为0等</li>
+</ul>
+</li>
+<li>
+<p><strong>SIGKILL</strong></p>
+<ul>
+<li>用来立即结束程序的运行</li>
+<li>本信号不能被阻塞、处理和忽略</li>
+</ul>
+</li>
+<li>
+<p><strong>SIGSEGV</strong></p>
+<ul>
+<li>试图访问未分配给自己的内存</li>
+<li>试图往没有写权限的内存地址写数据</li>
+</ul>
+</li>
+<li>
+<p><strong>SIGPIPE</strong></p>
+<ul>
+<li>管道破裂</li>
+<li>通常在进程间通信产生</li>
+</ul>
+</li>
+</ol>
+<h3 id="ios%E4%B8%AD%E5%B8%B8%E8%A7%81%E7%9A%84%E7%B3%BB%E7%BB%9F%E4%BF%A1%E5%8F%B7" tabindex="-1">iOS中常见的系统信号 <a class="anchor" href="#ios%E4%B8%AD%E5%B8%B8%E8%A7%81%E7%9A%84%E7%B3%BB%E7%BB%9F%E4%BF%A1%E5%8F%B7">#</a></h3>
+<p>在iOS crash中主要是SIGKILL、SIGSEGV、SIGABRT、SIGTRAP，引起系统信号crash主要有内存泄露、野指针等。</p>
+<h3 id="%E7%89%B9%E6%AE%8A%E7%B1%BB%E5%9E%8Bcrash" tabindex="-1">特殊类型Crash <a class="anchor" href="#%E7%89%B9%E6%AE%8A%E7%B1%BB%E5%9E%8Bcrash">#</a></h3>
+<div class="tw"><table><thead>
+<tr>
+<th>错误码</th>
+<th>含义</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0x8badf00d</td>
+<td>&quot;ate bad food&quot;</td>
+<td>在启动、终止应用或响应系统事件花费过长时间</td>
+</tr>
+<tr>
+<td>0xdeadfa11</td>
+<td>&quot;dead fall&quot;</td>
+<td>用户强制退出（系统无响应时，用户按电源开关和HOME）</td>
+</tr>
+<tr>
+<td>0xbaaaaaad</td>
+<td>-</td>
+<td>用户按住Home键和音量键，获取当前内存状态，不代表崩溃</td>
+</tr>
+<tr>
+<td>0xbad22222</td>
+<td>-</td>
+<td>VoIP应用因为恢复得太频繁导致crash</td>
+</tr>
+<tr>
+<td>0xc00010ff</td>
+<td>&quot;cool off&quot;</td>
+<td>因为太烫了被干掉</td>
+</tr>
+<tr>
+<td>0xdead10cc</td>
+<td>&quot;dead lock&quot;</td>
+<td>因为在后台时仍然占据系统资源（比如通讯录）被干掉</td>
+</tr>
+</tbody>
+</table></div><h2 id="%E4%B8%89%E3%80%81crash%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88" tabindex="-1">三、Crash解决方案 <a class="anchor" href="#%E4%B8%89%E3%80%81crash%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88">#</a></h2>
+<h3 id="1.-objective-c-exception%E5%A4%84%E7%90%86" tabindex="-1">1. Objective-C Exception处理 <a class="anchor" href="#1.-objective-c-exception%E5%A4%84%E7%90%86">#</a></h3>
+<p>NSInvalidArgumentException、NSRangeException这一类很好重现，能够复现定位就好解决。需要写代码的时候多做验证，也可以把一些验证写出category，统一使用。</p>
+<p>例如数组访问安全封装：</p>
+<div class="cb"><span class="cb-l">objc</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-objc">- (<span class="hljs-type">id</span>)safeObjectAtIndex:(<span class="hljs-built_in">NSUInteger</span>)index {
+    <span class="hljs-keyword">if</span> (index &lt; <span class="hljs-keyword">self</span>.count) {
+        <span class="hljs-keyword">return</span> [<span class="hljs-keyword">self</span> objectAtIndex:index];
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">nil</span>;
+}
+
+- (<span class="hljs-type">void</span>)safeAddObject:(<span class="hljs-type">id</span>)object {
+    <span class="hljs-keyword">if</span> (object) {
+        [<span class="hljs-keyword">self</span> addObject:object];
+    }
+}
+</code></pre>
+</div><p>这样代码统一使用，可以避免一些问题。还可以在有异常的时候加入日志或者上报。</p>
+<h3 id="2.-%E4%BF%A1%E5%8F%B7%E7%B1%BBcrash%E5%A4%84%E7%90%86" tabindex="-1">2. 信号类Crash处理 <a class="anchor" href="#2.-%E4%BF%A1%E5%8F%B7%E7%B1%BBcrash%E5%A4%84%E7%90%86">#</a></h3>
+<ul>
+<li>主要通过分析是否是系统crash，还是内存泄露、多线程问题等</li>
+<li>内存泄露可以通过instrument定位，也可以在Xcode开启zombie选项定位</li>
+<li>retain-cycle可以使用第三方工具检测</li>
+</ul>
+<h3 id="3.-crash%E4%B8%8A%E6%8A%A5%E6%9C%BA%E5%88%B6" tabindex="-1">3. Crash上报机制 <a class="anchor" href="#3.-crash%E4%B8%8A%E6%8A%A5%E6%9C%BA%E5%88%B6">#</a></h3>
+<p>实际项目中通常会接入crash上报工具，如腾讯Bugly。这些上报原理是注册对应的处理handleUncaughtException和信号handle：</p>
+<div class="cb"><span class="cb-l">objc</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-objc"><span class="hljs-comment">// 异常处理</span>
+<span class="hljs-type">void</span> InstallUncaughtExceptionHandler(<span class="hljs-type">void</span>) {
+    <span class="hljs-built_in">NSSetUncaughtExceptionHandler</span>(&amp;handleUncaughtException);
+}
+
+<span class="hljs-type">void</span> handleUncaughtException(<span class="hljs-built_in">NSException</span> *exception) {
+    <span class="hljs-built_in">NSString</span> *crashInfo = [<span class="hljs-built_in">NSString</span> stringWithFormat:<span class="hljs-string">@&quot;Exception name：%@\nException reason：%@\nException stack：%@&quot;</span>,
+                          [exception name], 
+                          [exception reason], 
+                          [exception callStackSymbols]];
+    [CrashReporter saveCrash:crashInfo];
+}
+
+<span class="hljs-comment">// 信号监听</span>
+<span class="hljs-type">void</span> InstallSignalHandler(<span class="hljs-type">void</span>) {
+    signal(SIGHUP, handleSignalException);
+    signal(SIGINT, handleSignalException);
+    signal(SIGQUIT, handleSignalException);
+    signal(SIGABRT, handleSignalException);
+    signal(SIGILL, handleSignalException);
+    signal(SIGSEGV, handleSignalException);
+    signal(SIGFPE, handleSignalException);
+    signal(SIGBUS, handleSignalException);
+    signal(SIGPIPE, handleSignalException);
+}
+
+<span class="hljs-type">void</span> handleSignalException(<span class="hljs-type">int</span> signal) {
+    <span class="hljs-built_in">NSMutableString</span> *crashInfo = [[<span class="hljs-built_in">NSMutableString</span> alloc] init];
+    [crashInfo appendString:[<span class="hljs-built_in">NSString</span> stringWithFormat:<span class="hljs-string">@&quot;signal:%d\n&quot;</span>, signal]];
+    [crashInfo appendString:<span class="hljs-string">@&quot;Stack:\n&quot;</span>];
+  
+    <span class="hljs-type">void</span> *callstack[<span class="hljs-number">128</span>];
+    <span class="hljs-type">int</span> frames = backtrace(callstack, <span class="hljs-number">128</span>);
+    <span class="hljs-type">char</span> **strs = backtrace_symbols(callstack, frames);
+  
+    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; frames; ++i) {
+        [crashInfo appendFormat:<span class="hljs-string">@&quot;%s\n&quot;</span>, strs[i]];
+    }
+  
+    [CrashReporter saveCrash:crashInfo];
+}
+</code></pre>
+</div><p>这样crash的时候存储crash信息，然后再次启动对应上报。</p>
+<blockquote>
+<p>注意：还有一些激进的处理方法，hook系统对应函数不让app crash。但即便不crash，出了问题app体验也不好了，也可能用不了了。建议谨慎使用这种方案。</p>
+</blockquote>
+<div class="pnav"><a class="l" href="/posts/chatgpt-handbook/"><small>上一篇</small><b>ChatGPT使用技巧手册</b></a><a class="r" href="/posts/ios-file-system/"><small>下一篇</small><b>iOS文件系统编程指南</b></a></div></article></main>
+
+<div id="mascot" title="戳一下">
+  <div id="m-say"></div>
+  <button id="m-top" title="回到顶部" aria-label="回到顶部">↑</button>
+</div>
+<script type="module" src="/scene2d.js"></script>
+<script type="module" src="/mascot.js"></script>
+<script>
+addEventListener('keydown', function(e){
+  var P = {"prev":"/posts/chatgpt-handbook/","next":"/posts/ios-file-system/"};
+  // 灯箱打开时 Esc 只关灯箱,方向键不翻页
+  var lb = document.querySelector('.lb');
+  if (lb) { if (e.key === 'Escape') lb.remove(); return; }
+  if (e.key === 'ArrowLeft'  && P.prev) location.href = P.prev;
+  if (e.key === 'ArrowRight' && P.next) location.href = P.next;
+  if (e.key === 'Escape') location.href = '/#writing';
+});
+</script>
+<script>
+// 大纲高亮:滚动容器是 #art(不是 window),直接按滚动位置算当前节最可靠
+(function(){
+  var toc = document.querySelector('.toc');
+  if (!toc) return;
+  var art = document.getElementById('art');
+  var links = [].slice.call(toc.querySelectorAll('a'));
+  var map = {};
+  // id 本身已是百分号编码,直接用原始 href 做 key,不要 decode
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var heads = [].slice.call(art.querySelectorAll('h2[id],h3[id]'));
+  if (!heads.length) return;
+  var cur = null;
+
+  function paint(){
+    var top = art.getBoundingClientRect().top + 100;   // 判定线:卡片顶部下方 100px
+    var found = heads[0];
+    for (var i = 0; i < heads.length; i++){
+      if (heads[i].getBoundingClientRect().top <= top) found = heads[i]; else break;
+    }
+    // 已滚到底时强制选中最后一节,否则末节永远高亮不到
+    if (art.scrollTop + art.clientHeight >= art.scrollHeight - 4) found = heads[heads.length - 1];
+    if (found === cur) return;
+    cur = found;
+    links.forEach(function(a){ a.classList.remove('on'); });
+    var a = map[found.id];
+    if (!a) return;
+    a.classList.add('on');
+    var box = a.getBoundingClientRect(), tb = toc.getBoundingClientRect();
+    if (box.top < tb.top || box.bottom > tb.bottom) a.scrollIntoView({block:'nearest'});
+  }
+
+  var tick = false;
+  art.addEventListener('scroll', function(){
+    if (tick) return;
+    tick = true;
+    requestAnimationFrame(function(){ tick = false; paint(); });
+  }, {passive:true});
+
+  toc.addEventListener('click', function(e){
+    var a = e.target.closest('a'); if (!a) return;
+    var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if (!t) return;
+    e.preventDefault();
+    art.scrollTo({ top: art.scrollTop + t.getBoundingClientRect().top - art.getBoundingClientRect().top - 24, behavior:'smooth' });
+    history.replaceState(null, '', a.getAttribute('href'));
+  });
+  paint();
+})();
+</script>
+<script>
+// 图片灯箱:点正文图片或 Mermaid 图放大,点击 / Esc / 滚轮关闭
+document.getElementById('art').addEventListener('click', function(e){
+  var t = e.target.closest('img,.mm svg');
+  if (!t || t.closest('a')) return;
+  var lb = document.createElement('div'), c = t.cloneNode(true);
+  lb.className = 'lb';
+  if (c.tagName !== 'IMG') {
+    // SVG 没有固有的"原图尺寸",按视口等比放大
+    var r = t.getBoundingClientRect();
+    var k = Math.min(innerWidth * .92 / r.width, innerHeight * .9 / r.height);
+    c.style.width = r.width * k + 'px';
+    c.style.height = r.height * k + 'px';
+  }
+  lb.appendChild(c);
+  lb.onclick = lb.onwheel = function(){ lb.remove(); };
+  document.body.appendChild(lb);
+});
+</script>
+<script>
+// 代码块复制
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('.cb-c');
+  if (!btn) return;
+  var pre = btn.parentElement.querySelector('pre');
+  if (!pre) return;
+  var text = pre.innerText;
+  var done = function(){
+    btn.textContent = '已复制'; btn.classList.add('ok');
+    setTimeout(function(){ btn.textContent = '复制'; btn.classList.remove('ok'); }, 1600);
+  };
+  // clipboard API 需要安全上下文(https 或 localhost),否则回退到 execCommand
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else fallback();
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (err) { btn.textContent = '复制失败'; }
+    document.body.removeChild(ta);
+  }
+});
+</script>
+</body></html>

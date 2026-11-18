@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>iOS 一键唤起APP方案参考 — fatbruin</title>
+<meta name="description" content="H5 活动页一键唤起 App:URL Scheme、Universal Links 与下载引导方案对比。"><meta property="og:type" content="article"><meta property="og:site_name" content="fatbruin"><meta property="og:title" content="iOS 一键唤起APP方案参考"><meta property="og:description" content="H5 活动页一键唤起 App:URL Scheme、Universal Links 与下载引导方案对比。"><meta property="og:url" content="https://www.umuer.com/posts/ios-web-open-app/"><meta property="og:image" content="https://www.umuer.com/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://www.umuer.com/posts/ios-web-open-app/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="fatbruin" href="/rss.xml">
+<script>(function(){var n=null;try{n=localStorage.getItem('fatbruin-night')}catch(e){}var h=new Date().getHours();if(n?n==='1':(h>=19||h<6))document.documentElement.classList.add('night')})()</script>
+<link rel="stylesheet" href="/styles/base.0282236f.css">
+<link rel="stylesheet" href="/styles/post.0bb29940.css"></head>
+<body class="post">
+<div id="scene"></div>
+<div class="topbar"><div class="navl"><a class="back" href="/#writing">← 回到小屋</a><a class="back nav-fallback" href="/posts/">全部文章 →</a></div><div class="brand">fat<span>bruin</span></div></div>
+<main><nav class="toc" aria-label="目录"><p class="toc-h">目录</p><ol><li class="l2"><a href="#ios-%E4%B8%80%E9%94%AE%E5%94%A4%E8%B5%B7app%E6%96%B9%E6%A1%88%E5%8F%82%E8%80%83">iOS 一键唤起APP方案参考</a></li><li class="l3"><a href="#deeplink%E6%8A%80%E6%9C%AF">DeepLink技术</a></li><li class="l3"><a href="#universallink%E6%8A%80%E6%9C%AF">UniversalLink技术</a></li><li class="l3"><a href="#%E7%89%B9%E6%AE%8A%E7%9A%84%E5%BE%AE%E4%BF%A1%E7%8E%AF%E5%A2%83">特殊的微信环境</a></li><li class="l3"><a href="#%E6%80%BB%E7%BB%93">总结</a></li></ol><a class="toc-all" href="/posts/">全部文章 →</a></nav><article id="art"><p class="meta"><span>2021.12.06</span><span>iOS</span><span>13 分钟</span></p><h1>iOS 一键唤起APP方案参考</h1><p class="sum">H5 活动页一键唤起 App:URL Scheme、Universal Links 与下载引导方案对比。</p><h2 id="ios-%E4%B8%80%E9%94%AE%E5%94%A4%E8%B5%B7app%E6%96%B9%E6%A1%88%E5%8F%82%E8%80%83" tabindex="-1">iOS 一键唤起APP方案参考 <a class="anchor" href="#ios-%E4%B8%80%E9%94%AE%E5%94%A4%E8%B5%B7app%E6%96%B9%E6%A1%88%E5%8F%82%E8%80%83">#</a></h2>
+<p>移动端业务发展过程中，几乎每个公司都会有活动宣传或者运营引流的需求。这些需求的实现不外乎开发一些吸引人的HTML页面，在页面的某些事件的响应中引导用户下载APP或者打开已经下载的APP。</p>
+<p>基本流程为：</p>
+<ol>
+<li>
+<p>策划运营投放活动链接（新用户送红包或者PDD砍一刀）</p>
+</li>
+<li>
+<p>用户点击活动链接进入活动页面</p>
+</li>
+<li>
+<p>用户被吸引或诱导点击某个按钮触发事件</p>
+</li>
+<li>
+<p>H5页面调起相关APP</p>
+</li>
+<li>
+<p>APP响应调起并接力打开对应页面</p>
+</li>
+</ol>
+<p>我们这里主要说一说4、5两步其中的细节处理，也是对最近相关的业务的一个总结。</p>
+<h3 id="deeplink%E6%8A%80%E6%9C%AF" tabindex="-1">DeepLink技术 <a class="anchor" href="#deeplink%E6%8A%80%E6%9C%AF">#</a></h3>
+<p>在<code>iOS9</code>之前只有通过<code>URL Scheme</code>能够唤起一个APP。</p>
+<p><code>Scheme</code>可以理解为一个APP的名字，因为是<code>URL Scheme</code>所以遵循URL的书写格式，类比于<code>http://www.baidu.com</code>，其中<code>http</code>就是它的<code>Scheme</code>。</p>
+<p>每个APP可以设置自己的Scheme，即给自己起个名字，方便”别人“叫我的时候我可以听得懂。</p>
+<p>例如我们起了个<code>Scheme</code>叫<code>kr</code>，那么在H5页面内可以通过 <code>openURL()</code>的方式打开 <code>kr://testPage</code>链接调起我们的APP，当然如果你知道别人的<code>Scheme</code>就可以调起他的APP。</p>
+<p>这个时候就需要H5和APP约定好连接的<code>path</code>和<code>parameter</code>，APP端根据调起的链接中的<code>Path</code>来确定要跳转的目的页，根据传参来获取需要的数据比如文章ID、用户ID等，然后根据参数加载原生页面。这样就完成了从H5到原生APP的接力跳转。</p>
+<hr>
+<h4>如何给自己的APP&quot;起名&quot;？</h4>
+<p>注册URL Scheme，即配置info.plist 文件</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/linkedMe/008i3skNly1gv92vcxu6jj60u206ewex02.jpg" alt=""></p>
+<h4>如何响应被调用的跳转</h4>
+<p>检测到H5向自己发起了调用请求，我们需要对请求进行响应。在AppDelegate类中通过系统预留方法进行处理。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-comment">// iOS9之前使用这个方法处理外部URL调用 </span>
+<span class="hljs-keyword">func</span> <span class="hljs-title function_">application</span>(<span class="hljs-keyword">_</span> <span class="hljs-params">application</span>: <span class="hljs-type">UIApplication</span>, <span class="hljs-params">handleOpen</span> <span class="hljs-params">url</span>: <span class="hljs-type">URL</span>) -&gt; <span class="hljs-type">Bool</span> {
+     
+}
+</code></pre>
+</div><p>iOS9之后使用这个方法处理外部URL调用，示例代码中展示了若干个可以调起APP的途径，根据具体的路径和参数来处理不同的逻辑。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">func</span> <span class="hljs-title function_">application</span>(<span class="hljs-keyword">_</span> <span class="hljs-params">app</span>: <span class="hljs-type">UIApplication</span>, <span class="hljs-params">open</span> <span class="hljs-params">url</span>: <span class="hljs-type">URL</span>, <span class="hljs-params">options</span>: [<span class="hljs-type">UIApplication</span>.<span class="hljs-params">OpenURLOptionsKey</span> : <span class="hljs-keyword">Any</span>]) -&gt; <span class="hljs-type">Bool</span> {
+  <span class="hljs-comment">// 三方登录回调</span>
+  <span class="hljs-keyword">if</span> <span class="hljs-type">LoginSettings</span>.handleOpenURL(url) <span class="hljs-operator">??</span> <span class="hljs-literal">false</span> {
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+  }
+  <span class="hljs-comment">// 神策SDK回调</span>
+  <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> sensor <span class="hljs-operator">=</span> <span class="hljs-type">SensorsAnalyticsSDK</span>.sharedInstance(), sensor.handleSchemeUrl(url) {
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+  }
+  <span class="hljs-comment">// zfb支付回调</span>
+  <span class="hljs-keyword">if</span> url.host <span class="hljs-operator">==</span> <span class="hljs-type">Constants</span>.<span class="hljs-type">KrOpenAppSource</span>.<span class="hljs-type">AliPayHost</span> {
+      <span class="hljs-type">KrThirdPayManager</span>.default.processOrderWithZfbPaymentResult(url: url)
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+  }
+  <span class="hljs-comment">// Today小组件点击</span>
+  <span class="hljs-keyword">if</span> url.host <span class="hljs-operator">==</span> <span class="hljs-type">Constants</span>.<span class="hljs-type">KrOpenAppSource</span>.<span class="hljs-type">TodayExtensionHost</span> {
+      <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> queryItems <span class="hljs-operator">=</span> url.queryItems, <span class="hljs-operator">!</span>queryItems.isEmpty {
+          <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> query <span class="hljs-operator">=</span> url.queryItems<span class="hljs-operator">?</span>.first {
+              <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> route <span class="hljs-operator">=</span> query.value, query.name <span class="hljs-operator">==</span> <span class="hljs-type">Constants</span>.<span class="hljs-type">KrOpenAppSource</span>.<span class="hljs-type">TodayExtensionQueryNews</span> {
+                  <span class="hljs-type">Router2</span>.pushURL(route, <span class="hljs-type">TrackInfo</span>(source: <span class="hljs-type">TrackSource</span>.todayExtension))
+              }
+          }
+      }
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+  }
+  <span class="hljs-comment">// widget小组件点击</span>
+  <span class="hljs-keyword">if</span> url.host <span class="hljs-operator">==</span> <span class="hljs-type">Constants</span>.<span class="hljs-type">KrOpenAppSource</span>.<span class="hljs-type">WidgetExtensionHost</span> {
+      <span class="hljs-type">Router2</span>.pushURL(urlStr, <span class="hljs-type">TrackInfo</span>(source: <span class="hljs-type">TrackSource</span>.widgetExtension))
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+  }
+  <span class="hljs-comment">// URL Scheme 唤起app</span>
+  <span class="hljs-keyword">if</span> canAppHandleURL(url) {
+      <span class="hljs-keyword">let</span> urlString <span class="hljs-operator">=</span> url.description
+      <span class="hljs-keyword">let</span> tempArray <span class="hljs-operator">=</span> urlString.components(separatedBy: <span class="hljs-string">&quot;route/&quot;</span>)
+      <span class="hljs-keyword">if</span> <span class="hljs-operator">!</span>tempArray.isEmpty, tempArray.count <span class="hljs-operator">&gt;</span> <span class="hljs-number">0</span> {
+          <span class="hljs-keyword">let</span> route <span class="hljs-operator">=</span> tempArray[<span class="hljs-number">1</span>]
+          <span class="hljs-type">Router2</span>.pushURL(route, <span class="hljs-type">TrackInfo</span>(source: <span class="hljs-type">TrackSource</span>.linkedMe))
+      }
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+  }
+  <span class="hljs-comment">// app store 唤起</span>
+  <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> sourceApp <span class="hljs-operator">=</span> options[<span class="hljs-type">UIApplication</span>.<span class="hljs-type">OpenURLOptionsKey</span>.sourceApplication] <span class="hljs-keyword">as?</span> <span class="hljs-type">String</span>,
+     sourceApp <span class="hljs-operator">==</span> <span class="hljs-type">Constants</span>.<span class="hljs-type">KrOpenAppSource</span>.<span class="hljs-type">AppStore</span> {
+      <span class="hljs-type">TrackManager</span>.track(event: .appLaunch)
+  }
+  <span class="hljs-comment">// 处理旧版微信通过URL启动App时传递的数据</span>
+  <span class="hljs-keyword">if</span> url.scheme <span class="hljs-operator">==</span> <span class="hljs-type">ShareManager</span>.<span class="hljs-type">Wechat</span>.appID {
+      <span class="hljs-keyword">return</span> <span class="hljs-type">WXApi</span>.handleOpen(url, delegate:<span class="hljs-keyword">self</span>)
+  }
+  <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>
+}
+</code></pre>
+</div><h4>DeepLink的局限性</h4>
+<h5>无法检测目标APP是否安装</h5>
+<blockquote>
+<p>我知道你叫什么就可以调起你，但是我不知道你在不在。</p>
+</blockquote>
+<p>H5无法获取APP是否已经安装过，所以大部分的处理方案是在发起调用APP的链接之后几秒直接跳转到对应APP的下载页面。</p>
+<p>即如果能够调起APP，用户就不会再关注H5页面， H5页面跳到哪里用户也看不见。</p>
+<p>反之就稍等一下跳转到APP的下载页面引导用户下载。</p>
+<h5>Scheme冲突</h5>
+<blockquote>
+<p>和你叫周杰伦我也叫周杰伦一样，大家都是周杰伦。</p>
+<p>当周杰伦真正回应你的呼唤的时候你才知道你调起的是哪个周杰伦，真~薛定谔的周杰伦...</p>
+</blockquote>
+<p>由于每家的APP都自己注册自己的URL Scheme，所以有可能出现两家APP的URL Scheme注册的一样的情况。当两个APP都安装之后就会出现问题，不确定调起的是哪个APP。</p>
+<h5>调起流程冗余且可能被阻断</h5>
+<blockquote>
+<p>将在xxx中打开页面，是否继续？</p>
+</blockquote>
+<p>由于是使用js方法openURL来调起的APP，在调起之前系统会询问你是否在xxxAPP中打开连接。</p>
+<p>这个询问是一个比较突兀的alert弹窗，所以在不知情的用户看来可能会认为存在一定的风险从而取消打开导致唤起APP中断。如果在这里中断则用户极有可能会直接返回上一页或者直接取消整个操作，前功尽弃！</p>
+<h3 id="universallink%E6%8A%80%E6%9C%AF" tabindex="-1">UniversalLink技术 <a class="anchor" href="#universallink%E6%8A%80%E6%9C%AF">#</a></h3>
+<blockquote>
+<p>Seamlessly link to content inside your app, or on your website in iOS 9 or later. With universal links, you can always give users the most integrated mobile experience, even when your app isn’t installed on their device.</p>
+<p>苹果开发文档</p>
+</blockquote>
+<p><code>UniversalLink </code>技术是苹果在<code>iOS9</code>之后推出的一种使用<code>HTTPS</code>协议的，可以方便得使用已经存在的链接同时打开网址和唤起APP的新功能。</p>
+<p>相对于DeepLink技术来说，UniversalLink在使用体验上是类似的。明显区别在于用户点击了支持的通用链接后会直接调起APP，进入APP内部处理逻辑，而不会再弹起提示信息弹窗以达到从H5页面无缝衔接到APP内部的效果。（可能会在第一次使用UniversalLink时还会弹窗，但是授权之后就不再弹出了）</p>
+<h4>UniversalLink的优点</h4>
+<p>但是相对于<code>DeepLink</code>技术，<code>UniversalLink</code>技术还具有着以下优点：</p>
+<p><strong>唯一</strong>：与自定义<code>URL</code>方案不同，其他应用无法声明通用链接，因为通用链接使用的是指向您网站的标准<code>HTTP</code>或<code>HTTPS</code>链接</p>
+<blockquote>
+<ul>
+<li><strong>Unique.</strong> Unlike custom URL schemes, universal links can’t be claimed by other apps, because they use standard HTTP or HTTPS links to your website.</li>
+</ul>
+</blockquote>
+<p>每个APP控制自身可以支持的通用链接的域名，由于域名的注册和解析都具有唯一性，通用链支持的域名一定不会出现和别家APP重复的情况。</p>
+<hr>
+<p><strong>安全</strong>：当用户安装您的应用程序时，iOS会检查您已上传到Web服务器的文件，以确保您的网站允许您的应用程序代表其打开URL。只有您可以创建和上传此文件，因此您的网站与应用程序的关联是安全的。</p>
+<blockquote>
+<ul>
+<li><strong>Secure.</strong> When users install your app, iOS checks a file that you’ve uploaded to your web server to make sure that your website allows your app to open URLs on its behalf. Only you can create and upload this file, so the association of your website with your app is secure.</li>
+</ul>
+</blockquote>
+<p>通用链接的域名配置写在项目中且每个可以支持通用链的域名都需要上传一份提供判断是否满足通用链接对应的配置文件。</p>
+<p>配置文件规定了支持通用链功能的域名后的path和可以调起的APP，比如配置文件中规定了<code>www.abc.com/app/UniversalLink/*</code>这个路径可以打开<code>abcAPP</code>，那么只有访问对应的链接才能调起对应的APP。</p>
+<hr>
+<p><strong>灵活</strong>：即使未安装您的应用程序，通用链接也可以使用。如果未安装您的应用程序，点击指向您网站的链接可在Safari中打开内容。</p>
+<blockquote>
+<ul>
+<li><strong>Flexible.</strong> Universal links work even when your app is not installed. When your app isn’t installed, tapping a link to your website opens the content in Safari, as users expect.</li>
+</ul>
+</blockquote>
+<p>不用管用户是否安装了对应的APP，如果没有安装对应的APP，用户点击的链接也是一个有效的页面地址，会在浏览器中继续打开所点击的链接呈现出对应的内容。</p>
+<p>常规的做法是在某个通用链链接的地址上放APP的下载引导页，如果用户未安装APP而点击了通用链接就会直接跳转到下载页。</p>
+<p>对于iOS用户来说这个下载页也可以尝试重定向到<code>App Store</code>的通用链接。<code>App Store</code>对每个APP的下载页面都提供了可用的通用链接，重定向到<code>App Store</code>通用链会直接调起应用商店且打开APP下载页。</p>
+<hr>
+<p><strong>简单</strong>：一个URL既适用于您的网站，也适用于您的应用程序。</p>
+<blockquote>
+<ul>
+<li><strong>Simple.</strong> One URL works for both your website and your app.</li>
+</ul>
+</blockquote>
+<p>一个正常使用的URL即可当做通用链功能进行配置，同时不影响其本身的页面和功能。</p>
+<hr>
+<p><strong>私有</strong>：其他应用程序可以与您的应用程序通信，而无需知道您的应用程序是否已安装。</p>
+<blockquote>
+<ul>
+<li><strong>Private.</strong> Other apps can communicate with your app without needing to know whether your app is installed.</li>
+</ul>
+</blockquote>
+<p>通用链可以暴露给别的应用程序使用，像打开普通的webview一样的方式调起APP，而不用关心你是否真正下载了APP。你的通用链的功能和设置对其他APP来说是透明的。</p>
+<hr>
+<p><strong>短信、备忘录、邮件内部均可使用</strong>：</p>
+<blockquote>
+<p>使用通用链的一大优势。</p>
+</blockquote>
+<p>在iOS系统自带的短信、备忘录甚至邮件内的网页链接的点击也可以正常调起APP，这样发送给用户的引流短信或者邮件中均可附带对应活动的链接，如果用户有安装我们的APP，在点击链接时可以直接导向到APP内部对应的活动页面，不再需要Safari做中间人角色。如果用户未安装APP则跳到对应的活动页面，然后重定向到App Store的下载页。</p>
+<hr>
+<h4>如何配置UniversalLink</h4>
+<p>网上很多朋友都分享了他们配置UniversalLink的过程，但是我还是建议去苹果官网上按照最新的文档说明进行配置。</p>
+<p><a href="https://developer.apple.com/documentation/xcode/supporting-associated-domains">Support Universal Links</a></p>
+<blockquote>
+<ul>
+<li>Create an <code>apple-app-site-association</code> file that contains JSON data about the URLs that your app can handle.</li>
+<li>Upload the <code>apple-app-site-association</code> file to your HTTPS web server. You can place the file at the root of your server or in the <code>.well-known</code> subdirectory.</li>
+<li>Prepare your app to handle universal links.</li>
+</ul>
+</blockquote>
+<p>大体上分为三个步骤:</p>
+<ol>
+<li>
+<p>在xcode的Associated Domains配置项中添加你需要映射的链接</p>
+<p>一般需要先去开发者账号的管理网站上为APP根证书开通这个功能，然后在XCode上进行域名配置。</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/linkedMe/008i3skNly1gvw7qzmkjdj30zn07lglw.jpg" alt=""></p>
+</li>
+<li>
+<p>创建<code>apple-app-site-association</code>文件并编辑配置</p>
+<div class="cb"><span class="cb-l">json</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-json"><span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;applinks&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+        <span class="hljs-attr">&quot;apps&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+        <span class="hljs-attr">&quot;details&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+            <span class="hljs-punctuation">{</span>
+                <span class="hljs-attr">&quot;appID&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;9JA89QQLNQ.com.apple.wwdc&quot;</span><span class="hljs-punctuation">,</span>
+                <span class="hljs-attr">&quot;paths&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span> <span class="hljs-string">&quot;/wwdc/news/&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;/videos/wwdc/2015/*&quot;</span><span class="hljs-punctuation">]</span>
+            <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+            <span class="hljs-punctuation">{</span>
+                <span class="hljs-attr">&quot;appID&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ABCD1234.com.apple.wwdc&quot;</span><span class="hljs-punctuation">,</span>
+                <span class="hljs-attr">&quot;paths&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span> <span class="hljs-string">&quot;*&quot;</span> <span class="hljs-punctuation">]</span>
+            <span class="hljs-punctuation">}</span>
+        <span class="hljs-punctuation">]</span>
+    <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+</div><blockquote>
+<p>The <code>appIDs</code> and <code>apps</code> keys specify the application identifiers for the apps that are available for use on this website along with their service types. Use the following format for the values in these keys:</p>
+<p><Application Identifier Prefix>.<Bundle Identifier></p>
+<p>前缀使用APPId 可以在 App Store Connect网站上找到APP的id，后面是APP的Bundle ID，可以在Xcode签名管理的地方找</p>
+</blockquote>
+</li>
+<li>
+<p>将<code>apple-app-site-association</code>文件放在链接的域名服务根目录下</p>
+<p>这个文件使用json格式但是并不能设置.json扩展名，仅仅作为纯文本文件放在对应链接域名下的根目录或者<code>.well-known</code>目录下，以方便系统访问到配置。</p>
+<p>比如你关联的域名为 www.test.com ，就需要把<code>apple-app-site-association</code>文件放在服务器的根目录下，在浏览器访问</p>
+<p><a href="https://www.test.com/apple-app-site-association">https://www.test.com/apple-app-site-association</a> 链接可以下载此文件或者直接打开此文件。</p>
+</li>
+</ol>
+<h4>配置UniversalLink需要注意的问题</h4>
+<ol>
+<li>配置<code>apple-app-site-association</code>的域名必须支持HTTPS，且访问的链接没有被重定向</li>
+<li>每个被链接的域名下都要有自身的配置<code>apple-app-site-association</code>文件，<strong><code>www.test.com</code>和 <code>test.com</code> 不是同一个域名</strong>，如果需要每个域名都需要通用链接功能则需要每个域名下都配置一个对应的文件。<strong>如果这两个域名有重写规则且属于同一台服务器则会优先生效<code>www.test.com</code>而忽略<code>test.com</code></strong>。（虽然大部分公司都是将test.com重写为www.test.com，但是也有为了SEO反向重写的例子）</li>
+<li>从 macOS 11 和 iOS 14 开始，应用程序不再直接向您的网络服务器请求<code>apple-app-site-association</code>文件。相反，他们将这些请求发送到专用于关联域的 Apple 管理的内容交付网络 (CDN)。所以在APP启动阶段不会抓到对应域名和路径的请求了。</li>
+<li>第一次安装APP的时候苹果CDN服务会在24 小时内为您的域请求<code>apple-app-site-association</code>文件进行配置，非第一次安装时每周检查一次通用链配置更新。</li>
+</ol>
+<h3 id="%E7%89%B9%E6%AE%8A%E7%9A%84%E5%BE%AE%E4%BF%A1%E7%8E%AF%E5%A2%83" tabindex="-1">特殊的微信环境 <a class="anchor" href="#%E7%89%B9%E6%AE%8A%E7%9A%84%E5%BE%AE%E4%BF%A1%E7%8E%AF%E5%A2%83">#</a></h3>
+<p>鉴于国内的网络社交大环境基本以微信为中心，所以每个APP的引流都绕不开微信生态环境。</p>
+<p>而微信属于应用层APP，并不能像操作系统一样开放，基于安全性考虑，微信针对Deeplink和UniversalLink均做了不同程度的屏蔽。</p>
+<h4>安全域名回调</h4>
+<p>在微信内部浏览器中是无法直接调起Deeplink的，一般通过微信分享出链接卡片，打开目的页面后再通过微信开放平台提供的安全域名功能来做Deeplink调用。</p>
+<p>js调用安全域名下的DeepLink后会通过微信的onReq回调来接收请求，然后解析传递的数据进而做出页面跳转功能。</p>
+<p>大体的逻辑如下</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/linkedMe/008i3skNly1gw4bj7l2lej31280u0411.jpg" alt="微信环境下使用DeepLink流程"></p>
+<h4>通用链跳转</h4>
+<p>而针对UniversalLink的屏蔽则表现为无法通过UniversalLink调起APP，只能打开对应的落地页。不过最近由于某些政策的调整，微信针对UniversalLink的屏蔽已经被放开了。目前可以正常在微信环境内使用通用链跳转功能（只要你要跳转的目的链接和当前链接是跨域的并且正确安装配置了对应的通用链的APP）。</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/linkedMe/008i3skNly1gw7uwunklrj31da0u0n07.jpg" alt=""></p>
+<h4>屏蔽链接分享</h4>
+<p>鉴于对UniversalLink的放开，微信对某些竞争对手做出了限制链接分享的功能。比如某多多和某宝是无法使用微信卡片分享的，所以针对这种场景他们做出了分享文字到微信的功能，即发送常一大串带标识码的文本到微信，然后通过系统粘贴板作为中转到APP内（常见的“复制这段话到xxxAPP打开即可获得xxx红包”）。</p>
+<h3 id="%E6%80%BB%E7%BB%93" tabindex="-1">总结 <a class="anchor" href="#%E6%80%BB%E7%BB%93">#</a></h3>
+<p>不论是DeepLink技术 还是UniversalLink技术，都可以实现我们的需求。</p>
+<p>在使用体验上来说还是UniversalLink技术更胜一筹。</p>
+<div class="pnav"><a class="l" href="/posts/xcuitest/"><small>上一篇</small><b>XCUITest iOS自动化UI测试框架</b></a><a class="r" href="/posts/feed-gif-carousel/"><small>下一篇</small><b>iOS 如何做一个九宫格GIF播放器</b></a></div></article></main>
+
+<div id="mascot" title="戳一下">
+  <div id="m-say"></div>
+  <button id="m-top" title="回到顶部" aria-label="回到顶部">↑</button>
+</div>
+<script type="module" src="/scene2d.js"></script>
+<script type="module" src="/mascot.js"></script>
+<script>
+addEventListener('keydown', function(e){
+  var P = {"prev":"/posts/xcuitest/","next":"/posts/feed-gif-carousel/"};
+  // 灯箱打开时 Esc 只关灯箱,方向键不翻页
+  var lb = document.querySelector('.lb');
+  if (lb) { if (e.key === 'Escape') lb.remove(); return; }
+  if (e.key === 'ArrowLeft'  && P.prev) location.href = P.prev;
+  if (e.key === 'ArrowRight' && P.next) location.href = P.next;
+  if (e.key === 'Escape') location.href = '/#writing';
+});
+</script>
+<script>
+// 大纲高亮:滚动容器是 #art(不是 window),直接按滚动位置算当前节最可靠
+(function(){
+  var toc = document.querySelector('.toc');
+  if (!toc) return;
+  var art = document.getElementById('art');
+  var links = [].slice.call(toc.querySelectorAll('a'));
+  var map = {};
+  // id 本身已是百分号编码,直接用原始 href 做 key,不要 decode
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var heads = [].slice.call(art.querySelectorAll('h2[id],h3[id]'));
+  if (!heads.length) return;
+  var cur = null;
+
+  function paint(){
+    var top = art.getBoundingClientRect().top + 100;   // 判定线:卡片顶部下方 100px
+    var found = heads[0];
+    for (var i = 0; i < heads.length; i++){
+      if (heads[i].getBoundingClientRect().top <= top) found = heads[i]; else break;
+    }
+    // 已滚到底时强制选中最后一节,否则末节永远高亮不到
+    if (art.scrollTop + art.clientHeight >= art.scrollHeight - 4) found = heads[heads.length - 1];
+    if (found === cur) return;
+    cur = found;
+    links.forEach(function(a){ a.classList.remove('on'); });
+    var a = map[found.id];
+    if (!a) return;
+    a.classList.add('on');
+    var box = a.getBoundingClientRect(), tb = toc.getBoundingClientRect();
+    if (box.top < tb.top || box.bottom > tb.bottom) a.scrollIntoView({block:'nearest'});
+  }
+
+  var tick = false;
+  art.addEventListener('scroll', function(){
+    if (tick) return;
+    tick = true;
+    requestAnimationFrame(function(){ tick = false; paint(); });
+  }, {passive:true});
+
+  toc.addEventListener('click', function(e){
+    var a = e.target.closest('a'); if (!a) return;
+    var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if (!t) return;
+    e.preventDefault();
+    art.scrollTo({ top: art.scrollTop + t.getBoundingClientRect().top - art.getBoundingClientRect().top - 24, behavior:'smooth' });
+    history.replaceState(null, '', a.getAttribute('href'));
+  });
+  paint();
+})();
+</script>
+<script>
+// 图片灯箱:点正文图片或 Mermaid 图放大,点击 / Esc / 滚轮关闭
+document.getElementById('art').addEventListener('click', function(e){
+  var t = e.target.closest('img,.mm svg');
+  if (!t || t.closest('a')) return;
+  var lb = document.createElement('div'), c = t.cloneNode(true);
+  lb.className = 'lb';
+  if (c.tagName !== 'IMG') {
+    // SVG 没有固有的"原图尺寸",按视口等比放大
+    var r = t.getBoundingClientRect();
+    var k = Math.min(innerWidth * .92 / r.width, innerHeight * .9 / r.height);
+    c.style.width = r.width * k + 'px';
+    c.style.height = r.height * k + 'px';
+  }
+  lb.appendChild(c);
+  lb.onclick = lb.onwheel = function(){ lb.remove(); };
+  document.body.appendChild(lb);
+});
+</script>
+<script>
+// 代码块复制
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('.cb-c');
+  if (!btn) return;
+  var pre = btn.parentElement.querySelector('pre');
+  if (!pre) return;
+  var text = pre.innerText;
+  var done = function(){
+    btn.textContent = '已复制'; btn.classList.add('ok');
+    setTimeout(function(){ btn.textContent = '复制'; btn.classList.remove('ok'); }, 1600);
+  };
+  // clipboard API 需要安全上下文(https 或 localhost),否则回退到 execCommand
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else fallback();
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (err) { btn.textContent = '复制失败'; }
+    document.body.removeChild(ta);
+  }
+});
+</script>
+</body></html>

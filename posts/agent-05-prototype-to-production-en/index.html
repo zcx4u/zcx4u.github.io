@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>Agents Whitepaper 5 · Prototype to Production — fatbruin</title>
+<meta name="description" content="Deploying, operating and evolving agents in production with AgentOps."><meta property="og:type" content="article"><meta property="og:site_name" content="fatbruin"><meta property="og:title" content="Agents Whitepaper 5 · Prototype to Production"><meta property="og:description" content="Deploying, operating and evolving agents in production with AgentOps."><meta property="og:url" content="https://www.umuer.com/posts/agent-05-prototype-to-production-en/"><meta property="og:image" content="https://www.umuer.com/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://www.umuer.com/posts/agent-05-prototype-to-production-en/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="fatbruin" href="/rss.xml">
+<script>(function(){var n=null;try{n=localStorage.getItem('fatbruin-night')}catch(e){}var h=new Date().getHours();if(n?n==='1':(h>=19||h<6))document.documentElement.classList.add('night')})()</script>
+<link rel="stylesheet" href="/styles/base.0282236f.css">
+<link rel="stylesheet" href="/styles/post.0bb29940.css"></head>
+<body class="post">
+<div id="scene"></div>
+<div class="topbar"><div class="navl"><a class="back" href="/#writing">← 回到小屋</a><a class="back nav-fallback" href="/posts/">全部文章 →</a></div><div class="brand">fat<span>bruin</span></div></div>
+<main><nav class="toc" aria-label="目录"><p class="toc-h">目录</p><ol><li class="l2"><a href="#to-production">to Production</a></li><li class="l2"><a href="#people-and-process">People and Process</a></li><li class="l2"><a href="#the-journey-to-production">The Journey to Production</a></li><li class="l2"><a href="#evaluation-as-a-quality-gate">Evaluation as a Quality Gate</a></li><li class="l2"><a href="#the-automated-ci%2Fcd-pipeline">The Automated CI/CD Pipeline</a></li><li class="l2"><a href="#safe-rollout-strategies">Safe Rollout Strategies</a></li><li class="l2"><a href="#building-security-from-the-start">Building Security from the Start</a></li><li class="l2"><a href="#operations-in-production">Operations in-Production</a></li><li class="l2"><a href="#observe%3A-your-agent's-sensory-system">Observe: Your Agent's Sensory System</a></li><li class="l2"><a href="#act%3A-the-levers-of-operational-control">Act: The Levers of Operational Control</a></li><li class="l2"><a href="#managing-system-health%3A-performance%2C-cost%2C-and-scale">Managing System Health: Performance, Cost, and Scale</a></li><li class="l2"><a href="#managing-risk%3A-the-security-response-playbook">Managing Risk: The Security Response Playbook</a></li><li class="l2"><a href="#evolve%3A-learning-from-production">Evolve: Learning from Production</a></li><li class="l2"><a href="#the-engine-of-evolution%3A-an-automated-path-to-production">The Engine of Evolution: An Automated Path to Production</a></li><li class="l2"><a href="#the-evolution-workflow%3A-from-insight-to-deployed-improvement">The Evolution Workflow: From Insight to Deployed Improvement</a></li><li class="l2"><a href="#evolving-security%3A-the-production-feedback-loop">Evolving Security: The Production Feedback Loop</a></li><li class="l2"><a href="#beyond-single-agent-operations">Beyond Single-Agent Operations</a></li><li class="l2"><a href="#a2a---reusability-and-standardization">A2A - Reusability and Standardization</a></li><li class="l2"><a href="#a2a-protocol%3A-from-concept-to-implementation">A2A Protocol: From Concept to Implementation</a></li><li class="l2"><a href="#how-a2a-and-mcp-work-together">How A2A and MCP Work Together</a></li><li class="l2"><a href="#registry-architectures%3A-when-and-how-to-build-them">Registry Architectures: When and How to Build Them</a></li><li class="l2"><a href="#agentops-lifecycle">AgentOps Lifecycle</a></li><li class="l2"><a href="#conclusion%3A-bridging-the-last-mile-with-agentops">Conclusion: Bridging the Last Mile with AgentOps</a></li><li class="l2"><a href="#your-path-forward">Your Path Forward</a></li><li class="l2"><a href="#endnotes">Endnotes</a></li></ol><a class="toc-all" href="/posts/">全部文章 →</a></nav><article id="art"><p class="meta"><span>2025.12.23</span><span>Agent</span><span>23 分钟</span></p><h1>Agents Whitepaper 5 · Prototype to Production</h1><p class="sum">Deploying, operating and evolving agents in production with AgentOps.</p><details class="series"><summary><small>系列</small><b>Agents Whitepaper</b><span>第 5 / 5 篇</span></summary><ol><li><a href="/posts/agent-01-introduction-en/">Agents Whitepaper 1 · Introduction to Agents</a></li><li><a href="/posts/agent-02-tools-mcp-en/">Agents Whitepaper 2 · Agent Tools &amp; Interoperability with MCP</a></li><li><a href="/posts/agent-03-context-engineering-en/">Agents Whitepaper 3 · Context Engineering: Sessions &amp; Memory</a></li><li><a href="/posts/agent-04-quality-en/">Agents Whitepaper 4 · Agent Quality</a></li><li class="on">Agents Whitepaper 5 · Prototype to Production</li></ol></details><p><strong>Authors: Sokratis Kartakis, Gabriela Hernandez Larios, Ran Li, Elia Secchi, and Huang Xia</strong></p>
+<p>This whitepaper provides a comprehensive technical guide to the operational life cycle of AI agents, focusing on deployment, scaling, and productionizing. Building on Day 4's coverage of evaluation and observability, this guide emphasizes how to build the necessary trust to move agents into production through robust CI/CD pipelines and scalable infrastructure. It explores the challenges of transitioning agent-based systems from prototypes to enterprise grade solutions, with special attention to Agent2Agent (A2A) interoperability. This guide offers practical insights for AI/ML engineers, DevOps professionals, and system architects.</p>
+<p><strong>Introduction: From Prototype</strong></p>
+<h2 id="to-production" tabindex="-1">to Production <a class="anchor" href="#to-production">#</a></h2>
+<p>You can spin up an AI agent prototype in minutes, maybe even seconds. But turning that clever demo into a trusted, production-grade system that your business can depend on? That's where the real work begins. Welcome to the <strong>&quot;last mile&quot; production gap</strong>, where we consistently observe in practice with customers that roughly 80% of the effort is spent not on the agent's core intelligence, but on the infrastructure, security, and validation needed to make it reliable and safe.</p>
+<p>Skipping these final steps could cause several problems. For example:</p>
+<p><strong>• A customer service agent is tricked into giving products away for free</strong> because you forgot to set up the right guardrails.</p>
+<p><strong>• A user discovers they can access a confidential internal database</strong> through your agent because authentication was improperly configured.</p>
+<p><strong>• An agent generates a large consumption bill over the weekend</strong>, but no one knows why because you didn't set up any monitoring.</p>
+<p><strong>• A critical agent that worked perfectly yesterday suddenly stops</strong>, but your team is scrambling because there was no continuous evaluation in place.</p>
+<p>These aren't just technical problems; they are major business failures. And while principles from DevOps and MLOps provide a critical foundation, they aren't enough on their own. Deploying agentic systems introduces a new class of challenges that require an <strong>evolution in our operational discipline</strong>. Unlike traditional ML models, agents are autonomously interactive, stateful, and follow dynamic execution paths.</p>
+<p>This creates unique operational headaches that demand specialized strategies:</p>
+<p><strong>• Dynamic Tool Orchestration:</strong> An agent's &quot;trajectory&quot; is assembled on the fly as it picks and chooses tools. This requires robust versioning, access control, and observability for a system that behaves differently every time.</p>
+<p><strong>• Scalable State Management:</strong> Agents can remember things across interactions. Managing session and memory securely and consistently at scale is a complex systems design problem.</p>
+<p><strong>• Unpredictable Cost &amp; Latency:</strong> An agent can take many different paths to find an answer, making its cost and response time incredibly hard to predict and control without smart budgeting and caching.</p>
+<p>To navigate these challenges successfully, you need a foundation built on three key pillars: <strong>Automated Evaluation</strong>, <strong>Automated Deployment (CI/CD)</strong>, and <strong>Comprehensive Observability</strong>.</p>
+<p>This whitepaper is your step-by-step playbook for building that foundation and navigating the path to production! We'll start with the pre-production essentials, showing you how to set up automated CI/CD pipelines and use rigorous evaluation as a critical quality check. From there, we'll dive into the challenges of running agents in the wild, covering strategies for scaling, performance tuning, and real-time monitoring. Finally, we'll look ahead to the exciting world of multi-agent systems with the Agent-to-Agent protocol and explore what it takes to get them communicating safely and effectively.</p>
+<p>![][image1] <strong>Practical Implementation Guide</strong></p>
+<p>Throughout this whitepaper, practical examples reference the Google Cloud Platform Agent Starter Pack1—1a Python package providing production-ready Generative AI agent templates for Google Cloud. It includes <strong>pre-built agents</strong>, <strong>automated CI/CD setup</strong>, <strong>Terraform deployment</strong>, <strong>Vertex AI evaluation integration</strong> and built-in Google Cloud <strong>observability</strong>. The starter pack demonstrates the concepts discussed here with working code you can deploy in minutes.</p>
+<h2 id="people-and-process" tabindex="-1">People and Process <a class="anchor" href="#people-and-process">#</a></h2>
+<p>After all that talk of CI/CD, observability, and dynamic pipelines, why the focus on people and process? Because the best technology in the world is ineffective without the right team to build, manage, and govern it.</p>
+<p>That customer service agent isn't magically prevented from giving away free products; an AI Engineer and a Prompt Engineer design and implement the guardrails. The confidential database isn't secured by an abstract concept; a Cloud Platform team configures the authentication. Behind every successful, production-grade agent there is a well-orchestrated team of specialists, and in this section, we'll introduce the key players.</p>
+<p>![][image2]</p>
+<p>Figure 1: A diagram showing that &quot;Ops&quot; is the intersection of people, processes, and technology</p>
+<p>In a traditional MLOps landscape, this involves several key teams:</p>
+<p><strong>• Cloud Platform Team:</strong> Comprising cloud architects, administrators, and security specialists, this team manages the foundational cloud infrastructure, security, and access control. The team grants engineers and service accounts least-privilege roles, ensuring access only to necessary resources.</p>
+<p><strong>• Data Engineering Team:</strong> Data engineers and data owners build and maintain the data pipelines, handling ingestion, preparation, and quality standards.</p>
+<p><strong>• Data Science and MLOps Team:</strong> This includes data scientists who experiment with and train models, and ML engineers who automate the end-to-end ML pipeline (e.g., preprocessing, training, post-processing) at scale using CI/CD. MLOps Engineers support this by building and maintaining the standardized pipeline infrastructure.</p>
+<p><strong>• Machine Learning Governance:</strong> This centralized function, including product owners and auditors, oversees the ML lifecycle, acting as a repository for artifacts and metrics to ensure compliance, transparency, and accountability .</p>
+<p>Generative AI introduces a new layer of complexity and specialized roles to this landscape:</p>
+<p><strong>• Prompt Engineers:</strong> While this role title is still evolving in the industry, these individuals blend technical skill in crafting prompts with deep domain expertise. They define the right questions and expected answers from a model, though in practice this work may be done by AI Engineers, domain experts, or dedicated specialists depending on the organization's maturity.</p>
+<p><strong>• AI Engineers:</strong> They are responsible for scaling GenAI solutions to production, building robust backend systems that incorporate evaluation at scale, guardrails, and RAG/tool integration .</p>
+<p><strong>• DevOps/App Developers:</strong> These developers build the front-end components and user friendly interfaces that integrate with the GenAI backend.</p>
+<p>The scale and structure of an organization will influence these roles; in smaller companies, individuals may wear multiple hats, while mature organizations will have more specialized teams. Effectively coordinating all these diverse roles is essential for establishing a robust operational foundation and successfully productionizing both traditional ML and generative AI initiatives.</p>
+<p>![][image3]</p>
+<p>Figure 2: How multiple teams collaborate to operationalize both models and GenAI applications</p>
+<h2 id="the-journey-to-production" tabindex="-1">The Journey to Production <a class="anchor" href="#the-journey-to-production">#</a></h2>
+<p>Now that we've established the team, we turn to the process. How do we translate the work of all these specialists into a system that is trustworthy, reliable, and ready for users?</p>
+<p>The answer lies in a disciplined pre-production process built on a single core principle: <strong>Evaluation-Gated Deployment</strong>. The idea is simple but powerful: no agent version should reach users without first passing a comprehensive evaluation that proves its quality and safety. This pre-production phase is where we trade manual uncertainty for automated confidence, and it consists of three pillars: a rigorous evaluation process that acts as a quality gate, an automated CI/CD pipeline that enforces it, and safe rollout strategies to de-risk the final step into production.</p>
+<h2 id="evaluation-as-a-quality-gate" tabindex="-1">Evaluation as a Quality Gate <a class="anchor" href="#evaluation-as-a-quality-gate">#</a></h2>
+<p>Why do we need a special quality gate for agents? Traditional software tests are insufficient for systems that reason and adapt. Furthermore, evaluating an agent is distinct from evaluating an LLM; it requires assessing not just the final answer, but the entire trajectory of reasoning and actions taken to complete a task. An agent can pass 100 unit tests for its tools but still fail spectacularly by choosing the wrong tool or hallucinating a response. We need to evaluate its <em>behavioral quality</em>, not just its functional correctness. This gate can be implemented in two primary ways:</p>
+<p><strong>1. The Manual &quot;Pre-PR&quot; Evaluation:</strong> For teams seeking flexibility or just beginning their evaluation journey, the quality gate is enforced through a team process. Before submitting a pull request (PR), the <strong>AI Engineer</strong> or <strong>Prompt Engineer</strong> (or whoever is responsible for agent behavior in your organization) runs the evaluation suite locally. The resulting performance report—comparing the new agent against the production baseline—is then linked in the PR description. This makes the evaluation results a mandatory artifact for human review. The reviewer—typically another <strong>AI Engineer</strong> or the <strong>Machine Learning Governor</strong>—is now responsible for assessing not just the code, but also the agent's behavioral changes against guardrail violations and prompt injection vulnerabilities.</p>
+<p><strong>2. The Automated In-Pipeline Gate:</strong> For mature teams, the evaluation harness—built and maintained by the <strong>Data Science and MLOps Team</strong>—is integrated directly into the CI/ CD pipeline. A failing evaluation automatically blocks the deployment, providing rigid,</p>
+<p>programmatic enforcement of quality standards that the <strong>Machine Learning Governance</strong> team has defined. This approach trades the flexibility of manual review for the consistency of automation. The CI/CD pipeline can be configured to automatically trigger an evaluation job that compares the new agent's responses against a golden dataset. The deployment is</p>
+<p>programmatically blocked if key metrics, such as &quot;tool call success rate&quot; or &quot;helpfulness,&quot; fall below a predefined threshold.</p>
+<p>Regardless of the method, the principle is the same: no agent proceeds to production without a quality check. We covered the specifics of what to measure and how to build this evaluation harness in our deep dive on <strong>Day 4: Agent Quality: Observability, Logging, Tracing, Evaluation, Metrics</strong>, which explored everything from crafting a 'golden dataset' (a curated, representative set of test cases designed to assess an agent's intended behavior and guardrail compliance) to implementing LLM-as-a-judge techniques, to finally using a service like Vertex AI Evaluation2 to power evaluation.</p>
+<h2 id="the-automated-ci%2Fcd-pipeline" tabindex="-1">The Automated CI/CD Pipeline <a class="anchor" href="#the-automated-ci%2Fcd-pipeline">#</a></h2>
+<p>An AI agent is a composite system, comprising not just source code but also prompts, tool definitions, and configuration files. This complexity introduces significant challenges: how do we ensure a change to a prompt doesn't degrade the performance of a tool? How do we test the interplay between all these artifacts before they reach users?</p>
+<p>The solution is a CI/CD (Continuous Integration/Continuous Deployment) pipeline. It is more than just an automation script; it's a structured process that helps different people in a team collaborate to manage complexity and ensure quality. It works by testing changes in stages, incrementally building confidence before the agent is released to users.</p>
+<p>A robust pipeline is designed as a funnel. It catches errors as early and as cheaply as possible, a practice often called &quot;shifting left.&quot; It separates fast, pre-merge checks from more comprehensive, resource-intensive post-merge deployments. This progressive workflow is typically structured into three distinct phases:</p>
+<p><strong>1. Phase 1: Pre-Merge Integration (CI)</strong>. The pipeline's first responsibility is to provide rapid feedback to the <strong>AI Engineer</strong> or <strong>Prompt Engineer</strong> who has opened a pull request. Triggered automatically, this CI phase acts as a gatekeeper for the main branch. It runs fast checks like unit tests, code linting, and dependency scanning. Crucially, this is the</p>
+<p>ideal stage to run the <strong>agent quality evaluation suite</strong> designed by Prompt Engineers. This provides immediate feedback on whether a change improves or degrades the agent's performance against key scenarios before it is ever merged. By catching issues here, we prevent polluting the main branch. The PR checks configuration template3 generated with the Agent Starter Pack1 (ASP) is a practical example of implementing this phase with Cloud Build.4</p>
+<p><strong>2. Phase 2: Post-Merge Validation in Staging (CD)</strong>. Once a change passes all CI checks— including the performance evaluation—and is merged, the focus shifts from code and performance correctness to the operational readiness of the integrated system. The Continuous Deployment (CD) process, often managed by the <strong>MLOps Team</strong>, packages the agent and deploys it to a staging environment—a high-fidelity replica of production. Here, more comprehensive, resource-intensive tests are run, such as <strong>load testing</strong> and <strong>integration tests</strong> against remote services. This is also the critical phase for internal user testing (often called &quot;dogfooding&quot;), where humans within the company can interact with the agent and provide qualitative feedback before it reaches the end user. This ensures that the agent as an <em>integrated system</em> performs reliably and efficiently under production like conditions before it is considered for release. The staging deployment template5 from ASP shows an example of this deployment.</p>
+<p><strong>3. Phase 3: Gated Deployment to Production</strong>. After the agent has been thoroughly validated in the staging environment, the final step is deploying to production. This is almost never fully automatic, typically requiring a <strong>Product Owner</strong> to give the final sign-off, ensuring human-in-the-loop. Upon approval, the exact deployment artifact that was tested and validated in staging is promoted to the production environment. This production deployment template6 generated with ASP shows how this final phase retrieves the validated artifact and deploys it to production with appropriate safeguards.</p>
+<p>![][image4]</p>
+<p>Figure 3: Different stages of the CI/CD process</p>
+<p>Making this three-phase CI/CD workflow possible requires robust automation infrastructure and proper secrets management. This automation is powered by two key technologies:</p>
+<p><strong>• Infrastructure as Code (IaC):</strong> Tools like Terraform define environments programmatically, ensuring they are identical, repeatable, and version-controlled. For example, this template generated with Agent Starter Pack7 provides Terraform configurations for complete agent infrastructure including Vertex AI, Cloud Run, and BigQuery resources.</p>
+<p><strong>• Automated Testing Frameworks:</strong> Frameworks like Pytest execute tests and evaluations at each stage, handling agent-specific artifacts like conversation histories, tool invocation logs, and dynamic reasoning traces.</p>
+<p>Furthermore, sensitive information like API keys for tools should be managed securely using a service like Secret Manager8 and injected into the agent's environment at runtime, rather than being hardcoded in the repository.</p>
+<h2 id="safe-rollout-strategies" tabindex="-1">Safe Rollout Strategies <a class="anchor" href="#safe-rollout-strategies">#</a></h2>
+<p>While comprehensive pre-production checks are essential, real-world application inevitably reveals unforeseen issues. Rather than switching 100% of users at once, consider minimizing risk through gradual rollouts with careful monitoring.</p>
+<p>Here are four proven patterns that help teams build confidence in their deployments:</p>
+<p><strong>• Canary:</strong> Start with 1% of users, monitoring for prompt injections and unexpected tool usage. Scale up gradually or roll back instantly.</p>
+<p><strong>• Blue-Green:</strong> Run two identical production environments. Route traffic to &quot;blue&quot; while deploying to &quot;green,&quot; then switch instantly. If issues emerge, switch back—zero downtime, instant recovery.</p>
+<p><strong>• A/B Testing:</strong> Compare agent versions on real business metrics for data-driven decisions. This can happen either with internal or external users.</p>
+<p><strong>• Feature Flags:</strong> Deploy code but control release dynamically, testing new capabilities with select users first.</p>
+<p>All these strategies share a foundation: <strong>rigorous versioning</strong>. Every component—code, prompts, model endpoints, tool schemas, memory structures, even evaluation datasets— must be versioned. When issues arise despite safeguards, this enables instant rollback to a known-good state. See this as your production &quot;undo&quot; button!</p>
+<p>You can deploy agents using Agent Engine9 or Cloud Run10, then leverage Cloud Load Balancing11 for traffic management across versions or connect to other microservices. The Agent Starter Pack1 provides ready-to-use templates with GitOps workflows—where every deployment is a git commit, every rollback is a git revert, and your repository becomes the single source of truth for both current state and complete deployment history.</p>
+<h2 id="building-security-from-the-start" tabindex="-1">Building Security from the Start <a class="anchor" href="#building-security-from-the-start">#</a></h2>
+<p>Safe deployment strategies protect you from bugs and outages, but agents face a unique challenge: they can reason and act autonomously. A perfectly deployed agent can still cause harm if it hasn't been built with proper security and responsibility measures. This requires a comprehensive governance strategy embedded from day one, not added as an afterthought.</p>
+<p>Unlike traditional software that follows predetermined paths, agents make decisions. They interpret ambiguous requests, access multiple tools, and maintain memory across sessions. This autonomy creates distinct risks:</p>
+<p><strong>• Prompt Injection &amp; Rogue Actions:</strong> Malicious users can trick agents into performing unintended actions or bypassing restrictions.</p>
+<p><strong>• Data Leakage:</strong> Agents might inadvertently expose sensitive information through their responses or tool usage.</p>
+<p><strong>• Memory Poisoning:</strong> False information stored in an agent's memory can corrupt all future interactions.</p>
+<p>Fortunately, frameworks like Google's Secure AI Agents approach12 and the Google Secure AI Framework (SAIF)13 address these challenges through three layers of defense:</p>
+<p><strong>1. Policy Definition and System Instructions (The Agent's Constitution):</strong> The process begins by defining policies for desired and undesired agent behavior. These are engineered into <strong>System Instructions (SIs)</strong> that act as the agent's core constitution.</p>
+<p><strong>2. Guardrails, Safeguards, and Filtering (The Enforcement Layer):</strong> This layer acts as the hard-stop enforcement mechanism.</p>
+<p><strong>• Input Filtering:</strong> Use classifiers and services like the Perspective API to analyze prompts and block malicious inputs before they reach the agent.</p>
+<p><strong>• Output Filtering:</strong> After the agent generates a response, <strong>Vertex AI's built-in safety filters</strong> provide a final check for harmful content, PII, or policy violations. For example, before a response is sent to the user, it is passed through Vertex AI's built-in safety filters14, which can be configured to block outputs containing specific PII, toxic language, or other harmful content.</p>
+<p><strong>• Human-in-the-Loop (HITL) Escalation:</strong> For high-risk or ambiguous actions, the system must pause and escalate to a human for review and approval.</p>
+<p><strong>3. Continuous Assurance and Testing:</strong> Safety is not a one-time setup. It requires constant evaluation and adaptation.</p>
+<p><strong>• Rigorous Evaluation:</strong> Any change to the model or its safety systems must trigger a full re-run of a comprehensive evaluation pipeline using <strong>Vertex AI Evaluation</strong>.</p>
+<p><strong>• Dedicated RAI Testing:</strong> Rigorously test for specific risks either by creating dedicated datasets or using simulation agents, including <strong>Neutral Point of View (NPOV) evaluations</strong> and <strong>Parity evaluations</strong>.</p>
+<p><strong>• Proactive Red Teaming:</strong> Actively try to break the safety systems through creative manual testing and AI-driven <strong>persona-based simulation</strong>.</p>
+<h2 id="operations-in-production" tabindex="-1">Operations in-Production <a class="anchor" href="#operations-in-production">#</a></h2>
+<p>Your agent is live. Now the focus shifts from development to a fundamentally different challenge: <strong>keeping the system reliable</strong>, <strong>cost-effective</strong>, <strong>and safe as it interacts with thousands of users</strong>. A traditional service operates on predictable logic. An agent, in contrast, is an autonomous actor. Its ability to follow unexpected reasoning paths means it can exhibit emergent behaviors and accumulate costs without direct oversight.</p>
+<p>Managing this autonomy requires a different operational model. Instead of static monitoring, effective teams adopt a continuous loop: Observe the system's behavior in real-time, Act to maintain performance and safety, and Evolve the agent based on production learnings. This integrated cycle is the core discipline for operating agents successfully in production.</p>
+<h2 id="observe%3A-your-agent's-sensory-system" tabindex="-1">Observe: Your Agent's Sensory System <a class="anchor" href="#observe%3A-your-agent's-sensory-system">#</a></h2>
+<p>To trust and manage an autonomous agent, you must first understand its process. Observability provides this crucial insight, acting as the sensory system for the subsequent &quot;Act&quot; and &quot;Evolve&quot; phases. A robust observability practice is built on three pillars that work together to provide a complete picture of the agent's behavior:</p>
+<p><strong>• Logs:</strong> The granular, factual diary of what happened, recording every tool call, error, and decision.</p>
+<p><strong>• Traces:</strong> The narrative that connects individual logs, revealing the causal path of why an agent took a certain action.</p>
+<p><strong>• Metrics:</strong> The aggregated report card, summarizing performance, cost, and operational health at scale to show how well the system is performing.</p>
+<p>For example, in Google Cloud, this is achieved through the operations suite: a user's request generates a unique ID in Cloud Trace15 that links the Vertex AI Agent Engine9 invocation, model calls, and tool executions with visible durations. Detailed logs flow to Cloud Logging16, while Cloud Monitoring17 dashboards alert when latency thresholds are exceeded. The Agent Development Kit (ADK)18 provides built-in Cloud Trace integration for automatic instrumentation of agent operations.</p>
+<p>By implementing these pillars, we move from operating in the dark to having a clear, data driven view of our agent's behavior, providing the foundation needed to manage it effectively in production. (For a full discussion of these concepts, see <strong>Agent Quality: Observability, Logging, Tracing, Evaluation, Metrics</strong>).</p>
+<h2 id="act%3A-the-levers-of-operational-control" tabindex="-1">Act: The Levers of Operational Control <a class="anchor" href="#act%3A-the-levers-of-operational-control">#</a></h2>
+<p>Observations without action are just expensive dashboards. The &quot;Act&quot; phase is about real time intervention—the levers you pull to manage the agent's performance, cost, and safety based on what you observe.</p>
+<p>Think of &quot;Act&quot; as the system's automated reflexes designed to maintain stability in real-time. In contrast, &quot;Evolve&quot;, which will be covered later, is the strategic process of learning from behavior to create a fundamentally better system.</p>
+<p>Because an agent is autonomous, you cannot pre-program every possible outcome. Instead, you must build robust mechanisms to influence its behavior in production. These operational levers fall into two primary categories: managing the system's health and managing its risk.</p>
+<h2 id="managing-system-health%3A-performance%2C-cost%2C-and-scale" tabindex="-1">Managing System Health: Performance, Cost, and Scale <a class="anchor" href="#managing-system-health%3A-performance%2C-cost%2C-and-scale">#</a></h2>
+<p>Unlike traditional microservices, an agent's workload is dynamic and stateful. Managing its health requires a strategy for handling this unpredictability.</p>
+<p><strong>• Designing for Scale:</strong> The foundation is decoupling the agent's logic from its state.</p>
+<p><strong>• Horizontal Scaling:</strong> Design the agent as a stateless, containerized service. With external state, any instance can handle any request, enabling serverless platforms like Cloud Run10 or the managed Vertex AI Agent Engine Runtime9 to scale automatically.</p>
+<p><strong>• Asynchronous Processing:</strong> For long-running tasks, offload work using event driven patterns. This keeps the agent responsive while complex jobs process in the background. On Google Cloud, for example, a service can publish tasks to Pub/Sub19, which can then trigger a Cloud Run service for asynchronous processing.</p>
+<p><strong>• Externalized State Management:</strong> Since LLMs are stateless, persisting memory externally is non-negotiable. This highlights a key architectural choice: <strong>Vertex AI Agent Engine</strong> provides a built-in, durable Session and memory service, while <strong>Cloud Run</strong> offers the flexibility to integrate directly with databases like AlloyDB20 or Cloud SQL21.</p>
+<p><strong>• Balancing Competing Goals:</strong> Scaling always involves balancing three competing goals: speed, reliability, and cost.</p>
+<p><strong>• Speed (Latency):</strong> Keep your agent fast by designing it to work in parallel, aggressively caching results, and using smaller, efficient models for routine tasks.</p>
+<p><strong>• Reliability (Handling Glitches):</strong> Agents must handle temporary failures. When a call fails, automatically retry, ideally with <em>exponential backoff</em> to give the service time to recover. This requires designing &quot;safe-to-retry&quot; (<em>idempotent</em>) tools to prevent bugs like duplicate charges.</p>
+<p><strong>• Cost:</strong> Keep the agent affordable by shortening prompts, using cheaper models for easier tasks, and sending requests in groups (batching).</p>
+<h2 id="managing-risk%3A-the-security-response-playbook" tabindex="-1">Managing Risk: The Security Response Playbook <a class="anchor" href="#managing-risk%3A-the-security-response-playbook">#</a></h2>
+<p>Because an agent can act on its own, you need a playbook for rapid containment. When a threat is detected, the response should follow a clear sequence: <strong>contain, triage, and resolve</strong>.</p>
+<p>The first step is <strong>immediate containment</strong>. The priority is to stop the harm, typically with a &quot;circuit breaker&quot;—a feature flag to instantly disable the affected tool.</p>
+<p>Next is <strong>triage</strong>. With the threat contained, suspicious requests are routed to a human-in-the loop (HITL) review queue to investigate the exploit's scope and impact.</p>
+<p>Finally, the focus shifts to a <strong>permanent resolution</strong>. The team develops a patch—like an updated input filter or system prompt—and deploys it through the automated CI/CD pipeline, ensuring the fix is fully tested before blocking the exploit for good.</p>
+<h2 id="evolve%3A-learning-from-production" tabindex="-1">Evolve: Learning from Production <a class="anchor" href="#evolve%3A-learning-from-production">#</a></h2>
+<p>While the &quot;Act&quot; phase provides the system's immediate, tactical reflexes, the &quot;Evolve&quot; phase is about long-term, strategic improvement. It begins by looking at the patterns and trends collected in your observability data and asking a crucial question: &quot;How do we fix the root cause so this problem never happens again?&quot;</p>
+<p>This is where you move from reacting to production incidents to proactively making your agent smarter, more efficient, and safer. You turn the raw data from the &quot;Observe&quot; phase into durable improvements in your agent's architecture, logic, and behavior.</p>
+<h2 id="the-engine-of-evolution%3A-an-automated-path-to-production" tabindex="-1">The Engine of Evolution: An Automated Path to Production <a class="anchor" href="#the-engine-of-evolution%3A-an-automated-path-to-production">#</a></h2>
+<p>An insight from production is only valuable if you can act on it quickly. Observing that 30% of your users fail at a specific task is useless if it takes your team six months to deploy a fix.</p>
+<p>This is where the <strong>automated CI/CD pipeline</strong> you built in pre-production (Section 3) becomes the most critical component of your operational loop. It is the engine that powers rapid evolution. A fast, reliable path to production allows you to close the loop between observation and improvement in hours or days, not weeks or months.</p>
+<p>When you identify a potential improvement—whether it's a refined prompt, a new tool, or an updated safety guardrail—the process should be:</p>
+<p><strong>1. Commit the Change:</strong> The proposed improvement is committed to your version-controlled repository.</p>
+<p><strong>2. Trigger Automation:</strong> The commit automatically triggers your CI/CD pipeline.</p>
+<p><strong>3. Validate Rigorously:</strong> The pipeline runs the full suite of unit tests, security scans, and the agent quality evaluation suite against your updated datasets.</p>
+<p><strong>4. Deploy Safely:</strong> Once validated, the change is deployed to production using a safe rollout strategy.</p>
+<p>This automated workflow transforms evolution from a slow, high-risk manual project into a fast, repeatable, and data-driven process.</p>
+<h2 id="the-evolution-workflow%3A-from-insight-to-deployed-improvement" tabindex="-1">The Evolution Workflow: From Insight to Deployed Improvement <a class="anchor" href="#the-evolution-workflow%3A-from-insight-to-deployed-improvement">#</a></h2>
+<p><strong>1. Analyze Production Data:</strong> Identify trends in user behavior, task success rates, and security incidents from production logs.</p>
+<p><strong>2. Update Evaluation Datasets:</strong> Transform production failures into tomorrow's test cases, augmenting your golden dataset.</p>
+<p><strong>3. Refine and Deploy:</strong> Commit improvements to trigger the automated pipeline—whether refining prompts, adding tools, or updating guardrails.</p>
+<p>This creates a virtuous cycle where your agent continuously improves with every user interaction.</p>
+<p>![][image5] <strong>An Evolve Loop in Action</strong></p>
+<p>A retail agent's logs (<strong>Observe</strong>) show that 15% of users receive an error when asking for 'similar products.' The product team <strong>Acts</strong> by creating a high-priority ticket. The <strong>Evolve</strong> phase begins: production logs are used to create a new, failing test case for the evaluation dataset. An <strong>AI Engineer</strong> refines the agent's prompt and adds a new, more robust tool for similarity search. The change is committed, passes the now updated evaluation suite in the CI/CD pipeline, and is safely rolled out via a canary deployment, resolving the user issue in under 48 hours.</p>
+<h2 id="evolving-security%3A-the-production-feedback-loop" tabindex="-1">Evolving Security: The Production Feedback Loop <a class="anchor" href="#evolving-security%3A-the-production-feedback-loop">#</a></h2>
+<p>While the foundational security and responsibility framework is established in pre-production (Section 3.4), the work is never truly finished. Security is not a static checklist; it is a dynamic, continuous process of adaptation. The production environment is the ultimate testing ground, and the insights gathered there are essential for hardening your agent against real-world threats.</p>
+<p>This is where the <strong>Observe</strong> → <strong>Act</strong> → <strong>Evolve</strong> loop becomes critical for security. The process is a direct extension of the evolution workflow:</p>
+<p><strong>1. Observe:</strong> Your monitoring and logging systems detect a new threat vector. This could be a novel prompt injection technique that bypasses your current filters, or an unexpected interaction that leads to a minor data leak.</p>
+<p><strong>2. Act:</strong> The immediate security response team contains the threat (as discussed in Section 4.2).</p>
+<p><strong>3. Evolve:</strong> This is the crucial step for long-term resilience. The security insight is fed back into your development lifecycle:</p>
+<p><strong>• Update Evaluation Datasets:</strong> The new prompt injection attack is added as a permanent test case to your evaluation suite.</p>
+<p><strong>• Refine Guardrails:</strong> A <strong>Prompt Engineer</strong> or <strong>AI Engineer</strong> refines the agent's system prompt, input filters, or tool-use policies to block the new attack vector.</p>
+<p><strong>• Automate and Deploy:</strong> The engineer commits the change, which triggers the full CI/ CD pipeline. The updated agent is rigorously validated against the newly expanded evaluation set and deployed to production, closing the vulnerability.</p>
+<p>This creates a powerful feedback loop where every production incident makes your agent stronger and more resilient, transforming your security posture from a defensive stance to one of continuous, proactive improvement.</p>
+<p>To learn more about Responsible AI and securing AI Agentic Systems, please consult the whitepaper Google's Approach for Secure AI Agents12 and the Google Secure AI Framework (SAIF)13.</p>
+<h2 id="beyond-single-agent-operations" tabindex="-1">Beyond Single-Agent Operations <a class="anchor" href="#beyond-single-agent-operations">#</a></h2>
+<p>You've mastered operating individual agents in production and can ship them at high velocity. But as organizations scale to dozens of specialized agents—each built by different teams with different frameworks—a new challenge emerges: these agents can't collaborate. The next section explores how standardized protocols can transform these isolated agents into an interoperable ecosystem, unlocking exponential value through agent collaboration.</p>
+<h2 id="a2a---reusability-and-standardization" tabindex="-1">A2A - Reusability and Standardization <a class="anchor" href="#a2a---reusability-and-standardization">#</a></h2>
+<p>You've built dozens of specialized agents across your organization. The customer service team has their support agent. Analytics built a forecasting system. Risk management created fraud detection. But here's the problem: these agents can't talk to each other - whether that be because they were created in different frameworks, projects or different clouds altogether.</p>
+<p>This isolation creates massive inefficiency. Every team rebuilds the same capabilities. Critical insights stay trapped in silos. What you need is interoperability—the ability for any agent to leverage any other agent's capabilities, regardless of who built it or what framework they used.</p>
+<p>To solve this, a principled approach to standardization is required, built on two distinct but complementary protocols. While the <strong>Model Context Protocol (<strong>MCP22</strong>)</strong>, which we covered in detail on <strong>Agent Tools and Interoperability with MCP</strong>, provides a universal standard for tool integration, it is not sufficient for the complex, stateful collaboration required between</p>
+<p>intelligent agents. This is the problem the <strong>Agent2Agent (<strong>A2A23</strong>)</strong> protocol, now governed by the Linux Foundation, was designed to solve.</p>
+<p>The distinction is critical. When you need a simple, stateless function like fetching weather data or querying a database, you need a tool that speaks MCP. But when you need to delegate a complex goal, such as &quot;analyze last quarter's customer churn and recommend three intervention strategies,&quot; you need an intelligent partner that can reason, plan, and act autonomously via A2A. In short, MCP lets you say, &quot;Do this specific thing,&quot; while A2A lets you say, &quot;Achieve this complex goal.&quot;</p>
+<h2 id="a2a-protocol%3A-from-concept-to-implementation" tabindex="-1">A2A Protocol: From Concept to Implementation <a class="anchor" href="#a2a-protocol%3A-from-concept-to-implementation">#</a></h2>
+<p>The A2A protocol is designed to break down organizational silos and enable seamless collaboration between agents. Consider a scenario where a fraud detection agent spots suspicious activity. To understand the full context, it needs data from a separate transaction analysis agent. Without A2A, a human analyst must manually bridge this gap—a process that could take hours. With A2A, the agents collaborate automatically, resolving the issue in minutes.</p>
+<p>The first step of the collaboration is discovering the right agent to delegate to - this is made possible through Agent Cards,24 which are standardized JSON specifications that act as a business card for each agent. An Agent Card describes what an agent can do, its security requirements, its skills, and how to reach out to it (url), allowing any other agent in the ecosystem to dynamically discover its peers. See example Agent Card below:</p>
+<div class="cb"><span class="cb-l">json</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;check_prime_agent&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;version&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;1.0.0&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;description&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;An agent specialized in checking whether numbers are prime&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;capabilities&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span><span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;securitySchemes&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;agent_oauth_2_0&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+      <span class="hljs-attr">&quot;type&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;oauth2&quot;</span>
+    <span class="hljs-punctuation">}</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;defaultInputModes&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;text/plain&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;defaultOutputModes&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;application/json&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;skills&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+    <span class="hljs-punctuation">{</span>
+      <span class="hljs-attr">&quot;id&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;prime_checking&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;name&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Prime Number Checking&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;description&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Check if numbers are prime using efficient algorithms&quot;</span><span class="hljs-punctuation">,</span>
+      <span class="hljs-attr">&quot;tags&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;mathematical&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;computation&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;prime&quot;</span><span class="hljs-punctuation">]</span>
+    <span class="hljs-punctuation">}</span>
+  <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;url&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;http://localhost:8001/a2a/check_prime_agent&quot;</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+</div><p>Snippet 1: A sample agent card for the check_prime_agent</p>
+<p>Adopting this protocol doesn't require an architectural overhaul. Frameworks like the ADK simplify this process significantly (docs25). You can make an existing agent A2A-compatible with a single function call, which automatically generates its AgentCard and makes it available on the network.</p>
+<div class="cb"><span class="cb-l">python</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-python"><span class="hljs-comment"># Example using ADK: Exposing an agent via A2A</span>
+
+<span class="hljs-keyword">from</span> google.adk.a2a.utils.agent_to_a2a <span class="hljs-keyword">import</span> to_a2a
+
+<span class="hljs-comment"># Your existing agent</span>
+root_agent = Agent(
+    name=<span class="hljs-string">&#x27;hello_world_agent&#x27;</span>,
+    <span class="hljs-comment"># ... your agent code ...</span>
+)
+
+<span class="hljs-comment"># Make it A2A-compatible</span>
+a2a_app = to_a2a(root_agent, port=<span class="hljs-number">8001</span>)
+
+<span class="hljs-comment"># Serve with uvicorn</span>
+<span class="hljs-comment"># uvicorn agent:a2a_app --host localhost --port 8001</span>
+
+<span class="hljs-comment"># Or serve with Agent Engine</span>
+<span class="hljs-comment"># from vertexai.preview.reasoning_engines import A2aAgent</span>
+<span class="hljs-comment"># from google.adk.a2a.executor.a2a_agent_executor import A2aAgentExecutor</span>
+<span class="hljs-comment"># a2a_agent = A2aAgent(</span>
+<span class="hljs-comment">#     agent_executor_builder=lambda: A2aAgentExecutor(agent=root_agent)</span>
+<span class="hljs-comment"># )</span>
+</code></pre>
+</div><p>Snippet 2: Using the ADK's to_a2a utility to wrap an existing agent and expose it for A2A communication</p>
+<p>Once an agent is exposed, any other agent can consume it by referencing its AgentCard. For example, a customer service agent can now query a remote product catalog agent without needing to know its internal workings.</p>
+<div class="cb"><span class="cb-l">python</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-python"><span class="hljs-comment"># Example using ADK: Consuming a remote agent via A2A</span>
+
+<span class="hljs-keyword">from</span> google.adk.agents.remote_a2a_agent <span class="hljs-keyword">import</span> RemoteA2aAgent
+
+prime_agent = RemoteA2aAgent(
+    name=<span class="hljs-string">&quot;prime_agent&quot;</span>,
+    description=<span class="hljs-string">&quot;Agent that handles checking if numbers are prime.&quot;</span>,
+    agent_card=<span class="hljs-string">&quot;http://localhost:8001/a2a/check_prime_agent/.well-known/agent-card.json&quot;</span>
+)
+</code></pre>
+</div><p>Snippet 3: Using the ADK's RemoteA2aAgent class to connect to and consume a remote agent</p>
+<p>This unlocks powerful, hierarchical compositions. A root agent can be configured to orchestrate both a local sub-agent for a simple task and a remote, specialized agent via A2A, creating a more capable system.</p>
+<div class="cb"><span class="cb-l">python</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-python"><span class="hljs-comment"># Example using ADK: Hierarchical agent composition</span>
+
+<span class="hljs-comment"># ADK Local sub-agent for dice rolling</span>
+roll_agent = Agent(
+    name=<span class="hljs-string">&quot;roll_agent&quot;</span>,
+    instruction=<span class="hljs-string">&quot;You are an expert at rolling dice.&quot;</span>
+)
+
+<span class="hljs-comment"># ADK Remote A2A agent for prime checking</span>
+prime_agent = RemoteA2aAgent(
+    name=<span class="hljs-string">&quot;prime_agent&quot;</span>,
+    agent_card=<span class="hljs-string">&quot;http://localhost:8001/.well-known/agent-card.json&quot;</span>
+)
+
+<span class="hljs-comment"># ADK Root orchestrator combining both</span>
+root_agent = Agent(
+    name=<span class="hljs-string">&quot;root_agent&quot;</span>,
+    instruction=<span class="hljs-string">&quot;&quot;&quot;Delegate rolling dice to roll_agent, prime checking to prime_agent.&quot;&quot;&quot;</span>,
+    sub_agents=[roll_agent, prime_agent]
+)
+</code></pre>
+</div><p>Snippet 4: Using a remote A2A agent (prime_agent) as a sub-agent within a hierarchical agent structure in the ADK</p>
+<p>However, enabling this level of autonomous collaboration introduces two non-negotiable technical requirements. First is <strong>distributed tracing</strong>, where every request carries a unique trace ID, which is essential for debugging and maintaining a coherent audit trail across multiple agents. Second is robust <strong>state management</strong>. A2A interactions are inherently stateful, requiring a sophisticated persistence layer for tracking progress and ensuring transactional integrity.</p>
+<p><strong>A2A is best suited for formal, cross-team integrations</strong> that require a durable service contract. For tightly coupled tasks within a single application, <strong>lightweight local sub-agents often remain a more efficient choice</strong>. As the ecosystem matures, new agents should be built with native support for both protocols, ensuring every new component is immediately discoverable, interoperable, and reusable, compounding the value of the whole system.</p>
+<h2 id="how-a2a-and-mcp-work-together" tabindex="-1">How A2A and MCP Work Together <a class="anchor" href="#how-a2a-and-mcp-work-together">#</a></h2>
+<p>**![][image6]**Figure 4: A2A and MCP collaboration with a single glance</p>
+<p>A2A and MCP are not competing standards; they are complementary protocols designed to operate at different levels of abstraction. The distinction depends on what an agent is interacting with. MCP is the domain of <strong>tools and resources</strong>—primitives with well-defined, structured inputs and outputs, like a calculator or a database API. A2A is the domain of other <strong>agents</strong>—autonomous systems that can reason, plan, use multiple tools, and maintain state to achieve complex goals.</p>
+<p>The most powerful agentic systems use both protocols in a layered architecture. An application might primarily use A2A to orchestrate high-level collaboration between multiple intelligent agents, while each of those agents internally uses MCP to interact with its own specific set of tools and resources.</p>
+<p>A practical analogy is an auto repair shop staffed by autonomous AI agents.</p>
+<p><strong>1. User-to-Agent (A2A):</strong> A customer uses A2A to communicate with the &quot;Shop Manager&quot; agent to describe a high-level problem: &quot;My car is making a rattling noise.&quot;</p>
+<p><strong>2. Agent-to-Agent (A2A):</strong> The Shop Manager engages in a multi-turn diagnostic conversation and then delegates the task to a specialized &quot;Mechanic&quot; agent, again using A2A.</p>
+<p><strong>3. Agent-to-Tool (MCP):</strong> The Mechanic agent now needs to perform specific actions. It uses MCP to call its specialized tools: it runs <code>scan_vehicle_for_error_codes()</code> on a diagnostic scanner, queries a repair manual database with <code>get_repair_procedure()</code>, and operates a platform lift with <code>raise_platform()</code>.</p>
+<p><strong>4. Agent-to-Agent (A2A):</strong> After diagnosing the issue, the Mechanic agent determines a part is needed. It uses A2A to communicate with an external &quot;Parts Supplier&quot; agent to inquire about availability and place an order.</p>
+<p>In this workflow, A2A facilitates the higher-level, conversational, and task-oriented interactions between the customer, the shop's agents, and external suppliers. Meanwhile, MCP provides the standardized plumbing that enables the mechanic agent to reliably use its specific, structured tools to do its job.</p>
+<h2 id="registry-architectures%3A-when-and-how-to-build-them" tabindex="-1">Registry Architectures: When and How to Build Them <a class="anchor" href="#registry-architectures%3A-when-and-how-to-build-them">#</a></h2>
+<p>Why do some organizations build registries while others don't need them? The answer lies in scale and complexity. When you have fifty tools, manual configuration works fine. But when you reach five thousand tools distributed across different teams and environments, you face a discovery problem that demands a systematic solution.</p>
+<p>A <strong>Tool Registry</strong> uses a protocol like MCP to catalog all assets, from functions to APIs. Instead of giving agents access to thousands of tools, you create curated lists, leading to three common patterns:</p>
+<p><strong>• Generalist agents:</strong> Access the full catalog, trading speed and accuracy for scope. <strong>• Specialist agents:</strong> Use predefined subsets for higher performance. <strong>• Dynamic agents:</strong> Query the registry at runtime to adapt to new tools.</p>
+<p>The primary benefit is human discovery—developers can search for existing tools before building duplicates, security teams can audit tool access, and product owners can understand their agents' capabilities.</p>
+<p>An <strong>Agent Registry</strong> applies the same concept to agents, using formats like A2A's AgentCards. It helps teams discover and reuse existing agents, reducing redundant work. This also lays the groundwork for automated agent-to-agent delegation, though this remains an emerging pattern.</p>
+<p>Registries offer discovery and governance at the cost of maintenance. You can consider starting without one and only build it when your ecosystem's scale demands centralized management!</p>
+<p>Decision Framework for Registries</p>
+<p><strong>Tool Registry:</strong> Build when tool discovery becomes a bottleneck or security requires centralized auditing.</p>
+<p><strong>Agent Registry:</strong> Build when multiple teams need to discover and reuse specialized agents without tight coupling.</p>
+<p><strong>Putting It All Together: The</strong></p>
+<h2 id="agentops-lifecycle" tabindex="-1">AgentOps Lifecycle <a class="anchor" href="#agentops-lifecycle">#</a></h2>
+<p>We can now assemble these pillars into a single, cohesive reference architecture! The life cycle begins in the <strong>developer's inner loop</strong>—a phase of rapid local testing and prototyping to shape the agent's core logic. Once a change is ready, it enters the formal pre-production engine, where automated evaluation gates validate its quality and safety against a golden dataset. From there, safe rollouts release it to production, where comprehensive observability captures the real-world data needed to fuel the continuous evolution loop, turning every insight into the next improvement.</p>
+<p>For a comprehensive walkthrough of operationalizing AI agents, including evaluation, tool management, CI/CD standardization, and effective architecture designs, watch the AgentOps: Operationalize AI Agents video26 on the official Google Cloud YouTube channel.</p>
+<p>![][image7]Figure 5: AgentOps core capabilities, environments, and processes</p>
+<h2 id="conclusion%3A-bridging-the-last-mile-with-agentops" tabindex="-1">Conclusion: Bridging the Last Mile with AgentOps <a class="anchor" href="#conclusion%3A-bridging-the-last-mile-with-agentops">#</a></h2>
+<p>Moving an AI prototype to a production system is an organizational transformation that requires a new operational discipline: <strong>AgentOps</strong>.</p>
+<p>Most agent projects fail in the &quot;last mile&quot; not due to technology, but because the operational complexity of autonomous systems is underestimated. This guide maps the path to bridge that gap. It begins with establishing <strong>People and Process</strong> as the foundation for governance. Next, a <strong>Pre-Production</strong> strategy built on evaluation-gated deployment automates high stakes releases. Once live, a continuous <strong>Observe</strong> → <strong>Act</strong> → <strong>Evolve</strong> loop turns every user interaction into a potential insight. Finally, <strong>Interoperability</strong> protocols scale the system by transforming isolated agents into a collaborative, intelligent ecosystem.</p>
+<p>The immediate benefits—like preventing a security breach or enabling a rapid rollback— justify the investment. But the real value is velocity. Mature AgentOps practices allow teams to deploy improvements in hours, not weeks, turning static deployments into continuously evolving products.</p>
+<h2 id="your-path-forward" tabindex="-1">Your Path Forward <a class="anchor" href="#your-path-forward">#</a></h2>
+<p><strong>• If you're starting out,</strong> focus on the fundamentals: build your first evaluation dataset, implement a CI/CD pipeline, and establish comprehensive monitoring. The Agent Starter Pack is a great place to start—it creates a production-ready agent project in minutes with these foundations already built-in.</p>
+<p><strong>• If you're scaling</strong>, elevate your practice: automate the feedback loop from production insight to deployed improvement and standardize on interoperable protocols to build a cohesive ecosystem, not just point solutions.</p>
+<p>The next frontier is not just building better individual agents, but orchestrating sophisticated multi-agent systems that learn and collaborate. The operational discipline of AgentOps is the foundation that makes this possible.</p>
+<p>We hope this playbook empowers you to build the next generation of intelligent, reliable, and trustworthy AI. Bridging the last mile is therefore not the final step in a project, but the first step in creating value!</p>
+<h2 id="endnotes" tabindex="-1">Endnotes <a class="anchor" href="#endnotes">#</a></h2>
+<ol>
+<li>
+<p><a href="https://github.com/GoogleCloudPlatform/agent-starter-pack">https://github.com/GoogleCloudPlatform/agent-starter-pack</a></p>
+</li>
+<li>
+<p><a href="https://cloud.google.com/vertex-ai/docs/evaluation/introduction">https://cloud.google.com/vertex-ai/docs/evaluation/introduction</a></p>
+</li>
+<li>
+<p><a href="https://github.com/GoogleCloudPlatform/agent-starter-pack/blob/example-agent/example-agent/.cloudbuild/pr_checks.yaml">https://github.com/GoogleCloudPlatform/agent-starter-pack/blob/example-agent/example-agent/.cloudbuild/pr_checks.yaml</a></p>
+</li>
+<li>
+<p><a href="https://cloud.google.com/build">https://cloud.google.com/build</a></p>
+</li>
+<li>
+<p><a href="https://github.com/GoogleCloudPlatform/agent-starter-pack/blob/example-agent/example-agent/.cloudbuild/staging.yaml">https://github.com/GoogleCloudPlatform/agent-starter-pack/blob/example-agent/example-agent/.cloudbuild/staging.yaml</a></p>
+</li>
+<li>
+<p><a href="https://github.com/GoogleCloudPlatform/agent-starter-pack/blob/example-agent/example-agent/.cloudbuild/deploy-to-prod.yaml">https://github.com/GoogleCloudPlatform/agent-starter-pack/blob/example-agent/example-agent/.cloudbuild/deploy-to-prod.yaml</a></p>
+</li>
+<li>
+<p><a href="https://github.com/GoogleCloudPlatform/agent-starter-pack/blob/example-agent/example-agent/terraform">https://github.com/GoogleCloudPlatform/agent-starter-pack/blob/example-agent/example-agent/terraform</a></p>
+</li>
+<li>
+<p><a href="https://cloud.google.com/secret-manager">https://cloud.google.com/secret-manager</a></p>
+</li>
+<li>
+<p><a href="https://cloud.google.com/agent-builder/agent-engine/overview">https://cloud.google.com/agent-builder/agent-engine/overview</a></p>
+</li>
+<li>
+<p><a href="https://cloud.google.com/run">https://cloud.google.com/run</a></p>
+</li>
+<li>
+<p><a href="https://cloud.google.com/load-balancing/docs/https/traffic-management">https://cloud.google.com/load-balancing/docs/https/traffic-management</a></p>
+</li>
+<li>
+<p><a href="https://research.google/pubs/an-introduction-to-googles-approach-for-secure-ai-agents/">https://research.google/pubs/an-introduction-to-googles-approach-for-secure-ai-agents/</a></p>
+</li>
+<li>
+<p><a href="https://safety.google/cybersecurity-advancements/saif/">https://safety.google/cybersecurity-advancements/saif/</a></p>
+</li>
+<li>
+<p><a href="https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/configure-safety-attributes">https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/configure-safety-attributes</a></p>
+</li>
+<li>
+<p><a href="https://cloud.google.com/trace">https://cloud.google.com/trace</a></p>
+</li>
+<li>
+<p><a href="https://cloud.google.com/logging">https://cloud.google.com/logging</a></p>
+</li>
+<li>
+<p><a href="https://cloud.google.com/monitoring">https://cloud.google.com/monitoring</a></p>
+</li>
+<li>
+<p><a href="https://google.github.io/adk-docs/observability/cloud-trace/">https://google.github.io/adk-docs/observability/cloud-trace/</a></p>
+</li>
+<li>
+<p><a href="https://cloud.google.com/pubsub">https://cloud.google.com/pubsub</a></p>
+</li>
+<li>
+<p><a href="https://cloud.google.com/alloydb">https://cloud.google.com/alloydb</a></p>
+</li>
+<li>
+<p><a href="https://cloud.google.com/sql">https://cloud.google.com/sql</a></p>
+</li>
+<li>
+<p><a href="https://modelcontextprotocol.io/">https://modelcontextprotocol.io/</a></p>
+</li>
+<li>
+<p><a href="https://a2a-protocol.org/latest/specification/">https://a2a-protocol.org/latest/specification/</a></p>
+</li>
+<li>
+<p><a href="https://a2a-protocol.org/latest/specification/#5-agent-discovery-the-agent-card">https://a2a-protocol.org/latest/specification/#5-agent-discovery-the-agent-card</a></p>
+</li>
+<li>
+<p><a href="https://google.github.io/adk-docs/a2a/">https://google.github.io/adk-docs/a2a/</a></p>
+</li>
+<li>
+<p><a href="https://www.youtube.com/watch?v=kJRgj58ujEk">https://www.youtube.com/watch?v=kJRgj58ujEk</a></p>
+</li>
+</ol>
+<hr>
+<p><a href="../agent-05-prototype-to-production/">中文版 →</a></p>
+<div class="pnav"><span class="l"><small>上一篇</small><b>已是最新</b></span><span class="r"><small>下一篇</small><b>到底了</b></span></div></article></main>
+
+<div id="mascot" title="戳一下">
+  <div id="m-say"></div>
+  <button id="m-top" title="回到顶部" aria-label="回到顶部">↑</button>
+</div>
+<script type="module" src="/scene2d.js"></script>
+<script type="module" src="/mascot.js"></script>
+<script>
+addEventListener('keydown', function(e){
+  var P = {"prev":null,"next":null};
+  // 灯箱打开时 Esc 只关灯箱,方向键不翻页
+  var lb = document.querySelector('.lb');
+  if (lb) { if (e.key === 'Escape') lb.remove(); return; }
+  if (e.key === 'ArrowLeft'  && P.prev) location.href = P.prev;
+  if (e.key === 'ArrowRight' && P.next) location.href = P.next;
+  if (e.key === 'Escape') location.href = '/#writing';
+});
+</script>
+<script>
+// 大纲高亮:滚动容器是 #art(不是 window),直接按滚动位置算当前节最可靠
+(function(){
+  var toc = document.querySelector('.toc');
+  if (!toc) return;
+  var art = document.getElementById('art');
+  var links = [].slice.call(toc.querySelectorAll('a'));
+  var map = {};
+  // id 本身已是百分号编码,直接用原始 href 做 key,不要 decode
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var heads = [].slice.call(art.querySelectorAll('h2[id],h3[id]'));
+  if (!heads.length) return;
+  var cur = null;
+
+  function paint(){
+    var top = art.getBoundingClientRect().top + 100;   // 判定线:卡片顶部下方 100px
+    var found = heads[0];
+    for (var i = 0; i < heads.length; i++){
+      if (heads[i].getBoundingClientRect().top <= top) found = heads[i]; else break;
+    }
+    // 已滚到底时强制选中最后一节,否则末节永远高亮不到
+    if (art.scrollTop + art.clientHeight >= art.scrollHeight - 4) found = heads[heads.length - 1];
+    if (found === cur) return;
+    cur = found;
+    links.forEach(function(a){ a.classList.remove('on'); });
+    var a = map[found.id];
+    if (!a) return;
+    a.classList.add('on');
+    var box = a.getBoundingClientRect(), tb = toc.getBoundingClientRect();
+    if (box.top < tb.top || box.bottom > tb.bottom) a.scrollIntoView({block:'nearest'});
+  }
+
+  var tick = false;
+  art.addEventListener('scroll', function(){
+    if (tick) return;
+    tick = true;
+    requestAnimationFrame(function(){ tick = false; paint(); });
+  }, {passive:true});
+
+  toc.addEventListener('click', function(e){
+    var a = e.target.closest('a'); if (!a) return;
+    var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if (!t) return;
+    e.preventDefault();
+    art.scrollTo({ top: art.scrollTop + t.getBoundingClientRect().top - art.getBoundingClientRect().top - 24, behavior:'smooth' });
+    history.replaceState(null, '', a.getAttribute('href'));
+  });
+  paint();
+})();
+</script>
+<script>
+// 图片灯箱:点正文图片或 Mermaid 图放大,点击 / Esc / 滚轮关闭
+document.getElementById('art').addEventListener('click', function(e){
+  var t = e.target.closest('img,.mm svg');
+  if (!t || t.closest('a')) return;
+  var lb = document.createElement('div'), c = t.cloneNode(true);
+  lb.className = 'lb';
+  if (c.tagName !== 'IMG') {
+    // SVG 没有固有的"原图尺寸",按视口等比放大
+    var r = t.getBoundingClientRect();
+    var k = Math.min(innerWidth * .92 / r.width, innerHeight * .9 / r.height);
+    c.style.width = r.width * k + 'px';
+    c.style.height = r.height * k + 'px';
+  }
+  lb.appendChild(c);
+  lb.onclick = lb.onwheel = function(){ lb.remove(); };
+  document.body.appendChild(lb);
+});
+</script>
+<script>
+// 代码块复制
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('.cb-c');
+  if (!btn) return;
+  var pre = btn.parentElement.querySelector('pre');
+  if (!pre) return;
+  var text = pre.innerText;
+  var done = function(){
+    btn.textContent = '已复制'; btn.classList.add('ok');
+    setTimeout(function(){ btn.textContent = '复制'; btn.classList.remove('ok'); }, 1600);
+  };
+  // clipboard API 需要安全上下文(https 或 localhost),否则回退到 execCommand
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else fallback();
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (err) { btn.textContent = '复制失败'; }
+    document.body.removeChild(ta);
+  }
+});
+</script>
+</body></html>

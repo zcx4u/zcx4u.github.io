@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>iOS-OCR实践 — fatbruin</title>
+<meta name="description" content="免费 OCR 方案调研:Apple Vision 等方案的识别效果与接入成本对比。"><meta property="og:type" content="article"><meta property="og:site_name" content="fatbruin"><meta property="og:title" content="iOS-OCR实践"><meta property="og:description" content="免费 OCR 方案调研:Apple Vision 等方案的识别效果与接入成本对比。"><meta property="og:url" content="https://www.umuer.com/posts/ios-ocr/"><meta property="og:image" content="https://www.umuer.com/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://www.umuer.com/posts/ios-ocr/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="fatbruin" href="/rss.xml">
+<script>(function(){var n=null;try{n=localStorage.getItem('fatbruin-night')}catch(e){}var h=new Date().getHours();if(n?n==='1':(h>=19||h<6))document.documentElement.classList.add('night')})()</script>
+<link rel="stylesheet" href="/styles/base.0282236f.css">
+<link rel="stylesheet" href="/styles/post.0bb29940.css"></head>
+<body class="post">
+<div id="scene"></div>
+<div class="topbar"><div class="navl"><a class="back" href="/#writing">← 回到小屋</a><a class="back nav-fallback" href="/posts/">全部文章 →</a></div><div class="brand">fat<span>bruin</span></div></div>
+<main><nav class="toc" aria-label="目录"><p class="toc-h">目录</p><ol><li class="l2"><a href="#%E9%9C%80%E6%B1%82%E8%83%8C%E6%99%AF">需求背景</a></li><li class="l2"><a href="#vision">Vision</a></li><li class="l3"><a href="#overview">Overview</a></li><li class="l3"><a href="#demo">Demo</a></li><li class="l3"><a href="#%E4%BC%98%E7%BC%BA%E7%82%B9">优缺点</a></li><li class="l2"><a href="#tesseract">Tesseract</a></li><li class="l3"><a href="#tesseract-ocr-ios">Tesseract-OCR-iOS</a></li><li class="l3"><a href="#useage">Useage</a></li><li class="l3"><a href="#%E4%BC%98%E7%BC%BA%E7%82%B9-1">优缺点</a></li><li class="l2"><a href="#online-ocr">OnLine OCR</a></li><li class="l2"><a href="#%E7%BB%93%E8%AE%BA">结论</a></li></ol><a class="toc-all" href="/posts/">全部文章 →</a></nav><article id="art"><p class="meta"><span>2021.08.31</span><span>iOS</span><span>6 分钟</span></p><h1>iOS-OCR实践</h1><p class="sum">免费 OCR 方案调研:Apple Vision 等方案的识别效果与接入成本对比。</p><h2 id="%E9%9C%80%E6%B1%82%E8%83%8C%E6%99%AF" tabindex="-1">需求背景 <a class="anchor" href="#%E9%9C%80%E6%B1%82%E8%83%8C%E6%99%AF">#</a></h2>
+<p>近期老板提出了某些需求可能需要借助OCR能力来进行图片到文本的转换。</p>
+<p>以下几种方案是对当前可用的免费的OCR的调研。</p>
+<h2 id="vision" tabindex="-1">Vision <a class="anchor" href="#vision">#</a></h2>
+<blockquote>
+<p>Vision 是 Apple 在 WWDC 2017 推出的图像识别框架，它基于 Core ML，所以可以理解成 Apple 的工程师设计了一种算法模型，然后利用 Core ML 训练，最后整合成一个新的框架，相比开源模型然后让开发者自己整合起来，这种方式更安全也更方便我们使用。</p>
+</blockquote>
+<h3 id="overview" tabindex="-1">Overview <a class="anchor" href="#overview">#</a></h3>
+<blockquote>
+<p>The Vision framework performs face and face landmark detection, text detection, barcode recognition, image registration, and general feature tracking. Vision also allows the use of custom Core ML models for tasks like classification or object detection.</p>
+</blockquote>
+<p>从官方文档中可以得到Vision框架能做的事情</p>
+<div class="tw"><table><thead>
+<tr>
+<th style="text-align:left"></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Face Detection and Recognition</td>
+<td>面部检测</td>
+</tr>
+<tr>
+<td style="text-align:left">Machine Learning Image Analysis</td>
+<td>机器学习图像分析</td>
+</tr>
+<tr>
+<td style="text-align:left">Barcode Detection</td>
+<td>矩阵码/条形码检测</td>
+</tr>
+<tr>
+<td style="text-align:left">Image Alignment Analysis</td>
+<td>图像对齐分析</td>
+</tr>
+<tr>
+<td style="text-align:left">Text Detection</td>
+<td>文字检测</td>
+</tr>
+<tr>
+<td style="text-align:left">Horizon Detection</td>
+<td>水平面检测</td>
+</tr>
+<tr>
+<td style="text-align:left">Object Detection and Tracking</td>
+<td>物体检测和追踪</td>
+</tr>
+</tbody>
+</table></div><h3 id="demo" tabindex="-1">Demo <a class="anchor" href="#demo">#</a></h3>
+<p>对于我们需要的OCR功能，Text Detection就可以满足我们的需求，至于别的功能有兴趣的可以试一下。</p>
+<p>Demo中的代码也比较简单就实现了功能</p>
+<ol>
+<li>创建一个<code>VNImageRequestHandler</code>来持有传入的图片</li>
+<li>创建一个<code>VNRecognizeTextRequest</code>请求/请求队列</li>
+<li>创建一个<code>VNRequestCompletionHandler</code>函数指针/block处理识别成功的回调</li>
+<li>Perform the text-recognition request. 执行请求</li>
+</ol>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-comment">//public typealias VNRequestCompletionHandler = (VNRequest, Error?) -&gt; Void</span>
+
+<span class="hljs-comment">/// 苹果原生识别 准确率高 速度快</span>
+<span class="hljs-keyword">@objc</span> <span class="hljs-keyword">private</span> <span class="hljs-keyword">func</span> <span class="hljs-title function_">ocrAction</span>() {
+    <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> path <span class="hljs-operator">=</span> <span class="hljs-keyword">self</span>.path, <span class="hljs-keyword">let</span> img <span class="hljs-operator">=</span> <span class="hljs-type">UIImage</span>(contentsOfFile: path) <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+    <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> cgImage <span class="hljs-operator">=</span> img.cgImage <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+    <span class="hljs-comment">// 需要注意的写法</span>
+    <span class="hljs-keyword">let</span> requestHandler <span class="hljs-operator">=</span> <span class="hljs-type">VNImageRequestHandler</span>(cgImage: cgImage)
+    <span class="hljs-comment">// 参数是一个函数指针/block</span>
+    <span class="hljs-keyword">let</span> request <span class="hljs-operator">=</span> <span class="hljs-type">VNRecognizeTextRequest</span>(completionHandler: recognizeTextHandler)
+    <span class="hljs-comment">// 只有ios14以上支持中文识别</span>
+    request.recognitionLanguages <span class="hljs-operator">=</span> [<span class="hljs-string">&quot;zh-Hans&quot;</span>,<span class="hljs-string">&quot;zh-Hant&quot;</span>,<span class="hljs-string">&quot;en-US&quot;</span>]
+    <span class="hljs-keyword">do</span> {
+        <span class="hljs-comment">// Perform the text-recognition request.</span>
+        <span class="hljs-keyword">try</span> requestHandler.perform([request])
+    } <span class="hljs-keyword">catch</span> {
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Unable to perform the requests: <span class="hljs-subst">\(error)</span>.&quot;</span>)
+    }
+}
+
+<span class="hljs-comment">/// 识别成功的回调 </span>
+<span class="hljs-keyword">func</span> <span class="hljs-title function_">recognizeTextHandler</span>(<span class="hljs-params">request</span>: <span class="hljs-type">VNRequest</span>, <span class="hljs-params">error</span>: <span class="hljs-type">Error</span>?) {
+    <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> observations <span class="hljs-operator">=</span> request.results <span class="hljs-keyword">as?</span> [<span class="hljs-type">VNRecognizedTextObservation</span>] <span class="hljs-keyword">else</span> {
+        <span class="hljs-keyword">return</span>
+    }
+    <span class="hljs-keyword">let</span> recognizedStrings <span class="hljs-operator">=</span> observations.compactMap { observation <span class="hljs-keyword">in</span>
+        <span class="hljs-comment">// Return the string of the top VNRecognizedText instance.</span>
+        <span class="hljs-keyword">return</span> observation.topCandidates(<span class="hljs-number">1</span>).first<span class="hljs-operator">?</span>.string
+    }
+    <span class="hljs-comment">// Process the recognized strings.</span>
+ 	 	<span class="hljs-keyword">var</span> res <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&quot;</span>
+    <span class="hljs-keyword">for</span> str <span class="hljs-keyword">in</span> recognizedStrings {
+        res  <span class="hljs-operator">=</span> <span class="hljs-string">&quot;<span class="hljs-subst">\(res)</span><span class="hljs-subst">\(str)</span>&quot;</span>
+    }
+    resultLabel.text <span class="hljs-operator">=</span> res
+}
+</code></pre>
+</div><h3 id="%E4%BC%98%E7%BC%BA%E7%82%B9" tabindex="-1">优缺点 <a class="anchor" href="#%E4%BC%98%E7%BC%BA%E7%82%B9">#</a></h3>
+<p>优点：</p>
+<ol>
+<li>iOS系统内置的API，无需引入多余文件直接调用。</li>
+<li>API使用比较简单，不用考虑多线程切换，成功回调已经全部回到了主线程。</li>
+<li>实测识别准确度还是比较高的。</li>
+</ol>
+<p>缺点：</p>
+<p>只有iOS14以上的系统版本支持设置识别中文。</p>
+<p>可以使用这个方法来判断这个API所支持识别的语言。<code>request.recognitionLanguages</code>属性支持设置ISO标准语言代码。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-comment">/**
+     @brief Returns all the supported languages for a given text recognition level. Note that a language supported in one recognition level might not be available in another.
+     */</span>
+    <span class="hljs-keyword">open</span> <span class="hljs-keyword">class</span> <span class="hljs-keyword">func</span> <span class="hljs-title function_">supportedRecognitionLanguages</span>(<span class="hljs-keyword">for</span> recognitionLevel: <span class="hljs-type">VNRequestTextRecognitionLevel</span>, revision requestRevision: <span class="hljs-type">Int</span>) <span class="hljs-keyword">throws</span> -&gt; [<span class="hljs-type">String</span>]
+</code></pre>
+</div><p><a href="https://developer.apple.com/documentation/vision/recognizing_text_in_images">更多Vision识别文字相关文档可参考：Recognizing Text in Images</a></p>
+<h2 id="tesseract" tabindex="-1">Tesseract <a class="anchor" href="#tesseract">#</a></h2>
+<blockquote>
+<p>Tesseract 是一个 OCR 库,目前由 Google 赞助(Google 也是一家以 OCR 和机器学习技术闻名于世的公司)。Tesseract 是目前公认最优秀、最精确的开源 OCR 系统，除了极高的精确度，Tesseract 也具有很高的灵活性。它可以通过训练识别出任何字体，也可以识别出任何 Unicode 字符。Tesseract OCR 该软件包包含一个 OCR 引擎 – libtesseract 和一个命令行程序 – tesseract。 Tesseract 4 增加了一个基于 OCR 引擎的新神经网络（LSTM），该引擎专注于线路识别，但仍然支持 Tesseract 3 的传统 Tesseract OCR 引擎，该引擎通过识别字符模式来工作。通过使用 Legacy OCR Engine 模式（–oem 0）启用与 Tesseract 3 的兼容性。它还需要训练有素的数据文件，这些文件支持传统引擎，例如来自 tessdata 存储库的文件。</p>
+<p><a href="https://github.com/tesseract-ocr/tesseract">GitHub Address</a></p>
+</blockquote>
+<h3 id="tesseract-ocr-ios" tabindex="-1">Tesseract-OCR-iOS <a class="anchor" href="#tesseract-ocr-ios">#</a></h3>
+<blockquote>
+<p>Tesseract-OCR-iOS 是由<code>gali8</code>使用<code>Objective-C</code>封装的基于<code>Tesseract 3.03-rc1</code>的iOS版本库。
+<a href="https://github.com/gali8/Tesseract-OCR-iOS">GitHub Address</a></p>
+</blockquote>
+<h3 id="useage" tabindex="-1">Useage <a class="anchor" href="#useage">#</a></h3>
+<ol>
+<li>通过<code>cocopods</code>可以直接引入此库。</li>
+</ol>
+<div class="cb"><span class="cb-l">ruby</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-ruby"><span class="hljs-comment">#PodFile</span>
+pod <span class="hljs-string">&#x27;TesseractOCRiOS&#x27;</span>
+</code></pre>
+</div><ol start="2">
+<li>
+<p>桌面创建一个<code>tessdata</code>文件夹</p>
+</li>
+<li>
+<p>将训练好的中文语言文字数据集<code>chi_sim.traineddata</code>放入<code>tessdata</code>文件夹</p>
+</li>
+<li>
+<p>将tessdata文件夹拖到项目根目录，<code>Added folders</code> 选择 <code>Create folder references</code>创建索引关系</p>
+<blockquote>
+<p>之所以创建索引，是因为Tesseract内部是使用静态路径访问的语言资源文件</p>
+</blockquote>
+</li>
+<li>
+<p>使用中文语言创建<code>G8Tesseract</code></p>
+</li>
+<li>
+<p>设置<code>G8Tesseract</code>需要识别的<code>image</code></p>
+</li>
+<li>
+<p>调用<code>recognize()</code>方法，同步方法，会阻塞进程</p>
+</li>
+<li>
+<p>读取<code>recognizedText</code>属性字段</p>
+</li>
+</ol>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-comment">// google Tesseract识别</span>
+<span class="hljs-keyword">@objc</span> <span class="hljs-keyword">private</span> <span class="hljs-keyword">func</span> <span class="hljs-title function_">ocrActionTesseract</span>() {
+    <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> path <span class="hljs-operator">=</span> <span class="hljs-keyword">self</span>.path, <span class="hljs-keyword">let</span> img <span class="hljs-operator">=</span> <span class="hljs-type">UIImage</span>(contentsOfFile: path) <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+    <span class="hljs-keyword">let</span> g8Rec <span class="hljs-operator">=</span> <span class="hljs-type">G8Tesseract</span>(language: <span class="hljs-string">&quot;chi_sim&quot;</span>)
+    g8Rec<span class="hljs-operator">?</span>.image <span class="hljs-operator">=</span> img
+    g8Rec<span class="hljs-operator">?</span>.engineMode <span class="hljs-operator">=</span> .tesseractOnly
+    g8Rec<span class="hljs-operator">?</span>.pageSegmentationMode <span class="hljs-operator">=</span> .autoOnly
+    g8Rec<span class="hljs-operator">?</span>.recognize()
+    resultLabel.text <span class="hljs-operator">=</span> g8Rec<span class="hljs-operator">?</span>.recognizedText
+}
+</code></pre>
+</div><p>集成过程中可能遇到的问题：</p>
+<ol>
+<li>
+<p><code>actual_tessdata_num_entries_ &lt;= TESSDATA_NUM_ENTRIES:Error: Assert failed: in file ..\..\ccutil\tes...</code></p>
+<p>原因：训练数据和sdk版本号不一致
+解决方法：去 <a href="https://github.com/tesseract-ocr/tessdoc/blob/master/tess3/Data-Files.md#data-files-for-version-302">v3.0.2版本训练数据</a>下载对应版本的训练数据</p>
+</li>
+<li>
+<p><code>setenv(&quot;TESSDATA_PREFIX&quot;, [_absoluteDataPath stringByAppendingString:@&quot;/&quot;].fileSystemRepresentation, 1);</code> 处崩溃</p>
+<p>原因：未知，可能是代码BUG
+解决方法：不使用作者提供的SwiftDemo中的<code>OperationQueue</code>直接使用<code>G8Tesseract</code>类</p>
+</li>
+</ol>
+<h3 id="%E4%BC%98%E7%BC%BA%E7%82%B9-1" tabindex="-1">优缺点 <a class="anchor" href="#%E4%BC%98%E7%BC%BA%E7%82%B9-1">#</a></h3>
+<p>优点：</p>
+<ol>
+<li>Tesseract 可以支持自定义训练数据，可以根据自身的需求进行数据训练。可以实现手写字体或其他不规则字体的识别。</li>
+<li>识别准确率参照训练结果，在大量业务数据的支持下可能会达到较高的准确率。</li>
+<li>无iOS系统版本要求，或基本满足低版本要求</li>
+</ol>
+<p>缺点：</p>
+<ol>
+<li><code>Tesseract-OCR-iOS</code> 库不再维护和更新，代码BUG无人解决，<code>Tesseract</code>版本依旧停留在3.0版本，限制使用3.0版本的训练数据集。若不自行训练，低版本训练数据比较难找。自行fork进行二次开发学习成本较高。</li>
+<li><code>Tesseract-OCR-iOS</code>库自行测试结果对简体中文的识别准确率稍低，可能是因为<code>Tesseract</code>版本过低。</li>
+<li>引入此三方库的成本过高，基本的简体中文训练数据集大小就为40+MB，引入工程内会显著增加IPA包体积大小，影响APP下载和分发</li>
+</ol>
+<h2 id="online-ocr" tabindex="-1">OnLine OCR <a class="anchor" href="#online-ocr">#</a></h2>
+<p>服务商较多，也有免费试用版，可衡量业务与需求选择。</p>
+<h2 id="%E7%BB%93%E8%AE%BA" tabindex="-1">结论 <a class="anchor" href="#%E7%BB%93%E8%AE%BA">#</a></h2>
+<p>如果OCR不是App的核心功能还是尽量选择<code>Vision</code>，<code>Apple</code>马上要更新<code>iOS15</code>版本，随着时间发展<code>iOS14</code>以上的用户数量会越来越多，相信系统版本限制不会永远是APP功能发展的瓶颈。</p>
+<p>如果OCR是APP的核心功能或业务相关，建议自行对最新的<code>Tesseract</code> 进行c++接口封装或者对<code>Tesseract-OCR-iOS</code>库二次开发更新版本并进行维护。</p>
+<p>或者选择使用收费在线业务，大部分场景下花钱都能解决技术问题。</p>
+<div class="pnav"><a class="l" href="/posts/xcode-module-importing-failed/"><small>上一篇</small><b>module importing failed invalid pathname 问题解决</b></a><a class="r" href="/posts/avplayer-bugs/"><small>下一篇</small><b>AVPlayer相关BUG记录</b></a></div></article></main>
+
+<div id="mascot" title="戳一下">
+  <div id="m-say"></div>
+  <button id="m-top" title="回到顶部" aria-label="回到顶部">↑</button>
+</div>
+<script type="module" src="/scene2d.js"></script>
+<script type="module" src="/mascot.js"></script>
+<script>
+addEventListener('keydown', function(e){
+  var P = {"prev":"/posts/xcode-module-importing-failed/","next":"/posts/avplayer-bugs/"};
+  // 灯箱打开时 Esc 只关灯箱,方向键不翻页
+  var lb = document.querySelector('.lb');
+  if (lb) { if (e.key === 'Escape') lb.remove(); return; }
+  if (e.key === 'ArrowLeft'  && P.prev) location.href = P.prev;
+  if (e.key === 'ArrowRight' && P.next) location.href = P.next;
+  if (e.key === 'Escape') location.href = '/#writing';
+});
+</script>
+<script>
+// 大纲高亮:滚动容器是 #art(不是 window),直接按滚动位置算当前节最可靠
+(function(){
+  var toc = document.querySelector('.toc');
+  if (!toc) return;
+  var art = document.getElementById('art');
+  var links = [].slice.call(toc.querySelectorAll('a'));
+  var map = {};
+  // id 本身已是百分号编码,直接用原始 href 做 key,不要 decode
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var heads = [].slice.call(art.querySelectorAll('h2[id],h3[id]'));
+  if (!heads.length) return;
+  var cur = null;
+
+  function paint(){
+    var top = art.getBoundingClientRect().top + 100;   // 判定线:卡片顶部下方 100px
+    var found = heads[0];
+    for (var i = 0; i < heads.length; i++){
+      if (heads[i].getBoundingClientRect().top <= top) found = heads[i]; else break;
+    }
+    // 已滚到底时强制选中最后一节,否则末节永远高亮不到
+    if (art.scrollTop + art.clientHeight >= art.scrollHeight - 4) found = heads[heads.length - 1];
+    if (found === cur) return;
+    cur = found;
+    links.forEach(function(a){ a.classList.remove('on'); });
+    var a = map[found.id];
+    if (!a) return;
+    a.classList.add('on');
+    var box = a.getBoundingClientRect(), tb = toc.getBoundingClientRect();
+    if (box.top < tb.top || box.bottom > tb.bottom) a.scrollIntoView({block:'nearest'});
+  }
+
+  var tick = false;
+  art.addEventListener('scroll', function(){
+    if (tick) return;
+    tick = true;
+    requestAnimationFrame(function(){ tick = false; paint(); });
+  }, {passive:true});
+
+  toc.addEventListener('click', function(e){
+    var a = e.target.closest('a'); if (!a) return;
+    var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if (!t) return;
+    e.preventDefault();
+    art.scrollTo({ top: art.scrollTop + t.getBoundingClientRect().top - art.getBoundingClientRect().top - 24, behavior:'smooth' });
+    history.replaceState(null, '', a.getAttribute('href'));
+  });
+  paint();
+})();
+</script>
+<script>
+// 图片灯箱:点正文图片或 Mermaid 图放大,点击 / Esc / 滚轮关闭
+document.getElementById('art').addEventListener('click', function(e){
+  var t = e.target.closest('img,.mm svg');
+  if (!t || t.closest('a')) return;
+  var lb = document.createElement('div'), c = t.cloneNode(true);
+  lb.className = 'lb';
+  if (c.tagName !== 'IMG') {
+    // SVG 没有固有的"原图尺寸",按视口等比放大
+    var r = t.getBoundingClientRect();
+    var k = Math.min(innerWidth * .92 / r.width, innerHeight * .9 / r.height);
+    c.style.width = r.width * k + 'px';
+    c.style.height = r.height * k + 'px';
+  }
+  lb.appendChild(c);
+  lb.onclick = lb.onwheel = function(){ lb.remove(); };
+  document.body.appendChild(lb);
+});
+</script>
+<script>
+// 代码块复制
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('.cb-c');
+  if (!btn) return;
+  var pre = btn.parentElement.querySelector('pre');
+  if (!pre) return;
+  var text = pre.innerText;
+  var done = function(){
+    btn.textContent = '已复制'; btn.classList.add('ok');
+    setTimeout(function(){ btn.textContent = '复制'; btn.classList.remove('ok'); }, 1600);
+  };
+  // clipboard API 需要安全上下文(https 或 localhost),否则回退到 execCommand
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else fallback();
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (err) { btn.textContent = '复制失败'; }
+    document.body.removeChild(ta);
+  }
+});
+</script>
+</body></html>

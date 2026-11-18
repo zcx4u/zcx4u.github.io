@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>APP自动化测试实践·00：APP 测试这件事——完整地图 — fatbruin</title>
+<meta name="description" content="系列开篇：APP 测试的完整坐标系，以及 UMU 移动端从零搭建稳定性与 E2E 自动化测试体系的全景。"><meta property="og:type" content="article"><meta property="og:site_name" content="fatbruin"><meta property="og:title" content="APP自动化测试实践·00：APP 测试这件事——完整地图"><meta property="og:description" content="系列开篇：APP 测试的完整坐标系，以及 UMU 移动端从零搭建稳定性与 E2E 自动化测试体系的全景。"><meta property="og:url" content="https://www.umuer.com/posts/app-testing-00-map/"><meta property="og:image" content="https://www.umuer.com/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://www.umuer.com/posts/app-testing-00-map/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="fatbruin" href="/rss.xml">
+<script>(function(){var n=null;try{n=localStorage.getItem('fatbruin-night')}catch(e){}var h=new Date().getHours();if(n?n==='1':(h>=19||h<6))document.documentElement.classList.add('night')})()</script>
+<link rel="stylesheet" href="/styles/base.0282236f.css">
+<link rel="stylesheet" href="/styles/post.0bb29940.css"></head>
+<body class="post">
+<div id="scene"></div>
+<div class="topbar"><div class="navl"><a class="back" href="/#writing">← 回到小屋</a><a class="back nav-fallback" href="/posts/">全部文章 →</a></div><div class="brand">fat<span>bruin</span></div></div>
+<main><nav class="toc" aria-label="目录"><p class="toc-h">目录</p><ol><li class="l2"><a href="#%E4%B8%80%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%85%88%E7%9C%8B%E5%9C%B0%E5%9B%BE%EF%BC%9F">一、为什么要先看地图？</a></li><li class="l2"><a href="#%E4%BA%8C%E3%80%81%E7%BB%B4%E5%BA%A6%E4%B8%80%EF%BC%9A%E5%8A%9F%E8%83%BD%E6%AD%A3%E7%A1%AE%E6%80%A7%E6%B5%8B%E8%AF%95">二、维度一：功能正确性测试</a></li><li class="l3"><a href="#%E7%AC%AC%E4%B8%80%E5%B1%82%EF%BC%9A%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%EF%BC%88unit-test%EF%BC%89">第一层：单元测试（Unit Test）</a></li><li class="l3"><a href="#%E7%AC%AC%E4%BA%8C%E5%B1%82%EF%BC%9A%E9%9B%86%E6%88%90%E6%B5%8B%E8%AF%95%EF%BC%88integration-test%EF%BC%89">第二层：集成测试（Integration Test）</a></li><li class="l3"><a href="#%E7%AC%AC%E4%B8%89%E5%B1%82%EF%BC%9Aui-%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95-%2F-e2e-%E6%B5%8B%E8%AF%95">第三层：UI 自动化测试 / E2E 测试</a></li><li class="l3"><a href="#%E7%AC%AC%E5%9B%9B%E5%B1%82%EF%BC%9A%E6%89%8B%E5%8A%A8%E6%8E%A2%E7%B4%A2%E6%B5%8B%E8%AF%95">第四层：手动探索测试</a></li><li class="l3"><a href="#%E5%9B%9B%E5%B1%82%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB">四层之间的关系</a></li><li class="l2"><a href="#%E4%B8%89%E3%80%81%E7%BB%B4%E5%BA%A6%E4%BA%8C%EF%BC%9A%E7%A8%B3%E5%AE%9A%E6%80%A7%E6%B5%8B%E8%AF%95">三、维度二：稳定性测试</a></li><li class="l3"><a href="#%E4%B8%89%E4%B8%AA%E6%A0%B8%E5%BF%83%E6%8C%87%E6%A0%87">三个核心指标</a></li><li class="l3"><a href="#%E6%A0%B8%E5%BF%83%E6%89%8B%E6%AE%B5%EF%BC%9Amonkey-%E6%B5%8B%E8%AF%95">核心手段：Monkey 测试</a></li><li class="l3"><a href="#monkey-%E6%B5%8B%E8%AF%95%E4%B8%8E-e2e-%E6%B5%8B%E8%AF%95%E7%9A%84%E5%8C%BA%E5%88%AB">Monkey 测试与 E2E 测试的区别</a></li><li class="l2"><a href="#%E5%9B%9B%E3%80%81%E7%BB%B4%E5%BA%A6%E4%B8%89%EF%BC%9A%E5%85%BC%E5%AE%B9%E6%80%A7%E6%B5%8B%E8%AF%95">四、维度三：兼容性测试</a></li><li class="l3"><a href="#%E5%85%BC%E5%AE%B9%E6%80%A7%E7%9A%84%E4%B8%89%E4%B8%AA%E6%9D%A5%E6%BA%90">兼容性的三个来源</a></li><li class="l3"><a href="#%E5%85%BC%E5%AE%B9%E6%80%A7%E6%B5%8B%E8%AF%95%E6%80%8E%E4%B9%88%E5%81%9A%EF%BC%9F">兼容性测试怎么做？</a></li><li class="l2"><a href="#%E4%BA%94%E3%80%81%E7%BB%B4%E5%BA%A6%E5%9B%9B%EF%BC%9A%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95">五、维度四：性能测试</a></li><li class="l2"><a href="#%E5%85%AD%E3%80%81%E7%BB%B4%E5%BA%A6%E4%BA%94%EF%BC%9A%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95">六、维度五：安全测试</a></li><li class="l2"><a href="#%E4%B8%83%E3%80%81%E6%8A%8A%E6%89%80%E6%9C%89%E7%BB%B4%E5%BA%A6%E6%94%BE%E5%9C%A8%E4%B8%80%E5%BC%A0%E8%A1%A8%E4%B8%8A">七、把所有维度放在一张表上</a></li><li class="l2"><a href="#%E5%85%AB%E3%80%81%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E8%B7%91%E4%BB%80%E4%B9%88%E6%B5%8B%E8%AF%95%EF%BC%9F">八、什么时候跑什么测试？</a></li><li class="l2"><a href="#%E4%B9%9D%E3%80%81ai-%E6%94%B9%E5%8F%98%E4%BA%86%E4%BB%80%E4%B9%88%EF%BC%9F">九、AI 改变了什么？</a></li><li class="l2"><a href="#%E5%8D%81%E3%80%81%E6%88%91%E4%BB%AC%E5%9B%A2%E9%98%9F%E7%8E%B0%E5%9C%A8%E5%9C%A8%E5%93%AA%E9%87%8C%EF%BC%9F">十、我们团队现在在哪里？</a></li><li class="l2"><a href="#%E5%8D%81%E4%B8%80%E3%80%81%E7%B3%BB%E5%88%97%E9%98%85%E8%AF%BB%E5%AF%BC%E8%88%AA">十一、系列阅读导航</a></li></ol><a class="toc-all" href="/posts/">全部文章 →</a></nav><article id="art"><p class="meta"><span>2026.10.01</span><span>Testing</span><span>18 分钟</span></p><h1>APP自动化测试实践·00：APP 测试这件事——完整地图</h1><p class="sum">系列开篇：APP 测试的完整坐标系，以及 UMU 移动端从零搭建稳定性与 E2E 自动化测试体系的全景。</p><details class="series"><summary><small>系列</small><b>AI背景下的APP端自动化测试实践</b><span>第 1 / 9 篇</span></summary><ol><li class="on">APP自动化测试实践·00：APP 测试这件事——完整地图</li><li><a href="/posts/app-testing-stability-01-concepts/">APP自动化测试实践 稳定性·01：稳定性测试——概念与核心机制</a></li><li><a href="/posts/app-testing-stability-02-ios-toolchain/">APP自动化测试实践 稳定性·02：iOS 工具链——从 tidevice 到 CoreDevice 的工具演进</a></li><li><a href="/posts/app-testing-stability-03-android-toolchain/">APP自动化测试实践 稳定性·03：Android 工具链——adb 怎么采集数据，Fastbot 怎么驱动 App</a></li><li><a href="/posts/app-testing-stability-04-reporter-pipeline/">APP自动化测试实践 稳定性·04：从数据到结论——报告、判定与页面覆盖率</a></li><li><a href="/posts/app-testing-e2e-01-concepts/">APP自动化测试实践 E2E·01：E2E 测试——从零讲透概念与核心机制</a></li><li><a href="/posts/app-testing-e2e-02-tool-selection/">APP自动化测试实践 E2E·02：工具选型——业界 E2E 方案对比与我们的选择</a></li><li><a href="/posts/app-testing-e2e-03-llm-appium-plugin/">APP自动化测试实践 E2E·03：让大模型来写用例、跑用例——Appium 插件与 stub 直驱</a></li><li><a href="/posts/app-testing-e2e-04-ai-drive-real-device/">APP自动化测试实践 E2E·04：让 AI 直接操作真机 App——注入式 stub 的思路与取舍</a></li></ol></details><blockquote>
+<p>本文是系列《AI背景下的APP端自动化测试实践》的开篇。</p>
+<p>这个系列记录的是 UMU 移动端从零搭建自动化测试体系的过程：稳定性测试怎么每晚自动跑起来，E2E 用例怎么借助大模型录制、回放和自愈，以及怎么让 AI 直接操作真机 App。写作者是一名 iOS 开发，在没有太多测试背景的情况下闯进这个领域，所以文章会尽量把&quot;为什么&quot;讲清楚，而不只是罗列工具。</p>
+<p>在深入任何一种测试之前，先把整张地图看清楚。这篇用来回答一个问题：APP 测试到底有哪些类型，它们各自解决什么问题，相互之间是什么关系，AI 又在其中改变了什么？文末附有整个系列的阅读导航。</p>
+</blockquote>
+<hr>
+<h2 id="%E4%B8%80%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%85%88%E7%9C%8B%E5%9C%B0%E5%9B%BE%EF%BC%9F" tabindex="-1">一、为什么要先看地图？ <a class="anchor" href="#%E4%B8%80%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%85%88%E7%9C%8B%E5%9C%B0%E5%9B%BE%EF%BC%9F">#</a></h2>
+<p>&quot;测试&quot;这个词太大了。同样一句&quot;我们要加测试&quot;，后端同学指的通常是单元测试，用来覆盖接口逻辑；iOS 开发可能想的是 XCTest，也可能是 UI 自动化；QA 嘴里的&quot;做测试&quot;，可能是手动回归，也可能是写自动化脚本；而老板说&quot;提升质量&quot;，往往是以上全部，再加上线上监控。大家都在说测试，说的却未必是同一件事。</p>
+<p>没有一张完整的地图，很容易在某个角落反复投入，却对其他盲区毫无察觉。比如单元测试写得很扎实，却从没在真机上长时间跑过；或者 E2E 脚本覆盖了所有核心流程，却不知道 App 在低端机上一跑就被系统杀掉。</p>
+<p>理解 APP 测试，可以从两个维度入手。一个是<strong>测什么</strong>：功能是否正确、运行是否稳定、换设备是否兼容、速度和资源消耗如何、有没有安全漏洞。另一个是<strong>怎么测</strong>：靠人手动还是靠自动化，把 App 当黑盒还是深入代码做白盒，在发版前的线下环境测还是在线上真实用户中观察。下面按&quot;测什么&quot;逐一展开，&quot;怎么测&quot;会穿插在各个部分里。</p>
+<hr>
+<h2 id="%E4%BA%8C%E3%80%81%E7%BB%B4%E5%BA%A6%E4%B8%80%EF%BC%9A%E5%8A%9F%E8%83%BD%E6%AD%A3%E7%A1%AE%E6%80%A7%E6%B5%8B%E8%AF%95" tabindex="-1">二、维度一：功能正确性测试 <a class="anchor" href="#%E4%BA%8C%E3%80%81%E7%BB%B4%E5%BA%A6%E4%B8%80%EF%BC%9A%E5%8A%9F%E8%83%BD%E6%AD%A3%E7%A1%AE%E6%80%A7%E6%B5%8B%E8%AF%95">#</a></h2>
+<p>这是最基础的一层，回答的是&quot;功能对不对&quot;。按测试的粒度从小到大，可以分成四层，每一层都有它擅长和无能为力的地方。</p>
+<h3 id="%E7%AC%AC%E4%B8%80%E5%B1%82%EF%BC%9A%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%EF%BC%88unit-test%EF%BC%89" tabindex="-1">第一层：单元测试（Unit Test） <a class="anchor" href="#%E7%AC%AC%E4%B8%80%E5%B1%82%EF%BC%9A%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%EF%BC%88unit-test%EF%BC%89">#</a></h3>
+<p>单元测试针对的是单个函数或类的逻辑，并且把它和外部依赖完全隔离开。比如一个价格格式化函数，可以这样测：</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-comment">// 例：测试一个价格格式化函数</span>
+<span class="hljs-keyword">func</span> <span class="hljs-title function_">testPriceFormat</span>() {
+    <span class="hljs-type">XCTAssertEqual</span>(formatPrice(<span class="hljs-number">9900</span>), <span class="hljs-string">&quot;¥99.00&quot;</span>)
+    <span class="hljs-type">XCTAssertEqual</span>(formatPrice(<span class="hljs-number">0</span>), <span class="hljs-string">&quot;¥0.00&quot;</span>)
+    <span class="hljs-type">XCTAssertEqual</span>(formatPrice(<span class="hljs-operator">-</span><span class="hljs-number">100</span>), <span class="hljs-string">&quot;¥-1.00&quot;</span>)  <span class="hljs-comment">// 边界 case</span>
+}
+</code></pre>
+</div><p>因为不依赖网络、设备和数据库，单元测试跑得极快，几千个用例几秒钟就能跑完，发现的是纯粹的逻辑错误。它的边界也很清楚：模块之间怎么配合、界面渲染是否正确、网络请求是否正常，都不在它的视野里。所以它最适合业务逻辑层，比如 ViewModel、Service 和各种工具函数，而不适合纯 UI 层。常用工具是 iOS 的 XCTest、Android 的 JUnit，以及 Dart 层的 Flutter Test。</p>
+<h3 id="%E7%AC%AC%E4%BA%8C%E5%B1%82%EF%BC%9A%E9%9B%86%E6%88%90%E6%B5%8B%E8%AF%95%EF%BC%88integration-test%EF%BC%89" tabindex="-1">第二层：集成测试（Integration Test） <a class="anchor" href="#%E7%AC%AC%E4%BA%8C%E5%B1%82%EF%BC%9A%E9%9B%86%E6%88%90%E6%B5%8B%E8%AF%95%EF%BC%88integration-test%EF%BC%89">#</a></h3>
+<p>单元测试证明了每个零件单独是好的，但零件拼在一起未必严丝合缝。集成测试要验证的，就是模块之间的接口是否对齐：</p>
+<div class="cb"><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code>单元测试中：
+  UserService 测过了 ✓
+  NetworkClient 测过了 ✓
+
+集成测试验证：
+  UserService 调用 NetworkClient，
+  拿到真实响应后，数据解析和状态更新是否正确？
+</code></pre>
+</div><p>集成测试会引入真实的模块依赖，有时还会搭配数据库或网络 Mock，所以比单元测试慢，但仍比 UI 测试快得多。它擅长发现的是模块边界上的问题，比如两边约定的接口协议不一致、数据格式对不上。至于一个完整的用户流程能否走通，它就回答不了了。常用的有带网络 Mock 的 XCTest、MockWebServer，以及 Flutter Integration Test。</p>
+<h3 id="%E7%AC%AC%E4%B8%89%E5%B1%82%EF%BC%9Aui-%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95-%2F-e2e-%E6%B5%8B%E8%AF%95" tabindex="-1">第三层：UI 自动化测试 / E2E 测试 <a class="anchor" href="#%E7%AC%AC%E4%B8%89%E5%B1%82%EF%BC%9Aui-%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95-%2F-e2e-%E6%B5%8B%E8%AF%95">#</a></h3>
+<p>E2E（端到端）测试站在用户的位置，从界面出发，走完一个完整的操作流程，再验证结果：</p>
+<div class="cb"><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code>测试脚本做的事：
+  1. 启动 App
+  2. 输入账号密码，点击登录按钮
+  3. 等待首页加载完成
+  4. 断言：首页上出现了用户名 &quot;张三&quot;
+</code></pre>
+</div><p>它最接近真实的用户体验，能发现完整流程上的问题，代价是慢（分钟级）和难维护：界面一改版，脚本往往就得跟着改。正因为成本高，E2E 通常只用来守住最核心的业务流程，也就是常说的 <strong>P0 路径</strong>，比如登录、购买、播放。这些流程写成 E2E 用例，每次发版前必须全部通过。</p>
+<p>可选的工具不少，各有侧重：</p>
+<div class="tw"><table><thead>
+<tr>
+<th>工具</th>
+<th>适用平台</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>XCUITest</td>
+<td>iOS 原生</td>
+<td>Apple 官方，与 Xcode 深度集成，不支持 Flutter 层</td>
+</tr>
+<tr>
+<td>Flutter Integration Test</td>
+<td>Flutter</td>
+<td>官方，直接驱动 Dart 层，跨平台</td>
+</tr>
+<tr>
+<td>Appium</td>
+<td>iOS + Android</td>
+<td>跨平台，一套脚本两端复用，但配置复杂</td>
+</tr>
+<tr>
+<td>Maestro</td>
+<td>iOS + Android</td>
+<td>新兴工具，YAML 写脚本，上手简单；iOS 不支持真机</td>
+</tr>
+</tbody>
+</table></div><p>对 UMU 这样原生和 Flutter 混合的 App，很难指望一个工具覆盖所有页面，按页面技术栈组合使用往往更现实。我们最终选择了 Appium，并用大模型来降低它的编写和维护成本，具体过程在 E2E 系列中展开。</p>
+<h3 id="%E7%AC%AC%E5%9B%9B%E5%B1%82%EF%BC%9A%E6%89%8B%E5%8A%A8%E6%8E%A2%E7%B4%A2%E6%B5%8B%E8%AF%95" tabindex="-1">第四层：手动探索测试 <a class="anchor" href="#%E7%AC%AC%E5%9B%9B%E5%B1%82%EF%BC%9A%E6%89%8B%E5%8A%A8%E6%8E%A2%E7%B4%A2%E6%B5%8B%E8%AF%95">#</a></h3>
+<p>最上面一层是人脑驱动的、没有固定剧本的探索，它要发现的是那些&quot;感觉不对&quot;的问题。</p>
+<p>这一层永远不会被自动化完全替代。好的 QA 在使用 App 时会产生直觉：&quot;这个动画有点抖&quot;、&quot;这句文案的语气怪怪的&quot;、&quot;这个页面返回时好像慢了一拍&quot;。这些都很难写成脚本里的断言。手动探索通常放在新功能上线前和发版前的最终验收阶段。</p>
+<h3 id="%E5%9B%9B%E5%B1%82%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB" tabindex="-1">四层之间的关系 <a class="anchor" href="#%E5%9B%9B%E5%B1%82%E4%B9%8B%E9%97%B4%E7%9A%84%E5%85%B3%E7%B3%BB">#</a></h3>
+<div class="tw"><table><thead>
+<tr>
+<th>层次</th>
+<th>覆盖什么</th>
+<th>什么时候跑</th>
+<th>速度与成本</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>手动探索测试</td>
+<td>少量，凭直觉发现&quot;感觉不对&quot;</td>
+<td>发版前</td>
+<td>最慢、最贵</td>
+</tr>
+<tr>
+<td>UI / E2E 自动化</td>
+<td>P0 核心路径</td>
+<td>每次发版前</td>
+<td>慢，维护成本高</td>
+</tr>
+<tr>
+<td>集成测试</td>
+<td>模块边界</td>
+<td>PR 合并时</td>
+<td>中等</td>
+</tr>
+<tr>
+<td>单元测试</td>
+<td>核心逻辑</td>
+<td>每次提交</td>
+<td>最快、最稳定、最便宜</td>
+</tr>
+</tbody>
+</table></div><p>这四层像一座金字塔：越往下越快、越稳定、越便宜，越往上越接近真实用户，也越慢、越难维护。<strong>一个健康的项目，四层都应该有，数量从下到上递减。</strong> 很多团队恰恰相反，只有最上面两层（手动加少量 E2E），底层几乎空白，结果 Bug 要到 E2E 或手动测试时才被发现，修复成本已经很高了。</p>
+<hr>
+<h2 id="%E4%B8%89%E3%80%81%E7%BB%B4%E5%BA%A6%E4%BA%8C%EF%BC%9A%E7%A8%B3%E5%AE%9A%E6%80%A7%E6%B5%8B%E8%AF%95" tabindex="-1">三、维度二：稳定性测试 <a class="anchor" href="#%E4%B8%89%E3%80%81%E7%BB%B4%E5%BA%A6%E4%BA%8C%EF%BC%9A%E7%A8%B3%E5%AE%9A%E6%80%A7%E6%B5%8B%E8%AF%95">#</a></h2>
+<p>功能正确，不代表 App 能稳定运行。稳定性测试回答的是另一个问题：&quot;长时间运行会不会垮？&quot;</p>
+<h3 id="%E4%B8%89%E4%B8%AA%E6%A0%B8%E5%BF%83%E6%8C%87%E6%A0%87" tabindex="-1">三个核心指标 <a class="anchor" href="#%E4%B8%89%E4%B8%AA%E6%A0%B8%E5%BF%83%E6%8C%87%E6%A0%87">#</a></h3>
+<p>最直观的指标是 <strong>Crash 率</strong>，也就是 App 在使用中异常退出的频率。行业里常见的参考标准是低于 0.1%，即每千次启动不超过一次崩溃。对 Flutter 混合 App 来说，崩溃还分两层：原生层（Objective-C、Swift、Kotlin）的崩溃和 Dart 层的异常，两者的捕获方式完全不同。</p>
+<p>第二个指标是<strong>内存</strong>。我们关心的不只是峰值，还有长时间运行下的趋势：内存是否只涨不跌，是否存在泄漏。在 iOS 上，内存超限的 App 会被系统直接杀掉（OOM），对用户来说和崩溃没有区别。设定阈值时还要考虑 Flutter 引擎本身就有 30 到 50MB 的固定开销。</p>
+<p>第三个指标是 <strong>FPS 与卡顿</strong>。60Hz 的屏幕每帧只有 16.67 毫秒的预算，超时就会掉帧；如果帧率低于 15 并持续 3 秒以上，就是最严重的&quot;冻屏&quot;。</p>
+<h3 id="%E6%A0%B8%E5%BF%83%E6%89%8B%E6%AE%B5%EF%BC%9Amonkey-%E6%B5%8B%E8%AF%95" tabindex="-1">核心手段：Monkey 测试 <a class="anchor" href="#%E6%A0%B8%E5%BF%83%E6%89%8B%E6%AE%B5%EF%BC%9Amonkey-%E6%B5%8B%E8%AF%95">#</a></h3>
+<p>稳定性测试的主力是 Monkey 测试。它<strong>不按</strong>剧本执行固定步骤，而是用随机或半随机的方式，大量模拟用户操作，去覆盖开发者从没预想过的操作序列。</p>
+<div class="cb"><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code>1 个 QA 用 App 1 小时  vs  机器模拟 1000 次操作序列
+     发现已知路径的问题      发现长尾随机路径的崩溃
+</code></pre>
+</div><p>我们使用的是字节跳动开源的 Fastbot。它不是纯随机点击，而是基于模型做智能遍历，会优先去没去过的页面、点没点过的控件，同样的时间能走得更深。</p>
+<h3 id="monkey-%E6%B5%8B%E8%AF%95%E4%B8%8E-e2e-%E6%B5%8B%E8%AF%95%E7%9A%84%E5%8C%BA%E5%88%AB" tabindex="-1">Monkey 测试与 E2E 测试的区别 <a class="anchor" href="#monkey-%E6%B5%8B%E8%AF%95%E4%B8%8E-e2e-%E6%B5%8B%E8%AF%95%E7%9A%84%E5%8C%BA%E5%88%AB">#</a></h3>
+<p>这两者经常被混为一谈，但目标完全不同：</p>
+<div class="tw"><table><thead>
+<tr>
+<th></th>
+<th>Monkey 测试</th>
+<th>E2E 测试</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>目标</td>
+<td>发现未知崩溃</td>
+<td>验证已知流程</td>
+</tr>
+<tr>
+<td>操作方式</td>
+<td>随机探索</td>
+<td>按剧本执行</td>
+</tr>
+<tr>
+<td>能保证 P0 路径吗？</td>
+<td><strong>不能</strong></td>
+<td>能</td>
+</tr>
+<tr>
+<td>适合发现</td>
+<td>隐藏的崩溃路径、内存泄漏</td>
+<td>业务逻辑回归</td>
+</tr>
+</tbody>
+</table></div><p>Monkey 测试擅长在广阔的未知空间里撞出问题，却无法保证某条具体流程一定被走到；E2E 恰好相反。所以两者谁也替代不了谁，只能互补。</p>
+<hr>
+<h2 id="%E5%9B%9B%E3%80%81%E7%BB%B4%E5%BA%A6%E4%B8%89%EF%BC%9A%E5%85%BC%E5%AE%B9%E6%80%A7%E6%B5%8B%E8%AF%95" tabindex="-1">四、维度三：兼容性测试 <a class="anchor" href="#%E5%9B%9B%E3%80%81%E7%BB%B4%E5%BA%A6%E4%B8%89%EF%BC%9A%E5%85%BC%E5%AE%B9%E6%80%A7%E6%B5%8B%E8%AF%95">#</a></h2>
+<p>功能正确、运行稳定，换一台手机却花屏了，这就是兼容性问题。兼容性测试要回答的是：&quot;这个 App 在目标用户的设备上，都能正常工作吗？&quot;</p>
+<h3 id="%E5%85%BC%E5%AE%B9%E6%80%A7%E7%9A%84%E4%B8%89%E4%B8%AA%E6%9D%A5%E6%BA%90" tabindex="-1">兼容性的三个来源 <a class="anchor" href="#%E5%85%BC%E5%AE%B9%E6%80%A7%E7%9A%84%E4%B8%89%E4%B8%AA%E6%9D%A5%E6%BA%90">#</a></h3>
+<p>首先是<strong>系统版本</strong>。iOS 每年一个大版本，总有 API 被弃用、新增，隐私权限机制也几乎每版都在变；Android 的问题则是碎片化，从 Android 8 到 14 同时活跃，各厂商定制 ROM 的行为差异又很大。常见的应对方式是明确最低支持的系统版本，对新 API 做版本判断和降级处理。</p>
+<p>其次是<strong>设备硬件</strong>。不同的硬件会带来各自的问题：</p>
+<div class="cb"><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code>屏幕尺寸  → UI 布局在异形屏（刘海、挖孔、折叠屏）是否正常
+GPU 型号  → 特定着色器在某些 GPU 上渲染异常（Flutter 的 Impeller 渲染引擎尤其需要关注）
+内存大小  → 低内存设备（2GB RAM）上的 OOM 风险
+CPU 架构  → arm64 vs x86（模拟器）
+</code></pre>
+</div><p>最后是<strong>第三方 SDK</strong>。App 依赖的推送、支付、地图等 SDK，可能在特定系统版本上有自己的 Bug，两个 SDK 之间也可能互相冲突。</p>
+<h3 id="%E5%85%BC%E5%AE%B9%E6%80%A7%E6%B5%8B%E8%AF%95%E6%80%8E%E4%B9%88%E5%81%9A%EF%BC%9F" tabindex="-1">兼容性测试怎么做？ <a class="anchor" href="#%E5%85%BC%E5%AE%B9%E6%80%A7%E6%B5%8B%E8%AF%95%E6%80%8E%E4%B9%88%E5%81%9A%EF%BC%9F">#</a></h3>
+<p>覆盖面最广的方案是<strong>云真机农场</strong>（Device Farm）。AWS Device Farm、Firebase Test Lab，以及国内的 Testin 等服务商，提供大量真实设备，上传 App、选好设备矩阵就能自动跑测试脚本。缺点是贵，而且远程真机的稳定性不如本地。</p>
+<p>成本更可控的是<strong>本地设备矩阵</strong>：购置几台有代表性的设备，比如低、中、高端各一台，再加几家主流 Android 厂商的机型，手动或自动化地测试。</p>
+<p>还有一种思路是借助线上<strong>灰度发布</strong>：先发给 1% 的用户，通过 Sentry 观察崩溃率和设备分布，如果某个机型的崩溃率明显偏高，再针对性地处理。</p>
+<p>我们目前 iOS、Android 各有一台常驻测试机，只能算兼容性测试的起点。真正的兼容性测试需要多设备并行，这是后续的扩展方向。</p>
+<hr>
+<h2 id="%E4%BA%94%E3%80%81%E7%BB%B4%E5%BA%A6%E5%9B%9B%EF%BC%9A%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95" tabindex="-1">五、维度四：性能测试 <a class="anchor" href="#%E4%BA%94%E3%80%81%E7%BB%B4%E5%BA%A6%E5%9B%9B%EF%BC%9A%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95">#</a></h2>
+<p>稳定性测试关心&quot;会不会垮&quot;，性能测试关心的是&quot;跑得快不快、用得省不省&quot;。它通常拆成六个方面来看：</p>
+<div class="tw"><table><thead>
+<tr>
+<th>子项</th>
+<th>关注指标</th>
+<th>典型工具</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>启动速度</strong></td>
+<td>冷启动 / 热启动耗时</td>
+<td>Instruments（iOS）、adb shell am start-activity（Android）</td>
+</tr>
+<tr>
+<td><strong>页面渲染速度</strong></td>
+<td>首屏时间、关键页面加载耗时</td>
+<td>埋点 + 日志</td>
+</tr>
+<tr>
+<td><strong>内存占用</strong></td>
+<td>常驻内存、峰值内存</td>
+<td>Instruments / xcrun xctrace（iOS）、dumpsys meminfo（Android）</td>
+</tr>
+<tr>
+<td><strong>CPU 占用</strong></td>
+<td>平均 CPU、峰值 CPU</td>
+<td>Instruments / adb top</td>
+</tr>
+<tr>
+<td><strong>电量消耗</strong></td>
+<td>后台耗电、特定操作的耗电</td>
+<td>Instruments Energy Log</td>
+</tr>
+<tr>
+<td><strong>包体积</strong></td>
+<td>.ipa / .apk 大小</td>
+<td>Xcode Build Report / bundletool</td>
+</tr>
+</tbody>
+</table></div><p>性能测试和稳定性测试有不少重叠，内存和 CPU 两边都会采集，但看数据的角度不同。同一条内存曲线，稳定性关心的是&quot;有没有泄漏、有没有被系统杀掉的风险&quot;，性能关心的是&quot;基线是多少、比上个版本涨了没有&quot;。</p>
+<div class="cb"><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code>稳定性测试问的是：   &quot;会不会崩？会不会被杀？&quot;
+性能测试问的是：     &quot;快不快？省不省？&quot;
+</code></pre>
+</div><p>我们的框架以稳定性为主，但每晚采集的内存和 CPU 数据，同样可以作为性能基线复用。</p>
+<hr>
+<h2 id="%E5%85%AD%E3%80%81%E7%BB%B4%E5%BA%A6%E4%BA%94%EF%BC%9A%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95" tabindex="-1">六、维度五：安全测试 <a class="anchor" href="#%E5%85%AD%E3%80%81%E7%BB%B4%E5%BA%A6%E4%BA%94%EF%BC%9A%E5%AE%89%E5%85%A8%E6%B5%8B%E8%AF%95">#</a></h2>
+<p>安全测试回答的是：&quot;App 有没有可以被攻击的漏洞？&quot;这个维度通常由专职安全团队负责，但开发者了解基本的风险类型，才能避免亲手写出漏洞。</p>
+<p>移动 App 常见的安全风险有这几类：</p>
+<div class="tw"><table><thead>
+<tr>
+<th>风险</th>
+<th>具体问题</th>
+<th>涉及场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>数据存储不安全</strong></td>
+<td>明文存储密码、Token 在 NSUserDefaults / SharedPreferences</td>
+<td>本地存储</td>
+</tr>
+<tr>
+<td><strong>传输层不安全</strong></td>
+<td>不校验 SSL 证书，被中间人攻击</td>
+<td>网络请求</td>
+</tr>
+<tr>
+<td><strong>代码逆向</strong></td>
+<td>Release 包可以被反编译（Android 尤其严重）</td>
+<td>业务逻辑暴露</td>
+</tr>
+<tr>
+<td><strong>过度权限</strong></td>
+<td>申请了不必要的权限（相机、位置、通讯录）</td>
+<td>权限管理</td>
+</tr>
+<tr>
+<td><strong>第三方 SDK 引入风险</strong></td>
+<td>SDK 内嵌广告 SDK 或数据采集</td>
+<td>合规问题</td>
+</tr>
+</tbody>
+</table></div><p>检查手段大致分三种。<strong>静态分析</strong>是用工具扫描源码或安装包，MobSF 是常用的开源工具；<strong>动态分析</strong>是在运行时抓包（Charles、Burp Suite），检查数据在哪里落地、传输是否加密；<strong>渗透测试</strong>则由专业安全团队模拟攻击，通常在大版本发布前做一次。</p>
+<p>安全测试不在我们当前的建设范围内。不过 Fastbot 随机操作的过程中，偶尔会走到一些不应该暴露的入口，比如跳过登录直接打开某个页面，这可以作为一个副产品来观察。</p>
+<hr>
+<h2 id="%E4%B8%83%E3%80%81%E6%8A%8A%E6%89%80%E6%9C%89%E7%BB%B4%E5%BA%A6%E6%94%BE%E5%9C%A8%E4%B8%80%E5%BC%A0%E8%A1%A8%E4%B8%8A" tabindex="-1">七、把所有维度放在一张表上 <a class="anchor" href="#%E4%B8%83%E3%80%81%E6%8A%8A%E6%89%80%E6%9C%89%E7%BB%B4%E5%BA%A6%E6%94%BE%E5%9C%A8%E4%B8%80%E5%BC%A0%E8%A1%A8%E4%B8%8A">#</a></h2>
+<div class="tw"><table><thead>
+<tr>
+<th>维度</th>
+<th>回答的问题</th>
+<th>主要手段</th>
+<th>我们的进展</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>功能正确性</td>
+<td>功能对不对</td>
+<td>单元 / 集成 / E2E / 手动探索</td>
+<td>E2E 已落地（LLM 辅助），单元与集成待评估</td>
+</tr>
+<tr>
+<td>稳定性</td>
+<td>长时间运行会不会垮</td>
+<td>Monkey 压测 + 崩溃、内存、CPU 采集</td>
+<td>iOS / Android 每晚定时运行</td>
+</tr>
+<tr>
+<td>兼容性</td>
+<td>换台设备还正常吗</td>
+<td>设备矩阵、云真机、线上灰度</td>
+<td>各一台测试机，起步阶段</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>快不快、省不省</td>
+<td>启动、渲染、内存、CPU、电量、包体积</td>
+<td>稳定性测试附带采集内存与 CPU</td>
+</tr>
+<tr>
+<td>安全性</td>
+<td>有没有可被攻击的漏洞</td>
+<td>静态扫描、抓包、渗透测试</td>
+<td>暂未建设</td>
+</tr>
+</tbody>
+</table></div><hr>
+<h2 id="%E5%85%AB%E3%80%81%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E8%B7%91%E4%BB%80%E4%B9%88%E6%B5%8B%E8%AF%95%EF%BC%9F" tabindex="-1">八、什么时候跑什么测试？ <a class="anchor" href="#%E5%85%AB%E3%80%81%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E8%B7%91%E4%BB%80%E4%B9%88%E6%B5%8B%E8%AF%95%EF%BC%9F">#</a></h2>
+<p>不同的测试，运行成本和反馈速度差别很大，所以应该放在不同的时机触发，而不是全部堆到发版前。越快越便宜的测试，跑得越频繁；越慢越贵的，留给夜间和发版前的专项：</p>
+<div class="cb"><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code>每次代码提交（push）
+  └── 单元测试（快，&lt;1分钟）
+
+PR 合并到主分支
+  ├── 集成测试（中速，5~10分钟）
+  └── UI/E2E 冒烟（只跑最核心 P0，5分钟）
+
+每日定时（夜间）
+  ├── 完整 E2E 回归（所有 P0/P1 路径，30~60分钟）
+  └── 稳定性压测（Fastbot 多账号长时运行 + 性能采集）← 已上线
+
+发版前专项
+  ├── 兼容性测试（多设备矩阵）
+  ├── 完整性能测试（对比上个版本基线）
+  └── 安全扫描（MobSF 静态分析）
+
+线上持续
+  └── Sentry 崩溃监控（实时）
+</code></pre>
+</div><hr>
+<h2 id="%E4%B9%9D%E3%80%81ai-%E6%94%B9%E5%8F%98%E4%BA%86%E4%BB%80%E4%B9%88%EF%BC%9F" tabindex="-1">九、AI 改变了什么？ <a class="anchor" href="#%E4%B9%9D%E3%80%81ai-%E6%94%B9%E5%8F%98%E4%BA%86%E4%BB%80%E4%B9%88%EF%BC%9F">#</a></h2>
+<p>上面这张地图在 AI 出现之前就是这样，测试的分类和目标并没有变。变的是&quot;自动化&quot;的成本结构。</p>
+<p>传统 UI 自动化最贵的地方不在于写第一遍脚本，而在于维护：控件位置一变、文案一改，脚本就失效，需要人去逐条修。大模型擅长的恰恰是&quot;看懂界面、理解意图&quot;，这让几件过去很难做的事情变得可行。</p>
+<p><strong>录制和生成用例。</strong> QA 在真机上操作一遍，工具自动抓取每一步的界面变化，再由大模型推断操作意图，生成可回放的用例。写用例的门槛从&quot;会写脚本&quot;降到了&quot;会用 App&quot;。</p>
+<p><strong>用例自愈。</strong> 回放失败时，大模型重新观察失败现场，判断是界面改版导致的定位失效，还是真正的功能问题。前者自动给出修复方案供人审核，后者如实报告。维护成本从&quot;人逐条修&quot;变成&quot;人审核 AI 的修改&quot;。</p>
+<p><strong>探索性操作。</strong> 给 AI 一句自然语言任务（比如&quot;进某门课程把它收藏&quot;），它就能在真机上自己摸索完成。这要求 AI 能以很低的延迟读取界面、执行动作，我们为此专门做了一套注入式的直驱方案，单步从秒级压到了毫秒级。</p>
+<p><strong>问题分析。</strong> 崩溃堆栈的归因、线上崩溃按机型和版本的分布分析，都可以交给 AI 先做一轮初筛，人再看结论。</p>
+<p>AI 没有改变的是：测试的目标仍然需要人来定义，断言是否合理仍然需要人来判断，而大模型本身的不确定性，也意味着关键路径上仍然需要确定性的回放和人工复核。这个系列里的大部分篇幅，讲的正是怎么在&quot;AI 的灵活&quot;和&quot;测试的确定性&quot;之间找平衡。</p>
+<hr>
+<h2 id="%E5%8D%81%E3%80%81%E6%88%91%E4%BB%AC%E5%9B%A2%E9%98%9F%E7%8E%B0%E5%9C%A8%E5%9C%A8%E5%93%AA%E9%87%8C%EF%BC%9F" tabindex="-1">十、我们团队现在在哪里？ <a class="anchor" href="#%E5%8D%81%E3%80%81%E6%88%91%E4%BB%AC%E5%9B%A2%E9%98%9F%E7%8E%B0%E5%9C%A8%E5%9C%A8%E5%93%AA%E9%87%8C%EF%BC%9F">#</a></h2>
+<p>诚实地评估现状，才能知道下一步投资哪里：</p>
+<div class="tw"><table><thead>
+<tr>
+<th>测试类型</th>
+<th>现状</th>
+<th>优先级</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>稳定性测试（Monkey）</td>
+<td><strong>已上线</strong>：iOS / Android 每晚定时运行，iOS 多账号长时压测，失败自动推送告警</td>
+<td>— 持续优化覆盖率</td>
+</tr>
+<tr>
+<td>E2E / P0 路径自动化</td>
+<td><strong>进行中</strong>：LLM 辅助的录制 / 回放 / 自愈方案已在 iOS 落地，用例逐步积累</td>
+<td>高</td>
+</tr>
+<tr>
+<td>AI 驱动真机操作</td>
+<td><strong>已落地</strong>：注入式直驱，供探索性任务使用</td>
+<td>中</td>
+</tr>
+<tr>
+<td>线上崩溃监控</td>
+<td>Sentry 已接入，管理后台提供线上监控视图</td>
+<td>—</td>
+</tr>
+<tr>
+<td>管理后台</td>
+<td><strong>已上线</strong>：内网常驻，QA 可自助发起任务、查看报告、操作设备</td>
+<td>—</td>
+</tr>
+<tr>
+<td>单元测试</td>
+<td>待评估</td>
+<td>高（基础投资，ROI 最高）</td>
+</tr>
+<tr>
+<td>兼容性测试</td>
+<td>单设备，依赖手动</td>
+<td>中</td>
+</tr>
+<tr>
+<td>性能测试</td>
+<td>稳定性测试附带内存 / CPU 采集，其余依赖 Instruments 手动</td>
+<td>中</td>
+</tr>
+<tr>
+<td>安全测试</td>
+<td>无系统性方案</td>
+<td>低</td>
+</tr>
+</tbody>
+</table></div><hr>
+<h2 id="%E5%8D%81%E4%B8%80%E3%80%81%E7%B3%BB%E5%88%97%E9%98%85%E8%AF%BB%E5%AF%BC%E8%88%AA" tabindex="-1">十一、系列阅读导航 <a class="anchor" href="#%E5%8D%81%E4%B8%80%E3%80%81%E7%B3%BB%E5%88%97%E9%98%85%E8%AF%BB%E5%AF%BC%E8%88%AA">#</a></h2>
+<p>系列分三条线：稳定性测试解决&quot;上线前随机压测&quot;这道防线，E2E 自动化解决&quot;核心流程不被破坏&quot;，管理后台解决&quot;QA 伙伴能不能自己用起来&quot;。三者是配套关系，不是先后替代。</p>
+<p><strong>稳定性测试</strong></p>
+<div class="tw"><table><thead>
+<tr>
+<th>篇目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一篇：稳定性测试——概念与核心机制</td>
+<td>Crash、内存、FPS、Monkey 的基本概念</td>
+</tr>
+<tr>
+<td>第二篇：iOS 工具链</td>
+<td>从 tidevice 到 CoreDevice 的工具演进，Fastbot iOS</td>
+</tr>
+<tr>
+<td>第三篇：Android 工具链</td>
+<td>adb 怎么采集数据，Fastbot 怎么驱动 App</td>
+</tr>
+<tr>
+<td>第四篇：从数据到结论</td>
+<td>报告与判定规则、页面覆盖率从 13% 到 28% 的提升过程、每晚自动运行与告警</td>
+</tr>
+</tbody>
+</table></div><p><strong>E2E 自动化</strong></p>
+<div class="tw"><table><thead>
+<tr>
+<th>篇目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一篇：E2E 测试——概念与核心机制</td>
+<td>测试程序操作 App 的两种机制，以及由此衍生的定位、断言、等待等基础概念</td>
+</tr>
+<tr>
+<td>第二篇：工具选型</td>
+<td>XCUITest、Integration Test、Patrol、Maestro、Appium 对比，以及我们为什么选 Appium</td>
+</tr>
+<tr>
+<td>第三篇：让大模型来写用例、跑用例</td>
+<td>Claude Code 插件串起录制、回放、自愈，以及绕开 Appium 的 stub 直驱</td>
+</tr>
+<tr>
+<td>第四篇：让 AI 直接操作真机 App</td>
+<td>注入式 stub 的思路、Flutter 支持与后续规划</td>
+</tr>
+</tbody>
+</table></div><p><strong>管理后台</strong></p>
+<div class="tw"><table><thead>
+<tr>
+<th>篇目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第一篇：为什么要做管理后台</td>
+<td>裸脚本与 Web 化的思考</td>
+</tr>
+</tbody>
+</table></div><p><strong>后续规划</strong>：兼容性测试（多设备矩阵）、性能基线体系（启动速度、包体积、内存基线的发版卡点）、安全扫描（静态分析接入发版流程）。</p>
+<hr>
+<p><em>写这篇文档的初衷：作为 iOS 开发者，在没有太多测试背景的情况下闯进这个领域，最需要的不是某个工具的使用手册，而是先搞清楚这件事的全貌。有了地图，才知道自己站在哪里，要去哪里。</em></p>
+<div class="pnav"><a class="l" href="/posts/app-testing-stability-01-concepts/"><small>上一篇</small><b>APP自动化测试实践 稳定性·01：稳定性测试——概念与核心机制</b></a><a class="r" href="/posts/agent-05-prototype-to-production/"><small>下一篇</small><b>AI-Agent 白皮书 5 - Prototype to Production</b></a></div></article></main>
+
+<div id="mascot" title="戳一下">
+  <div id="m-say"></div>
+  <button id="m-top" title="回到顶部" aria-label="回到顶部">↑</button>
+</div>
+<script type="module" src="/scene2d.js"></script>
+<script type="module" src="/mascot.js"></script>
+<script>
+addEventListener('keydown', function(e){
+  var P = {"prev":"/posts/app-testing-stability-01-concepts/","next":"/posts/agent-05-prototype-to-production/"};
+  // 灯箱打开时 Esc 只关灯箱,方向键不翻页
+  var lb = document.querySelector('.lb');
+  if (lb) { if (e.key === 'Escape') lb.remove(); return; }
+  if (e.key === 'ArrowLeft'  && P.prev) location.href = P.prev;
+  if (e.key === 'ArrowRight' && P.next) location.href = P.next;
+  if (e.key === 'Escape') location.href = '/#writing';
+});
+</script>
+<script>
+// 大纲高亮:滚动容器是 #art(不是 window),直接按滚动位置算当前节最可靠
+(function(){
+  var toc = document.querySelector('.toc');
+  if (!toc) return;
+  var art = document.getElementById('art');
+  var links = [].slice.call(toc.querySelectorAll('a'));
+  var map = {};
+  // id 本身已是百分号编码,直接用原始 href 做 key,不要 decode
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var heads = [].slice.call(art.querySelectorAll('h2[id],h3[id]'));
+  if (!heads.length) return;
+  var cur = null;
+
+  function paint(){
+    var top = art.getBoundingClientRect().top + 100;   // 判定线:卡片顶部下方 100px
+    var found = heads[0];
+    for (var i = 0; i < heads.length; i++){
+      if (heads[i].getBoundingClientRect().top <= top) found = heads[i]; else break;
+    }
+    // 已滚到底时强制选中最后一节,否则末节永远高亮不到
+    if (art.scrollTop + art.clientHeight >= art.scrollHeight - 4) found = heads[heads.length - 1];
+    if (found === cur) return;
+    cur = found;
+    links.forEach(function(a){ a.classList.remove('on'); });
+    var a = map[found.id];
+    if (!a) return;
+    a.classList.add('on');
+    var box = a.getBoundingClientRect(), tb = toc.getBoundingClientRect();
+    if (box.top < tb.top || box.bottom > tb.bottom) a.scrollIntoView({block:'nearest'});
+  }
+
+  var tick = false;
+  art.addEventListener('scroll', function(){
+    if (tick) return;
+    tick = true;
+    requestAnimationFrame(function(){ tick = false; paint(); });
+  }, {passive:true});
+
+  toc.addEventListener('click', function(e){
+    var a = e.target.closest('a'); if (!a) return;
+    var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if (!t) return;
+    e.preventDefault();
+    art.scrollTo({ top: art.scrollTop + t.getBoundingClientRect().top - art.getBoundingClientRect().top - 24, behavior:'smooth' });
+    history.replaceState(null, '', a.getAttribute('href'));
+  });
+  paint();
+})();
+</script>
+<script>
+// 图片灯箱:点正文图片或 Mermaid 图放大,点击 / Esc / 滚轮关闭
+document.getElementById('art').addEventListener('click', function(e){
+  var t = e.target.closest('img,.mm svg');
+  if (!t || t.closest('a')) return;
+  var lb = document.createElement('div'), c = t.cloneNode(true);
+  lb.className = 'lb';
+  if (c.tagName !== 'IMG') {
+    // SVG 没有固有的"原图尺寸",按视口等比放大
+    var r = t.getBoundingClientRect();
+    var k = Math.min(innerWidth * .92 / r.width, innerHeight * .9 / r.height);
+    c.style.width = r.width * k + 'px';
+    c.style.height = r.height * k + 'px';
+  }
+  lb.appendChild(c);
+  lb.onclick = lb.onwheel = function(){ lb.remove(); };
+  document.body.appendChild(lb);
+});
+</script>
+<script>
+// 代码块复制
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('.cb-c');
+  if (!btn) return;
+  var pre = btn.parentElement.querySelector('pre');
+  if (!pre) return;
+  var text = pre.innerText;
+  var done = function(){
+    btn.textContent = '已复制'; btn.classList.add('ok');
+    setTimeout(function(){ btn.textContent = '复制'; btn.classList.remove('ok'); }, 1600);
+  };
+  // clipboard API 需要安全上下文(https 或 localhost),否则回退到 execCommand
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else fallback();
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (err) { btn.textContent = '复制失败'; }
+    document.body.removeChild(ta);
+  }
+});
+</script>
+</body></html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>APP自动化测试实践 E2E·02：工具选型——业界 E2E 方案对比与我们的选择 — fatbruin</title>
+<meta name="description" content="逐个对比主流 E2E 工具，讲清 UMU 为什么最终落到 Appium。"><meta property="og:type" content="article"><meta property="og:site_name" content="fatbruin"><meta property="og:title" content="APP自动化测试实践 E2E·02：工具选型——业界 E2E 方案对比与我们的选择"><meta property="og:description" content="逐个对比主流 E2E 工具，讲清 UMU 为什么最终落到 Appium。"><meta property="og:url" content="https://www.umuer.com/posts/app-testing-e2e-02-tool-selection/"><meta property="og:image" content="https://www.umuer.com/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://www.umuer.com/posts/app-testing-e2e-02-tool-selection/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="fatbruin" href="/rss.xml">
+<script>(function(){var n=null;try{n=localStorage.getItem('fatbruin-night')}catch(e){}var h=new Date().getHours();if(n?n==='1':(h>=19||h<6))document.documentElement.classList.add('night')})()</script>
+<link rel="stylesheet" href="/styles/base.0282236f.css">
+<link rel="stylesheet" href="/styles/post.0bb29940.css"></head>
+<body class="post">
+<div id="scene"></div>
+<div class="topbar"><div class="navl"><a class="back" href="/#writing">← 回到小屋</a><a class="back nav-fallback" href="/posts/">全部文章 →</a></div><div class="brand">fat<span>bruin</span></div></div>
+<main><nav class="toc" aria-label="目录"><p class="toc-h">目录</p><ol><li class="l2"><a href="#%E4%B8%80%E3%80%81%E4%BA%94%E4%B8%AA%E4%B8%BB%E6%B5%81%E5%B7%A5%E5%85%B7%EF%BC%8C%E4%B8%80%E5%BC%A0%E8%A1%A8%E7%9C%8B%E6%B8%85">一、五个主流工具，一张表看清</a></li><li class="l2"><a href="#%E4%BA%8C%E3%80%81%E4%B8%A4%E4%B8%AA%E5%AE%98%E6%96%B9%E5%B7%A5%E5%85%B7%EF%BC%9A%E5%90%84%E7%AE%A1%E5%8D%8A%E8%BE%B9">二、两个官方工具：各管半边</a></li><li class="l2"><a href="#%E4%B8%89%E3%80%81patrol%EF%BC%9A%E6%9C%80%E8%A2%AB%E7%9C%8B%E5%A5%BD%E7%9A%84%E9%82%A3%E4%B8%80%E4%B8%AA">三、Patrol：最被看好的那一个</a></li><li class="l3"><a href="#%E5%AE%83%E8%A7%A3%E5%86%B3%E4%BA%86%E4%BB%80%E4%B9%88">它解决了什么</a></li><li class="l3"><a href="#%E4%B8%BA%E4%BB%80%E4%B9%88-umu-%E7%94%A8%E4%B8%8D%E4%B8%8A">为什么 UMU 用不上</a></li><li class="l2"><a href="#%E5%9B%9B%E3%80%81maestro%EF%BC%9A%E4%B8%8A%E6%89%8B%E6%9C%80%E7%AE%80%E5%8D%95%EF%BC%8C%E4%BD%86%E4%B8%8D%E6%94%AF%E6%8C%81-ios-%E7%9C%9F%E6%9C%BA">四、Maestro：上手最简单，但不支持 iOS 真机</a></li><li class="l2"><a href="#%E4%BA%94%E3%80%81appium%EF%BC%9A%E6%9C%80%E7%BB%88%E7%9A%84%E9%80%89%E6%8B%A9">五、Appium：最终的选择</a></li><li class="l3"><a href="#%E5%AE%83%E6%98%AF%E4%BB%80%E4%B9%88">它是什么</a></li><li class="l3"><a href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%89%E5%AE%83">为什么选它</a></li><li class="l3"><a href="#%E4%BB%A3%E4%BB%B7">代价</a></li><li class="l2"><a href="#%E5%85%AD%E3%80%81%E9%80%89%E5%9E%8B%E7%BB%93%E8%AE%BA">六、选型结论</a></li><li class="l2"><a href="#%E4%B8%8B%E4%B8%80%E7%AF%87%E9%A2%84%E5%91%8A">下一篇预告</a></li></ol><a class="toc-all" href="/posts/">全部文章 →</a></nav><article id="art"><p class="meta"><span>2026.10.07</span><span>Testing</span><span>9 分钟</span></p><h1>APP自动化测试实践 E2E·02：工具选型——业界 E2E 方案对比与我们的选择</h1><p class="sum">逐个对比主流 E2E 工具，讲清 UMU 为什么最终落到 Appium。</p><details class="series"><summary><small>系列</small><b>AI背景下的APP端自动化测试实践</b><span>第 7 / 9 篇</span></summary><ol><li><a href="/posts/app-testing-00-map/">APP自动化测试实践·00：APP 测试这件事——完整地图</a></li><li><a href="/posts/app-testing-stability-01-concepts/">APP自动化测试实践 稳定性·01：稳定性测试——概念与核心机制</a></li><li><a href="/posts/app-testing-stability-02-ios-toolchain/">APP自动化测试实践 稳定性·02：iOS 工具链——从 tidevice 到 CoreDevice 的工具演进</a></li><li><a href="/posts/app-testing-stability-03-android-toolchain/">APP自动化测试实践 稳定性·03：Android 工具链——adb 怎么采集数据，Fastbot 怎么驱动 App</a></li><li><a href="/posts/app-testing-stability-04-reporter-pipeline/">APP自动化测试实践 稳定性·04：从数据到结论——报告、判定与页面覆盖率</a></li><li><a href="/posts/app-testing-e2e-01-concepts/">APP自动化测试实践 E2E·01：E2E 测试——从零讲透概念与核心机制</a></li><li class="on">APP自动化测试实践 E2E·02：工具选型——业界 E2E 方案对比与我们的选择</li><li><a href="/posts/app-testing-e2e-03-llm-appium-plugin/">APP自动化测试实践 E2E·03：让大模型来写用例、跑用例——Appium 插件与 stub 直驱</a></li><li><a href="/posts/app-testing-e2e-04-ai-drive-real-device/">APP自动化测试实践 E2E·04：让 AI 直接操作真机 App——注入式 stub 的思路与取舍</a></li></ol></details><blockquote>
+<p>本文是系列《AI背景下的APP端自动化测试实践》E2E 自动化部分的第二篇。</p>
+<p>第一篇讲清了测试程序操作 App 的两种基本机制：站在外面的&quot;盲人&quot;（进程外）和塞进里面的&quot;自驾&quot;（进程内）。业界的 E2E 工具，本质上都是这两种机制的不同实现和组合。这一篇逐个介绍主流工具，再讲我们在 UMU 上是怎么选的：哪个工具最被看好，为什么最后没用上，又为什么落到了 Appium。</p>
+</blockquote>
+<hr>
+<h2 id="%E4%B8%80%E3%80%81%E4%BA%94%E4%B8%AA%E4%B8%BB%E6%B5%81%E5%B7%A5%E5%85%B7%EF%BC%8C%E4%B8%80%E5%BC%A0%E8%A1%A8%E7%9C%8B%E6%B8%85" tabindex="-1">一、五个主流工具，一张表看清 <a class="anchor" href="#%E4%B8%80%E3%80%81%E4%BA%94%E4%B8%AA%E4%B8%BB%E6%B5%81%E5%B7%A5%E5%85%B7%EF%BC%8C%E4%B8%80%E5%BC%A0%E8%A1%A8%E7%9C%8B%E6%B8%85">#</a></h2>
+<p>面向 Flutter 混合 App，业界常见的 E2E 工具有五个：</p>
+<div class="tw"><table><thead>
+<tr>
+<th>工具</th>
+<th>出品</th>
+<th>机制</th>
+<th>看得见 Flutter？</th>
+<th>原生弹窗</th>
+<th>H5</th>
+<th>能测 Release 包？</th>
+<th>iOS 真机</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>XCUITest</strong></td>
+<td>Apple 官方</td>
+<td>进程外</td>
+<td>需 App 暴露语义</td>
+<td>✓</td>
+<td>✗</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><strong>Flutter Integration Test</strong></td>
+<td>Flutter 官方</td>
+<td>进程内</td>
+<td>✓</td>
+<td>有限</td>
+<td>✗</td>
+<td>✗</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><strong>Patrol</strong></td>
+<td>LeanCode，开源</td>
+<td>进程内 + 进程外</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✗</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><strong>Maestro</strong></td>
+<td>mobile.dev，开源</td>
+<td>进程外，YAML 描述</td>
+<td>需 App 暴露语义</td>
+<td>✓</td>
+<td>有限</td>
+<td>✓</td>
+<td>✗</td>
+</tr>
+<tr>
+<td><strong>Appium</strong></td>
+<td>开源社区</td>
+<td>进程外，支持上下文切换</td>
+<td>需 App 暴露语义</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+</tbody>
+</table></div><p>读这张表，有两个维度最关键。</p>
+<p>第一个是<strong>看不看得见 Flutter</strong>。进程内的工具天然看得见，因为它就在 Flutter 引擎里；进程外的工具要靠 Flutter 把自己的控件&quot;念&quot;给系统的无障碍层。Flutter 3.19 之后，开发者可以给控件设置语义标识，进程外工具就能像定位原生控件一样定位它们。代价是要给测试会操作的控件逐个补上标识。</p>
+<p>第二个是<strong>能不能测 Release 包</strong>，这一列很容易被忽略。进程内的工具依赖 Dart 的调试服务和测试进程通信，而这个服务在 Release 编译时会被裁掉，所以它们<strong>只能测 Debug 包</strong>。对一个坚持&quot;测真实发布包&quot;的团队来说，这是一个根本性的限制。</p>
+<p>下面逐个展开。</p>
+<hr>
+<h2 id="%E4%BA%8C%E3%80%81%E4%B8%A4%E4%B8%AA%E5%AE%98%E6%96%B9%E5%B7%A5%E5%85%B7%EF%BC%9A%E5%90%84%E7%AE%A1%E5%8D%8A%E8%BE%B9" tabindex="-1">二、两个官方工具：各管半边 <a class="anchor" href="#%E4%BA%8C%E3%80%81%E4%B8%A4%E4%B8%AA%E5%AE%98%E6%96%B9%E5%B7%A5%E5%85%B7%EF%BC%9A%E5%90%84%E7%AE%A1%E5%8D%8A%E8%BE%B9">#</a></h2>
+<p><strong>XCUITest</strong> 是 Apple 官方的 UI 测试框架，也是第一篇里那个&quot;站在外面的盲人&quot;。它和 Xcode 深度集成，处理原生页面和系统弹窗得心应手，也能直接测 Release 包。它的问题在于 Flutter：Flutter 页面在它眼里是一整块，除非 App 主动暴露语义；它也碰不到 WebView 里的网页元素。</p>
+<p><strong>Flutter Integration Test</strong> 是 Flutter 官方的方案，也就是&quot;塞进里面的自驾&quot;。它和 Dart 业务代码编译在一起，能直接读写 Widget 树，甚至能跳过登录直接修改状态，写起来快、跑起来也快。但它出不了 Flutter 的圈子：原生页面、系统权限弹窗、H5 都管不着，而且只能测 Debug 包。</p>
+<p>所以很多资料推荐两者组合使用：XCUITest 管原生，Integration Test 管 Flutter。但正如第一篇所说，它们是两个独立的测试进程，没法在同一条用例里接力，只能各跑各的；中间夹着的 H5，两者都管不了。</p>
+<hr>
+<h2 id="%E4%B8%89%E3%80%81patrol%EF%BC%9A%E6%9C%80%E8%A2%AB%E7%9C%8B%E5%A5%BD%E7%9A%84%E9%82%A3%E4%B8%80%E4%B8%AA" tabindex="-1">三、Patrol：最被看好的那一个 <a class="anchor" href="#%E4%B8%89%E3%80%81patrol%EF%BC%9A%E6%9C%80%E8%A2%AB%E7%9C%8B%E5%A5%BD%E7%9A%84%E9%82%A3%E4%B8%80%E4%B8%AA">#</a></h2>
+<h3 id="%E5%AE%83%E8%A7%A3%E5%86%B3%E4%BA%86%E4%BB%80%E4%B9%88" tabindex="-1">它解决了什么 <a class="anchor" href="#%E5%AE%83%E8%A7%A3%E5%86%B3%E4%BA%86%E4%BB%80%E4%B9%88">#</a></h3>
+<p>Patrol 由 LeanCode 开发，是官方 Integration Test 的超集。它的核心创新，是让&quot;自驾&quot;和&quot;盲人&quot;同时上岗，再用一套 Dart 代码统一指挥：</p>
+<div class="cb"><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code>Patrol 跑测试时：
+  ├── Flutter 进程照常跑   → &quot;自驾&quot;在屋里操作 Widget
+  └── 同时起一个原生进程   → &quot;盲人&quot;在屋外，iOS 用 XCUITest，Android 用 UIAutomator
+                              专管原生弹窗、通知栏、WebView
+</code></pre>
+</div><p>这正好把原生、Flutter、H5 三个世界用一个工具全覆盖了。它的写法也很简洁，一个 <code>$()</code> 就能完成查找和操作：</p>
+<div class="cb"><span class="cb-l">dart</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-dart"><span class="hljs-keyword">await</span> $(#email_input).<span class="hljs-title function_">enterText</span>(<span class="hljs-string">&#x27;test@umu.com&#x27;</span>);   <span class="hljs-comment">// 按 Key 找输入框并输入</span>
+<span class="hljs-keyword">await</span> $(<span class="hljs-string">&#x27;登录&#x27;</span>).<span class="hljs-title function_">tap</span>();                              <span class="hljs-comment">// 按文本找按钮并点击</span>
+
+<span class="hljs-comment">// 系统弹出&quot;是否允许访问相机&quot;——这是原生 UI，纯 Flutter 测试够不着</span>
+<span class="hljs-keyword">await</span> $.native.<span class="hljs-title function_">grantPermissionWhenInUse</span>();
+</code></pre>
+</div><p>除此之外，它还支持热重启（改了测试不用重新编译）、可视化查看控件树的 DevTools 扩展，并对接了 Firebase Test Lab、BrowserStack 等云真机平台。它从 2022 年开发至今，已经过生产环境验证，是目前 Flutter 测试领域公认的首选。原生自动化的 API 在 4.x 版本间调整过几次命名，使用时以所装版本的官方文档为准。</p>
+<h3 id="%E4%B8%BA%E4%BB%80%E4%B9%88-umu-%E7%94%A8%E4%B8%8D%E4%B8%8A" tabindex="-1">为什么 UMU 用不上 <a class="anchor" href="#%E4%B8%BA%E4%BB%80%E4%B9%88-umu-%E7%94%A8%E4%B8%8D%E4%B8%8A">#</a></h3>
+<p>Patrol 的定位是 Flutter 优先：默认 Flutter 是整个 App 的主体，App 从 Dart 的入口启动。UMU 恰恰相反，原生壳才是宿主，Flutter 是被嵌进去的模块，这种架构叫 add-to-app。</p>
+<p>翻查 UMU 的工程后发现，情况比普通的 add-to-app 还要特殊一层。UMU iOS 先用 <code>flutter build ios-framework</code> 把 Flutter 编成<strong>预编译好的 release 版二进制框架</strong>，再以本地依赖的方式链进原生工程；Flutter 引擎则由原生侧一个自定义的单例负责预热和启动。</p>
+<p>问题就出在这里。Patrol 要接管 Flutter 的构建，把测试入口编进 App；可在 UMU 的结构里，Flutter 是一份已经编译好的 release 二进制，里面没有任何测试入口，Patrol 无处注入。要硬上，就得专门构建一套带测试入口的特殊产物，再改造引擎的启动逻辑，风险高、性价比低。基于同样机制的 Appium Flutter 驱动，也撞在同一堵墙上。</p>
+<p>再加上前面说的第二条限制：Patrol 只能测 Debug 包，而我们坚持测真实的 Release 包。坦白说，Debug 和 Release 的差异对功能测试的影响，比对稳定性测试小得多，所以这一条只是加固理由，真正排除 Patrol 的是第一条。</p>
+<p><strong>结论：Patrol 在 UMU iOS 上判定为不适用。</strong></p>
+<hr>
+<h2 id="%E5%9B%9B%E3%80%81maestro%EF%BC%9A%E4%B8%8A%E6%89%8B%E6%9C%80%E7%AE%80%E5%8D%95%EF%BC%8C%E4%BD%86%E4%B8%8D%E6%94%AF%E6%8C%81-ios-%E7%9C%9F%E6%9C%BA" tabindex="-1">四、Maestro：上手最简单，但不支持 iOS 真机 <a class="anchor" href="#%E5%9B%9B%E3%80%81maestro%EF%BC%9A%E4%B8%8A%E6%89%8B%E6%9C%80%E7%AE%80%E5%8D%95%EF%BC%8C%E4%BD%86%E4%B8%8D%E6%94%AF%E6%8C%81-ios-%E7%9C%9F%E6%9C%BA">#</a></h2>
+<p>Maestro 是近几年很受欢迎的新工具。它的特点是用 YAML 描述测试流程，而不是写代码：</p>
+<div class="cb"><span class="cb-l">yaml</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-yaml"><span class="hljs-attr">appId:</span> <span class="hljs-string">com.umu.umuinteraction</span>
+<span class="hljs-meta">---</span>
+<span class="hljs-bullet">-</span> <span class="hljs-attr">launchApp:</span>
+    <span class="hljs-attr">clearState:</span> <span class="hljs-literal">true</span>
+<span class="hljs-bullet">-</span> <span class="hljs-attr">tapOn:</span> <span class="hljs-string">&quot;开始&quot;</span>
+<span class="hljs-bullet">-</span> <span class="hljs-attr">takeScreenshot:</span> <span class="hljs-string">&quot;after_click&quot;</span>
+</code></pre>
+</div><p>它站在 App 外面，不需要注入任何代码，官方明确支持 Flutter 的 add-to-app 架构，定位元素的方式和 Appium 一样依赖 Flutter 暴露的语义信息。YAML 描述意图、不写代码，对 QA 同事非常友好。</p>
+<p>它的局限也很明显。复杂逻辑（条件分支、循环、调用外部接口）要降级到 JavaScript 来写，YAML 的简洁就没了；页面过渡动画期间容易定位失败；多个同名按钮时行为不确定。而对我们来说最致命的一条是：<strong>它在 iOS 上只支持模拟器，官方文档明确写着不支持真机。</strong> 我们的测试全部跑在真机上，所以直接排除。</p>
+<p>它仍有保留价值：Android 真机是支持的，如果以后 Android 侧想要一个对 QA 更友好的方案，可以重新评估；如果它补上了 iOS 真机支持，也值得再看一次。</p>
+<hr>
+<h2 id="%E4%BA%94%E3%80%81appium%EF%BC%9A%E6%9C%80%E7%BB%88%E7%9A%84%E9%80%89%E6%8B%A9" tabindex="-1">五、Appium：最终的选择 <a class="anchor" href="#%E4%BA%94%E3%80%81appium%EF%BC%9A%E6%9C%80%E7%BB%88%E7%9A%84%E9%80%89%E6%8B%A9">#</a></h2>
+<h3 id="%E5%AE%83%E6%98%AF%E4%BB%80%E4%B9%88" tabindex="-1">它是什么 <a class="anchor" href="#%E5%AE%83%E6%98%AF%E4%BB%80%E4%B9%88">#</a></h3>
+<p>Appium 是一个开源的跨平台自动化框架，站在 App 外面，通过各平台的原生自动化引擎来驱动 App：iOS 上底层是 XCUITest，Android 上是 UIAutomator2。测试脚本可以用 Python、Java、JavaScript 等多种语言编写，一套写法覆盖两个平台。</p>
+<p>它还有一个其他进程外工具不具备的能力：<strong>上下文切换</strong>。遇到 WebView 时，可以从&quot;原生上下文&quot;切换到&quot;网页上下文&quot;，像浏览器自动化那样直接操作网页元素，第三个世界的 H5 也就够得着了。</p>
+<h3 id="%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%89%E5%AE%83" tabindex="-1">为什么选它 <a class="anchor" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%89%E5%AE%83">#</a></h3>
+<p>回到前面那张表，Appium 是唯一一个同时满足我们几条硬性要求的工具：能测真实的 Release 包、能在 iOS 真机上跑、能覆盖原生 + Flutter + H5 三个世界、不需要改动 App 的构建流程。UMU 的 Flutter 版本远高于 3.19，Flutter 控件可以通过语义标识被它看见。测试脚本用 Python 写，和稳定性框架的技术栈一致，可以直接复用已有的调度、报告和告警。</p>
+<h3 id="%E4%BB%A3%E4%BB%B7" tabindex="-1">代价 <a class="anchor" href="#%E4%BB%A3%E4%BB%B7">#</a></h3>
+<p>Appium 的代价有两笔。</p>
+<p>第一笔是<strong>给控件补标识</strong>。UMU 的 Flutter 代码里，语义标识的使用量是零，需要从头铺。不过这笔账没有想象中可怕：只需要给测试会操作的控件补标识，工作量按&quot;P0 流程数乘以每个流程碰到的控件数&quot;计算，而不是按 App 的控件总数。一条登录流程真正操作的控件只有五到十个，首批冒烟用例去重后大约几十个标识，量级是几天而不是几周。中文文案稳定且唯一的控件，还可以直接按文本定位、免补标识。更重要的是，<strong>这笔投入换任何工具都躲不掉</strong>：选 Patrol 也要给同一批控件加 Key。</p>
+<p>第二笔是<strong>脚本难写、难维护</strong>。裸写 Appium 脚本门槛不低，界面一改，定位就失效，要有人逐条去修。这恰恰是大模型最擅长弥补的地方：让 QA 在真机上操作一遍，由大模型推断操作意图、生成用例；回放失败时，由大模型诊断是界面变了还是真有问题，并给出修复建议。这就是下一篇要讲的方案。</p>
+<hr>
+<h2 id="%E5%85%AD%E3%80%81%E9%80%89%E5%9E%8B%E7%BB%93%E8%AE%BA" tabindex="-1">六、选型结论 <a class="anchor" href="#%E5%85%AD%E3%80%81%E9%80%89%E5%9E%8B%E7%BB%93%E8%AE%BA">#</a></h2>
+<div class="tw"><table><thead>
+<tr>
+<th>工具</th>
+<th>结论</th>
+<th>主要原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>XCUITest + Integration Test</td>
+<td>不采用</td>
+<td>两套工具无法接力，H5 管不了，Integration Test 只能测 Debug 包</td>
+</tr>
+<tr>
+<td>Patrol</td>
+<td>不采用</td>
+<td>挂不进 UMU iOS 预编译 Flutter 的结构，且只能测 Debug 包</td>
+</tr>
+<tr>
+<td>Maestro</td>
+<td>不采用</td>
+<td>iOS 不支持真机；Android 可留作备选</td>
+</tr>
+<tr>
+<td><strong>Appium</strong></td>
+<td><strong>采用</strong></td>
+<td>唯一同时满足 Release 包、iOS 真机、三个世界全覆盖的方案</td>
+</tr>
+</tbody>
+</table></div><p>回头看这次选型，最大的收获是：<strong>工具的优劣要放到自己的工程结构里看。</strong> Patrol 在通用场景里几乎是最优解，却恰好卡在了 UMU 非标准的 Flutter 集成方式上；Maestro 体验最好，却卡在了 iOS 真机这一条。真正决定选型的，往往不是工具本身的能力，而是&quot;我们的 App 是怎么搭起来的&quot;和&quot;我们坚持测什么样的包&quot;。</p>
+<p>目前的结论针对 iOS。Android 的工程集成方式和 iOS 不同，还需要单独调研，两端都成立后再最终锁定。</p>
+<hr>
+<h2 id="%E4%B8%8B%E4%B8%80%E7%AF%87%E9%A2%84%E5%91%8A" tabindex="-1">下一篇预告 <a class="anchor" href="#%E4%B8%8B%E4%B8%80%E7%AF%87%E9%A2%84%E5%91%8A">#</a></h2>
+<p>下一篇进入落地方案：Appium 解决了&quot;能不能测&quot;的问题，但裸写脚本的成本太高。我们把录制、生成、回放、自愈这几个环节，用 Claude Code 插件串成了一条 QA 可以直接上手的工具链。</p>
+<p><strong>参考</strong>：<a href="https://patrol.leancode.co/">Patrol 官网</a> · <a href="https://docs.maestro.dev/get-started/supported-platform/flutter">Maestro 官方文档</a> · <a href="https://appium.io/">Appium 官网</a> · <a href="https://docs.flutter.dev/add-to-app">Flutter add-to-app 文档</a></p>
+<div class="pnav"><a class="l" href="/posts/app-testing-e2e-03-llm-appium-plugin/"><small>上一篇</small><b>APP自动化测试实践 E2E·03：让大模型来写用例、跑用例——Appium 插件与 stub 直驱</b></a><a class="r" href="/posts/app-testing-e2e-01-concepts/"><small>下一篇</small><b>APP自动化测试实践 E2E·01：E2E 测试——从零讲透概念与核心机制</b></a></div></article></main>
+
+<div id="mascot" title="戳一下">
+  <div id="m-say"></div>
+  <button id="m-top" title="回到顶部" aria-label="回到顶部">↑</button>
+</div>
+<script type="module" src="/scene2d.js"></script>
+<script type="module" src="/mascot.js"></script>
+<script>
+addEventListener('keydown', function(e){
+  var P = {"prev":"/posts/app-testing-e2e-03-llm-appium-plugin/","next":"/posts/app-testing-e2e-01-concepts/"};
+  // 灯箱打开时 Esc 只关灯箱,方向键不翻页
+  var lb = document.querySelector('.lb');
+  if (lb) { if (e.key === 'Escape') lb.remove(); return; }
+  if (e.key === 'ArrowLeft'  && P.prev) location.href = P.prev;
+  if (e.key === 'ArrowRight' && P.next) location.href = P.next;
+  if (e.key === 'Escape') location.href = '/#writing';
+});
+</script>
+<script>
+// 大纲高亮:滚动容器是 #art(不是 window),直接按滚动位置算当前节最可靠
+(function(){
+  var toc = document.querySelector('.toc');
+  if (!toc) return;
+  var art = document.getElementById('art');
+  var links = [].slice.call(toc.querySelectorAll('a'));
+  var map = {};
+  // id 本身已是百分号编码,直接用原始 href 做 key,不要 decode
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var heads = [].slice.call(art.querySelectorAll('h2[id],h3[id]'));
+  if (!heads.length) return;
+  var cur = null;
+
+  function paint(){
+    var top = art.getBoundingClientRect().top + 100;   // 判定线:卡片顶部下方 100px
+    var found = heads[0];
+    for (var i = 0; i < heads.length; i++){
+      if (heads[i].getBoundingClientRect().top <= top) found = heads[i]; else break;
+    }
+    // 已滚到底时强制选中最后一节,否则末节永远高亮不到
+    if (art.scrollTop + art.clientHeight >= art.scrollHeight - 4) found = heads[heads.length - 1];
+    if (found === cur) return;
+    cur = found;
+    links.forEach(function(a){ a.classList.remove('on'); });
+    var a = map[found.id];
+    if (!a) return;
+    a.classList.add('on');
+    var box = a.getBoundingClientRect(), tb = toc.getBoundingClientRect();
+    if (box.top < tb.top || box.bottom > tb.bottom) a.scrollIntoView({block:'nearest'});
+  }
+
+  var tick = false;
+  art.addEventListener('scroll', function(){
+    if (tick) return;
+    tick = true;
+    requestAnimationFrame(function(){ tick = false; paint(); });
+  }, {passive:true});
+
+  toc.addEventListener('click', function(e){
+    var a = e.target.closest('a'); if (!a) return;
+    var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if (!t) return;
+    e.preventDefault();
+    art.scrollTo({ top: art.scrollTop + t.getBoundingClientRect().top - art.getBoundingClientRect().top - 24, behavior:'smooth' });
+    history.replaceState(null, '', a.getAttribute('href'));
+  });
+  paint();
+})();
+</script>
+<script>
+// 图片灯箱:点正文图片或 Mermaid 图放大,点击 / Esc / 滚轮关闭
+document.getElementById('art').addEventListener('click', function(e){
+  var t = e.target.closest('img,.mm svg');
+  if (!t || t.closest('a')) return;
+  var lb = document.createElement('div'), c = t.cloneNode(true);
+  lb.className = 'lb';
+  if (c.tagName !== 'IMG') {
+    // SVG 没有固有的"原图尺寸",按视口等比放大
+    var r = t.getBoundingClientRect();
+    var k = Math.min(innerWidth * .92 / r.width, innerHeight * .9 / r.height);
+    c.style.width = r.width * k + 'px';
+    c.style.height = r.height * k + 'px';
+  }
+  lb.appendChild(c);
+  lb.onclick = lb.onwheel = function(){ lb.remove(); };
+  document.body.appendChild(lb);
+});
+</script>
+<script>
+// 代码块复制
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('.cb-c');
+  if (!btn) return;
+  var pre = btn.parentElement.querySelector('pre');
+  if (!pre) return;
+  var text = pre.innerText;
+  var done = function(){
+    btn.textContent = '已复制'; btn.classList.add('ok');
+    setTimeout(function(){ btn.textContent = '复制'; btn.classList.remove('ok'); }, 1600);
+  };
+  // clipboard API 需要安全上下文(https 或 localhost),否则回退到 execCommand
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else fallback();
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (err) { btn.textContent = '复制失败'; }
+    document.body.removeChild(ta);
+  }
+});
+</script>
+</body></html>

@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>SwiftUI 从入门到放弃 — fatbruin</title>
+<meta name="description" content="SwiftUI 入门:声明式 UI 框架的基本概念、视图与布局方式。"><meta property="og:type" content="article"><meta property="og:site_name" content="fatbruin"><meta property="og:title" content="SwiftUI 从入门到放弃"><meta property="og:description" content="SwiftUI 入门:声明式 UI 框架的基本概念、视图与布局方式。"><meta property="og:url" content="https://www.umuer.com/posts/swiftui-intro/"><meta property="og:image" content="https://www.umuer.com/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://www.umuer.com/posts/swiftui-intro/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="fatbruin" href="/rss.xml">
+<script>(function(){var n=null;try{n=localStorage.getItem('fatbruin-night')}catch(e){}var h=new Date().getHours();if(n?n==='1':(h>=19||h<6))document.documentElement.classList.add('night')})()</script>
+<link rel="stylesheet" href="/styles/base.0282236f.css">
+<link rel="stylesheet" href="/styles/post.0bb29940.css"></head>
+<body class="post">
+<div id="scene"></div>
+<div class="topbar"><div class="navl"><a class="back" href="/#writing">← 回到小屋</a><a class="back nav-fallback" href="/posts/">全部文章 →</a></div><div class="brand">fat<span>bruin</span></div></div>
+<main><nav class="toc" aria-label="目录"><p class="toc-h">目录</p><ol><li class="l2"><a href="#%E4%BB%80%E4%B9%88%E6%98%AFswiftui">什么是SwiftUI</a></li><li class="l2"><a href="#swiftui-hello-world">SwiftUI Hello World</a></li><li class="l2"><a href="#%40main">@main</a></li><li class="l3"><a href="#app-protocol">App Protocol</a></li><li class="l3"><a href="#scene-protocol">Scene Protocol</a></li><li class="l3"><a href="#windowgroup-struct">WindowGroup Struct</a></li><li class="l2"><a href="#view-protocol-%E5%92%8C%E5%B8%B8%E7%94%A8%E6%8E%A7%E4%BB%B6">View Protocol 和常用控件</a></li><li class="l3"><a href="#%E6%96%87%E6%9C%AC">文本</a></li><li class="l3"><a href="#%E6%8C%89%E9%92%AE">按钮</a></li><li class="l3"><a href="#%E5%88%97%E8%A1%A8">列表</a></li><li class="l3"><a href="#%E5%B8%83%E5%B1%80">布局</a></li><li class="l3"><a href="#%E5%AF%BC%E8%88%AA">导航</a></li><li class="l3"><a href="#pickers">Pickers</a></li><li class="l3"><a href="#alerts">Alerts</a></li><li class="l3"><a href="#image">Image</a></li><li class="l3"><a href="#webimage">WebImage</a></li><li class="l3"><a href="#webview">Webview</a></li><li class="l2"><a href="#%E6%A1%A5%E6%8E%A5uikit">桥接UIKit</a></li><li class="l3"><a href="#uiviewrepresentable">UIViewRepresentable</a></li><li class="l3"><a href="#uiviewcontrollerrepresentable">UIViewControllerRepresentable</a></li><li class="l2"><a href="#%E6%95%B0%E6%8D%AE%E6%B5%81">数据流</a></li><li class="l3"><a href="#%40state">@State</a></li><li class="l3"><a href="#%40binding">@Binding</a></li><li class="l3"><a href="#%40observableobject%E3%80%81%40published%E3%80%81%40stateobject">@ObservableObject、@Published、@StateObject</a></li><li class="l3"><a href="#%40environmentobject">@EnvironmentObject</a></li><li class="l2"><a href="#%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E8%A1%8C%E4%B8%BA%E6%8E%A7%E5%88%B6">应用程序行为控制</a></li><li class="l3"><a href="#uiapplicationdelegate">UIApplicationDelegate</a></li><li class="l3"><a href="#uiwindowscenedelegate">UIWindowSceneDelegate</a></li></ol><a class="toc-all" href="/posts/">全部文章 →</a></nav><article id="art"><p class="meta"><span>2022.07.06</span><span>iOS</span><span>28 分钟</span></p><h1>SwiftUI 从入门到放弃</h1><p class="sum">SwiftUI 入门:声明式 UI 框架的基本概念、视图与布局方式。</p><p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h4461xrrg2j211906rjrv.jpg" alt="SWiftUITitleImage"></p>
+<h2 id="%E4%BB%80%E4%B9%88%E6%98%AFswiftui" tabindex="-1">什么是SwiftUI <a class="anchor" href="#%E4%BB%80%E4%B9%88%E6%98%AFswiftui">#</a></h2>
+<p>SwiftUI 于 2019 年度 WWDC 全球开发者大会上发布，它是基于 Swift 建立的声明式UI框架。</p>
+<p>该框架可以用于 watchOS、tvOS、macOS、iOS 等平台的应用开发，等于说统一了苹果生态圈的开发工具。</p>
+<blockquote>
+<p>SwiftUI provides views, controls, and layout structures for declaring your app’s user interface. The framework provides event handlers for delivering taps, gestures, and other types of input to your app, and tools to manage the flow of data from your app’s models down to the views and controls that users will see and interact with.</p>
+</blockquote>
+<h2 id="swiftui-hello-world" tabindex="-1">SwiftUI Hello World <a class="anchor" href="#swiftui-hello-world">#</a></h2>
+<p><a href="https://developer.apple.com/tutorials/swiftui/creating-and-combining-views">创建新项目并预览画布</a></p>
+<p>和平时创建新项目流程基本一致。只需要选择Swift UI Interface即可。</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h36ny2yym8j213002fmx4.jpg" alt="2"></p>
+<p>工程初始化创建完毕后可以看到文件结构如下：</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h36o3x0gvgj207h04lglm.jpg" alt="3"></p>
+<div class="cb"><span class="cb-l">ruby</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-ruby">.
+├── <span class="hljs-title class_">SwiftUIClient</span>
+│   ├── <span class="hljs-title class_">Assets</span>.xcassets /<span class="hljs-regexp">/ 素材文件夹
+│   │   ├── AccentColor.colorset
+│   │   │   └── Contents.json
+│   │   ├── AppIcon.appiconset
+│   │   │   └── Contents.json
+│   │   └── Contents.json
+│   ├── ContentView.swift /</span><span class="hljs-regexp">/ 默认view
+│   ├── Preview Content
+│   │   └── Preview Assets.xcassets
+│   │       └── Contents.json
+│   └── SwiftUIClientApp.swift /</span><span class="hljs-regexp">/ APP入口文件
+└── SwiftUIClient.xcodeproj 
+    ├── project.pbxproj
+    └── xcuserdata
+        └── pxcm-0101-01-0246.xcuserdatad
+            └── xcschemes
+                └── xcschememanagement.plist
+</span></code></pre>
+</div><h2 id="%40main" tabindex="-1">@main <a class="anchor" href="#%40main">#</a></h2>
+<p>找到APP入口文件 <code>SwiftUIClientApp.swift</code>中的 <code>@main</code>标记
+根据经验APP会从@main入口启动开始执行</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">import</span> SwiftUI
+
+<span class="hljs-keyword">@main</span>
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">SwiftUIClientApp</span>: <span class="hljs-title class_ inherited__">App</span> {
+    <span class="hljs-keyword">var</span> body: <span class="hljs-keyword">some</span> <span class="hljs-type">Scene</span> {
+        <span class="hljs-type">WindowGroup</span> {
+            <span class="hljs-type">ContentView</span>()
+        }
+    }
+}
+</code></pre>
+</div><p>我们会遇到三个新的结构: App, Scene, WindowGroup</p>
+<h3 id="app-protocol" tabindex="-1">App Protocol <a class="anchor" href="#app-protocol">#</a></h3>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">@available</span>(<span class="hljs-keyword">iOS</span> <span class="hljs-number">14.0</span>, <span class="hljs-keyword">macOS</span> <span class="hljs-number">11.0</span>, <span class="hljs-keyword">tvOS</span> <span class="hljs-number">14.0</span>, <span class="hljs-keyword">watchOS</span> <span class="hljs-number">7.0</span>, <span class="hljs-operator">*</span>)
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">protocol</span> <span class="hljs-title class_">App</span> {
+}
+</code></pre>
+</div><p>通过声明符合 <code>App</code>协议的结构来创建应用程序。实现所需的<a href="https://developer.apple.com/documentation/swiftui/app/body-swift.property"><code>body</code></a>计算属性来定义应用程序的内容。</p>
+<p>在结构声明之前加上<a href="https://docs.swift.org/swift-book/ReferenceManual/Attributes.html#ID626">@main</a>属性，表明您的自定义 <code>App</code>协议符合者提供了应用程序的入口点。<a href="https://developer.apple.com/documentation/swiftui/app/main()"><code>main()</code></a>该协议提供了系统调用以启动您的应用程序的方法的默认实现。在所有应用程序文件中只可以有一个入口点。</p>
+<p>可以简单理解为APP的外壳/容器</p>
+<h3 id="scene-protocol" tabindex="-1">Scene Protocol <a class="anchor" href="#scene-protocol">#</a></h3>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">@available</span>(<span class="hljs-keyword">iOS</span> <span class="hljs-number">14.0</span>, <span class="hljs-keyword">macOS</span> <span class="hljs-number">11.0</span>, <span class="hljs-keyword">tvOS</span> <span class="hljs-number">14.0</span>, <span class="hljs-keyword">watchOS</span> <span class="hljs-number">7.0</span>, <span class="hljs-operator">*</span>)
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">protocol</span> <span class="hljs-title class_">Scene</span> {
+}
+</code></pre>
+</div><p>您可以<a href="https://developer.apple.com/documentation/swiftui/app"><code>App</code></a>通过组合一个或多个符合 <code>Scene</code>应用程序中协议的实例来创建<a href="https://developer.apple.com/documentation/swiftui/app/body-swift.property"><code>body</code></a>. 您可以使用 SwiftUI 提供的内置场景，例如，以及您从其他场景中组合的自定义场景。要创建自定义场景，请声明符合协议的类型。实现所需的计算属性并为您的自定义场景提供内容：<a href="https://developer.apple.com/documentation/swiftui/windowgroup"><code>WindowGroup</code></a><code>Scene</code><a href="https://developer.apple.com/documentation/swiftui/scene/body-swift.property"><code>body</code></a></p>
+<p>场景是视图（View）层次结构的容器。通过在App实例的body中组合一个或多个符合Scene协议的实例来呈现具体程序。</p>
+<ul>
+<li>生命周期由系统管理</li>
+<li>系统会根据运行平台的不同而调整场景的展示行为（比如相同的代码在iOS和macOS下的呈现不同，或者某些场景仅能运行于特定的平台）</li>
+<li>SwiftUI2.0提供了几个预置的场景，用户也可以自己编写符合Scene协议的场景。上述代码中便是使用的一个预置场景WindowGroup</li>
+</ul>
+<p>可以简单理解为多窗口模式下的某一个窗口(iPad/Mac)</p>
+<h3 id="windowgroup-struct" tabindex="-1">WindowGroup Struct <a class="anchor" href="#windowgroup-struct">#</a></h3>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">@available</span>(<span class="hljs-keyword">iOS</span> <span class="hljs-number">14.0</span>, <span class="hljs-keyword">macOS</span> <span class="hljs-number">11.0</span>, <span class="hljs-keyword">tvOS</span> <span class="hljs-number">14.0</span>, <span class="hljs-keyword">watchOS</span> <span class="hljs-number">7.0</span>, <span class="hljs-operator">*</span>)
+<span class="hljs-keyword">public</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">WindowGroup</span>&lt;<span class="hljs-type">Content</span>&gt; : <span class="hljs-type">Scene</span> <span class="hljs-keyword">where</span> <span class="hljs-type">Content</span> : <span class="hljs-type">View</span> {
+}
+</code></pre>
+</div><p>最常用的Scene，可以呈现一组结构相同的窗口。使用该场景，我们无需在代码上做修改，只需要在项目中设定是否支持多窗口，系统将会按照运行平台的特性自动管理。</p>
+<p>如果在一个WindowGroup里加入多个View,呈现状态有点类似VStack。从上到下依排列</p>
+<p>在一个Scene中加入多个WindowGroup，只有最前面的可以被显示。</p>
+<h2 id="view-protocol-%E5%92%8C%E5%B8%B8%E7%94%A8%E6%8E%A7%E4%BB%B6" tabindex="-1">View Protocol 和常用控件 <a class="anchor" href="#view-protocol-%E5%92%8C%E5%B8%B8%E7%94%A8%E6%8E%A7%E4%BB%B6">#</a></h2>
+<p>SwiftUI使用过程中可以明显感觉到整个APP都是使用一系列View互相嵌套/堆叠而成的。</p>
+<p>View 协议是整个UI界面的基础,提供配置界面的各个部分。</p>
+<blockquote>
+<p>A type that represents part of your app's user interface and provides modifiers that you use to configure views.</p>
+</blockquote>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">TestView</span>: <span class="hljs-title class_ inherited__">View</span> {
+    <span class="hljs-keyword">var</span> body: <span class="hljs-keyword">some</span> <span class="hljs-type">View</span> {
+        <span class="hljs-type">Text</span>(<span class="hljs-string">&quot;Hello, World!&quot;</span>)
+    }
+}
+</code></pre>
+</div><h3 id="%E6%96%87%E6%9C%AC" tabindex="-1">文本 <a class="anchor" href="#%E6%96%87%E6%9C%AC">#</a></h3>
+<h4>Text</h4>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-type">Text</span>(<span class="hljs-string">&quot;我是一个设置了蓝底白字行间距5内边距5边框3的Text控件&quot;</span>)
+.lineLimit(<span class="hljs-number">2</span>)<span class="hljs-comment">// 最大2行</span>
+.font(.largeTitle) <span class="hljs-comment">// 字体</span>
+.foregroundColor(.white)<span class="hljs-comment">// 字体颜色</span>
+.background(.blue) <span class="hljs-comment">// 背景颜色</span>
+.lineSpacing(<span class="hljs-number">5</span>) <span class="hljs-comment">// 行间距</span>
+.padding(.all, <span class="hljs-number">5</span>) <span class="hljs-comment">// 文字和空间间的内边距</span>
+.border(.blue, width: <span class="hljs-number">3</span>)<span class="hljs-comment">// 边框</span>
+.rotationEffect(<span class="hljs-type">Angle</span>(degrees: <span class="hljs-number">50</span>)) <span class="hljs-comment">// 旋转</span>
+</code></pre>
+</div><p>简单且强大的文本控件,类似于UILabel.可以支持很短的代码设置所需属性</p>
+<details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3i0g7vwrdj214w0mjacl.jpg"></image></pre>
+</details>
+<h4>TextField</h4>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-type">TextField</span>(<span class="hljs-string">&quot;输入框&quot;</span>, text: <span class="hljs-variable">$value</span>)
+.textFieldStyle(.roundedBorder)
+.keyboardType(.alphabet)
+</code></pre>
+</div><p>相当于UIKit中的UITextField的单行文本输入框.支持banging一个@state修饰的string变量。</p>
+<details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3i5s1lrouj214r0mejuw.jpg"></image></pre>
+</details>
+<h4>SecureField</h4>
+<p>密码输入框,用法和普通的输入框一致</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-type">SecureField</span>(<span class="hljs-string">&quot;密码输入&quot;</span>, text: <span class="hljs-variable">$value</span>)
+.textFieldStyle(.roundedBorder)
+.keyboardType(.alphabet)
+.accentColor(.red)
+</code></pre>
+</div><h4>TextEditor</h4>
+<p>类似UITextView,多行输入文本</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-type">TextEditor</span>(text: <span class="hljs-variable">$value</span>)
+.keyboardType(.default)
+.multilineTextAlignment(.leading)
+.accentColor(.red)
+.foregroundColor(.black)
+.background(.gray.opacity(<span class="hljs-number">0.3</span>))
+.lineSpacing(<span class="hljs-number">5</span>)
+.frame(maxHeight: <span class="hljs-number">500</span>)
+.textInputAutocapitalization(.words)
+.disableAutocorrection(<span class="hljs-literal">true</span> )
+.onChange(of: value) { newValue <span class="hljs-keyword">in</span>
+    textCount <span class="hljs-operator">=</span> newValue.count <span class="hljs-comment">// 输入文本变化监听器</span>
+}
+</code></pre>
+</div><details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3i8b01bi2j214q0mg437.jpg"></image></pre>
+</details>
+<h3 id="%E6%8C%89%E9%92%AE" tabindex="-1">按钮 <a class="anchor" href="#%E6%8C%89%E9%92%AE">#</a></h3>
+<h4>Button</h4>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-comment">// 不带边框style的button</span>
+<span class="hljs-type">Button</span>(<span class="hljs-string">&quot;不应用边框的按钮样式&quot;</span>){}.buttonStyle(<span class="hljs-type">BorderlessButtonStyle</span>()).padding()
+
+<span class="hljs-comment">// 可以通过自定义PrimitiveButtonStyle类来实现一些自定义的button</span>
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">PriButton</span>: <span class="hljs-title class_ inherited__">PrimitiveButtonStyle</span> {
+    <span class="hljs-keyword">typealias</span> <span class="hljs-type">Body</span> <span class="hljs-operator">=</span> <span class="hljs-type">Button</span>
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">makeBody</span>(<span class="hljs-params">configuration</span>: <span class="hljs-type">Configuration</span>) -&gt; <span class="hljs-keyword">some</span> <span class="hljs-type">View</span> {
+        configuration.trigger()
+        <span class="hljs-keyword">return</span>
+        <span class="hljs-type">Button</span>(configuration)
+            .background(<span class="hljs-type">Color</span>.orange)
+            .clipShape(<span class="hljs-type">RoundedRectangle</span>(cornerRadius: <span class="hljs-number">25.0</span>, style: .continuous))
+    }
+}
+
+<span class="hljs-comment">// 也可以直接使用label参数设置自定义view</span>
+<span class="hljs-type">Button</span> {
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;click&quot;</span>) <span class="hljs-comment">// 事件block</span>
+} label: {
+   <span class="hljs-comment">//这里可以放自定义view</span>
+    <span class="hljs-type">Image</span>(systemName: <span class="hljs-string">&quot;star&quot;</span>).offset(x: <span class="hljs-operator">-</span><span class="hljs-number">10</span>, y: <span class="hljs-number">0</span>)
+    <span class="hljs-type">Text</span>(<span class="hljs-string">&quot;带图标的按钮&quot;</span>)
+}.padding()
+</code></pre>
+</div><details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3i0k7u9qvj213d0mj42p.jpg"></image></pre>
+</details>
+<h4>Menu(<em>PullDownButton</em>)</h4>
+<p>点击弹出选择菜单,可以加在toolbar上或者其他地方,本体是一个Button,也可以是自定义View.</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-type">Menu</span>(<span class="hljs-string">&quot;menu&quot;</span>) {
+    <span class="hljs-type">Button</span>(<span class="hljs-string">&quot;Duplicate&quot;</span>, action: duplicate)
+    <span class="hljs-type">Button</span>(<span class="hljs-string">&quot;Rename&quot;</span>, action: rename)
+    <span class="hljs-type">Button</span>(<span class="hljs-string">&quot;Delete…&quot;</span>, action: delete)
+    <span class="hljs-type">Menu</span>(<span class="hljs-string">&quot;Copy&quot;</span>) {
+        <span class="hljs-type">Button</span>(<span class="hljs-string">&quot;Copy&quot;</span>, action: <span class="hljs-keyword">copy</span>)
+        <span class="hljs-type">Button</span>(<span class="hljs-string">&quot;Copy Formatted&quot;</span>, action: copyFormatted)
+        <span class="hljs-type">Button</span>(<span class="hljs-string">&quot;Copy Library Path&quot;</span>, action: copyPath)
+    }
+}.menuStyle(.borderlessButton)
+
+<span class="hljs-type">Menu</span> {
+    <span class="hljs-type">Button</span>(<span class="hljs-string">&quot;Open in Preview&quot;</span>, action: openInPreview)
+    <span class="hljs-type">Button</span>(<span class="hljs-string">&quot;Save as PDF&quot;</span>, action: saveAsPDF)
+} label: {
+    <span class="hljs-type">Image</span>(systemName: <span class="hljs-string">&quot;document&quot;</span>)
+    <span class="hljs-type">Text</span>(<span class="hljs-string">&quot;PDF&quot;</span>)
+}
+</code></pre>
+</div><details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3i91gt97aj214s0mgn15.jpg"></image></pre>
+</details>
+<h4>EditButton</h4>
+<p>支持改变整个环境变量中的editMode字段,开启编辑状态后一些系统控件会自动触发状态变化。例如支持删除或者排序的List中的ForEach列表在开启editmode后会显示出List的编辑功能。</p>
+<p>当然,你也可以创建一些支持编辑模式的View,同时也可以监听环境中的editMode。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-meta">@Environment</span>(\.editMode) <span class="hljs-keyword">var</span> editMode
+</code></pre>
+</div><p>经常会和toolbar功能共用,在导航条右上角支持编辑模式。</p>
+<details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3j3vq77r8j214l0md793.jpg"></image></pre>
+</details>
+<h3 id="%E5%88%97%E8%A1%A8" tabindex="-1">列表 <a class="anchor" href="#%E5%88%97%E8%A1%A8">#</a></h3>
+<h4>List, Section, ForEach</h4>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-type">List</span>{
+  <span class="hljs-type">Section</span>(<span class="hljs-string">&quot;水果列表&quot;</span>) {
+      <span class="hljs-type">ForEach</span>(fruits, id: \.<span class="hljs-keyword">self</span>) { fruit <span class="hljs-keyword">in</span>
+          <span class="hljs-type">Text</span>(<span class="hljs-string">&quot;<span class="hljs-subst">\(fruit)</span>&quot;</span>)
+      }.onMove { indexSet, index <span class="hljs-keyword">in</span>
+          fruits.move(fromOffsets: indexSet, toOffset: index)
+      }
+  }
+
+  <span class="hljs-keyword">if</span> <span class="hljs-operator">!</span>balls.isEmpty {
+      <span class="hljs-type">Section</span>(<span class="hljs-string">&quot;球类列表&quot;</span>) {
+          <span class="hljs-type">ForEach</span>(balls, id: \.<span class="hljs-keyword">self</span>) { ball <span class="hljs-keyword">in</span>
+              <span class="hljs-type">Text</span>(<span class="hljs-string">&quot;<span class="hljs-subst">\(ball)</span>&quot;</span>)
+          }.onDelete { indexSet <span class="hljs-keyword">in</span>
+              balls.remove(atOffsets: indexSet)
+          }
+      }
+  }
+}
+</code></pre>
+</div><p>List类似UIKit中的UITableView,常与ForEach语句一起使用。不像UIKit中繁琐的代理和数据源模式,List是字面含义的View列表,手动将每个VIew排列起来即可。</p>
+<p>当然List也可以直接装填数据源进行列表展示</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-type">List</span>(<span class="hljs-number">0</span><span class="hljs-operator">..&lt;</span><span class="hljs-number">100</span>){ i <span class="hljs-keyword">in</span>
+  <span class="hljs-type">Text</span>(<span class="hljs-string">&quot;id:<span class="hljs-subst">\(id)</span>&quot;</span>)
+}
+</code></pre>
+</div><p>Section则可理解为UITableView中的SectionHeader和Footer在SwiftUI中的实现.List和Section联合使用可以实现常用的多Section的tableview。</p>
+<p>ForEach语句需求传入的数据拥有唯一标识,针对数组可以直接使用</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-type">ForEach</span>(array.indices, id: \.<span class="hljs-keyword">self</span>){ index <span class="hljs-keyword">in</span>
+ <span class="hljs-comment">//some view</span>
+}
+</code></pre>
+</div><details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3j3sni4zjj214s0mhtbz.jpg"></image></pre>
+</details>
+<h4>Group</h4>
+<p>Group用于集合多个视图，对 Group 设置的属性，将作用于每个子视图。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-type">Group</span> {
+    <span class="hljs-type">Text</span>(<span class="hljs-string">&quot;Hello, World!&quot;</span>)
+    <span class="hljs-type">Text</span>(<span class="hljs-string">&quot;Hello, World!&quot;</span>)
+}
+.foregroundColor(.blue)
+.font(.caption)
+</code></pre>
+</div><details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3rnl7bryaj213o0metbb.jpg"></image></pre>
+</details>
+<h4>From</h4>
+<p>Form是SwiftUI的基础控件，如果我们需要显示产品配置、选项、用户输入时，使用Form可以快速搭建出各类表单。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"> <span class="hljs-type">Form</span> {
+    <span class="hljs-type">Section</span> {
+        <span class="hljs-type">HStack</span>{
+            <span class="hljs-type">Image</span>(systemName: <span class="hljs-string">&quot;star.fill&quot;</span>)
+            <span class="hljs-type">Text</span>(<span class="hljs-string">&quot;输入的内容:<span class="hljs-subst">\(value)</span>&quot;</span>)
+        }
+        <span class="hljs-type">TextField</span>(<span class="hljs-string">&quot;输入框的placeholder&quot;</span>, text: <span class="hljs-variable">$value</span>)
+            .textFieldStyle(.roundedBorder)
+            .keyboardType(.alphabet)
+            .accentColor(.red)
+        <span class="hljs-type">Text</span>(<span class="hljs-string">&quot;一个简单的Form写法,如果我们需要显示产品配置、选项、用户输入时，使用Form可以快速搭建出各类表单,会自动增加内边距&quot;</span>)
+            .font(.caption)
+            .foregroundColor(.gray)
+    }
+
+    <span class="hljs-type">Section</span>(<span class="hljs-string">&quot;另一组内容&quot;</span>) {
+        <span class="hljs-type">HStack</span>{
+            <span class="hljs-type">Image</span>(systemName: <span class="hljs-string">&quot;star&quot;</span>)
+            <span class="hljs-type">Spacer</span>()
+            <span class="hljs-type">Text</span>(<span class="hljs-string">&quot;一个右对齐的文案&quot;</span>)
+        }
+    }
+}
+</code></pre>
+</div><details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3jl3sied0j214q0mb0w3.jpg"></image></pre>
+</details>
+<h4>ScrollView</h4>
+<p>在有限空间放较多内容的容器View</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-type">ScrollView</span>(.vertical, showsIndicators: <span class="hljs-literal">false</span>) {
+    <span class="hljs-type">ForEach</span>(list, id:\.<span class="hljs-keyword">self</span>) { item <span class="hljs-keyword">in</span>
+        <span class="hljs-type">Text</span>(item).padding()
+    }
+}
+</code></pre>
+</div><details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3jbr3uhfej214s0mfjy1.jpg"></image></pre>
+</details>
+<h3 id="%E5%B8%83%E5%B1%80" tabindex="-1">布局 <a class="anchor" href="#%E5%B8%83%E5%B1%80">#</a></h3>
+<h4>VStack,HStack</h4>
+<p>VStack类似UIStackView,属于布局修饰符,其中包裹的view会按照一定的规则进行垂直方向的自动布局。</p>
+<p>同理HStack会在水平方向自动布局,二者可叠加嵌套。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-type">VStack</span>(alignment: .leading, spacing: <span class="hljs-number">10</span>) {
+    <span class="hljs-type">Text</span>(<span class="hljs-string">&quot;垂直方向左对齐&quot;</span>).border(.blue, width: <span class="hljs-number">1</span>)
+    <span class="hljs-type">Text</span>(<span class="hljs-string">&quot;设置的两个label&quot;</span>).border(.blue, width: <span class="hljs-number">1</span>)
+    <span class="hljs-type">HStack</span>(alignment: .center, spacing: <span class="hljs-number">5</span>) {
+        <span class="hljs-type">Text</span>(<span class="hljs-string">&quot;嵌套一个水平方向的HStack&quot;</span>).border(.blue, width: <span class="hljs-number">1</span>)
+        <span class="hljs-type">Spacer</span>()
+        <span class="hljs-type">Text</span>(<span class="hljs-string">&quot;的两个label&quot;</span>).border(.blue, width: <span class="hljs-number">1</span>)
+    }
+}
+</code></pre>
+</div><details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3uoh36i9gj213v0n1418.jpg"></image></pre>
+</details>
+<h4>ZStack</h4>
+<p>ZStack的布局方式类似于UIKit中的View父子层级,但是SwiftUI中较少提及父子层级关系,SwiftUI中认为每个View都是独立的View,仅仅是布局方式的不同。</p>
+<p>例如在UIKit中在一个View内部增加几个小View会用到addSubview方法来添加子View,但是在SwiftUI中会使用ZStack布局方式来进行View堆叠。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-type">ZStack</span>(alignment: .center) {
+}
+</code></pre>
+</div><details>
+<summary><font color=gray>点击查看运行效果</font></summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3uorpdw9qj213s0mtn0l.jpg"></image></pre>
+</details>
+<h3 id="%E5%AF%BC%E8%88%AA" tabindex="-1">导航 <a class="anchor" href="#%E5%AF%BC%E8%88%AA">#</a></h3>
+<h4>TabView</h4>
+<p>类似UIKit中的UITabbar承担tab切换的功能</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">enum</span> <span class="hljs-title class_">TabType</span> {
+    <span class="hljs-keyword">case</span> featureList
+    <span class="hljs-keyword">case</span> other
+}
+
+<span class="hljs-type">TabView</span> {
+  <span class="hljs-comment">//FeatureListHomeView是这个tabbar的root层级的view</span>
+  <span class="hljs-type">FeatureListHomeView</span>().tabItem({
+      <span class="hljs-type">Label</span>(<span class="hljs-string">&quot;列表&quot;</span>, systemImage: <span class="hljs-string">&quot;list.bullet&quot;</span>)<span class="hljs-comment">// tabItem来进行展示内容</span>
+  }).tag(<span class="hljs-type">TabType</span>.featureList) <span class="hljs-comment">// .tag来标志映射</span>
+
+  <span class="hljs-type">CustomViews</span>().tabItem({
+      <span class="hljs-type">Label</span>(<span class="hljs-string">&quot;自定义&quot;</span>, systemImage: <span class="hljs-string">&quot;star&quot;</span>)
+  }).tag(<span class="hljs-type">TabType</span>.other)
+}
+</code></pre>
+</div><details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3jkd4vkktj214o0men09.jpg"></image></pre>
+</details>
+<h4>NavigationView, NavigationLink</h4>
+<p>类似UINavigationViewController,负责导航栈的管理。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-type">NavigationView</span> {
+<span class="hljs-type">List</span> {
+    <span class="hljs-type">ForEach</span>(feature.demoFeatures.featureSections, id: \.<span class="hljs-keyword">self</span>) { sec <span class="hljs-keyword">in</span>
+        <span class="hljs-type">Section</span>(sec.featureSectionName) {
+            <span class="hljs-type">ForEach</span>(sec.featureList, id: \.<span class="hljs-keyword">self</span>) { item <span class="hljs-keyword">in</span>
+                <span class="hljs-type">NavigationLink</span> {
+                    getDestinationViews(featureItem: item)
+                } label: {
+                    <span class="hljs-type">DemoRowView</span>(title: item.featureName, subTitle: item.featureDesc)
+                }
+            }.onDelete { offset <span class="hljs-keyword">in</span>
+                deleteRow(offset: offset, from: sec)
+            }
+        }
+    }
+}.listStyle(.in<span class="hljs-keyword">set</span>)
+.navigationTitle(<span class="hljs-string">&quot;控件列表&quot;</span>)
+</code></pre>
+</div><p>一般配合NavigationLink来进行点击跳转.类似的,导航栈跳转后续的页面共用同一个导航栈。可以通过navigationTitle方法设置导航栈的标题,通过navigationBarTitleDisplayMode方法设置导航标题的展示形式。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-type">Text</span>(<span class="hljs-string">&quot;Hello, World!&quot;</span>)
+.navigationTitle(<span class="hljs-string">&quot;NavigationView&quot;</span>)
+.navigationBarTitleDisplayMode(.inline)<span class="hljs-comment">// 只在顶部标题区域显示</span>
+.navigationBarTitleDisplayMode(.large)<span class="hljs-comment">// 会在当前页面顶部显示一个较大的标题</span>
+</code></pre>
+</div><details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3n25qldn7j214q0mg0va.jpg"></image></pre>
+</details>
+<h4>Modal</h4>
+<p>模态弹出是经常使用的一种弹出信息页面的模式。</p>
+<p>SwiftUI给VIew增加的.sheet的扩展,给定一个绑定的值,当这个值发生变化的时候(true),触发模态框的事件。</p>
+<p>UIKit中的Present VIewController不同的style,有半弹窗和全屏present</p>
+<p>同理,SwiftUI给VIew增加了.fullScreenCover的扩展,给定一个绑定的值,当这个值发生变化的时候(true),触发全屏模态框的事件。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-type">Form</span>{
+  <span class="hljs-type">Button</span>(<span class="hljs-string">&quot;Modal New View&quot;</span>) {
+      isPresented.toggle()
+  }.sheet(isPresented: <span class="hljs-variable">$isPresented</span>, onDismiss: {
+      <span class="hljs-comment">// dismiss</span>
+  }) {
+      <span class="hljs-type">ImageDemo</span>()
+  }
+
+  <span class="hljs-type">Button</span>(<span class="hljs-string">&quot;FullScreenCover New View&quot;</span>) {
+      fullScreenCover.toggle()
+  }.fullScreenCover(isPresented: <span class="hljs-variable">$fullScreenCover</span>) {
+      <span class="hljs-type">TextEditorDemo</span>(value: <span class="hljs-string">&quot;FullScreenCover&quot;</span>)
+  }
+}
+</code></pre>
+</div><details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3pdafcupzj213e0mgwgx.jpg"></image></pre>
+</details>
+<h4>Popover</h4>
+<p>Popover在不同的设备上展示会出现差异,在iOS上是模态弹出一个新页面,在iPad或Mac上弹出一个气泡框。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-type">Button</span>(<span class="hljs-string">&quot;Popover New View&quot;</span>) {
+    popover.toggle()
+}.popover(isPresented: <span class="hljs-variable">$popover</span>) {
+   <span class="hljs-type">Text</span>(<span class="hljs-string">&quot;在iphone上显示为模态框弹出页面,在ipad上显示为点击气泡弹窗&quot;</span>)
+        .padding()
+}
+</code></pre>
+</div><details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3ro8fw598j21380fatah.jpg"></image></pre>
+</details>
+<h3 id="pickers" tabindex="-1">Pickers <a class="anchor" href="#pickers">#</a></h3>
+<h4>Picker</h4>
+<p>可以自定义数据的选择器</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-type">Picker</span>(selection: <span class="hljs-variable">$selectIndex</span>) {
+  <span class="hljs-type">ForEach</span>(fruits, id: \.<span class="hljs-keyword">self</span>) { fruit <span class="hljs-keyword">in</span>
+      <span class="hljs-type">Text</span>(fruit)
+  }
+} label: {
+  <span class="hljs-type">Text</span>(<span class="hljs-string">&quot;Picker&quot;</span>)
+}.pickerStyle(.wheel) <span class="hljs-comment">// 使用此方法切换选择风格</span>
+</code></pre>
+</div><details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3n2vebx0zj214s0mijv7.jpg"></image></pre>
+</details>
+<h4>DatePicker</h4>
+<p>系统内置的时间选择器</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"> <span class="hljs-type">DatePicker</span>(<span class="hljs-string">&quot;选择日期&quot;</span>, selection: <span class="hljs-variable">$selectDate</span>, displayedComponents: .date)
+</code></pre>
+</div><details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3nr7v7zu9j214p0mdjvb.jpg"></image></pre>
+</details>
+<h4>Toggle</h4>
+<p>类似于UISwitch,用于开关选择</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-type">Toggle</span>(<span class="hljs-string">&quot;开关&quot;</span>, isOn: <span class="hljs-variable">$open</span>)
+.onChange(of: <span class="hljs-keyword">open</span>) { newValue <span class="hljs-keyword">in</span>
+    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;切换了开关状态&quot;</span>)
+}
+</code></pre>
+</div><details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3o0cr0v3mj214q0mdmz8.jpg"></image></pre>
+</details>
+<h4>Slider</h4>
+<p>Slider相当于UIKit中的UISlider，通过移动滑杆实现指定区域和间隔的数值的选择。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-type">Slider</span>(value: <span class="hljs-variable">$opacity</span>, in: <span class="hljs-number">0.1</span> <span class="hljs-operator">...</span> <span class="hljs-number">1.0</span>, step: <span class="hljs-number">0.05</span>).accentColor(.red)
+</code></pre>
+</div><details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3p7s7u4plj214v0mf0vu.jpg"></image></pre>
+</details>
+<h4>Stepper</h4>
+<p>步进选择器</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-type">Stepper</span>(<span class="hljs-string">&quot;有限的选择数量&quot;</span>, value: <span class="hljs-variable">$value</span>, in: <span class="hljs-operator">-</span><span class="hljs-number">1</span> <span class="hljs-operator">...</span> <span class="hljs-number">5</span>, step: <span class="hljs-number">1</span>)
+</code></pre>
+</div><details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3p82b0ae5j214r0mhace.jpg"></image></pre>
+</details>
+<h3 id="alerts" tabindex="-1">Alerts <a class="anchor" href="#alerts">#</a></h3>
+<h4>Alert</h4>
+<p>AlertView将被废弃,被.alert方法替代</p>
+<p>swiftUI给VIew增加了.alert的扩展,给定一个绑定的值,当这个值发生变化的时候(true),触发Alert的事件。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift">.alert(<span class="hljs-string">&quot;Alert Title&quot;</span>, isPresented: <span class="hljs-variable">$isPresented1</span>, actions: {
+    <span class="hljs-type">Button</span>(<span class="hljs-string">&quot;OK&quot;</span>){
+        <span class="hljs-comment">// button点击事件</span>
+    }
+}, message: {
+    <span class="hljs-type">Text</span>(<span class="hljs-string">&quot;一个选择项的Alert&quot;</span>)
+})
+</code></pre>
+</div><p>当action中的button数量不同时会自动切换alert的显示格式</p>
+<details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3pcgv2l0dj213s0mgjuh.jpg"></image></pre>
+</details>
+<h4>ActionSheet</h4>
+<p>ActionSheet将被废弃,被.confirmationDialog替代</p>
+<p>SwiftUI给VIew增加了.confirmationDialog的扩展,给定一个绑定的值,当这个值发生变化的时候(true),触发ActionSheet的事件。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift">.confirmationDialog(<span class="hljs-string">&quot;选择你需要的选项&quot;</span>, isPresented: <span class="hljs-variable">$isPresented</span>) {
+    <span class="hljs-type">Button</span>(<span class="hljs-string">&quot;Update&quot;</span>) {
+        <span class="hljs-comment">// choose update</span>
+    }
+    <span class="hljs-type">Button</span>(<span class="hljs-string">&quot;Delete&quot;</span>, role: .destructive) {
+        <span class="hljs-comment">// choose delete</span>
+    }
+
+    <span class="hljs-type">Button</span>(<span class="hljs-string">&quot;Cancel&quot;</span>, role:  .cancel) {
+        <span class="hljs-comment">// choose cancel</span>
+    }
+}
+</code></pre>
+</div><details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24egy1h3pctoaj0pj213k0mfaco.jpg"></image></pre>
+</details>
+<h3 id="image" tabindex="-1">Image <a class="anchor" href="#image">#</a></h3>
+<p>Image,类似于UIImageView,相对于UIimageview,Image控件可以更加简单的设置圆角,边框,阴影等属性。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-type">Image</span>(<span class="hljs-string">&quot;stmarylake&quot;</span>)
+.resizable() <span class="hljs-comment">// 必须先设置可以重设尺寸才可以改变图片原始尺寸</span>
+.frame(width: <span class="hljs-number">100</span>, height: <span class="hljs-number">100</span>, alignment: .center)
+.clipShape(<span class="hljs-type">Rectangle</span>()) <span class="hljs-comment">// 边缘切割</span>
+.overlay(<span class="hljs-type">Rectangle</span>().stroke(.white, lineWidth: <span class="hljs-number">4</span>), alignment: .bottom)<span class="hljs-comment">// 覆盖一个等大小的方块增加4的宽度的stroke用来做边框</span>
+.shadow(radius: <span class="hljs-number">10</span>)<span class="hljs-comment">// 阴影</span>
+</code></pre>
+</div><details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3jk79vi59j214p0mf76j.jpg"></image></pre>
+</details>
+<h3 id="webimage" tabindex="-1">WebImage <a class="anchor" href="#webimage">#</a></h3>
+<p>SwiftUI中的VIew控件可以控制其生命周期,在onAppear的时候进行URL图片下载,下载成功后替换image即可。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-type">Image</span>(uiImage: baseImage)
+.resizable()
+.frame(height: <span class="hljs-number">200</span>)
+.aspectRatio(contentMode: .fit)
+.onAppear {
+    downloadImageWithURL(url: url)
+}
+  
+<span class="hljs-keyword">private</span> <span class="hljs-keyword">func</span> <span class="hljs-title function_">downloadImageWithURL</span>(<span class="hljs-params">url</span>: <span class="hljs-type">String</span>?) {
+  <span class="hljs-keyword">guard</span> <span class="hljs-keyword">let</span> urlStr <span class="hljs-operator">=</span> url, <span class="hljs-keyword">let</span> url <span class="hljs-operator">=</span> <span class="hljs-type">URL</span>(string: urlStr) <span class="hljs-keyword">else</span> { <span class="hljs-keyword">return</span> }
+  <span class="hljs-type">SwiftUIDemoHelper</span>.defult.downLoadImageWithURL(url: url) { receivedSize, totalSize <span class="hljs-keyword">in</span>
+      <span class="hljs-keyword">let</span> progress <span class="hljs-operator">=</span> <span class="hljs-type">Float</span>(receivedSize) <span class="hljs-operator">/</span> <span class="hljs-type">Float</span>(totalSize)
+      downloadTaskProgress <span class="hljs-operator">=</span> progress
+  } completion: { res <span class="hljs-keyword">in</span>
+      <span class="hljs-keyword">switch</span> res {
+      <span class="hljs-keyword">case</span> .success(<span class="hljs-keyword">let</span> img):
+          baseImage <span class="hljs-operator">=</span> img
+          downloadTaskProgress <span class="hljs-operator">=</span> <span class="hljs-number">1</span>
+      <span class="hljs-keyword">case</span> .failure(<span class="hljs-keyword">_</span>):
+          downloadError <span class="hljs-operator">=</span> <span class="hljs-literal">true</span>
+      }
+  }
+}
+</code></pre>
+</div><details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3uxv5n357j213q0natdv.jpg"></image></pre>
+</details>
+<p>当然可以使用kf图片库来进行网络图片的下载和缓存管理。</p>
+<details>
+<summary><font color=gray>点击查看长时间下载的加载效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3uxr4o7zbg20oo1hcx6p.gif" height = 400></image></pre>
+</details>
+<h3 id="webview" tabindex="-1">Webview <a class="anchor" href="#webview">#</a></h3>
+<p>SwiftUI没有再封装一套新的Webview容器,直接桥接WKWebView即可。</p>
+<p>如何和UIKit进行桥接参考后续桥接部分。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">import</span> SwiftUI
+<span class="hljs-keyword">import</span> WebKit
+
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">WebviewDemo</span>: <span class="hljs-title class_ inherited__">View</span> {
+    <span class="hljs-meta">@State</span> <span class="hljs-keyword">private</span> <span class="hljs-keyword">var</span> url: <span class="hljs-type">String</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;https://www.baidu.com&quot;</span>
+    <span class="hljs-meta">@State</span> <span class="hljs-keyword">private</span> <span class="hljs-keyword">var</span> pageTitle: <span class="hljs-type">String</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;Webview&quot;</span>
+    <span class="hljs-keyword">var</span> body: <span class="hljs-keyword">some</span> <span class="hljs-type">View</span> {
+       <span class="hljs-type">SWWkWebview</span>(url: <span class="hljs-variable">$url</span>, pageTitle: <span class="hljs-variable">$pageTitle</span>)
+            .navigationTitle(pageTitle)
+            .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">SWWkWebview</span>: <span class="hljs-title class_ inherited__">UIViewRepresentable</span> {
+  
+    <span class="hljs-keyword">typealias</span> <span class="hljs-type">UIViewType</span> <span class="hljs-operator">=</span> <span class="hljs-type">WKWebView</span>
+  
+    <span class="hljs-meta">@Binding</span> <span class="hljs-keyword">var</span> url: <span class="hljs-type">String</span>
+    <span class="hljs-meta">@Binding</span> <span class="hljs-keyword">var</span> pageTitle: <span class="hljs-type">String</span>
+  
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">makeUIView</span>(<span class="hljs-params">context</span>: <span class="hljs-type">Context</span>) -&gt; <span class="hljs-type">WKWebView</span> {
+        <span class="hljs-keyword">let</span> view <span class="hljs-operator">=</span> <span class="hljs-type">WKWebView</span>()
+        view.navigationDelegate <span class="hljs-operator">=</span> context.coordinator
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> url <span class="hljs-operator">=</span> <span class="hljs-type">URL</span>(string: url) {
+            view.load(<span class="hljs-type">URLRequest</span>(url: url))
+        }
+        <span class="hljs-keyword">return</span> view
+    }
+  
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">updateUIView</span>(<span class="hljs-keyword">_</span> <span class="hljs-params">uiView</span>: <span class="hljs-type">WKWebView</span>, <span class="hljs-params">context</span>: <span class="hljs-type">Context</span>) {
+     
+    }
+
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">makeCoordinator</span>() -&gt; <span class="hljs-type">Coordinator</span> {
+        <span class="hljs-keyword">let</span> val <span class="hljs-operator">=</span>  <span class="hljs-type">Coordinator</span>()
+        val.updateTitle <span class="hljs-operator">=</span> { title <span class="hljs-keyword">in</span>
+            <span class="hljs-keyword">self</span>.pageTitle <span class="hljs-operator">=</span> title
+        }
+        <span class="hljs-keyword">return</span> val
+    }
+  
+    <span class="hljs-keyword">class</span> <span class="hljs-title class_">Coordinator</span>: <span class="hljs-title class_ inherited__">NSObject</span>, <span class="hljs-title class_ inherited__">WKNavigationDelegate</span> {
+     
+        <span class="hljs-keyword">var</span> updateTitle: ((<span class="hljs-type">String</span>) -&gt; <span class="hljs-type">Void</span>)<span class="hljs-operator">?</span>
+
+        <span class="hljs-keyword">func</span> <span class="hljs-title function_">webView</span>(<span class="hljs-keyword">_</span> <span class="hljs-params">webView</span>: <span class="hljs-type">WKWebView</span>, <span class="hljs-params">didFinish</span> <span class="hljs-params">navigation</span>: <span class="hljs-type">WKNavigation</span>!) {
+            webView.evaluateJavaScript(<span class="hljs-string">&quot;document.title&quot;</span>) { (result, error) <span class="hljs-keyword">in</span>
+                <span class="hljs-keyword">let</span> title: <span class="hljs-type">String</span> <span class="hljs-operator">=</span> <span class="hljs-type">String</span>(describing: result <span class="hljs-operator">??</span> <span class="hljs-string">&quot;&quot;</span>)
+                <span class="hljs-keyword">self</span>.updateTitle<span class="hljs-operator">?</span>(title)
+            }
+        }
+    }
+}
+</code></pre>
+</div><details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3uqhsiluvj213m0nc42w.jpg"></image></pre>
+</details>
+<hr>
+<h2 id="%E6%A1%A5%E6%8E%A5uikit" tabindex="-1">桥接UIKit <a class="anchor" href="#%E6%A1%A5%E6%8E%A5uikit">#</a></h2>
+<p>SwiftUI可以自由的和当前项目中的framework协作，不论你是UIKit还是APPKit或者是WatchKit。这里我们简单说下如何桥接UIKit。</p>
+<h3 id="uiviewrepresentable" tabindex="-1">UIViewRepresentable <a class="anchor" href="#uiviewrepresentable">#</a></h3>
+<p>有一些View还未被SwiftUI原生实现，需要从UIKit中桥接而来，例如前面的<a href="#Webview">WebviewDemo</a>。当然一些自己封装的View或者三方库View均可桥接到SwiftUI中展示。当我们需要在SwiftUI使用UIKit中的View时，我们需要创建一个实现了UIViewRepresentable协议的结构体作为我们的桥接View。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">public</span> <span class="hljs-keyword">protocol</span> <span class="hljs-title class_">UIViewRepresentable</span> : <span class="hljs-title class_ inherited__">View</span> <span class="hljs-keyword">where</span> <span class="hljs-title class_ inherited__">Self</span>.<span class="hljs-title class_ inherited__">Body</span> == <span class="hljs-title class_ inherited__">Never</span> {
+    <span class="hljs-comment">/// 首先需要确定你要桥接的View的类型</span>
+    <span class="hljs-keyword">associatedtype</span> <span class="hljs-type">UIViewType</span> : <span class="hljs-type">UIView</span>
+    <span class="hljs-comment">/// 必须实现的协议，系统在初始化结构体的时候会初始化你的View</span>
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">makeUIView</span>(<span class="hljs-params">context</span>: <span class="hljs-keyword">Self</span>.<span class="hljs-type">Context</span>) -&gt; <span class="hljs-keyword">Self</span>.<span class="hljs-type">UIViewType</span>
+    <span class="hljs-comment">/// 必须实现的协议，SwiftUI更新的时候会调用此方法让你的View同步更新</span>
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">updateUIView</span>(<span class="hljs-keyword">_</span> <span class="hljs-params">uiView</span>: <span class="hljs-keyword">Self</span>.<span class="hljs-type">UIViewType</span>, <span class="hljs-params">context</span>: <span class="hljs-keyword">Self</span>.<span class="hljs-type">Context</span>)
+    <span class="hljs-comment">/// 非必须实现的协议，相当于 UIView 的 deinit 方法，可以在其中做一些诸如删除通知 observer，停止 timer 等清理工作</span>
+    <span class="hljs-keyword">static</span> <span class="hljs-keyword">func</span> <span class="hljs-title function_">dismantleUIView</span>(<span class="hljs-keyword">_</span> <span class="hljs-params">uiView</span>: <span class="hljs-keyword">Self</span>.<span class="hljs-type">UIViewType</span>, <span class="hljs-params">coordinator</span>: <span class="hljs-keyword">Self</span>.<span class="hljs-type">Coordinator</span>)
+    <span class="hljs-comment">/// 协调器，当前结构体从UIKit中获取数据的途径，一般用来实现UIKit View 的代理</span>
+    <span class="hljs-keyword">associatedtype</span> <span class="hljs-type">Coordinator</span> <span class="hljs-operator">=</span> <span class="hljs-type">Void</span>
+    <span class="hljs-comment">/// 创建一个协调器，用来连接SwiftUI和UIKit，makeUIView之前就会调用</span>
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">makeCoordinator</span>() -&gt; <span class="hljs-keyword">Self</span>.<span class="hljs-type">Coordinator</span>
+    <span class="hljs-comment">/// 存储一些数据的上下文</span>
+    <span class="hljs-keyword">typealias</span> <span class="hljs-type">Context</span> <span class="hljs-operator">=</span> <span class="hljs-type">UIViewRepresentableContext</span>&lt;<span class="hljs-keyword">Self</span>&gt;
+}
+</code></pre>
+</div><p>桥接过程的生命周期为：</p>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3x76m90gnj20b80buglq.jpg" alt="4"></p>
+<p>其中updateUIView方法会随着View的刷新调用多次。</p>
+<h3 id="uiviewcontrollerrepresentable" tabindex="-1">UIViewControllerRepresentable <a class="anchor" href="#uiviewcontrollerrepresentable">#</a></h3>
+<p>类似于桥接UIView，SwiftUI也给出了桥接UIViewController的方式</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">public</span> <span class="hljs-keyword">protocol</span> <span class="hljs-title class_">UIViewControllerRepresentable</span> : <span class="hljs-title class_ inherited__">View</span> <span class="hljs-keyword">where</span> <span class="hljs-title class_ inherited__">Self</span>.<span class="hljs-title class_ inherited__">Body</span> == <span class="hljs-title class_ inherited__">Never</span> {
+
+    <span class="hljs-keyword">associatedtype</span> <span class="hljs-type">UIViewControllerType</span> : <span class="hljs-type">UIViewController</span>
+
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">makeUIViewController</span>(<span class="hljs-params">context</span>: <span class="hljs-keyword">Self</span>.<span class="hljs-type">Context</span>) -&gt; <span class="hljs-keyword">Self</span>.<span class="hljs-type">UIViewControllerType</span>
+
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">updateUIViewController</span>(<span class="hljs-keyword">_</span> <span class="hljs-params">uiViewController</span>: <span class="hljs-keyword">Self</span>.<span class="hljs-type">UIViewControllerType</span>, <span class="hljs-params">context</span>: <span class="hljs-keyword">Self</span>.<span class="hljs-type">Context</span>)
+
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">makeCoordinator</span>() -&gt; <span class="hljs-keyword">Self</span>.<span class="hljs-type">Coordinator</span>
+
+    <span class="hljs-keyword">typealias</span> <span class="hljs-type">Context</span> <span class="hljs-operator">=</span> <span class="hljs-type">UIViewControllerRepresentableContext</span>&lt;<span class="hljs-keyword">Self</span>&gt;
+}
+</code></pre>
+</div><p>从实现上来看桥接View和ViewController都是同一种实现方式，都借助了生成一个协调器Coordinator来连接二者。</p>
+<hr>
+<h2 id="%E6%95%B0%E6%8D%AE%E6%B5%81" tabindex="-1">数据流 <a class="anchor" href="#%E6%95%B0%E6%8D%AE%E6%B5%81">#</a></h2>
+<p>SwiftUI的设计理念是，所有数据<strong>有且仅有一个</strong>数据源。物理内存中仅仅保存一份数据,其余地方均引用其指针地址。</p>
+<h3 id="%40state" tabindex="-1">@State <a class="anchor" href="#%40state">#</a></h3>
+<p>SwiftUI中大量使用结构体 <code>Struct</code>,结构体中的变量一般是不能修改的,但是在View层级中会随着用户操作或者其他条件触发数据的变化,这个时候我们该如何让数据变化的同时界面跟随刷新变化呢。</p>
+<p>如果视图需要存储它可以修改的数据，请使用<a href="https://developer.apple.com/documentation/swiftui/state"><code>State</code></a>属性包装器声明一个变量。</p>
+<p>例如我们在开关Demo中使用了用 <code>@State</code>包裹着的 <code>open</code>属性,当触发开关onchange方法的时候会直接改变open属性的值。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">ToggleDemo</span>: <span class="hljs-title class_ inherited__">View</span> {
+    <span class="hljs-meta">@State</span> <span class="hljs-keyword">private</span> <span class="hljs-keyword">var</span> <span class="hljs-keyword">open</span>: <span class="hljs-type">Bool</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>
+    <span class="hljs-keyword">var</span> body: <span class="hljs-keyword">some</span> <span class="hljs-type">View</span> {
+        <span class="hljs-type">Form</span>{
+            <span class="hljs-type">Toggle</span>(<span class="hljs-string">&quot;开关&quot;</span>, isOn: <span class="hljs-variable">$open</span>)
+                .onChange(of: <span class="hljs-keyword">open</span>) { newValue <span class="hljs-keyword">in</span>
+                    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;切换了开关状态&quot;</span>)
+                }
+            <span class="hljs-type">Text</span>(<span class="hljs-string">&quot;开关状态: <span class="hljs-subst">\(<span class="hljs-keyword">open</span>.description)</span>&quot;</span>)
+        }.navigationTitle(<span class="hljs-string">&quot;Toggle&quot;</span>)
+      
+    }
+}
+</code></pre>
+</div><p>通俗的理解为struct内的属性都是不可变的,但是当你的View的body想要监听某个属性的时候可以给这个属性增加@State修饰符,这样的话就可以在struct内部直接修改此变量而不再使用mutating,同时当此变量发生改变的时候会触发View的重载和刷新。</p>
+<p>在State单词的语境下理解这个修饰符会更容易--状态变量。实质为当结构体中的属性发生了改变,Swift会创建一个新的Struct来替换原来的Struct。而@State 能够发现这种变化，并自动重新加载视图。</p>
+<p>SwiftUI在别的存储位置专门存放使用@State修饰的变量,来绕过结构体的限制。</p>
+<p>注意,这种用法破坏了常识中的结构体的规则,@State 是专门为存储在一个结构体中的简单属性而设计的,所以尽量将使用@State修饰的变量设置为私有的(private)。</p>
+<p>值得一提的是SwiftUI支持在任何线程安全地修改@State修饰的变量。</p>
+<h3 id="%40binding" tabindex="-1">@Binding <a class="anchor" href="#%40binding">#</a></h3>
+<p>由上一节的@State我们可以做到数据源变化的时候刷新View,当然有时候会出现一些相反的场景,比如一些View的操作变化产生了新的数据需要回传给另一个View显示,例如之前的WebviewDemo中桥接Wkwebview的SWWkWebview类。</p>
+<p>在Wkwebview的WKNavigationDelegate代理中发现Webview加载完毕之后执行JS代码来获取页面的标题,然后反向传递到上层页面的导航条上显示。</p>
+<p>这种情况适合使用@Binding修饰符来修饰属性让SwiftUI知晓这里需要使用指针传递,而非值传递(Swift中的struct内属性赋值默认是值传递)。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">WebviewDemo</span>: <span class="hljs-title class_ inherited__">View</span> {
+    <span class="hljs-meta">@State</span> <span class="hljs-keyword">private</span> <span class="hljs-keyword">var</span> url: <span class="hljs-type">String</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;https://www.36kr.com&quot;</span>
+    <span class="hljs-meta">@State</span> <span class="hljs-keyword">private</span> <span class="hljs-keyword">var</span> pageTitle: <span class="hljs-type">String</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;Webview&quot;</span> <span class="hljs-comment">// 默认的标题,状态变量</span>
+    <span class="hljs-keyword">var</span> body: <span class="hljs-keyword">some</span> <span class="hljs-type">View</span> {
+       <span class="hljs-type">SWWkWebview</span>(url: <span class="hljs-variable">$url</span>, pageTitle: <span class="hljs-variable">$pageTitle</span>)<span class="hljs-comment">// 注意@Binding的属性需要使用$符号来传递指针值</span>
+            .navigationTitle(pageTitle)<span class="hljs-comment">// pageTitle改变时会更新导航栏标题</span>
+            .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">SWWkWebview</span>: <span class="hljs-title class_ inherited__">UIViewRepresentable</span> {
+  
+    <span class="hljs-keyword">typealias</span> <span class="hljs-type">UIViewType</span> <span class="hljs-operator">=</span> <span class="hljs-type">WKWebView</span>
+  
+    <span class="hljs-comment">// @Binding修饰的属性,说明这个属性需要指针传递,不能使用值传递</span>
+    <span class="hljs-meta">@Binding</span> <span class="hljs-keyword">var</span> url: <span class="hljs-type">String</span>
+    <span class="hljs-comment">// 指针传递才能够做到不增加别的操作就能直接改变外部环境的属性值</span>
+    <span class="hljs-meta">@Binding</span> <span class="hljs-keyword">var</span> pageTitle: <span class="hljs-type">String</span>
+  
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">makeUIView</span>(<span class="hljs-params">context</span>: <span class="hljs-type">Context</span>) -&gt; <span class="hljs-type">WKWebView</span> {
+        <span class="hljs-keyword">let</span> view <span class="hljs-operator">=</span> <span class="hljs-type">WKWebView</span>()
+        view.navigationDelegate <span class="hljs-operator">=</span> context.coordinator
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">let</span> url <span class="hljs-operator">=</span> <span class="hljs-type">URL</span>(string: url) {
+            view.load(<span class="hljs-type">URLRequest</span>(url: url))
+        }
+        <span class="hljs-keyword">return</span> view
+    }
+  
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">updateUIView</span>(<span class="hljs-keyword">_</span> <span class="hljs-params">uiView</span>: <span class="hljs-type">WKWebView</span>, <span class="hljs-params">context</span>: <span class="hljs-type">Context</span>) {
+     
+    }
+
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">makeCoordinator</span>() -&gt; <span class="hljs-type">Coordinator</span> {
+        <span class="hljs-keyword">let</span> val <span class="hljs-operator">=</span>  <span class="hljs-type">Coordinator</span>()
+        val.updateTitle <span class="hljs-operator">=</span> { title <span class="hljs-keyword">in</span>
+            <span class="hljs-comment">//这里更新pageTitle指针指向的属性的值</span>
+            <span class="hljs-keyword">self</span>.pageTitle <span class="hljs-operator">=</span> title
+        }
+        <span class="hljs-keyword">return</span> val
+    }
+  
+    <span class="hljs-keyword">class</span> <span class="hljs-title class_">Coordinator</span>: <span class="hljs-title class_ inherited__">NSObject</span>, <span class="hljs-title class_ inherited__">WKNavigationDelegate</span> {
+     
+        <span class="hljs-keyword">var</span> updateTitle: ((<span class="hljs-type">String</span>) -&gt; <span class="hljs-type">Void</span>)<span class="hljs-operator">?</span>
+
+        <span class="hljs-keyword">func</span> <span class="hljs-title function_">webView</span>(<span class="hljs-keyword">_</span> <span class="hljs-params">webView</span>: <span class="hljs-type">WKWebView</span>, <span class="hljs-params">didFinish</span> <span class="hljs-params">navigation</span>: <span class="hljs-type">WKNavigation</span>!) {
+            webView.evaluateJavaScript(<span class="hljs-string">&quot;document.title&quot;</span>) { (result, error) <span class="hljs-keyword">in</span>
+                <span class="hljs-keyword">let</span> title: <span class="hljs-type">String</span> <span class="hljs-operator">=</span> <span class="hljs-type">String</span>(describing: result <span class="hljs-operator">??</span> <span class="hljs-string">&quot;&quot;</span>)
+                <span class="hljs-comment">// 这里每次加载页面都获取页面的标题,然后执行block进行SWWkWebview结构体的更新</span>
+                <span class="hljs-keyword">self</span>.updateTitle<span class="hljs-operator">?</span>(title)
+            }
+        }
+    }
+}
+</code></pre>
+</div><p>当然@Binding的链接是双向的,不仅可以从下向上修改数据,在上层View修改的下层View绑定的数据属性的时候,下层View也会受到影响。</p>
+<p>可以看到数据流向图:</p>
+<p><img src="https://docs-assets.developer.apple.com/published/d98251c2fac9fc4f6843be1e4836cb93/Managing-User-Interface-State-1@2x.png" alt="基本数据流向"></p>
+<p>首先我们在上层View中存在一个@State修饰的状态变量,上层View会观察此变量的变化随之刷新界面,相应刷新的View可能是另外一个下层VIew,不过这个并不影响既定的刷新规则。这种数据流向为单向绑定。</p>
+<p>其次我们可以把状态变量的指针传递给下层@Binding修饰的属性变量,当任何一方修改此属性的时候都会触发观察者更新全部的View。这种数据流向为双向绑定。</p>
+<p>从上图可以观察到,当使用@State属性来修饰的时候可以认为此属性为值的真实来源,当使用@Binding修饰属性的时候可以认为此属性为真实值的指针。</p>
+<p>类似的当看到带有State单词的修饰符时都可以认为当前属性为值的真实来源，且当前View是这个属性的原始持有者。</p>
+<h3 id="%40observableobject%E3%80%81%40published%E3%80%81%40stateobject" tabindex="-1">@ObservableObject、@Published、@StateObject <a class="anchor" href="#%40observableobject%E3%80%81%40published%E3%80%81%40stateobject">#</a></h3>
+<p>虽然Swift中推荐使用Struct,但是Class的使用还是不可缺少的一环。相比于结构体的值传递,class默认进行的就是指针传递。那么指针传递的Class是否就自动获得了类似于@State和@Binding的功能呢?</p>
+<p>答案是NO</p>
+<p>SwiftUI中并不会因为你传递进来的是一个类变量就默认自动刷新显示。想要达到这样的效果必须使当前类满足ObservableObject协议。</p>
+<p>ObservableObject字面意思,可观察对象。在类中可以添加@Published修饰符来告诉SwiftUI这个类中的这个属性可以发布订阅。</p>
+<p>例如我们现在有一个可以显示用户信息的文本可一个点击一下增加一岁的按钮：</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">class</span> <span class="hljs-title class_">User</span> {
+    <span class="hljs-keyword">var</span> name <span class="hljs-operator">=</span> <span class="hljs-string">&quot;Apple&quot;</span>
+    <span class="hljs-keyword">var</span> age <span class="hljs-operator">=</span> <span class="hljs-number">15</span>
+}
+
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">CustomViews</span>: <span class="hljs-title class_ inherited__">View</span> {
+    <span class="hljs-keyword">private</span> <span class="hljs-keyword">var</span> user <span class="hljs-operator">=</span> <span class="hljs-type">User</span>()
+    <span class="hljs-keyword">var</span> body: <span class="hljs-keyword">some</span> <span class="hljs-type">View</span> {
+        <span class="hljs-type">NavigationView</span>{
+            <span class="hljs-type">VStack</span> {
+                <span class="hljs-type">Text</span>(<span class="hljs-string">&quot;当前的用户名:<span class="hljs-subst">\(user.name)</span>&quot;</span>)
+                <span class="hljs-type">Text</span>(<span class="hljs-string">&quot;当前的用户年龄:<span class="hljs-subst">\(user.age)</span>岁&quot;</span>)
+                <span class="hljs-type">Button</span>(<span class="hljs-string">&quot;一年过去了&quot;</span>) {
+                    user.age <span class="hljs-operator">+=</span> <span class="hljs-number">1</span>
+                    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;一年后的年龄:<span class="hljs-subst">\(user.age)</span>&quot;</span>)
+                }
+            }
+            .navigationTitle(<span class="hljs-string">&quot;自定义view组件&quot;</span>)
+        }
+    }
+}
+</code></pre>
+</div><details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3w250asb2j213u0mqwgy.jpg"></image></pre>
+</details>
+<p>可以看到我们点了很多次按钮,内存中的age字段已经变成了25,界面上却依旧显示为原始的值,这是因为User类是不可观察的,所以当User中的字段发生改变的时候不能触发页面的刷新.</p>
+<p>现在我们为User类增加可观察属性</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">class</span> <span class="hljs-title class_">User</span>: <span class="hljs-title class_ inherited__">ObservableObject</span> {
+    <span class="hljs-meta">@Published</span> <span class="hljs-keyword">var</span> name <span class="hljs-operator">=</span> <span class="hljs-string">&quot;Apple&quot;</span>
+    <span class="hljs-meta">@Published</span> <span class="hljs-keyword">var</span> age <span class="hljs-operator">=</span> <span class="hljs-number">15</span>
+}
+
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">CustomViews</span>: <span class="hljs-title class_ inherited__">View</span> {
+    <span class="hljs-comment">// 以前使用@ObservableObject的时候有user属性被异常释放的风险,改为使用@StateObject修饰符</span>
+    <span class="hljs-meta">@StateObject</span> <span class="hljs-keyword">private</span> <span class="hljs-keyword">var</span> user <span class="hljs-operator">=</span> <span class="hljs-type">User</span>()
+  
+    <span class="hljs-keyword">var</span> body: <span class="hljs-keyword">some</span> <span class="hljs-type">View</span> {
+        <span class="hljs-type">NavigationView</span>{
+            <span class="hljs-type">VStack</span> {
+                <span class="hljs-type">Text</span>(<span class="hljs-string">&quot;当前的用户名:<span class="hljs-subst">\(user.name)</span>&quot;</span>)
+                <span class="hljs-type">Text</span>(<span class="hljs-string">&quot;当前的用户年龄:<span class="hljs-subst">\(user.age)</span>岁&quot;</span>)
+                <span class="hljs-type">Button</span>(<span class="hljs-string">&quot;一年过去了&quot;</span>) {
+                    user.age <span class="hljs-operator">+=</span> <span class="hljs-number">1</span>
+                    <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;一年后的年龄:<span class="hljs-subst">\(user.age)</span>&quot;</span>)
+                }
+            }
+            .navigationTitle(<span class="hljs-string">&quot;自定义view组件&quot;</span>)
+        }
+    }
+}
+</code></pre>
+</div><details>
+<summary><font color=gray>点击查看运行效果</font> </summary>
+  <pre><image src="https://gcore.jsdelivr.net/gh/zcx4u/images/Hexo/SwiftUI/e6c9d24ely1h3w27hniv2j213o0luad5.jpg"></image></pre>
+</details>
+<p>可以看到随着我们的点击增加user的age字段值,界面上显示的年龄文字也随之增加.</p>
+<p>当然你需要给可观察的对象增加**@StateObject**修饰符</p>
+<p><strong>为什么不使用@ObservedObject修饰符呢?</strong></p>
+<ol>
+<li>这将确保 User 实例在视图更新时不会被破坏。以前可能已经使用 @ObservedObject 来获得相同的结果，但这是有风险的。有时 @ObservedObject 可能会意外释放它正在存储的对象，因为它不是设计为最终的真相来源目的，但 @StateObject 就不会发生这种情况，因此应该改用它。</li>
+<li>@StateObject 和 @ObservedObject 之间有一个重要的区别，即<strong>所有权</strong>，哪个视图创建了对象，哪个视图只是在监视它。规则是这样的：首先创建对象的视图必须使用**@StateObject**，告诉 SwiftUI 它是数据的所有者并负责保持它的活动，所有其它视图都必须使用 <strong>@ObservedObject</strong> 来告诉 SwiftUI，它们想要观察对象的变化但不直接拥有它。即每个对象应该只使用一次 @StateObject，它应该在负责创建对象的任何视图中，共享对象的所有其它视图都应使用@ObservedObject。</li>
+</ol>
+<p><strong>思考1: 我们能对Class使用@State修饰吗?</strong></p>
+<p>可以,只不过使用@State修饰的时候只有当前值发生变化的时候才会触发View变化,当被修饰的是Class类型的变量时,类内容的属性改变并不能改变当前类的值(指针).所以必须触发类的当前值改变的时候才能和观察者产生一样的效果.</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">class</span> <span class="hljs-title class_">User</span> {
+    <span class="hljs-keyword">var</span> name <span class="hljs-operator">=</span> <span class="hljs-string">&quot;Apple&quot;</span>
+    <span class="hljs-keyword">var</span> age <span class="hljs-operator">=</span> <span class="hljs-number">15</span>
+}
+
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">CustomViews</span>: <span class="hljs-title class_ inherited__">View</span> {
+    <span class="hljs-meta">@State</span> <span class="hljs-keyword">var</span> user <span class="hljs-operator">=</span> <span class="hljs-type">User</span>()
+    <span class="hljs-keyword">var</span> body: <span class="hljs-keyword">some</span> <span class="hljs-type">View</span> {
+        <span class="hljs-type">NavigationView</span>{
+            <span class="hljs-type">VStack</span> {
+                <span class="hljs-type">Text</span>(<span class="hljs-string">&quot;当前的用户名:<span class="hljs-subst">\(user.name)</span>&quot;</span>)
+                <span class="hljs-type">Text</span>(<span class="hljs-string">&quot;当前的用户年龄:<span class="hljs-subst">\(user.age)</span>岁&quot;</span>)
+                <span class="hljs-type">Button</span>(<span class="hljs-string">&quot;一年过去了&quot;</span>) {
+                  <span class="hljs-comment">// 直接生成新的类,或者做类的深拷贝后改变age数值</span>
+                    <span class="hljs-keyword">let</span> userB <span class="hljs-operator">=</span> <span class="hljs-type">User</span>()
+                    userB.name <span class="hljs-operator">=</span> user.name
+                    userB.age <span class="hljs-operator">=</span> user.age <span class="hljs-operator">+</span> <span class="hljs-number">1</span>
+                    user <span class="hljs-operator">=</span> userB
+                }
+            }
+            .navigationTitle(<span class="hljs-string">&quot;自定义view组件&quot;</span>)
+        }
+    }
+}
+</code></pre>
+</div><p><strong>思考2: 我们可以对结构体使用@StateObject吗?</strong></p>
+<p>很遗憾不能, 因为@StateObject修饰符必须要求属性满足ObservableObject协议,而非class类型不能遵循协议.</p>
+<h3 id="%40environmentobject" tabindex="-1">@EnvironmentObject <a class="anchor" href="#%40environmentobject">#</a></h3>
+<p>思考一种场景，如果您有视图 A，并且视图 A 有一些视图 E 想要的数据，使用@ObservedObject 视图 A 需要将对象交给视图 B，视图 B 将把它交给视图 C，然后是视图 D，最后是视图 E，所有中间视图都需要发送对象，即使它们实际上并没有需要它。</p>
+<p>这个时候我们可以使用@EnvironmentObject ，视图 A 可以创建一个对象并将其放入环境中；然后，其中的任何视图都可以随时通过请求访问该环境对象，而不必显式传递它，这样会使我们的代码更简单。</p>
+<p>例如之前的Demo种的列表数据:</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">SwiftUIDemoApp</span>: <span class="hljs-title class_ inherited__">App</span> {
+    <span class="hljs-meta">@StateObject</span> <span class="hljs-keyword">private</span> <span class="hljs-keyword">var</span> features <span class="hljs-operator">=</span> <span class="hljs-type">FeatureInfoModel</span>()
+    <span class="hljs-keyword">var</span> body: <span class="hljs-keyword">some</span> <span class="hljs-type">Scene</span> {
+        <span class="hljs-type">WindowGroup</span> {
+            <span class="hljs-type">DemoHomeView</span>().environmentObject(features)<span class="hljs-comment">//这里向环境变量中添加了一个FeatureInfoModel</span>
+        }
+    }
+}
+
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">FeatureListHomeView</span>: <span class="hljs-title class_ inherited__">View</span> {
+
+  <span class="hljs-meta">@EnvironmentObject</span> <span class="hljs-keyword">var</span> feature: <span class="hljs-type">FeatureInfoModel</span> <span class="hljs-comment">//这个view从环境变量中获取了FeatureInfoModel</span>
+
+  <span class="hljs-keyword">var</span> body: <span class="hljs-keyword">some</span> <span class="hljs-type">View</span> {
+      <span class="hljs-type">NavigationView</span>{
+          <span class="hljs-type">List</span> {
+              <span class="hljs-type">ForEach</span>(feature.demoFeatures.featureSections, id: \.<span class="hljs-keyword">self</span>) { sec <span class="hljs-keyword">in</span>
+                  <span class="hljs-type">Section</span>(sec.featureSectionName) {
+                      <span class="hljs-type">ForEach</span>(sec.featureList, id: \.<span class="hljs-keyword">self</span>) { item <span class="hljs-keyword">in</span>
+                          <span class="hljs-type">NavigationLink</span> {
+                              getDestinationViews(featureItem: item)
+                          } label: {
+                              <span class="hljs-type">DemoRowView</span>(title: item.featureName, subTitle: item.featureDesc)
+                          }
+                      }.onDelete { offset <span class="hljs-keyword">in</span>
+                          deleteRow(offset: offset, from: sec)
+                      }
+                  }
+              }
+          }.listStyle(.in<span class="hljs-keyword">set</span>)
+          .navigationTitle(<span class="hljs-string">&quot;基础控件&quot;</span>)
+          .navigationBarTitleDisplayMode(.large)
+          .toolbar{
+              <span class="hljs-type">EditButton</span>()
+          }
+      }
+
+}
+</code></pre>
+</div><p>很明显DemoHomeView和FeatureListHomeView中间间隔了一些其他View，类似于全局变量可以直接读取使用。</p>
+<p>通常EnvironmentObject用于整个应用程序中一些View都依赖和共享的数据，因为所有的视图都指向同一个模型，当被修饰的属性发生变化时，所有的视图都会立即更新，排除了应用程序的不同部分出现不同步的风险。</p>
+<h2 id="%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E8%A1%8C%E4%B8%BA%E6%8E%A7%E5%88%B6" tabindex="-1">应用程序行为控制 <a class="anchor" href="#%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E8%A1%8C%E4%B8%BA%E6%8E%A7%E5%88%B6">#</a></h2>
+<h3 id="uiapplicationdelegate" tabindex="-1">UIApplicationDelegate <a class="anchor" href="#uiapplicationdelegate">#</a></h3>
+<p>作为一个完整的APP，开发者应该可以控制APP的完整生命周期，这个时候我们需要一个<a href="https://developer.apple.com/documentation/uikit/uiapplicationdelegate"><code>UIApplicationDelegate</code></a>类型的对象来承载App生命周期内各种行为的相应。</p>
+<p>但是创建SwiftUI项目的时候Xcode并没有给我们默认创建Applegate.swift文件。</p>
+<p>如果我们需要实现UIApplicationDelegate方法，我们需要手动创建Applegate.swift文件，并且让我们的Applegate类遵循NSObject协议和UIApplicationDelegate协议，然后实现我们需要的方法。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">import</span> Foundation
+<span class="hljs-keyword">import</span> UIKit
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">APPDelegate</span>: <span class="hljs-title class_ inherited__">NSObject</span>, <span class="hljs-title class_ inherited__">UIApplicationDelegate</span>, <span class="hljs-title class_ inherited__">ObservableObject</span> {
+ 
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">application</span>(<span class="hljs-keyword">_</span> <span class="hljs-params">application</span>: <span class="hljs-type">UIApplication</span>,
+                     <span class="hljs-params">didFinishLaunchingWithOptions</span> <span class="hljs-params">launchOptions</span>: [<span class="hljs-type">UIApplication</span>.<span class="hljs-params">LaunchOptionsKey</span> : <span class="hljs-keyword">Any</span>]<span class="hljs-operator">?</span> <span class="hljs-operator">=</span> <span class="hljs-literal">nil</span>) -&gt; <span class="hljs-type">Bool</span> {
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;didFinishLaunchingWithOptions&quot;</span>)
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+    }
+  
+    <span class="hljs-comment">// SwiftUI中一些方法不能触发</span>
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">applicationDidReceiveMemoryWarning</span>(<span class="hljs-keyword">_</span> <span class="hljs-params">application</span>: <span class="hljs-type">UIApplication</span>) {
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;log-DidReceiveMemoryWarning&quot;</span>)
+    }
+  
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">applicationDidBecomeActive</span>(<span class="hljs-keyword">_</span> <span class="hljs-params">application</span>: <span class="hljs-type">UIApplication</span>) {
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;log-applicationDidBecomeActive&quot;</span>)
+    }
+  
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">applicationDidEnterBackground</span>(<span class="hljs-keyword">_</span> <span class="hljs-params">application</span>: <span class="hljs-type">UIApplication</span>) {
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;log-applicationDidEnterBackground&quot;</span>)
+    }
+}
+</code></pre>
+</div><p>实现了代理方法后，我们还需要告诉SwiftUI在哪里增加我们的代理，在@main入口的struct中添加@UIApplicationDelegateAdaptor标记，SwiftUI会自动识别我们的代理类，并在合适的时机调用对应的代理方法。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">@main</span>
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">SwiftUIDemoApp</span>: <span class="hljs-title class_ inherited__">App</span> {
+   
+  <span class="hljs-meta">@UIApplicationDelegateAdaptor</span> <span class="hljs-keyword">private</span> <span class="hljs-keyword">var</span> appdelegate: <span class="hljs-type">APPDelegate</span>
+    <span class="hljs-comment">//@UIApplicationDelegateAdaptor(APPDelegate.self) var appdelegate 这个写法也可以</span>
+   <span class="hljs-operator">...</span>
+}
+</code></pre>
+</div><p>比较方便的是如果你的APPDelegate类遵循了ObservableObject协议，SwiftUI会自动把@UIApplicationDelegateAdaptor修饰的属性放到全局环境变量里去，例如这里我们并没有声明全局环境变量，但是在下层的View中依旧可以使用全局环境变量获取。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">FeatureListHomeView</span>: <span class="hljs-title class_ inherited__">View</span> {  
+ <span class="hljs-comment">// 这里去获取环境变量</span>
+ <span class="hljs-meta">@EnvironmentObject</span> <span class="hljs-keyword">var</span> appdelegate: <span class="hljs-type">APPDelegate</span>
+ <span class="hljs-keyword">var</span> body: <span class="hljs-keyword">some</span> <span class="hljs-type">View</span> {
+    <span class="hljs-type">NavigationView</span> {
+      <span class="hljs-operator">...</span>
+    }.onAppear {
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;我在App内部的view获取到了全局的appdelegate中的name属性<span class="hljs-subst">\(appdelegate.name)</span>&quot;</span>)
+    }
+  }
+}
+</code></pre>
+</div><p>但是要注意一个问题，随着API的更新，有些代理方法不再由UIApplicationDelegate调用。</p>
+<p>例如App前后台切换的代理，iOS13以前，由UIApplicationDelegate来控制生命周期，iOS13以后，由UISceneDelegate来控制生命周期。在iOS 13之后为了解决iPadOS展示多窗口的问题，用UIScene替代了之前UIWindow来管理视图。</p>
+<p>iOS14以后Apple又给SwiftUI提供了更优雅的API来显示和控制Scene。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">@main</span>
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">SwiftUIDemoApp</span>: <span class="hljs-title class_ inherited__">App</span> {
+
+  <span class="hljs-meta">@Environment</span>(\.scenePhase) <span class="hljs-keyword">var</span> scenePhase
+
+  <span class="hljs-keyword">var</span> body: <span class="hljs-keyword">some</span> <span class="hljs-type">Scene</span> {
+      <span class="hljs-type">WindowGroup</span> {
+          <span class="hljs-type">DemoHomeView</span>()
+      }.onChange(of: scenePhase) { newValue <span class="hljs-keyword">in</span>
+          <span class="hljs-keyword">switch</span> newValue {
+          <span class="hljs-keyword">case</span> .active:
+              <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;active&quot;</span>)
+          <span class="hljs-keyword">case</span> .background:
+              <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;background&quot;</span>)
+          <span class="hljs-keyword">case</span> .inactive:
+              <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;inactive&quot;</span>)
+          <span class="hljs-keyword">@unknown</span> <span class="hljs-keyword">default</span>:
+              <span class="hljs-keyword">break</span>
+          }
+      }
+  }
+}
+</code></pre>
+</div><h3 id="uiwindowscenedelegate" tabindex="-1">UIWindowSceneDelegate <a class="anchor" href="#uiwindowscenedelegate">#</a></h3>
+<p>多窗口管理和App代理类似，平常用的较少。</p>
+<p>如果使用了场景委托UIWindowSceneDelegate，也需要自行创建委托文件SceneDelegate。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">import</span> Foundation
+<span class="hljs-keyword">import</span> UIKit
+
+<span class="hljs-keyword">class</span> <span class="hljs-title class_">SceneDelegate</span>: <span class="hljs-title class_ inherited__">NSObject</span>, <span class="hljs-title class_ inherited__">UIWindowSceneDelegate</span>, <span class="hljs-title class_ inherited__">ObservableObject</span> {
+    <span class="hljs-keyword">func</span> <span class="hljs-title function_">windowScene</span>( <span class="hljs-keyword">_</span> <span class="hljs-params">windowScene</span>: <span class="hljs-type">UIWindowScene</span>,<span class="hljs-params">performActionFor</span> <span class="hljs-params">shortcutItem</span>: <span class="hljs-type">UIApplicationShortcutItem</span> ) <span class="hljs-keyword">async</span> -&gt; <span class="hljs-type">Bool</span> {
+        <span class="hljs-comment">// Do something with the shortcut...</span>
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+    }
+}
+</code></pre>
+</div><p>然后直接在Appdelegate类中的方法中返回场景委托类即可。</p>
+<div class="cb"><span class="cb-l">swift</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-swift"><span class="hljs-keyword">func</span> <span class="hljs-title function_">application</span>(<span class="hljs-keyword">_</span> <span class="hljs-params">application</span>: <span class="hljs-type">UIApplication</span>, <span class="hljs-params">configurationForConnecting</span> <span class="hljs-params">connectingSceneSession</span>: <span class="hljs-type">UISceneSession</span>, <span class="hljs-params">options</span>: <span class="hljs-type">UIScene</span>.<span class="hljs-type">ConnectionOptions</span>) -&gt; <span class="hljs-type">UISceneConfiguration</span> {
+  <span class="hljs-keyword">let</span> configuration <span class="hljs-operator">=</span> <span class="hljs-type">UISceneConfiguration</span>(name: <span class="hljs-literal">nil</span>,sessionRole: connectingSceneSession.role)
+  <span class="hljs-keyword">if</span> connectingSceneSession.role <span class="hljs-operator">==</span> .windowApplication {
+      configuration.delegateClass <span class="hljs-operator">=</span> <span class="hljs-type">SceneDelegate</span>.<span class="hljs-keyword">self</span>
+  }
+  <span class="hljs-keyword">return</span> configuration
+}
+</code></pre>
+</div><p>同样的，如果你的SceneDelegate类遵循了ObservableObject协议，SwiftUI会自动把当前类型的属性放到环境环境变量里去。</p>
+<div class="pnav"><a class="l" href="/posts/ios-code-signing/"><small>上一篇</small><b>iOS签名机制</b></a><a class="r" href="/posts/xcuitest/"><small>下一篇</small><b>XCUITest iOS自动化UI测试框架</b></a></div></article></main>
+
+<div id="mascot" title="戳一下">
+  <div id="m-say"></div>
+  <button id="m-top" title="回到顶部" aria-label="回到顶部">↑</button>
+</div>
+<script type="module" src="/scene2d.js"></script>
+<script type="module" src="/mascot.js"></script>
+<script>
+addEventListener('keydown', function(e){
+  var P = {"prev":"/posts/ios-code-signing/","next":"/posts/xcuitest/"};
+  // 灯箱打开时 Esc 只关灯箱,方向键不翻页
+  var lb = document.querySelector('.lb');
+  if (lb) { if (e.key === 'Escape') lb.remove(); return; }
+  if (e.key === 'ArrowLeft'  && P.prev) location.href = P.prev;
+  if (e.key === 'ArrowRight' && P.next) location.href = P.next;
+  if (e.key === 'Escape') location.href = '/#writing';
+});
+</script>
+<script>
+// 大纲高亮:滚动容器是 #art(不是 window),直接按滚动位置算当前节最可靠
+(function(){
+  var toc = document.querySelector('.toc');
+  if (!toc) return;
+  var art = document.getElementById('art');
+  var links = [].slice.call(toc.querySelectorAll('a'));
+  var map = {};
+  // id 本身已是百分号编码,直接用原始 href 做 key,不要 decode
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var heads = [].slice.call(art.querySelectorAll('h2[id],h3[id]'));
+  if (!heads.length) return;
+  var cur = null;
+
+  function paint(){
+    var top = art.getBoundingClientRect().top + 100;   // 判定线:卡片顶部下方 100px
+    var found = heads[0];
+    for (var i = 0; i < heads.length; i++){
+      if (heads[i].getBoundingClientRect().top <= top) found = heads[i]; else break;
+    }
+    // 已滚到底时强制选中最后一节,否则末节永远高亮不到
+    if (art.scrollTop + art.clientHeight >= art.scrollHeight - 4) found = heads[heads.length - 1];
+    if (found === cur) return;
+    cur = found;
+    links.forEach(function(a){ a.classList.remove('on'); });
+    var a = map[found.id];
+    if (!a) return;
+    a.classList.add('on');
+    var box = a.getBoundingClientRect(), tb = toc.getBoundingClientRect();
+    if (box.top < tb.top || box.bottom > tb.bottom) a.scrollIntoView({block:'nearest'});
+  }
+
+  var tick = false;
+  art.addEventListener('scroll', function(){
+    if (tick) return;
+    tick = true;
+    requestAnimationFrame(function(){ tick = false; paint(); });
+  }, {passive:true});
+
+  toc.addEventListener('click', function(e){
+    var a = e.target.closest('a'); if (!a) return;
+    var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if (!t) return;
+    e.preventDefault();
+    art.scrollTo({ top: art.scrollTop + t.getBoundingClientRect().top - art.getBoundingClientRect().top - 24, behavior:'smooth' });
+    history.replaceState(null, '', a.getAttribute('href'));
+  });
+  paint();
+})();
+</script>
+<script>
+// 图片灯箱:点正文图片或 Mermaid 图放大,点击 / Esc / 滚轮关闭
+document.getElementById('art').addEventListener('click', function(e){
+  var t = e.target.closest('img,.mm svg');
+  if (!t || t.closest('a')) return;
+  var lb = document.createElement('div'), c = t.cloneNode(true);
+  lb.className = 'lb';
+  if (c.tagName !== 'IMG') {
+    // SVG 没有固有的"原图尺寸",按视口等比放大
+    var r = t.getBoundingClientRect();
+    var k = Math.min(innerWidth * .92 / r.width, innerHeight * .9 / r.height);
+    c.style.width = r.width * k + 'px';
+    c.style.height = r.height * k + 'px';
+  }
+  lb.appendChild(c);
+  lb.onclick = lb.onwheel = function(){ lb.remove(); };
+  document.body.appendChild(lb);
+});
+</script>
+<script>
+// 代码块复制
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('.cb-c');
+  if (!btn) return;
+  var pre = btn.parentElement.querySelector('pre');
+  if (!pre) return;
+  var text = pre.innerText;
+  var done = function(){
+    btn.textContent = '已复制'; btn.classList.add('ok');
+    setTimeout(function(){ btn.textContent = '复制'; btn.classList.remove('ok'); }, 1600);
+  };
+  // clipboard API 需要安全上下文(https 或 localhost),否则回退到 execCommand
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else fallback();
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (err) { btn.textContent = '复制失败'; }
+    document.body.removeChild(ta);
+  }
+});
+</script>
+</body></html>

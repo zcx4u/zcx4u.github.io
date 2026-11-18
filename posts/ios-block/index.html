@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>__block 关键字探究 — fatbruin</title>
+<meta name="description" content="从 __block 修饰符说起,拆解 Block 捕获变量的底层原理。"><meta property="og:type" content="article"><meta property="og:site_name" content="fatbruin"><meta property="og:title" content="__block 关键字探究"><meta property="og:description" content="从 __block 修饰符说起,拆解 Block 捕获变量的底层原理。"><meta property="og:url" content="https://www.umuer.com/posts/ios-block/"><meta property="og:image" content="https://www.umuer.com/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://www.umuer.com/posts/ios-block/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="fatbruin" href="/rss.xml">
+<script>(function(){var n=null;try{n=localStorage.getItem('fatbruin-night')}catch(e){}var h=new Date().getHours();if(n?n==='1':(h>=19||h<6))document.documentElement.classList.add('night')})()</script>
+<link rel="stylesheet" href="/styles/base.0282236f.css">
+<link rel="stylesheet" href="/styles/post.0bb29940.css"></head>
+<body class="post">
+<div id="scene"></div>
+<div class="topbar"><div class="navl"><a class="back" href="/#writing">← 回到小屋</a><a class="back nav-fallback" href="/posts/">全部文章 →</a></div><div class="brand">fat<span>bruin</span></div></div>
+<main><nav class="toc" aria-label="目录"><p class="toc-h">目录</p><ol><li class="l3"><a href="#__block-%E6%98%AF%E5%B9%B2%E4%BB%80%E4%B9%88%E7%94%A8%E7%9A%84">__block 是干什么用的</a></li><li class="l3"><a href="#__block-%E5%8E%9F%E7%90%86%E6%80%9D%E8%80%83%E6%8E%A8%E6%B5%8B">__block 原理思考推测</a></li><li class="l3"><a href="#__block-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E9%AA%8C%E8%AF%81">__block 底层实现验证</a></li><li class="l3"><a href="#__block%E6%98%AF%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81auto%E5%8F%98%E9%87%8F%E4%B8%8D%E8%A2%AB%E9%87%8A%E6%94%BE%E7%9A%84">__block是如何保证auto变量不被释放的</a></li><li class="l3"><a href="#%E6%80%9D%E8%80%83">思考</a></li></ol><a class="toc-all" href="/posts/">全部文章 →</a></nav><article id="art"><p class="meta"><span>2020.09.23</span><span>iOS</span><span>6 分钟</span></p><h1>__block 关键字探究</h1><p class="sum">从 __block 修饰符说起,拆解 Block 捕获变量的底层原理。</p><h3 id="__block-%E6%98%AF%E5%B9%B2%E4%BB%80%E4%B9%88%E7%94%A8%E7%9A%84" tabindex="-1">__block 是干什么用的 <a class="anchor" href="#__block-%E6%98%AF%E5%B9%B2%E4%BB%80%E4%B9%88%E7%94%A8%E7%9A%84">#</a></h3>
+<div class="cb"><span class="cb-l">objective-c</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-objective-c">int val = 10;   
+MyBlock block = ^{
+    NSLog(@&quot;val = %d&quot;,val);
+};
+block();
+//输出
+2020-09-22 14:24:47.018497+0800 MyDemo[2987:2658512] val = 10
+</code></pre>
+</div><p>从一段简单的<code>code</code>说起，在<code>block</code>中修改val的值该怎么办呢？</p>
+<p>直接在<code>block</code>中修改会报编译错误<code>Variable is not assignable (missing __block type specifier)</code></p>
+<p>显而易见我们只需要在<code>val</code>变量前加<code>__block</code>关键字即可。</p>
+<div class="cb"><span class="cb-l">objective-c</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-objective-c">__block int val = 10;
+MyBlock block = ^{
+    val += 10;
+    NSLog(@&quot;val = %d&quot;,val);
+};
+block();
+//输出
+2020-09-22 14:29:38.065700+0800 MyDemo[2991:2660066] val = 20
+</code></pre>
+</div><p>现在我们简单的在<code>block</code>中修改了<code>val</code>的值。</p>
+<h3 id="__block-%E5%8E%9F%E7%90%86%E6%80%9D%E8%80%83%E6%8E%A8%E6%B5%8B" tabindex="-1">__block 原理思考推测 <a class="anchor" href="#__block-%E5%8E%9F%E7%90%86%E6%80%9D%E8%80%83%E6%8E%A8%E6%B5%8B">#</a></h3>
+<p>so why？现在到了探究其所以然的时候了。</p>
+<p>由于<code>objc</code>封装的较深，我们可以把<code>objc</code>代码转换成<code>c++</code>代码一探究竟</p>
+<div class="cb"><span class="cb-l">ruby</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-ruby">xcrun -sdk iphoneos clang -arch arm64 -rewrite-objc main.m
+</code></pre>
+</div><p>在<code>main.m</code>文件夹内执行这条命令生成一个<code>main.cpp</code>的<code>c++</code>类</p>
+<p>在<code>xcode</code>中打开,在该类中搜索<code>main</code>方法.</p>
+<div class="cb"><span class="cb-l">c++</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-c++"><span class="hljs-comment">/*这个时候使用的是这些code
+int val = 10;   
+MyBlock block = ^{
+    NSLog(@&quot;val = %d&quot;,val);
+};
+block();
+*/</span>
+<span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> * argv[])</span> </span>{
+    NSString * appDelegateClassName;
+    <span class="hljs-comment">/* @autoreleasepool */</span> { __AtAutoreleasePool __autoreleasepool; 
+
+        appDelegateClassName = <span class="hljs-built_in">NSStringFromClass</span>(((<span class="hljs-built_in">Class</span> (*)(id, SEL))(<span class="hljs-type">void</span> *)objc_msgSend)((id)<span class="hljs-built_in">objc_getClass</span>(<span class="hljs-string">&quot;AppDelegate&quot;</span>), <span class="hljs-built_in">sel_registerName</span>(<span class="hljs-string">&quot;class&quot;</span>)));
+				<span class="hljs-comment">// 我们声明的auto变量</span>
+        <span class="hljs-type">int</span> val = <span class="hljs-number">10</span>;
+        <span class="hljs-comment">// 我们声明的block        </span>
+        MyBlock block = ((<span class="hljs-built_in">void</span> (*)())&amp;__main_block_impl_0((<span class="hljs-type">void</span> *)__main_block_func_0, &amp;__main_block_desc_0_DATA, val));
+				<span class="hljs-comment">// block的调用</span>
+        ((<span class="hljs-built_in">void</span> (*)(__block_impl *))((__block_impl *)block)-&gt;FuncPtr)((__block_impl *)block);
+
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-built_in">UIApplicationMain</span>(argc, argv, __null, appDelegateClassName);
+}
+</code></pre>
+</div><p>我们可以看到<code>__main_block_impl_0</code>这个东西，是我们创建的<code>block</code>在<code>c++</code>里面的实现</p>
+<div class="cb"><span class="cb-l">c++</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-c++"><span class="hljs-function"><span class="hljs-keyword">typedef</span> <span class="hljs-title">void</span><span class="hljs-params">(*MyBlock)</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span></span>;
+
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">__main_block_impl_0</span> {
+  <span class="hljs-keyword">struct</span> <span class="hljs-title class_">__block_impl</span> impl;
+  <span class="hljs-keyword">struct</span> <span class="hljs-title class_">__main_block_desc_0</span>* Desc;
+  <span class="hljs-type">int</span> val; <span class="hljs-comment">// 这个地方看到block内部有生成一个对象来保存我们创建的val来使用</span>
+  __main_block_impl_0(<span class="hljs-type">void</span> *fp, <span class="hljs-keyword">struct</span> __main_block_desc_0 *desc, <span class="hljs-type">int</span> _val, <span class="hljs-type">int</span> flags=<span class="hljs-number">0</span>) : <span class="hljs-built_in">val</span>(_val) {
+    impl.isa = &amp;_NSConcreteStackBlock;
+    impl.Flags = flags;
+    impl.FuncPtr = fp;
+    Desc = desc;
+  }
+};
+</code></pre>
+</div><p>对应的<code>__block_impl</code>是block数据结构在c++的实现</p>
+<div class="cb"><span class="cb-l">c++</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-c++"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">__block_impl</span> {
+  <span class="hljs-type">void</span> *isa; <span class="hljs-comment">// 由此可见block在底层也是一种objc对象</span>
+  <span class="hljs-type">int</span> Flags;
+  <span class="hljs-type">int</span> Reserved;
+  <span class="hljs-type">void</span> *FuncPtr; <span class="hljs-comment">// block里保存的函数指针</span>
+};
+</code></pre>
+</div><p>我们还能找到我们的<code>NSLog</code>方法<code>__main_block_func_0</code></p>
+<div class="cb"><span class="cb-l">c++</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-c++"><span class="hljs-type">static</span> <span class="hljs-type">void</span> __main_block_func_0(<span class="hljs-keyword">struct</span> __main_block_impl_0 *__cself) {
+  <span class="hljs-type">int</span> val = __cself-&gt;val; <span class="hljs-comment">// 从自身的结构体中取出val对象来使用</span>
+	<span class="hljs-built_in">NSLog</span>((NSString*)&amp;__NSConstantStringImpl__var_folders_j2__3l5gw_93rz1_jfmq7r7wwph0000gn_T_main_18d90f_mi_0,
+      val);
+}
+</code></pre>
+</div><p>我们从而知道了<code>block</code>会捕获<code>auto</code>类型的变量到自身的结构体，这时候会生成一个新变量<code>val</code>来使用。</p>
+<p>虽然捕获到了变量，但是此变量非彼变量，我们并不能在这里修改外部的值。</p>
+<p>回想我们遇见的各种类型的<code>block</code>我们发现声明为<code>static</code>的变量不需要加<code>__block</code>就可以直接修改值:</p>
+<div class="cb"><span class="cb-l">objective-c</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-objective-c">static int staticVal = 10;        
+MyBlock block = ^{
+    staticVal += 10;
+    NSLog(@&quot;staticVal = %d&quot;,staticVal);
+};
+block();
+//输出
+2020-09-22 14:41:08.103780+0800 MyDemo[3004:2662839] staticVal = 20
+</code></pre>
+</div><p>那么<code>static</code>的变量是怎么实现的呢？相应的我们可以看看他在<code>block</code>结构体里面到底是怎么做的。</p>
+<div class="cb"><span class="cb-l">c++</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-c++"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">__main_block_impl_0</span> {
+  <span class="hljs-keyword">struct</span> <span class="hljs-title class_">__block_impl</span> impl;
+  <span class="hljs-keyword">struct</span> <span class="hljs-title class_">__main_block_desc_0</span>* Desc;
+  <span class="hljs-type">int</span> *staticVal; <span class="hljs-comment">// 由此可以看到block拿到了staticVal的指针</span>
+  __main_block_impl_0(<span class="hljs-type">void</span> *fp, <span class="hljs-keyword">struct</span> __main_block_desc_0 *desc, <span class="hljs-type">int</span> *_staticVal, <span class="hljs-type">int</span> flags=<span class="hljs-number">0</span>) : <span class="hljs-built_in">staticVal</span>(_staticVal) {
+    impl.isa = &amp;_NSConcreteStackBlock;
+    impl.Flags = flags;
+    impl.FuncPtr = fp;
+    Desc = desc;
+  }
+};
+<span class="hljs-comment">// block封装的方法</span>
+<span class="hljs-type">static</span> <span class="hljs-type">void</span> __main_block_func_0(<span class="hljs-keyword">struct</span> __main_block_impl_0 *__cself) {
+  <span class="hljs-type">int</span> *staticVal = __cself-&gt;staticVal; <span class="hljs-comment">// bound by copy</span>
+	(*staticVal) += <span class="hljs-number">10</span>;
+  <span class="hljs-built_in">NSLog</span>((NSString *)&amp;__NSConstantStringImpl__var_folders_j2__3l5gw_93rz1_jfmq7r7wwph0000gn_T_main_68799d_mi_0,(*staticVal));
+}
+</code></pre>
+</div><p>拿到了指针就是拿到了他,原来<code>static</code>类型的变量是这么做的，仔细想想明白反正他会一直存在内存中，只要拿到了他的指针就可以在任意时间访问他而不用担心野指针的问题啦。</p>
+<p>那么只要我们想办法能在<code>block</code>里面访问<code>auto变量</code>的<code>指针</code>同时保证这个变量不会被<code>释放</code>是不是就能在<code>block</code>里面修改变量了呢？</p>
+<h3 id="__block-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E9%AA%8C%E8%AF%81" tabindex="-1">__block 底层实现验证 <a class="anchor" href="#__block-%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E9%AA%8C%E8%AF%81">#</a></h3>
+<p>现在我们看一下<code>__block</code>的<code>c++</code>实现</p>
+<div class="cb"><span class="cb-l">c++</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-c++"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">__main_block_impl_0</span> {
+  <span class="hljs-keyword">struct</span> <span class="hljs-title class_">__block_impl</span> impl;
+  <span class="hljs-keyword">struct</span> <span class="hljs-title class_">__main_block_desc_0</span>* Desc;
+  __Block_byref_val_0 *val; <span class="hljs-comment">// 我们发现这里增加了一个__Block_byref_val_0 的结构体 并命名为val</span>
+  __main_block_impl_0(<span class="hljs-type">void</span> *fp, <span class="hljs-keyword">struct</span> __main_block_desc_0 *desc, __Block_byref_val_0 *_val, <span class="hljs-type">int</span> flags=<span class="hljs-number">0</span>) : <span class="hljs-built_in">val</span>(_val-&gt;__forwarding) {
+    impl.isa = &amp;_NSConcreteStackBlock;
+    impl.Flags = flags;
+    impl.FuncPtr = fp;
+    Desc = desc;
+  }
+};
+<span class="hljs-comment">// block封装的方法</span>
+<span class="hljs-type">static</span> <span class="hljs-type">void</span> __main_block_func_0(<span class="hljs-keyword">struct</span> __main_block_impl_0 *__cself) {
+  __Block_byref_val_0 *val = __cself-&gt;val; <span class="hljs-comment">// bound by ref</span>
+  (val-&gt;__forwarding-&gt;val) += <span class="hljs-number">10</span>;<span class="hljs-comment">// 使用val的__forwarding指针来拿val结构体中的val对象进行赋值</span>
+  <span class="hljs-built_in">NSLog</span>((NSString *)&amp;__NSConstantStringImpl__var_folders_j2__3l5gw_93rz1_jfmq7r7wwph0000gn_T_main_00193b_mi_0,  	(val-&gt;__forwarding-&gt;val));
+}
+</code></pre>
+</div><p>对于<code>__Block_byref_val_0</code>可以找到</p>
+<div class="cb"><span class="cb-l">c++</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-c++"><span class="hljs-function"><span class="hljs-keyword">typedef</span> <span class="hljs-title">void</span><span class="hljs-params">(*MyBlock)</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span></span>;
+
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">__Block_byref_val_0</span> {
+ <span class="hljs-type">void</span> *__isa;
+ __Block_byref_val_0 *__forwarding; <span class="hljs-comment">// 这个指针指向了自身</span>
+ <span class="hljs-type">int</span> __flags;
+ <span class="hljs-type">int</span> __size;
+ <span class="hljs-type">int</span> val;
+};
+</code></pre>
+</div><p>我们可以看到block使用了一个对象<code>__Block_byref_val_0</code>把<code>val</code>对象包住之后进行使用。</p>
+<p>但是这个对象里面的val到底是不是我们定义的那个呢？</p>
+<p>这里可以把<code>c++</code>的结构体拷贝到<code>objc</code>中进行一次转换就能拿到这个对象了</p>
+<div class="cb"><span class="cb-l">c++</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-c++"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">__Block_byref_val_0</span> {
+ <span class="hljs-type">void</span> *__isa; 
+ <span class="hljs-keyword">struct</span> <span class="hljs-title class_">__Block_byref_val_0</span> *__forwarding; 
+ <span class="hljs-type">int</span> __flags; 
+ <span class="hljs-type">int</span> __size;
+ <span class="hljs-type">int</span> val; 
+};
+
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">__block_impl</span> {
+  <span class="hljs-type">void</span> *isa;
+  <span class="hljs-type">int</span> Flags;
+  <span class="hljs-type">int</span> Reserved;
+  <span class="hljs-type">void</span> *FuncPtr;
+};
+
+<span class="hljs-type">static</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">__main_block_desc_0</span> {
+  <span class="hljs-type">size_t</span> reserved;
+  <span class="hljs-type">size_t</span> Block_size;
+  <span class="hljs-built_in">void</span> (*copy)(<span class="hljs-type">void</span>);
+  <span class="hljs-built_in">void</span> (*dispose)(<span class="hljs-type">void</span>);
+};
+
+
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">__main_block_impl_0</span> {
+  <span class="hljs-keyword">struct</span> <span class="hljs-title class_">__block_impl</span> impl;
+  <span class="hljs-keyword">struct</span> <span class="hljs-title class_">__main_block_desc_0</span>* Desc;
+  <span class="hljs-keyword">struct</span> <span class="hljs-title class_">__Block_byref_val_0</span> *val; <span class="hljs-comment">// by ref</span>
+};
+
+__block <span class="hljs-type">int</span> val = <span class="hljs-number">10</span>;
+
+MyBlock block = ^{
+    val += <span class="hljs-number">10</span>;
+    <span class="hljs-built_in">NSLog</span>(@<span class="hljs-string">&quot;val = %d&quot;</span>,val);
+};
+
+<span class="hljs-built_in">block</span>();
+
+<span class="hljs-keyword">struct</span> <span class="hljs-title class_">__main_block_impl_0</span> * blockImpl = (__bridge <span class="hljs-keyword">struct</span> __main_block_impl_0 *) block; <span class="hljs-comment">//这里做一个桥接（对象转换）</span>
+
+<span class="hljs-built_in">NSLog</span>(@<span class="hljs-string">&quot;val = %p&quot;</span>,&amp;val);
+</code></pre>
+</div><p>然后我们在<code>debug</code>的断点进来的时候去找<code>blockImpl</code>中val对象的地址,再对比打印出来的<code>val</code>的地址</p>
+<div class="cb"><span class="cb-l">objective-c</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-objective-c">2020-09-22 16:57:00.771793+0800 MyDemo[3028:2688246] val = 20
+(lldb) p/x &amp;(blockImpl-&gt;val-&gt;val)
+(int *) $0 = 0x00000002811c36f8
+2020-09-22 16:57:05.581925+0800 MyDemo[3028:2688246] val = 0x2811c36f8
+
+</code></pre>
+</div><p>我们可以看到 <code>__main_block_impl_0</code>对象中的<code>val</code>对象的<code>val</code>字段的地址和我们定义的<code>val</code>的地址相同。</p>
+<p>至此,我们明白了__block是如何运作的。</p>
+<h3 id="__block%E6%98%AF%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81auto%E5%8F%98%E9%87%8F%E4%B8%8D%E8%A2%AB%E9%87%8A%E6%94%BE%E7%9A%84" tabindex="-1">__block是如何保证auto变量不被释放的 <a class="anchor" href="#__block%E6%98%AF%E5%A6%82%E4%BD%95%E4%BF%9D%E8%AF%81auto%E5%8F%98%E9%87%8F%E4%B8%8D%E8%A2%AB%E9%87%8A%E6%94%BE%E7%9A%84">#</a></h3>
+<p>从上面来看 我们已经能在block内部拿到auto变量的地址了，那么只要能保证block生命周期中这个变量不会被释放掉就可以实现在block中修改他的值了！看起来离我们的目标不远了。</p>
+<p>再把目光投向main.cpp文件,我们可以发现三个方法</p>
+<div class="cb"><span class="cb-l">c++</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-c++"><span class="hljs-type">static</span> <span class="hljs-type">void</span> __main_block_copy_0(<span class="hljs-keyword">struct</span> __main_block_impl_0*dst, <span class="hljs-keyword">struct</span> __main_block_impl_0*src) {_Block_object_assign((<span class="hljs-type">void</span>*)&amp;dst-&gt;val, (<span class="hljs-type">void</span>*)src-&gt;val, <span class="hljs-number">8</span><span class="hljs-comment">/*BLOCK_FIELD_IS_BYREF*/</span>);}
+
+<span class="hljs-type">static</span> <span class="hljs-type">void</span> __main_block_dispose_0(<span class="hljs-keyword">struct</span> __main_block_impl_0*src) {_Block_object_dispose((<span class="hljs-type">void</span>*)src-&gt;val, <span class="hljs-number">8</span><span class="hljs-comment">/*BLOCK_FIELD_IS_BYREF*/</span>);}
+
+<span class="hljs-type">static</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">__main_block_desc_0</span> {
+  <span class="hljs-type">size_t</span> reserved;
+  <span class="hljs-type">size_t</span> Block_size;
+  <span class="hljs-built_in">void</span> (*copy)(<span class="hljs-keyword">struct</span> __main_block_impl_0*, <span class="hljs-keyword">struct</span> __main_block_impl_0*); 
+  <span class="hljs-built_in">void</span> (*dispose)(<span class="hljs-keyword">struct</span> __main_block_impl_0*);
+}
+
+</code></pre>
+</div><p>ARC环境下,系统会自动帮我们把在栈中的访问<code>auto</code>变量的<code>block</code>给<code>copy</code>到堆上去。</p>
+<p>在执行<code>copy</code>方法的时候<code>block</code>会执行 <code>__main_block_copy_ </code>方法对<code>__main_block_impl_</code>对象进行一次强引用。该方法中执行了<code>_Block_object_assign</code>对包裹<code>val</code>的对象进行<code>retain</code>操作,这里恍然大悟,明白为什么<code>block</code>容易导致<code>循环引用</code>和<code>内存泄漏</code>了。</p>
+<p>对应的,在<code>block</code>将要释放的时候执行<code>__main_block_dispose_</code>方法来释放<code>__main_block_impl_</code>对象。</p>
+<h3 id="%E6%80%9D%E8%80%83" tabindex="-1">思考 <a class="anchor" href="#%E6%80%9D%E8%80%83">#</a></h3>
+<p><code>__forwarding</code>指针为什么会指向自己,指向自身的指针是否多余呢？</p>
+<p>反过来看，如果在block外部修改掉<code>__block</code>修饰的变量的值时<code>block</code>内部的<code>__Block_byref_val_0</code>的<code>val</code>值会跟随改变吗？会改变的话又是怎么实现的呢？</p>
+<div class="pnav"><a class="l" href="/posts/ios-runloop/"><small>上一篇</small><b>runloop 学习笔记</b></a><a class="r" href="/posts/ios-gcd/"><small>下一篇</small><b>GCD相关知识学习笔记</b></a></div></article></main>
+
+<div id="mascot" title="戳一下">
+  <div id="m-say"></div>
+  <button id="m-top" title="回到顶部" aria-label="回到顶部">↑</button>
+</div>
+<script type="module" src="/scene2d.js"></script>
+<script type="module" src="/mascot.js"></script>
+<script>
+addEventListener('keydown', function(e){
+  var P = {"prev":"/posts/ios-runloop/","next":"/posts/ios-gcd/"};
+  // 灯箱打开时 Esc 只关灯箱,方向键不翻页
+  var lb = document.querySelector('.lb');
+  if (lb) { if (e.key === 'Escape') lb.remove(); return; }
+  if (e.key === 'ArrowLeft'  && P.prev) location.href = P.prev;
+  if (e.key === 'ArrowRight' && P.next) location.href = P.next;
+  if (e.key === 'Escape') location.href = '/#writing';
+});
+</script>
+<script>
+// 大纲高亮:滚动容器是 #art(不是 window),直接按滚动位置算当前节最可靠
+(function(){
+  var toc = document.querySelector('.toc');
+  if (!toc) return;
+  var art = document.getElementById('art');
+  var links = [].slice.call(toc.querySelectorAll('a'));
+  var map = {};
+  // id 本身已是百分号编码,直接用原始 href 做 key,不要 decode
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var heads = [].slice.call(art.querySelectorAll('h2[id],h3[id]'));
+  if (!heads.length) return;
+  var cur = null;
+
+  function paint(){
+    var top = art.getBoundingClientRect().top + 100;   // 判定线:卡片顶部下方 100px
+    var found = heads[0];
+    for (var i = 0; i < heads.length; i++){
+      if (heads[i].getBoundingClientRect().top <= top) found = heads[i]; else break;
+    }
+    // 已滚到底时强制选中最后一节,否则末节永远高亮不到
+    if (art.scrollTop + art.clientHeight >= art.scrollHeight - 4) found = heads[heads.length - 1];
+    if (found === cur) return;
+    cur = found;
+    links.forEach(function(a){ a.classList.remove('on'); });
+    var a = map[found.id];
+    if (!a) return;
+    a.classList.add('on');
+    var box = a.getBoundingClientRect(), tb = toc.getBoundingClientRect();
+    if (box.top < tb.top || box.bottom > tb.bottom) a.scrollIntoView({block:'nearest'});
+  }
+
+  var tick = false;
+  art.addEventListener('scroll', function(){
+    if (tick) return;
+    tick = true;
+    requestAnimationFrame(function(){ tick = false; paint(); });
+  }, {passive:true});
+
+  toc.addEventListener('click', function(e){
+    var a = e.target.closest('a'); if (!a) return;
+    var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if (!t) return;
+    e.preventDefault();
+    art.scrollTo({ top: art.scrollTop + t.getBoundingClientRect().top - art.getBoundingClientRect().top - 24, behavior:'smooth' });
+    history.replaceState(null, '', a.getAttribute('href'));
+  });
+  paint();
+})();
+</script>
+<script>
+// 图片灯箱:点正文图片或 Mermaid 图放大,点击 / Esc / 滚轮关闭
+document.getElementById('art').addEventListener('click', function(e){
+  var t = e.target.closest('img,.mm svg');
+  if (!t || t.closest('a')) return;
+  var lb = document.createElement('div'), c = t.cloneNode(true);
+  lb.className = 'lb';
+  if (c.tagName !== 'IMG') {
+    // SVG 没有固有的"原图尺寸",按视口等比放大
+    var r = t.getBoundingClientRect();
+    var k = Math.min(innerWidth * .92 / r.width, innerHeight * .9 / r.height);
+    c.style.width = r.width * k + 'px';
+    c.style.height = r.height * k + 'px';
+  }
+  lb.appendChild(c);
+  lb.onclick = lb.onwheel = function(){ lb.remove(); };
+  document.body.appendChild(lb);
+});
+</script>
+<script>
+// 代码块复制
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('.cb-c');
+  if (!btn) return;
+  var pre = btn.parentElement.querySelector('pre');
+  if (!pre) return;
+  var text = pre.innerText;
+  var done = function(){
+    btn.textContent = '已复制'; btn.classList.add('ok');
+    setTimeout(function(){ btn.textContent = '复制'; btn.classList.remove('ok'); }, 1600);
+  };
+  // clipboard API 需要安全上下文(https 或 localhost),否则回退到 execCommand
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else fallback();
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (err) { btn.textContent = '复制失败'; }
+    document.body.removeChild(ta);
+  }
+});
+</script>
+</body></html>

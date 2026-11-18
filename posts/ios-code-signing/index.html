@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>iOS签名机制 — fatbruin</title>
+<meta name="description" content="不只会配证书:从安全目标出发理解 iOS 签名机制的来龙去脉。"><meta property="og:type" content="article"><meta property="og:site_name" content="fatbruin"><meta property="og:title" content="iOS签名机制"><meta property="og:description" content="不只会配证书:从安全目标出发理解 iOS 签名机制的来龙去脉。"><meta property="og:url" content="https://www.umuer.com/posts/ios-code-signing/"><meta property="og:image" content="https://www.umuer.com/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://www.umuer.com/posts/ios-code-signing/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="fatbruin" href="/rss.xml">
+<script>(function(){var n=null;try{n=localStorage.getItem('fatbruin-night')}catch(e){}var h=new Date().getHours();if(n?n==='1':(h>=19||h<6))document.documentElement.classList.add('night')})()</script>
+<link rel="stylesheet" href="/styles/base.0282236f.css">
+<link rel="stylesheet" href="/styles/post.0bb29940.css"></head>
+<body class="post">
+<div id="scene"></div>
+<div class="topbar"><div class="navl"><a class="back" href="/#writing">← 回到小屋</a><a class="back nav-fallback" href="/posts/">全部文章 →</a></div><div class="brand">fat<span>bruin</span></div></div>
+<main><nav class="toc" aria-label="目录"><p class="toc-h">目录</p><ol><li class="l2"><a href="#%E6%A6%82%E8%A6%81">概要</a></li><li class="l3"><a href="#%E8%83%8C%E6%99%AF">背景</a></li><li class="l3"><a href="#%E6%8A%80%E6%9C%AF%E6%94%AF%E6%8C%81">技术支持</a></li><li class="l2"><a href="#%E5%9F%BA%E4%BA%8Eios%E5%BC%80%E5%8F%91%E7%9A%84%E7%AD%BE%E5%90%8D%E6%9C%BA%E5%88%B6">基于iOS开发的签名机制</a></li><li class="l3"><a href="#%E4%BB%8Eapp-store%E5%AE%89%E8%A3%85app">从App Store安装App</a></li><li class="l3"><a href="#%E5%85%B6%E4%BB%96%E6%96%B9%E5%BC%8F%E5%AE%89%E8%A3%85app">其他方式安装App</a></li><li class="l3"><a href="#%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B">加密流程</a></li><li class="l2"><a href="#%E9%85%8D%E7%BD%AE%E8%AF%81%E4%B9%A6%E7%AE%80%E8%A6%81%E6%B5%81%E7%A8%8B">配置证书简要流程</a></li><li class="l3"><a href="#%E8%AF%B7%E6%B1%82%E6%A0%B9%E8%AF%81%E4%B9%A6">请求根证书</a></li><li class="l3"><a href="#%E6%B7%BB%E5%8A%A0%E8%AE%BE%E5%A4%87">添加设备</a></li><li class="l3"><a href="#%E6%96%B0%E5%A2%9E%E6%8F%8F%E8%BF%B0%E6%96%87%E4%BB%B6">新增描述文件</a></li><li class="l2"><a href="#%E5%88%B7%E6%96%B0%E8%AF%81%E4%B9%A6%E5%8F%8A%E6%8F%8F%E8%BF%B0%E6%96%87%E4%BB%B6">刷新证书及描述文件</a></li></ol><a class="toc-all" href="/posts/">全部文章 →</a></nav><article id="art"><p class="meta"><span>2022.11.05</span><span>iOS</span><span>7 分钟</span></p><h1>iOS签名机制</h1><p class="sum">不只会配证书:从安全目标出发理解 iOS 签名机制的来龙去脉。</p><h2 id="%E6%A6%82%E8%A6%81" tabindex="-1">概要 <a class="anchor" href="#%E6%A6%82%E8%A6%81">#</a></h2>
+<h3 id="%E8%83%8C%E6%99%AF" tabindex="-1">背景 <a class="anchor" href="#%E8%83%8C%E6%99%AF">#</a></h3>
+<p>在iOS开发中，配置证书总是一件繁琐的工作，网上的教程有很多，基本都是手把手的教操作，但是如果不了解为什么要配置这些东西，对配置流程就不会有深刻的印象。</p>
+<p>配置证书最大的作用就是保证安全性，安全性主要表现在以下的几个方面：</p>
+<p>1.保证苹果手机下载的App是从<strong>苹果官网认证</strong>的途径下载</p>
+<p>2.保证App在苹果官方注册过的设备上运行</p>
+<p>3.保证App在特定的设备中运行（开发需要）</p>
+<h3 id="%E6%8A%80%E6%9C%AF%E6%94%AF%E6%8C%81" tabindex="-1">技术支持 <a class="anchor" href="#%E6%8A%80%E6%9C%AF%E6%94%AF%E6%8C%81">#</a></h3>
+<p>苹果采用的是<strong>数字签名</strong>进行加密，它是基于<strong>非对称加密算法和摘要算法</strong>实现的，和对称加密算法不同的是**，**对称加密通过同一份密钥加密和解密数据，而非对称加密有两个密钥，分别是公钥和私钥，用公钥加密的数据，要用私钥才能解密；用私钥加密的数据，要用公钥才能解密。这里的非对称加密就是我们熟知的RSA，想要深入理解的童鞋可以自主了解。</p>
+<p>为了更好的理解非对称加密的好处，我举一个场景例子：A要发送邮件给B，这个过程中要确保在传输中邮件内容没有被篡改，也就是只有B可以查看邮件的内容；还要确保这个邮件是A发送过来的，不是其他人发送的。我们用非对称加密的方式来处理：首先存A和B各有一对公私钥，A持有他自己的私钥和B的公钥，B持有A的公钥和B的私钥，公钥一般是给别人的，私钥在自己手里。A先用B的公钥给邮件加密，这样这个邮件只能被B的私钥解开，保证在传输过程中不会被篡改；A用自己的私钥将邮件加密，B要用A的公钥将邮件解密，来确保这是A发送过来的。这就是双向验证。</p>
+<h2 id="%E5%9F%BA%E4%BA%8Eios%E5%BC%80%E5%8F%91%E7%9A%84%E7%AD%BE%E5%90%8D%E6%9C%BA%E5%88%B6" tabindex="-1">基于iOS开发的签名机制 <a class="anchor" href="#%E5%9F%BA%E4%BA%8Eios%E5%BC%80%E5%8F%91%E7%9A%84%E7%AD%BE%E5%90%8D%E6%9C%BA%E5%88%B6">#</a></h2>
+<h3 id="%E4%BB%8Eapp-store%E5%AE%89%E8%A3%85app" tabindex="-1">从App Store安装App <a class="anchor" href="#%E4%BB%8Eapp-store%E5%AE%89%E8%A3%85app">#</a></h3>
+<p>这个签名的方式相对简单，只需要验证App是从AppStore上下载的即可。苹果官方生成一对公私钥，在苹果设备上内置一个公钥，私钥由后台保管，我们上传App到AppStore时，苹果后台用私钥对App进行签名，设备在在App包后，用内置公钥验证签名。</p>
+<p>思考：每个设备和苹果后台都有对应的一对公私钥还是只有一对公私钥，每个设备的公钥都是一样的，如果是前者，给App用私钥加密的时候是什么时候？</p>
+<p><strong>结论：所有苹果设备上的公钥都是一样的。</strong></p>
+<h3 id="%E5%85%B6%E4%BB%96%E6%96%B9%E5%BC%8F%E5%AE%89%E8%A3%85app" tabindex="-1">其他方式安装App <a class="anchor" href="#%E5%85%B6%E4%BB%96%E6%96%B9%E5%BC%8F%E5%AE%89%E8%A3%85app">#</a></h3>
+<ul>
+<li>通过Xcode将App运行在设备上，调试用</li>
+<li>企业内部分发，可以直接安装企业证书签名后的App</li>
+<li>AD-Hoc相当于企业分发的限制版，限制安装设备数量</li>
+</ul>
+<p>以上几种场景就比较复杂了，我们需要确保这个App包的来源是苹果官方认证的，还要指定设备信息（不能随便的苹果设备都可以运行）。在了解这些场景的签名过程之前我们先思考一些问题：</p>
+<p>1.App包不能上传到App Store上进行私钥加密了，需要通过其他介质间接验证；</p>
+<p>2.iPhone上只有一个公钥可用，如何验证这么多信息；</p>
+<p>3.如何限制设备、权限等额外信息。</p>
+<p>我们需要除了App包以外的信息来进行验证，就是各种加密之后的文件，所以我们需要配置很多的证书。</p>
+<h3 id="%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B" tabindex="-1">加密流程 <a class="anchor" href="#%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B">#</a></h3>
+<p>1.在mac上生成一对公私钥，公钥M，私钥M，苹果后台和苹果设备有一对公私钥，公钥A，私钥A。</p>
+<p>2.将公钥M上传到苹果后台，用苹果后台的私钥A签名公钥M得到了公钥M的签名，代称hashM(私A)，hashM(私A)和公钥M组成的数据称为<strong>证书</strong>。（证书携带苹果官方认证信息，需要和App到达设备上）</p>
+<p>3.开发完成后，用私钥M对App进行签名，同时将证书一起打包进App中，安装到手机。</p>
+<p>4.安装时，iOS系统获得证书，用公钥A验证hashM(私A），得到的信息和证书中的公钥是否一致。</p>
+<p><strong>以上的流程可以完成验证App是否经过了苹果官方认可的需求，没有解决滥用的问题。<strong>这里的滥用问题包括任何App都可以用这个证书在任何设备上安装运行，这是不允许的。我们可以把这些限制信息如AppID、设备ID等和证书</strong>再用私钥A进行加密</strong>，在最后的iOS系统验证的时候就可以判断这些限制数据是否符合要求。可以理解为又进行了一次加密。得到的数据就是我们知道的<strong>Provisioning file</strong>，Provisioning file里面就包含了证书和以上提到的额外信息，以及所有信息的签名。</p>
+<p>在编译一个App后，用本地的的私钥M对这个App进行签名，同时把Provisioning file文件打包到App中，文件名为embeded.mobileprovision，把App安装到手机上。以上的过程就是加密的过程。</p>
+<h2 id="%E9%85%8D%E7%BD%AE%E8%AF%81%E4%B9%A6%E7%AE%80%E8%A6%81%E6%B5%81%E7%A8%8B" tabindex="-1">配置证书简要流程 <a class="anchor" href="#%E9%85%8D%E7%BD%AE%E8%AF%81%E4%B9%A6%E7%AE%80%E8%A6%81%E6%B5%81%E7%A8%8B">#</a></h2>
+<h3 id="%E8%AF%B7%E6%B1%82%E6%A0%B9%E8%AF%81%E4%B9%A6" tabindex="-1">请求根证书 <a class="anchor" href="#%E8%AF%B7%E6%B1%82%E6%A0%B9%E8%AF%81%E4%B9%A6">#</a></h3>
+<p>在mac上生成一对公私钥，并将公钥上传到苹果后台，用苹果后台的私钥加密mac公钥，得到证书</p>
+<p>CSR生成一对公私钥，私钥始终在Mac OS的Keychain Access中，用于签名（CodeSign）对外发布的App，公钥一般随着证书（随Provisioning Profile，随App）散布出去，对App签名进行校验认证。用户要保护好本地Keychain中的private key。</p>
+<p>创建CSR文件：打开钥匙串-&gt;证书助理-&gt;从证书颁发机构请求证书。注：CRS文件是Cerificate Signing Request的英文缩写，即证书请求文件，<strong>CerificateSigningRequest就是本地公钥，.p12就是本地私钥，可以导入其他电脑，同时其他电脑也应该安装下载下来的证书。所以这一步团队开发人员很少操作。</strong></p>
+<h3 id="%E6%B7%BB%E5%8A%A0%E8%AE%BE%E5%A4%87" tabindex="-1">添加设备 <a class="anchor" href="#%E6%B7%BB%E5%8A%A0%E8%AE%BE%E5%A4%87">#</a></h3>
+<p>苹果严格限制了真机调试的设备，如果需要真机调试需要在<a href="https://developer.Apple.com/account/resources/devices/list">开发者后台</a>添加测试机的UDID</p>
+<h3 id="%E6%96%B0%E5%A2%9E%E6%8F%8F%E8%BF%B0%E6%96%87%E4%BB%B6" tabindex="-1">新增描述文件 <a class="anchor" href="#%E6%96%B0%E5%A2%9E%E6%8F%8F%E8%BF%B0%E6%96%87%E4%BB%B6">#</a></h3>
+<p>描述文件(Provisioning Profile)是一个记录了你这个App的功能和权限的证书。</p>
+<p>一般会用到以下三种：</p>
+<p><strong>develop:调试证书，包含调试信息，安装时需要证书已加入设备UDID或者越狱设备才能安装。</strong></p>
+<p><strong>distribution：正式证书，屏蔽了调试信息，发布到AppStore所用。</strong></p>
+<p><strong>ad-hoc：测试证书，需要给别人测试用到，允许用户从第三方下载应用，如蒲公英。</strong></p>
+<h2 id="%E5%88%B7%E6%96%B0%E8%AF%81%E4%B9%A6%E5%8F%8A%E6%8F%8F%E8%BF%B0%E6%96%87%E4%BB%B6" tabindex="-1">刷新证书及描述文件 <a class="anchor" href="#%E5%88%B7%E6%96%B0%E8%AF%81%E4%B9%A6%E5%8F%8A%E6%8F%8F%E8%BF%B0%E6%96%87%E4%BB%B6">#</a></h2>
+<p>一般在重新请求根证书之后需要更新所有的描述文件内的根证书配置。</p>
+<p>根证书和证书对应的私钥都需要有人进行维护(或者使用fastlane维护)，在团队新增成员、设备时需发放到对应的机器中的钥匙串内，否则无法进行构建和上传IPA。</p>
+<p>描述文件更新后需要在Xcode的User设置中找到开发者刷新一下Profile，或者到Profile的保存文件夹内清空重新下载，以避免描述文件更新不及时问题导致CI/CD构建失败。</p>
+<div class="pnav"><a class="l" href="/posts/ios-file-system/"><small>上一篇</small><b>iOS文件系统编程指南</b></a><a class="r" href="/posts/swiftui-intro/"><small>下一篇</small><b>SwiftUI 从入门到放弃</b></a></div></article></main>
+
+<div id="mascot" title="戳一下">
+  <div id="m-say"></div>
+  <button id="m-top" title="回到顶部" aria-label="回到顶部">↑</button>
+</div>
+<script type="module" src="/scene2d.js"></script>
+<script type="module" src="/mascot.js"></script>
+<script>
+addEventListener('keydown', function(e){
+  var P = {"prev":"/posts/ios-file-system/","next":"/posts/swiftui-intro/"};
+  // 灯箱打开时 Esc 只关灯箱,方向键不翻页
+  var lb = document.querySelector('.lb');
+  if (lb) { if (e.key === 'Escape') lb.remove(); return; }
+  if (e.key === 'ArrowLeft'  && P.prev) location.href = P.prev;
+  if (e.key === 'ArrowRight' && P.next) location.href = P.next;
+  if (e.key === 'Escape') location.href = '/#writing';
+});
+</script>
+<script>
+// 大纲高亮:滚动容器是 #art(不是 window),直接按滚动位置算当前节最可靠
+(function(){
+  var toc = document.querySelector('.toc');
+  if (!toc) return;
+  var art = document.getElementById('art');
+  var links = [].slice.call(toc.querySelectorAll('a'));
+  var map = {};
+  // id 本身已是百分号编码,直接用原始 href 做 key,不要 decode
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var heads = [].slice.call(art.querySelectorAll('h2[id],h3[id]'));
+  if (!heads.length) return;
+  var cur = null;
+
+  function paint(){
+    var top = art.getBoundingClientRect().top + 100;   // 判定线:卡片顶部下方 100px
+    var found = heads[0];
+    for (var i = 0; i < heads.length; i++){
+      if (heads[i].getBoundingClientRect().top <= top) found = heads[i]; else break;
+    }
+    // 已滚到底时强制选中最后一节,否则末节永远高亮不到
+    if (art.scrollTop + art.clientHeight >= art.scrollHeight - 4) found = heads[heads.length - 1];
+    if (found === cur) return;
+    cur = found;
+    links.forEach(function(a){ a.classList.remove('on'); });
+    var a = map[found.id];
+    if (!a) return;
+    a.classList.add('on');
+    var box = a.getBoundingClientRect(), tb = toc.getBoundingClientRect();
+    if (box.top < tb.top || box.bottom > tb.bottom) a.scrollIntoView({block:'nearest'});
+  }
+
+  var tick = false;
+  art.addEventListener('scroll', function(){
+    if (tick) return;
+    tick = true;
+    requestAnimationFrame(function(){ tick = false; paint(); });
+  }, {passive:true});
+
+  toc.addEventListener('click', function(e){
+    var a = e.target.closest('a'); if (!a) return;
+    var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if (!t) return;
+    e.preventDefault();
+    art.scrollTo({ top: art.scrollTop + t.getBoundingClientRect().top - art.getBoundingClientRect().top - 24, behavior:'smooth' });
+    history.replaceState(null, '', a.getAttribute('href'));
+  });
+  paint();
+})();
+</script>
+<script>
+// 图片灯箱:点正文图片或 Mermaid 图放大,点击 / Esc / 滚轮关闭
+document.getElementById('art').addEventListener('click', function(e){
+  var t = e.target.closest('img,.mm svg');
+  if (!t || t.closest('a')) return;
+  var lb = document.createElement('div'), c = t.cloneNode(true);
+  lb.className = 'lb';
+  if (c.tagName !== 'IMG') {
+    // SVG 没有固有的"原图尺寸",按视口等比放大
+    var r = t.getBoundingClientRect();
+    var k = Math.min(innerWidth * .92 / r.width, innerHeight * .9 / r.height);
+    c.style.width = r.width * k + 'px';
+    c.style.height = r.height * k + 'px';
+  }
+  lb.appendChild(c);
+  lb.onclick = lb.onwheel = function(){ lb.remove(); };
+  document.body.appendChild(lb);
+});
+</script>
+<script>
+// 代码块复制
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('.cb-c');
+  if (!btn) return;
+  var pre = btn.parentElement.querySelector('pre');
+  if (!pre) return;
+  var text = pre.innerText;
+  var done = function(){
+    btn.textContent = '已复制'; btn.classList.add('ok');
+    setTimeout(function(){ btn.textContent = '复制'; btn.classList.remove('ok'); }, 1600);
+  };
+  // clipboard API 需要安全上下文(https 或 localhost),否则回退到 execCommand
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else fallback();
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (err) { btn.textContent = '复制失败'; }
+    document.body.removeChild(ta);
+  }
+});
+</script>
+</body></html>

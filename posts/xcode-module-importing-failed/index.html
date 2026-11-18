@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>module importing failed invalid pathname 问题解决 — fatbruin</title>
+<meta name="description" content="Xcode 控制台 &quot;module importing failed: invalid pathname&quot; 报错的原因与解法。"><meta property="og:type" content="article"><meta property="og:site_name" content="fatbruin"><meta property="og:title" content="module importing failed invalid pathname 问题解决"><meta property="og:description" content="Xcode 控制台 &quot;module importing failed: invalid pathname&quot; 报错的原因与解法。"><meta property="og:url" content="https://www.umuer.com/posts/xcode-module-importing-failed/"><meta property="og:image" content="https://www.umuer.com/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://www.umuer.com/posts/xcode-module-importing-failed/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="fatbruin" href="/rss.xml">
+<script>(function(){var n=null;try{n=localStorage.getItem('fatbruin-night')}catch(e){}var h=new Date().getHours();if(n?n==='1':(h>=19||h<6))document.documentElement.classList.add('night')})()</script>
+<link rel="stylesheet" href="/styles/base.0282236f.css">
+<link rel="stylesheet" href="/styles/post.0bb29940.css"></head>
+<body class="post no-toc">
+<div id="scene"></div>
+<div class="topbar"><div class="navl"><a class="back" href="/#writing">← 回到小屋</a><a class="back nav-fallback" href="/posts/">全部文章 →</a></div><div class="brand">fat<span>bruin</span></div></div>
+<main><article id="art"><p class="meta"><span>2021.09.09</span><span>Tools</span><span>3 分钟</span></p><h1>module importing failed invalid pathname 问题解决</h1><p class="sum">Xcode 控制台 &quot;module importing failed: invalid pathname&quot; 报错的原因与解法。</p><p>最近Xcode编译完成后在命令行框里第一行总会报一个错误：</p>
+<blockquote>
+<p>error: module importing failed: invalid pathname</p>
+</blockquote>
+<p>不论是<code>clean</code>还是删除<code>support文件</code>还是<code>重启Xcode</code>都无法解决这个问题。</p>
+<p>于是去google了一番：</p>
+<p><a href="https://stackoverflow.com/questions/59800936/Xcode-11-shows-a-missing-module-error-when-compiling-python-3-8">把target的scheme中的debug executable的选项取消掉就不报这个错了</a></p>
+<p><img src="https://raw.githubusercontent.com/zcx4u/images/master/Hexo/Xcode/008i3skNly1guaiuljmlhj60qi0gmwfh02.jpg" alt="关闭调试器"></p>
+<p>试了一下，有效！但是这个选项不能去掉啊，去掉了这个选项就不能打断点进行调试了。😂</p>
+<hr>
+<p>Realm删除残留导致的问题？](<a href="https://stackoverflow.com/questions/59090655/removed-realm-but-still-getting-this-error-module-importing-failed-invalid-to/59094519#59094519?newreg=5c6ce4372354468b9449dfc34406e472">https://stackoverflow.com/questions/59090655/removed-realm-but-still-getting-this-error-module-importing-failed-invalid-to/59094519#59094519?newreg=5c6ce4372354468b9449dfc34406e472</a>)</p>
+<p>看到朋友们删除Realm之后会出现这个问题，但是我又没有安装过Realm，为何也有这个问题呢。</p>
+<p>回答中提到解决这个问题需要去编辑<code>~/.lldbinit</code>文件，看的我一脸懵逼，对于这种没见过的配置文件我可不敢去乱删乱改。又想起来被错改配置文件支配的恐惧，吃一堑长一智...</p>
+<p>仔细看<code>lldbinit</code>文件命名，好像在哪见过，是LLDB调试器初始化的配置文件，于是在mac根目录下去找了找这个文件。</p>
+<div class="cb"><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code>这个文件的全部内容
+### Reveal LLDB commands support - DO NOT MODIFY
+    command script import /Applications/Reveal.app/Contents/SharedSupport/Scripts/RevealServerCommands.py
+###
+</code></pre>
+</div><p>当我看到<code>Reveal.app</code>这个东西的时候便明白是什么问题了，我这台mac之前下载过破解版的Reveal软件用来调试界面。</p>
+<p><code>Reveal</code>的插件需要在LLDB启动的时候加载用来获取UI栈信息，后来改用了<code>Lookin</code>就把<code>Reveal</code>给卸载了，但是<code>.lldbinit</code>中的命令没有改掉。LLDB启动的时候找不到<code>Reveal插件</code>便会报<code>module importing failed: invalid pathname</code>错误。</p>
+<p><img src="https://raw.githubusercontent.com/zcx4u/images/master/Hexo/Xcode/008i3skNly1guaium1xjzj60n805q74o02.jpg" alt=""></p>
+<p>同时这也验证了为什么在Xcode中关闭调试就不报这个错了(那肯定是Xcode在debug模式下运行时自动启动了内置的LLDB调试器啦)。</p>
+<p>为了验证是LLDB的问题我把Xcode关闭，打开了终端，输入LLDB命令，然后终端中也报出了相同的错误提示。为了更加理解这个文件的作用，我便又去搜索了一番.lldbinit的作用。</p>
+<blockquote>
+<p>~/.lldbinit是每次LLDB启动时会加载的文件。所以一些初始化的事儿，我们可以写入其中中，比如给命令定义别名等。但是由于这时候程序还没有真正运行，也有部分操作无法在里面玩，比如设置断点。</p>
+</blockquote>
+<p>到此我解决了Xcode中每次启动都报错的问题，也明白了这个问题出现的原因，同时也了解到了LLDB相关的新知识。所以当看到一些莫名其妙的报错的时候不要着急也不要焦虑，一定是在你不熟悉的地方出现了异常，当你慢慢理解那些内容的时候，这些报错也许只是一个很小很小的问题。</p>
+<div class="pnav"><a class="l" href="/posts/ios-build-optimization-pods/"><small>上一篇</small><b>iOS编译优化方案探索与实践-组件篇</b></a><a class="r" href="/posts/ios-ocr/"><small>下一篇</small><b>iOS-OCR实践</b></a></div></article></main>
+
+<div id="mascot" title="戳一下">
+  <div id="m-say"></div>
+  <button id="m-top" title="回到顶部" aria-label="回到顶部">↑</button>
+</div>
+<script type="module" src="/scene2d.js"></script>
+<script type="module" src="/mascot.js"></script>
+<script>
+addEventListener('keydown', function(e){
+  var P = {"prev":"/posts/ios-build-optimization-pods/","next":"/posts/ios-ocr/"};
+  // 灯箱打开时 Esc 只关灯箱,方向键不翻页
+  var lb = document.querySelector('.lb');
+  if (lb) { if (e.key === 'Escape') lb.remove(); return; }
+  if (e.key === 'ArrowLeft'  && P.prev) location.href = P.prev;
+  if (e.key === 'ArrowRight' && P.next) location.href = P.next;
+  if (e.key === 'Escape') location.href = '/#writing';
+});
+</script>
+<script>
+// 大纲高亮:滚动容器是 #art(不是 window),直接按滚动位置算当前节最可靠
+(function(){
+  var toc = document.querySelector('.toc');
+  if (!toc) return;
+  var art = document.getElementById('art');
+  var links = [].slice.call(toc.querySelectorAll('a'));
+  var map = {};
+  // id 本身已是百分号编码,直接用原始 href 做 key,不要 decode
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var heads = [].slice.call(art.querySelectorAll('h2[id],h3[id]'));
+  if (!heads.length) return;
+  var cur = null;
+
+  function paint(){
+    var top = art.getBoundingClientRect().top + 100;   // 判定线:卡片顶部下方 100px
+    var found = heads[0];
+    for (var i = 0; i < heads.length; i++){
+      if (heads[i].getBoundingClientRect().top <= top) found = heads[i]; else break;
+    }
+    // 已滚到底时强制选中最后一节,否则末节永远高亮不到
+    if (art.scrollTop + art.clientHeight >= art.scrollHeight - 4) found = heads[heads.length - 1];
+    if (found === cur) return;
+    cur = found;
+    links.forEach(function(a){ a.classList.remove('on'); });
+    var a = map[found.id];
+    if (!a) return;
+    a.classList.add('on');
+    var box = a.getBoundingClientRect(), tb = toc.getBoundingClientRect();
+    if (box.top < tb.top || box.bottom > tb.bottom) a.scrollIntoView({block:'nearest'});
+  }
+
+  var tick = false;
+  art.addEventListener('scroll', function(){
+    if (tick) return;
+    tick = true;
+    requestAnimationFrame(function(){ tick = false; paint(); });
+  }, {passive:true});
+
+  toc.addEventListener('click', function(e){
+    var a = e.target.closest('a'); if (!a) return;
+    var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if (!t) return;
+    e.preventDefault();
+    art.scrollTo({ top: art.scrollTop + t.getBoundingClientRect().top - art.getBoundingClientRect().top - 24, behavior:'smooth' });
+    history.replaceState(null, '', a.getAttribute('href'));
+  });
+  paint();
+})();
+</script>
+<script>
+// 图片灯箱:点正文图片或 Mermaid 图放大,点击 / Esc / 滚轮关闭
+document.getElementById('art').addEventListener('click', function(e){
+  var t = e.target.closest('img,.mm svg');
+  if (!t || t.closest('a')) return;
+  var lb = document.createElement('div'), c = t.cloneNode(true);
+  lb.className = 'lb';
+  if (c.tagName !== 'IMG') {
+    // SVG 没有固有的"原图尺寸",按视口等比放大
+    var r = t.getBoundingClientRect();
+    var k = Math.min(innerWidth * .92 / r.width, innerHeight * .9 / r.height);
+    c.style.width = r.width * k + 'px';
+    c.style.height = r.height * k + 'px';
+  }
+  lb.appendChild(c);
+  lb.onclick = lb.onwheel = function(){ lb.remove(); };
+  document.body.appendChild(lb);
+});
+</script>
+<script>
+// 代码块复制
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('.cb-c');
+  if (!btn) return;
+  var pre = btn.parentElement.querySelector('pre');
+  if (!pre) return;
+  var text = pre.innerText;
+  var done = function(){
+    btn.textContent = '已复制'; btn.classList.add('ok');
+    setTimeout(function(){ btn.textContent = '复制'; btn.classList.remove('ok'); }, 1600);
+  };
+  // clipboard API 需要安全上下文(https 或 localhost),否则回退到 execCommand
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else fallback();
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (err) { btn.textContent = '复制失败'; }
+    document.body.removeChild(ta);
+  }
+});
+</script>
+</body></html>

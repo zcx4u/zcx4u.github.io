@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>AI作业背景模糊实现技术方案 — fatbruin</title>
+<meta name="description" content="录制 AI 作业时的背景虚化:高斯模糊背景 + 人像分割合成,保护用户隐私。"><meta property="og:type" content="article"><meta property="og:site_name" content="fatbruin"><meta property="og:title" content="AI作业背景模糊实现技术方案"><meta property="og:description" content="录制 AI 作业时的背景虚化:高斯模糊背景 + 人像分割合成,保护用户隐私。"><meta property="og:url" content="https://www.umuer.com/posts/portrait-blur/"><meta property="og:image" content="https://www.umuer.com/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://www.umuer.com/posts/portrait-blur/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="fatbruin" href="/rss.xml">
+<script>(function(){var n=null;try{n=localStorage.getItem('fatbruin-night')}catch(e){}var h=new Date().getHours();if(n?n==='1':(h>=19||h<6))document.documentElement.classList.add('night')})()</script>
+<link rel="stylesheet" href="/styles/base.0282236f.css">
+<link rel="stylesheet" href="/styles/post.0bb29940.css"></head>
+<body class="post">
+<div id="scene"></div>
+<div class="topbar"><div class="navl"><a class="back" href="/#writing">← 回到小屋</a><a class="back nav-fallback" href="/posts/">全部文章 →</a></div><div class="brand">fat<span>bruin</span></div></div>
+<main><nav class="toc" aria-label="目录"><p class="toc-h">目录</p><ol><li class="l2"><a href="#%E9%9C%80%E6%B1%82%E8%83%8C%E6%99%AF">需求背景</a></li><li class="l2"><a href="#%E6%8A%80%E6%9C%AF%E6%96%B9%E6%A1%88">技术方案</a></li><li class="l3"><a href="#%E4%BA%BA%E5%83%8F%E5%88%86%E5%89%B2">人像分割</a></li><li class="l3"><a href="#%E8%87%AA%E7%A0%94%E6%A8%A1%E5%9E%8B">自研模型</a></li><li class="l3"><a href="#vision-%E6%A8%A1%E5%9E%8B">Vision 模型</a></li><li class="l2"><a href="#%E4%BC%98%E5%8C%96%E6%96%B9%E5%90%91">优化方向</a></li><li class="l3"><a href="#ai">AI</a></li><li class="l3"><a href="#app">APP</a></li><li class="l3"><a href="#%E9%87%87%E7%94%A8ios-vision-%E6%8E%A8%E7%90%86%E6%A1%86%E6%9E%B6-%E5%B7%A5%E7%A8%8B%E5%8C%96%E4%BC%98%E5%8C%96">采用iOS Vision 推理框架 工程化优化</a></li><li class="l2"><a href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99">参考资料</a></li></ol><a class="toc-all" href="/posts/">全部文章 →</a></nav><article id="art"><p class="meta"><span>2024.11.29</span><span>iOS</span><span>10 分钟</span></p><h1>AI作业背景模糊实现技术方案</h1><p class="sum">录制 AI 作业时的背景虚化:高斯模糊背景 + 人像分割合成,保护用户隐私。</p><h2 id="%E9%9C%80%E6%B1%82%E8%83%8C%E6%99%AF" tabindex="-1">需求背景 <a class="anchor" href="#%E9%9C%80%E6%B1%82%E8%83%8C%E6%99%AF">#</a></h2>
+<p>晖致日本提出很多代表在家里录制AI作业，希望可以将背景模糊，保护代表隐私。</p>
+<p>类似于腾讯会议的背景虚化功能，录制视频作业 的时候将背景模糊化，只保留用户人像区域。</p>
+<h2 id="%E6%8A%80%E6%9C%AF%E6%96%B9%E6%A1%88" tabindex="-1">技术方案 <a class="anchor" href="#%E6%8A%80%E6%9C%AF%E6%96%B9%E6%A1%88">#</a></h2>
+<p>业界对这个需求的实现方案基本一致。</p>
+<p>首先录制过程中将视频帧做高斯模糊形成背景模糊中”背景&quot;部分。</p>
+<p>然后在实时的将每一帧图像中包含人像的部分“扣&quot;出来形成一张黑白分明的灰度图（mask）。一般是人像区域为白色，非人像区域为黑色。</p>
+<p>最后使用自定义三输入的滤镜，分别传入模糊后的背景视频帧+灰度mask图+原始视频帧，通过片元着色器对每一个像素点进行遴选。根据灰度图的颜色，白色取原始视频帧，黑色取模糊视频帧。</p>
+<p>这样就形成了背景区域是模糊的，人像区域是正常的视频，达到要求。</p>
+<p>在视频帧处理这方面我们采用项目中已经引入的GPUImage库来实现。</p>
+<h3 id="%E4%BA%BA%E5%83%8F%E5%88%86%E5%89%B2" tabindex="-1">人像分割 <a class="anchor" href="#%E4%BA%BA%E5%83%8F%E5%88%86%E5%89%B2">#</a></h3>
+<p>这个抠图的技术我们称为人像分割，人像分割算法有很多种，常见的包括：基于颜色和纹理的方法、基于边缘检测的方法、基于深度学习的方法、基于图割的方法等。</p>
+<p>目前这一步交由AI组伙伴提供基于TensorFlowLiteObjC的深度学习人像分割模型来实现。</p>
+<h3 id="%E8%87%AA%E7%A0%94%E6%A8%A1%E5%9E%8B" tabindex="-1">自研模型 <a class="anchor" href="#%E8%87%AA%E7%A0%94%E6%A8%A1%E5%9E%8B">#</a></h3>
+<h4>实现细节</h4>
+<p>目前chaochao提供了2个模型。</p>
+<p>128x128_fp32.tflite 支持输入128*128像素的图片</p>
+<p>256x144_fp32.tflite 支持输入256*144像素的图片</p>
+<p>核心识别代码如下：</p>
+<div class="cb"><span class="cb-l">objectivec</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-objectivec"><span class="hljs-meta">#import <span class="hljs-string">&lt;Foundation/Foundation.h&gt;</span></span>
+<span class="hljs-meta">#import <span class="hljs-string">&quot;UGPortraitTFliteProcessor.h&quot;</span></span>
+
+<span class="hljs-class"><span class="hljs-keyword">@interface</span> <span class="hljs-title">UGPortraitTFliteProcessor</span>()</span>
+
+<span class="hljs-keyword">@property</span> (<span class="hljs-keyword">nonatomic</span>, <span class="hljs-keyword">assign</span>) cv::Mat cachedMat; <span class="hljs-comment">// 缓存的一帧</span>
+
+<span class="hljs-keyword">@property</span> (<span class="hljs-keyword">nonatomic</span>, <span class="hljs-keyword">strong</span>) <span class="hljs-built_in">NSDictionary</span> *cachedOutput; <span class="hljs-comment">//缓存的一帧计算结果</span>
+
+<span class="hljs-keyword">@end</span>
+
+<span class="hljs-class"><span class="hljs-keyword">@implementation</span> <span class="hljs-title">UGPortraitTFliteProcessor</span></span>
+
+- (<span class="hljs-built_in">NSArray</span>&lt; <span class="hljs-built_in">NSNumber</span> * &gt; *)getTensorShape {
+<span class="hljs-built_in">CGSize</span> modelSize = <span class="hljs-keyword">self</span>.model.modelSize;
+<span class="hljs-built_in">NSNumber</span> *dimNum1 = [<span class="hljs-built_in">NSNumber</span> numberWithInt:modelSize.width];
+<span class="hljs-built_in">NSNumber</span> *dimNum2 = [<span class="hljs-built_in">NSNumber</span> numberWithInt:modelSize.height];
+<span class="hljs-built_in">NSArray</span>&lt; <span class="hljs-built_in">NSNumber</span> * &gt; *shape = @[ @<span class="hljs-number">1</span>, dimNum2, dimNum1, @<span class="hljs-number">3</span> ];
+<span class="hljs-keyword">return</span> shape;
+}
+
++ (UGPortraitTFliteProcessor *)processor {
+<span class="hljs-comment">// CGSize kTFliteModelSize = CGSizeMake(128, 128);</span>
+<span class="hljs-built_in">CGSize</span> kTFliteModelSize = <span class="hljs-built_in">CGSizeMake</span>(<span class="hljs-number">256</span>, <span class="hljs-number">144</span>);
+<span class="hljs-built_in">NSBundle</span> *targetBundle = [<span class="hljs-built_in">NSBundle</span> bundleForClass:<span class="hljs-built_in">NSClassFromString</span>(<span class="hljs-string">@&quot;UGPortraitTFliteProcessor&quot;</span>)];
+<span class="hljs-built_in">NSURL</span> *bundleUrl = [targetBundle URLForResource:<span class="hljs-string">@&quot;Detection&quot;</span> withExtension:<span class="hljs-string">@&quot;bundle&quot;</span>];
+<span class="hljs-built_in">NSBundle</span> *finalBundle = [<span class="hljs-built_in">NSBundle</span> bundleWithURL:bundleUrl];
+<span class="hljs-comment">// NSString *filePath = [finalBundle pathForResource:@&quot;128x128_fp32&quot; ofType:@&quot;tflite&quot;];</span>
+<span class="hljs-built_in">NSString</span> *filePath = [finalBundle pathForResource:<span class="hljs-string">@&quot;256x144_fp32&quot;</span> ofType:<span class="hljs-string">@&quot;tflite&quot;</span>];
+UGTFliteModel *model = [UGTFliteModel modelWithPath:filePath size:kTFliteModelSize];
+UGPortraitTFliteProcessor *processor = [UGPortraitTFliteProcessor processorWithModel:model];
+<span class="hljs-keyword">return</span> processor;
+}
+
+<span class="hljs-comment">// 执行推理</span>
+- (<span class="hljs-built_in">NSDictionary</span> *)detectWithSampleBuffer:(<span class="hljs-built_in">CMSampleBufferRef</span>)sampleBuffer orientation:(<span class="hljs-built_in">UIInterfaceOrientation</span>)orientation isMirror:(<span class="hljs-type">BOOL</span>)isMirror {
+
+<span class="hljs-comment">// 转成mat</span>
+cv::Mat matOrigin = [UGTFliteUtil matFromCVPixelBuffer:<span class="hljs-built_in">CMSampleBufferGetImageBuffer</span>(sampleBuffer)];
+
+<span class="hljs-comment">// 差值优化 如果两帧画面相差小于3% 则直接使用上一帧的结果(这里保持缓存的data和mat是成对的)</span>
+<span class="hljs-keyword">if</span>([<span class="hljs-keyword">self</span> isCacheAvailable] &amp;&amp; [UGTFliteUtil isChangeMinimalWithCurrentFrame:matOrigin lastFrame:_cachedMat threshold:<span class="hljs-number">0.035</span>]) {
+<span class="hljs-keyword">return</span> <span class="hljs-keyword">self</span>.cachedOutput;
+}
+
+<span class="hljs-comment">// 计算原始size</span>
+<span class="hljs-built_in">CGSize</span> sizeOrigin = orientation == <span class="hljs-built_in">UIInterfaceOrientationLandscapeRight</span> ? <span class="hljs-built_in">CGSizeMake</span>(matOrigin.cols, matOrigin.rows) : <span class="hljs-built_in">CGSizeMake</span>(matOrigin.rows, matOrigin.cols);
+
+<span class="hljs-comment">// 镜像和orientation翻转</span>
+cv::Mat matProcess = [UGTFliteUtil processMatWithOrientation:orientation isMirror:isMirror originMat:matOrigin];
+
+<span class="hljs-comment">// 缩放到模型接收的size， chaochao说这个模型不用等比缩放，可以拉伸变形进行推理，推理结果再反向拉伸获取即可</span>
+cv::Mat mat;
+cv::resize(matProcess, mat, cv::Size(<span class="hljs-keyword">self</span>.model.modelSize.width, <span class="hljs-keyword">self</span>.model.modelSize.height));
+
+<span class="hljs-comment">// 注意模型需求输入的是归一化二进制数据</span>
+<span class="hljs-built_in">NSData</span> *imageData = [UGTFliteUtil normalizedFloat32ImageDataFromCVMat:mat]; <span class="hljs-comment">// 归一化处理</span>
+
+<span class="hljs-comment">// 模型开始执行推理</span>
+<span class="hljs-built_in">NSError</span> *error;
+[<span class="hljs-keyword">self</span>.interpreter resizeInputTensorAtIndex:<span class="hljs-number">0</span> toShape:[<span class="hljs-keyword">self</span> getTensorShape] error:&amp;error];
+TFLTensor *inputTensor = [<span class="hljs-keyword">self</span>.interpreter inputTensorAtIndex:<span class="hljs-number">0</span> error:&amp;error];
+[inputTensor copyData:imageData error:&amp;error];
+[<span class="hljs-keyword">self</span>.interpreter invokeWithError:&amp;error];
+TFLTensor *outputTensor = [<span class="hljs-keyword">self</span>.interpreter outputTensorAtIndex:<span class="hljs-number">0</span> error:&amp;error];
+<span class="hljs-built_in">NSData</span> *outputData = [outputTensor dataWithError:&amp;error];
+
+<span class="hljs-comment">// 后续解析数据</span>
+<span class="hljs-built_in">NSDictionary</span> *resultDict = [<span class="hljs-keyword">self</span> detectWithTensorOutputData:outputData imageSize:sizeOrigin];
+
+<span class="hljs-keyword">if</span> (error) {
+<span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;Error++: %@&quot;</span>, error);
+} <span class="hljs-keyword">else</span> {
+<span class="hljs-keyword">self</span>.cachedOutput = resultDict;
+<span class="hljs-keyword">self</span>.cachedMat = matOrigin;
+}
+
+<span class="hljs-keyword">return</span> resultDict;
+}
+
+<span class="hljs-comment">/// 解析推理数据</span>
+- (<span class="hljs-built_in">NSDictionary</span> *)detectWithTensorOutputData:(<span class="hljs-built_in">NSData</span> *)outputData imageSize:(<span class="hljs-built_in">CGSize</span>)imageSize {
+
+<span class="hljs-comment">// 计算像素总数</span>
+<span class="hljs-type">int</span> inputWidth = <span class="hljs-keyword">self</span>.model.modelSize.width;
+
+<span class="hljs-type">int</span> inputHeight = <span class="hljs-keyword">self</span>.model.modelSize.height;
+
+<span class="hljs-type">int</span> num_pixels = inputHeight * inputWidth;
+
+<span class="hljs-comment">// 注意OpenCV 里面Mat的初始化是 高 * 宽 * 通道数</span>
+cv::Mat out_mask(inputHeight, inputWidth, CV_8UC1);
+
+<span class="hljs-keyword">const</span> <span class="hljs-type">float</span> *output = (<span class="hljs-keyword">const</span> <span class="hljs-type">float</span> *)outputData.bytes;
+
+<span class="hljs-comment">// 遍历每个像素并填充 out_mask 这个计算有问题的 实际是会有不同概率分布的数据 不是非0即1</span>
+<span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; num_pixels; i++) {
+out_mask.data[i] = (output[<span class="hljs-number">2</span> * i + <span class="hljs-number">1</span>] &gt; <span class="hljs-number">0.1</span>f) ? <span class="hljs-number">255</span> : <span class="hljs-number">0</span>;
+}
+
+<span class="hljs-comment">// 腐蚀 这个优化改为交给GPUImage处理 不再使用cv</span>
+<span class="hljs-comment">// cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));</span>
+<span class="hljs-comment">// cv::erode(outputMat, outputMat, element);</span>
+
+<span class="hljs-comment">// 高斯模糊 进行边缘优化 这个优化改为交给GPUImage处理 不再使用cv</span>
+<span class="hljs-comment">// cv::GaussianBlur(out_mask, out_mask, cv::Size(3, 3), 0, 0);</span>
+
+<span class="hljs-comment">// mask图再放大</span>
+cv::Mat outputMat;
+cv::resize(out_mask, outputMat, cv::Size(imageSize.width, imageSize.height));
+
+<span class="hljs-built_in">UIImage</span> *outputImage = [UGTFliteUtil imageFromCVMat:outputMat];
+
+<span class="hljs-keyword">return</span> @{<span class="hljs-string">@&quot;image&quot;</span>:outputImage, <span class="hljs-string">@&quot;imageWidth&quot;</span>:@(imageSize.width),<span class="hljs-string">@&quot;imageHeight&quot;</span>:@(imageSize.height)};
+}
+
+- (<span class="hljs-type">BOOL</span>)isCacheAvailable {
+<span class="hljs-keyword">return</span> !<span class="hljs-keyword">self</span>.cachedMat.empty() &amp;&amp; <span class="hljs-keyword">self</span>.cachedOutput;
+}
+
+<span class="hljs-keyword">@end</span>
+</code></pre>
+</div><p>核心渲染代码如下</p>
+<div class="cb"><span class="cb-l">objectivec</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-objectivec">
+<span class="hljs-comment">// 背景模糊滤镜组</span>
+
+<span class="hljs-meta">#import <span class="hljs-string">&quot;GPUImage.h&quot;</span></span>
+<span class="hljs-meta">#import <span class="hljs-string">&quot;GPUImageThreeInputFilter.h&quot;</span></span>
+<span class="hljs-meta">#import <span class="hljs-string">&quot;UGImageBackgroundBlurFilter.h&quot;</span></span>
+
+<span class="hljs-built_in">NSString</span> *<span class="hljs-keyword">const</span> kUGImagePortraitMaskBlendFragmentShaderString = SHADER_STRING
+(
+precision highp <span class="hljs-type">float</span>;
+
+varying highp vec2 textureCoordinate;
+varying highp vec2 textureCoordinate2;
+varying highp vec2 textureCoordinate3;
+
+uniform sampler2D inputImageTexture;
+uniform sampler2D inputImageTexture2;
+uniform sampler2D inputImageTexture3;
+
+<span class="hljs-type">void</span> main() {
+vec4 baseColor = texture2D(inputImageTexture, textureCoordinate);
+vec4 blurredColor = texture2D(inputImageTexture2, textureCoordinate2);
+vec4 maskColor = texture2D(inputImageTexture3, textureCoordinate3);
+
+<span class="hljs-comment">// 预乘Alpha</span>
+baseColor.rgb *= baseColor.a;
+blurredColor.rgb *= blurredColor.a;
+
+<span class="hljs-comment">// 根据 maskColor 的灰度值计算混合的透明度通道</span>
+<span class="hljs-type">float</span> maskValue = dot(maskColor.rgb, vec3(<span class="hljs-number">0.299</span>, <span class="hljs-number">0.587</span>, <span class="hljs-number">0.114</span>));
+
+<span class="hljs-comment">// 平滑处理边界像素值</span>
+<span class="hljs-type">float</span> smoothMaskValue = smoothstep(<span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>, maskValue);
+
+<span class="hljs-comment">// 混合颜色</span>
+vec4 mixedColor = mix(blurredColor, baseColor, smoothMaskValue);
+
+<span class="hljs-comment">// 解除预乘Alpha</span>
+<span class="hljs-keyword">if</span> (mixedColor.a &gt; <span class="hljs-number">0.0</span>) {
+mixedColor.rgb /= mixedColor.a;
+}
+
+gl_FragColor = mixedColor;
+
+}
+);
+
+<span class="hljs-class"><span class="hljs-keyword">@interface</span> <span class="hljs-title">UGImagePortraitMaskBlendFilter</span> : <span class="hljs-title">GPUImageThreeInputFilter</span></span>
+
+<span class="hljs-keyword">@end</span>
+
+<span class="hljs-class"><span class="hljs-keyword">@implementation</span> <span class="hljs-title">UGImagePortraitMaskBlendFilter</span></span>
+
+- (<span class="hljs-keyword">instancetype</span>)init {
+<span class="hljs-keyword">self</span> = [<span class="hljs-variable language_">super</span> initWithFragmentShaderFromString:kUGImagePortraitMaskBlendFragmentShaderString];
+<span class="hljs-keyword">if</span> (<span class="hljs-keyword">self</span>) {
+<span class="hljs-comment">// 初始化滤镜</span>
+}
+<span class="hljs-keyword">return</span> <span class="hljs-keyword">self</span>;
+}
+
+<span class="hljs-keyword">@end</span>
+
+<span class="hljs-class"><span class="hljs-keyword">@interface</span> <span class="hljs-title">UGImageBackgroundBlurFilter</span>()</span>
+<span class="hljs-keyword">@property</span> (<span class="hljs-keyword">nonatomic</span>, <span class="hljs-keyword">strong</span>) GPUImageGaussianBlurFilter *blurFilter;
+<span class="hljs-keyword">@property</span> (<span class="hljs-keyword">nonatomic</span>, <span class="hljs-keyword">strong</span>) UGImagePortraitMaskBlendFilter *blendInputFilter;
+<span class="hljs-keyword">@end</span>
+
+<span class="hljs-class"><span class="hljs-keyword">@implementation</span> <span class="hljs-title">UGImageBackgroundBlurFilter</span></span>
+
+- (<span class="hljs-keyword">instancetype</span>)init {
+<span class="hljs-keyword">if</span> (<span class="hljs-keyword">self</span> = [<span class="hljs-variable language_">super</span> init]) {
+<span class="hljs-comment">// 初始化高斯模糊滤镜</span>
+<span class="hljs-keyword">self</span>.blurFilter = [[GPUImageGaussianBlurFilter alloc] init];
+<span class="hljs-keyword">self</span>.blurFilter.blurRadiusInPixels = <span class="hljs-number">31</span>;
+[<span class="hljs-keyword">self</span> addFilter:<span class="hljs-keyword">self</span>.blurFilter];
+
+<span class="hljs-comment">// 初始化混合三输入滤镜</span>
+<span class="hljs-keyword">self</span>.blendInputFilter = [[UGImagePortraitMaskBlendFilter alloc] init];
+[<span class="hljs-keyword">self</span> addFilter:<span class="hljs-keyword">self</span>.blendInputFilter];
+
+<span class="hljs-comment">// 设置滤镜链</span>
+[<span class="hljs-keyword">self</span>.blurFilter addTarget:<span class="hljs-keyword">self</span>.blendInputFilter atTextureLocation:<span class="hljs-number">1</span>];
+[<span class="hljs-keyword">self</span> setInitialFilters:@[<span class="hljs-keyword">self</span>.blurFilter, <span class="hljs-keyword">self</span>.blendInputFilter]];
+[<span class="hljs-keyword">self</span> setTerminalFilter:<span class="hljs-keyword">self</span>.blendInputFilter];
+}
+<span class="hljs-keyword">return</span> <span class="hljs-keyword">self</span>;
+}
+
+- (<span class="hljs-type">void</span>)setMaskImage:(<span class="hljs-built_in">UIImage</span> *)maskImage {
+<span class="hljs-comment">// 腐蚀 + 高斯模糊进行边缘优化</span>
+GPUImagePicture *maskImageSource = [[GPUImagePicture alloc] initWithImage:maskImage];
+GPUImageErosionFilter *erosionFilter = [[GPUImageErosionFilter alloc] initWithRadius:<span class="hljs-number">3</span>];
+GPUImageGaussianBlurFilter *blurFilter = [[GPUImageGaussianBlurFilter alloc] init];
+blurFilter.blurRadiusInPixels = <span class="hljs-number">7</span>;
+
+[maskImageSource addTarget:erosionFilter];
+[erosionFilter addTarget:blurFilter];
+[blurFilter addTarget:<span class="hljs-keyword">self</span>.blendInputFilter atTextureLocation:<span class="hljs-number">2</span>];
+
+[erosionFilter useNextFrameForImageCapture];
+[blurFilter useNextFrameForImageCapture];
+[maskImageSource processImage];
+}
+
+<span class="hljs-keyword">@end</span>
+
+</code></pre>
+</div><h4>端侧优化</h4>
+<p>在实现的过程中发现一些问题，从APP侧做了一些优化。</p>
+<h5>边缘优化</h5>
+<p>模型计算出来的mask图像的黑白分界比较明显（像素点非1即0），视觉效果上在背景和人像的分界处有较清晰的边界落差。</p>
+<p>针对这个问题我们在使用推理出来的mask进入片元着色器遴选像素之前先过了一次7个像素的高斯模糊滤镜，将mask图的边缘的锋利区域抹平。</p>
+<p>边缘高斯模糊后分界不再过于明显，人像周围会存在一圈透明和半透明交织的光圈。</p>
+<p>光圈的半径大小取决于模型推理出来的mask图的尺寸，掩码图越大越精细，光圈越小越贴近真实的人像。（和小图片放大会变马赛克同样原理）</p>
+<h5>边缘腐蚀</h5>
+<p>经过边缘优化人像区域分界点弱化后发现人像周围的透明光圈会漏出一些背景信息。</p>
+<p>为了降低漏出的背景信息，我们在高斯模糊之前对掩码图做了一次3像素的腐蚀，将人像区域向内收缩。</p>
+<h5>插值优化</h5>
+<p>结合我们的AI作业的录制场景，APP端对两帧之间变化不超过96.5%的不再执行推理，可以一定程度上提高录制的帧率。</p>
+<p>该阈值经过一些测试得出，其效果为别的部位和背景不变，仅面部口型发生变化，其两帧之间的差距小于3.5%。</p>
+<h5>帧缓存</h5>
+<p>推理模型存在报错的可能，每一帧推理成功完成后都会缓存该推理结果。</p>
+<p>如果当前帧推理报错则会使用上一帧的结果，避免出现模糊失效暴露完整背景信息的情况。</p>
+<h4>遗留问题</h4>
+<p><strong>向内腐蚀导致人像边缘缺失</strong></p>
+<p>手指区域有时候会出现识别误差导致手指区域比较细小，因为向内腐蚀而出现手指被腐蚀掉的问题。</p>
+<p><strong>帧率低</strong></p>
+<p>端上录制的同时做了过多滤镜方面的工作，同时处理背景模糊和人脸美颜，性能较低。</p>
+<p>不开背景模糊能跑满30pfs，开了背景模糊会降低到10-15fps。</p>
+<p><strong>模型识别精度不足</strong></p>
+<p>识别精度难以达到产品预期。当前模型尺寸较小，如果换高精度模型会进一步降低帧率，视频会卡。</p>
+<h3 id="vision-%E6%A8%A1%E5%9E%8B" tabindex="-1">Vision 模型 <a class="anchor" href="#vision-%E6%A8%A1%E5%9E%8B">#</a></h3>
+<p>Vision 是 Apple 在 WWDC 2017 推出的图像识别框架。Vision库里本身就已经自带了很多训练好的Core ML模型，人脸识别、条形码检测等等功能。</p>
+<p>如果你要实现的功能刚好是Vision库本身就能实现的，那么你直接使用Vision库自带的一些类和方法就行，但是如果想要更强大的功能，那么还是需要结合其它Core ML模型。</p>
+<p>Apple 官方也提供了人像分割的模型VNGeneratePersonSegmentationRequest，需要iOS 15.0 以上系统可以使用该API。</p>
+<h4>核心实现</h4>
+<div class="cb"><span class="cb-l">objectivec</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-objectivec">
+<span class="hljs-keyword">if</span> (@available(iOS <span class="hljs-number">15.0</span>, *)) {
+CVPixelBufferRef pixelBuffer = <span class="hljs-built_in">CMSampleBufferGetImageBuffer</span>(sampleBuffer);
+<span class="hljs-keyword">if</span> (!pixelBuffer) {
+<span class="hljs-keyword">return</span>;
+}
+
+VNGeneratePersonSegmentationRequest *request = [[VNGeneratePersonSegmentationRequest alloc] init];
+<span class="hljs-comment">// 决定使用高质量的mask还是高速度的mask</span>
+request.qualityLevel = VNGeneratePersonSegmentationRequestQualityLevelAccurate;
+request.outputPixelFormat = kCVPixelFormatType_OneComponent8;
+<span class="hljs-comment">// 推理产生mask</span>
+VNImageRequestHandler *requestHandler = [[VNImageRequestHandler alloc] initWithCVPixelBuffer:pixelBuffer options:@{}];
+<span class="hljs-built_in">NSError</span> *error = <span class="hljs-literal">nil</span>;
+[requestHandler performRequests:@[request] error:&amp;error];
+<span class="hljs-keyword">if</span> (error) {
+<span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;Failed to perform segmentation request: %@&quot;</span>, error);
+<span class="hljs-keyword">return</span>;
+}
+
+VNPixelBufferObservation *mask = (VNPixelBufferObservation *)request.results.firstObject;
+<span class="hljs-keyword">if</span> (mask) {
+<span class="hljs-built_in">CIImage</span> *ciImage = [<span class="hljs-built_in">CIImage</span> imageWithCVPixelBuffer:mask.pixelBuffer];
+<span class="hljs-built_in">CIContext</span> *context = [<span class="hljs-built_in">CIContext</span> context];
+<span class="hljs-built_in">CGImageRef</span> cgImage = [context createCGImage:ciImage fromRect:ciImage.extent];
+<span class="hljs-built_in">UIImage</span> *image = [<span class="hljs-built_in">UIImage</span> imageWithCGImage:cgImage];
+<span class="hljs-built_in">CGImageRelease</span>(cgImage);
+
+<span class="hljs-keyword">if</span>(<span class="hljs-keyword">self</span>.getDevicePostion == <span class="hljs-built_in">AVCaptureDevicePositionFront</span>) {
+image = [<span class="hljs-keyword">self</span> flipImageVertically:image];
+}
+<span class="hljs-comment">// 执行渲染</span>
+[<span class="hljs-keyword">self</span>.filter setBlurBackgroundMaskImage:image];
+}
+} <span class="hljs-keyword">else</span> {
+<span class="hljs-built_in">NSLog</span>(<span class="hljs-string">@&quot;VNGeneratePersonSegmentationRequest is not available on this iOS version.&quot;</span>);
+}
+
+
+</code></pre>
+</div><p>我们项目支持到iOS 10.0 所以使用原生模型是有局限性的。</p>
+<p>另外如果使用高精度模型VNGeneratePersonSegmentationRequestQualityLevelAccurate，其运行速度也比较慢。</p>
+<p>如果使用精度和速度相平衡的模型则其识别效果未经过产品验证无法确定是否达到需求。</p>
+<h2 id="%E4%BC%98%E5%8C%96%E6%96%B9%E5%90%91" tabindex="-1">优化方向 <a class="anchor" href="#%E4%BC%98%E5%8C%96%E6%96%B9%E5%90%91">#</a></h2>
+<h3 id="ai" tabindex="-1">AI <a class="anchor" href="#ai">#</a></h3>
+<p>AI考虑提升模型运算效率和推理精度，由AI团队调研和研发。</p>
+<h3 id="app" tabindex="-1">APP <a class="anchor" href="#app">#</a></h3>
+<p>根据模型推理精度来决定是否移除掉腐蚀逻辑，保证人像区域完整。</p>
+<p>检测多个滤镜链合并时候的效率，根据结果决定是否需要分离美颜和背景模糊滤镜。</p>
+<p>使用帧采样做mask基准，尽量减少模型推理次数。</p>
+<p>采样多个模型，根据帧率动态降级。</p>
+<h3 id="%E9%87%87%E7%94%A8ios-vision-%E6%8E%A8%E7%90%86%E6%A1%86%E6%9E%B6-%E5%B7%A5%E7%A8%8B%E5%8C%96%E4%BC%98%E5%8C%96" tabindex="-1">采用iOS Vision 推理框架 工程化优化 <a class="anchor" href="#%E9%87%87%E7%94%A8ios-vision-%E6%8E%A8%E7%90%86%E6%A1%86%E6%9E%B6-%E5%B7%A5%E7%A8%8B%E5%8C%96%E4%BC%98%E5%8C%96">#</a></h3>
+<p>采用 VNGeneratePersonSegmentationRequestQualityLevelBalanced 档位的人像分割模型，效果可以接受。</p>
+<p>测试机 iOS 15.2 iPhone 11</p>
+<p>2024-11-29 15:53:32.273863+0800 [5274:3232793] 开始推理 1732866812.273805</p>
+<p>2024-11-29 15:53:32.300939+0800 [5274:3232793] 推理完成 1732866812.300908</p>
+<p>2024-11-29 15:53:32.309572+0800 [5274:3232793] 转图片完成 1732866812.309538</p>
+<p>人像分割推理用时 27.1 ms  转图片用时 8.5 ms</p>
+<p>当前FPS 为 15 每一帧视频用时 66.67ms</p>
+<p>人像分割大概需要在原始耗时的基础上增加35 ms</p>
+<p>不开人像分割可以达到设置的最佳帧率 30 FPS。</p>
+<p>排查其他用时详情：</p>
+<p>2024-11-29 16:54:07.306245+0800 [5358:3254717] 开始应用滤镜 1732870447.306170</p>
+<p>2024-11-29 16:54:07.310206+0800 [5358:3254717] 应用滤镜完成 1732870447.310165</p>
+<p>合成图像及边缘优化的滤镜用时 4ms 优化空间较小</p>
+<p>主要优化方向还是在人像分割推理上</p>
+<p>采用差值优化，帧相似度小于某个值才进行检测</p>
+<p>差值计算带来额外的性能消耗，如果计算出来需要检测，则检测用时需要追加差值计算的时间消耗，如果计算出来不需要检测，就节省了一次推理时间。</p>
+<p>如果差值计算消耗数量级远远小于人像分割推理 则效果比较明显。</p>
+<p>2024-11-29 18:01:49.232560+0800 [5457:3292643] 开始计算差值 1732874509.232429</p>
+<p>2024-11-29 18:01:49.237739+0800 [5457:3292643] 完成计算差值 1732874509.237706</p>
+<p>计算差值需要 5ms</p>
+<p>在差值2.5%的基准上，如果人像动作幅度较小则帧率提升到20-25左右。</p>
+<p>插值基准越大，则帧率提升越明显，但是对人像分割的效果会有负面影响（<strong>有残影</strong>）。</p>
+<h2 id="%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99" tabindex="-1">参考资料 <a class="anchor" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99">#</a></h2>
+<p><a href="https://blog.csdn.net/Jason_Lee155/article/details/121216691">OpenGL ES几个概念-顶点着色器、片元着色器、EG</a></p>
+<p><a href="https://learnopengl-cn.github.io/">OpenGL学习教程</a></p>
+<p><a href="https://www.nxrte.com/jishu/38561.html">人像分割技术有哪些？</a></p>
+<p><a href="https://cloud.tencent.com/developer/article/1077019">Vision 图像识别框架</a></p>
+<div class="pnav"><a class="l" href="/posts/ios-i18n-dynamic/"><small>上一篇</small><b>iOS-i18n动态化思考</b></a><a class="r" href="/posts/asr-optimization/"><small>下一篇</small><b>iOS端 ASR优化</b></a></div></article></main>
+
+<div id="mascot" title="戳一下">
+  <div id="m-say"></div>
+  <button id="m-top" title="回到顶部" aria-label="回到顶部">↑</button>
+</div>
+<script type="module" src="/scene2d.js"></script>
+<script type="module" src="/mascot.js"></script>
+<script>
+addEventListener('keydown', function(e){
+  var P = {"prev":"/posts/ios-i18n-dynamic/","next":"/posts/asr-optimization/"};
+  // 灯箱打开时 Esc 只关灯箱,方向键不翻页
+  var lb = document.querySelector('.lb');
+  if (lb) { if (e.key === 'Escape') lb.remove(); return; }
+  if (e.key === 'ArrowLeft'  && P.prev) location.href = P.prev;
+  if (e.key === 'ArrowRight' && P.next) location.href = P.next;
+  if (e.key === 'Escape') location.href = '/#writing';
+});
+</script>
+<script>
+// 大纲高亮:滚动容器是 #art(不是 window),直接按滚动位置算当前节最可靠
+(function(){
+  var toc = document.querySelector('.toc');
+  if (!toc) return;
+  var art = document.getElementById('art');
+  var links = [].slice.call(toc.querySelectorAll('a'));
+  var map = {};
+  // id 本身已是百分号编码,直接用原始 href 做 key,不要 decode
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var heads = [].slice.call(art.querySelectorAll('h2[id],h3[id]'));
+  if (!heads.length) return;
+  var cur = null;
+
+  function paint(){
+    var top = art.getBoundingClientRect().top + 100;   // 判定线:卡片顶部下方 100px
+    var found = heads[0];
+    for (var i = 0; i < heads.length; i++){
+      if (heads[i].getBoundingClientRect().top <= top) found = heads[i]; else break;
+    }
+    // 已滚到底时强制选中最后一节,否则末节永远高亮不到
+    if (art.scrollTop + art.clientHeight >= art.scrollHeight - 4) found = heads[heads.length - 1];
+    if (found === cur) return;
+    cur = found;
+    links.forEach(function(a){ a.classList.remove('on'); });
+    var a = map[found.id];
+    if (!a) return;
+    a.classList.add('on');
+    var box = a.getBoundingClientRect(), tb = toc.getBoundingClientRect();
+    if (box.top < tb.top || box.bottom > tb.bottom) a.scrollIntoView({block:'nearest'});
+  }
+
+  var tick = false;
+  art.addEventListener('scroll', function(){
+    if (tick) return;
+    tick = true;
+    requestAnimationFrame(function(){ tick = false; paint(); });
+  }, {passive:true});
+
+  toc.addEventListener('click', function(e){
+    var a = e.target.closest('a'); if (!a) return;
+    var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if (!t) return;
+    e.preventDefault();
+    art.scrollTo({ top: art.scrollTop + t.getBoundingClientRect().top - art.getBoundingClientRect().top - 24, behavior:'smooth' });
+    history.replaceState(null, '', a.getAttribute('href'));
+  });
+  paint();
+})();
+</script>
+<script>
+// 图片灯箱:点正文图片或 Mermaid 图放大,点击 / Esc / 滚轮关闭
+document.getElementById('art').addEventListener('click', function(e){
+  var t = e.target.closest('img,.mm svg');
+  if (!t || t.closest('a')) return;
+  var lb = document.createElement('div'), c = t.cloneNode(true);
+  lb.className = 'lb';
+  if (c.tagName !== 'IMG') {
+    // SVG 没有固有的"原图尺寸",按视口等比放大
+    var r = t.getBoundingClientRect();
+    var k = Math.min(innerWidth * .92 / r.width, innerHeight * .9 / r.height);
+    c.style.width = r.width * k + 'px';
+    c.style.height = r.height * k + 'px';
+  }
+  lb.appendChild(c);
+  lb.onclick = lb.onwheel = function(){ lb.remove(); };
+  document.body.appendChild(lb);
+});
+</script>
+<script>
+// 代码块复制
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('.cb-c');
+  if (!btn) return;
+  var pre = btn.parentElement.querySelector('pre');
+  if (!pre) return;
+  var text = pre.innerText;
+  var done = function(){
+    btn.textContent = '已复制'; btn.classList.add('ok');
+    setTimeout(function(){ btn.textContent = '复制'; btn.classList.remove('ok'); }, 1600);
+  };
+  // clipboard API 需要安全上下文(https 或 localhost),否则回退到 execCommand
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else fallback();
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (err) { btn.textContent = '复制失败'; }
+    document.body.removeChild(ta);
+  }
+});
+</script>
+</body></html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>APP自动化测试实践 E2E·03：让大模型来写用例、跑用例——Appium 插件与 stub 直驱 — fatbruin</title>
+<meta name="description" content="用大模型把录制、生成、回放、自愈串成 Claude Code 插件，并探索绕开 Appium 直接驱动 App。"><meta property="og:type" content="article"><meta property="og:site_name" content="fatbruin"><meta property="og:title" content="APP自动化测试实践 E2E·03：让大模型来写用例、跑用例——Appium 插件与 stub 直驱"><meta property="og:description" content="用大模型把录制、生成、回放、自愈串成 Claude Code 插件，并探索绕开 Appium 直接驱动 App。"><meta property="og:url" content="https://www.umuer.com/posts/app-testing-e2e-03-llm-appium-plugin/"><meta property="og:image" content="https://www.umuer.com/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://www.umuer.com/posts/app-testing-e2e-03-llm-appium-plugin/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="fatbruin" href="/rss.xml">
+<script>(function(){var n=null;try{n=localStorage.getItem('fatbruin-night')}catch(e){}var h=new Date().getHours();if(n?n==='1':(h>=19||h<6))document.documentElement.classList.add('night')})()</script>
+<link rel="stylesheet" href="/styles/base.0282236f.css">
+<link rel="stylesheet" href="/styles/post.0bb29940.css"></head>
+<body class="post">
+<div id="scene"></div>
+<div class="topbar"><div class="navl"><a class="back" href="/#writing">← 回到小屋</a><a class="back nav-fallback" href="/posts/">全部文章 →</a></div><div class="brand">fat<span>bruin</span></div></div>
+<main><nav class="toc" aria-label="目录"><p class="toc-h">目录</p><ol><li class="l2"><a href="#%E4%B8%80%E3%80%81%E8%A3%B8%E5%86%99-appium-%E8%84%9A%E6%9C%AC%EF%BC%8C%E8%8B%A6%E5%9C%A8%E5%93%AA%E9%87%8C">一、裸写 Appium 脚本，苦在哪里</a></li><li class="l2"><a href="#%E4%BA%8C%E3%80%81%E6%95%B4%E4%BD%93%E6%B5%81%E6%B0%B4%E7%BA%BF%EF%BC%9A%E5%BD%95%E5%88%B6%E3%80%81%E7%94%9F%E6%88%90%E3%80%81%E5%9B%9E%E6%94%BE%E3%80%81%E8%87%AA%E6%84%88">二、整体流水线：录制、生成、回放、自愈</a></li><li class="l2"><a href="#%E4%B8%89%E3%80%81%E5%BD%95%E5%88%B6%EF%BC%9A%E8%AE%A9-qa-%E5%85%88%E6%93%8D%E4%BD%9C%E4%B8%80%E9%81%8D">三、录制：让 QA 先操作一遍</a></li><li class="l2"><a href="#%E5%9B%9B%E3%80%81%E5%9B%9E%E6%94%BE%EF%BC%9A%E4%B8%A4%E7%A7%8D%E6%A8%A1%E5%BC%8F%EF%BC%8C%E6%8C%89%E7%94%A8%E4%BE%8B%E6%80%A7%E8%B4%A8%E5%88%86%E6%B4%BE">四、回放：两种模式，按用例性质分派</a></li><li class="l3"><a href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E8%83%BD%E5%85%A8%E7%94%A8%E5%A4%A7%E6%A8%A1%E5%9E%8B">为什么不能全用大模型</a></li><li class="l3"><a href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B9%9F%E4%B8%8D%E8%83%BD%E5%85%A8%E7%94%A8%E5%9B%BA%E5%AE%9A%E8%84%9A%E6%9C%AC">为什么也不能全用固定脚本</a></li><li class="l3"><a href="#%E5%8F%8C%E6%A8%A1%E5%9B%9E%E6%94%BE">双模回放</a></li><li class="l2"><a href="#%E4%BA%94%E3%80%81%E5%A4%B1%E8%B4%A5%E4%BA%86%E6%80%8E%E4%B9%88%E5%8A%9E%EF%BC%9A%E5%85%88%E5%88%86%E7%B1%BB%EF%BC%8C%E5%86%8D%E5%A4%84%E7%BD%AE">五、失败了怎么办：先分类，再处置</a></li><li class="l2"><a href="#%E5%85%AD%E3%80%81%E5%87%A0%E4%B8%AA%E5%80%BC%E5%BE%97%E4%B8%80%E6%8F%90%E7%9A%84%E5%B7%A5%E7%A8%8B%E7%BB%86%E8%8A%82">六、几个值得一提的工程细节</a></li><li class="l2"><a href="#%E4%B8%83%E3%80%81%E5%8F%A6%E4%B8%80%E6%9D%A1%E8%B7%AF%EF%BC%9Astub-%E7%9B%B4%E9%A9%B1">七、另一条路：stub 直驱</a></li><li class="l3"><a href="#%E5%8A%A8%E6%9C%BA%EF%BC%9Aappium-%E7%9A%84%E5%8D%95%E6%AD%A5%E6%88%90%E6%9C%AC">动机：Appium 的单步成本</a></li><li class="l3"><a href="#%E8%83%BD%E5%8A%9B%EF%BC%9A%E5%9C%A8-app-%E8%BF%9B%E7%A8%8B%E9%87%8C%E7%9B%B4%E6%8E%A5%22%E5%8A%A8%E6%89%8B%22">能力：在 App 进程里直接&amp;quot;动手&amp;quot;</a></li><li class="l3"><a href="#%E5%85%B3%E9%94%AE%E5%8E%9F%E5%88%99%EF%BC%9A%E5%9D%90%E6%A0%87%E4%B8%8D%E8%83%BD%E4%BA%A4%E7%BB%99%E6%A8%A1%E5%9E%8B%E7%AE%97">关键原则：坐标不能交给模型算</a></li><li class="l3"><a href="#%E8%A7%86%E8%A7%89%EF%BC%9A%E4%B8%8D%E5%9C%A8%E4%B8%BB%E5%BE%AA%E7%8E%AF%EF%BC%8C%E8%80%8C%E5%9C%A8%E6%97%81%E8%B7%AF">视觉：不在主循环，而在旁路</a></li><li class="l3"><a href="#%E8%BE%B9%E7%95%8C%EF%BC%9Astub-%E5%81%9A%E4%B8%8D%E5%88%B0%E7%9A%84%E4%BA%8B">边界：stub 做不到的事</a></li><li class="l3"><a href="#%E8%87%AA%E5%B7%B1%E5%86%99%E5%BE%AA%E7%8E%AF%EF%BC%8C%E8%BF%98%E6%98%AF%E7%9B%B4%E6%8E%A5%E4%BA%A4%E7%BB%99-agent">自己写循环，还是直接交给 agent</a></li><li class="l2"><a href="#%E5%85%AB%E3%80%81%E4%B8%A4%E6%9D%A1%E9%80%9A%E9%81%93%E6%80%8E%E4%B9%88%E9%80%89">八、两条通道怎么选</a></li><li class="l2"><a href="#%E4%B9%9D%E3%80%81%E7%8E%B0%E7%8A%B6%E4%B8%8E%E4%B8%8B%E4%B8%80%E6%AD%A5">九、现状与下一步</a></li><li class="l2"><a href="#%E4%B8%8B%E4%B8%80%E7%AF%87%E9%A2%84%E5%91%8A">下一篇预告</a></li></ol><a class="toc-all" href="/posts/">全部文章 →</a></nav><article id="art"><p class="meta"><span>2026.10.08</span><span>Testing</span><span>14 分钟</span></p><h1>APP自动化测试实践 E2E·03：让大模型来写用例、跑用例——Appium 插件与 stub 直驱</h1><p class="sum">用大模型把录制、生成、回放、自愈串成 Claude Code 插件，并探索绕开 Appium 直接驱动 App。</p><details class="series"><summary><small>系列</small><b>AI背景下的APP端自动化测试实践</b><span>第 8 / 9 篇</span></summary><ol><li><a href="/posts/app-testing-00-map/">APP自动化测试实践·00：APP 测试这件事——完整地图</a></li><li><a href="/posts/app-testing-stability-01-concepts/">APP自动化测试实践 稳定性·01：稳定性测试——概念与核心机制</a></li><li><a href="/posts/app-testing-stability-02-ios-toolchain/">APP自动化测试实践 稳定性·02：iOS 工具链——从 tidevice 到 CoreDevice 的工具演进</a></li><li><a href="/posts/app-testing-stability-03-android-toolchain/">APP自动化测试实践 稳定性·03：Android 工具链——adb 怎么采集数据，Fastbot 怎么驱动 App</a></li><li><a href="/posts/app-testing-stability-04-reporter-pipeline/">APP自动化测试实践 稳定性·04：从数据到结论——报告、判定与页面覆盖率</a></li><li><a href="/posts/app-testing-e2e-01-concepts/">APP自动化测试实践 E2E·01：E2E 测试——从零讲透概念与核心机制</a></li><li><a href="/posts/app-testing-e2e-02-tool-selection/">APP自动化测试实践 E2E·02：工具选型——业界 E2E 方案对比与我们的选择</a></li><li class="on">APP自动化测试实践 E2E·03：让大模型来写用例、跑用例——Appium 插件与 stub 直驱</li><li><a href="/posts/app-testing-e2e-04-ai-drive-real-device/">APP自动化测试实践 E2E·04：让 AI 直接操作真机 App——注入式 stub 的思路与取舍</a></li></ol></details><blockquote>
+<p>本文是系列《AI背景下的APP端自动化测试实践》E2E 自动化部分的第三篇。</p>
+<p>上一篇的结论是选择 Appium：它能测真实的 Release 包、能在 iOS 真机上跑、能覆盖原生、Flutter 和 H5 三个世界。但它也有一个老问题：脚本难写、难维护。这一篇讲我们怎么用大模型来补这块短板，把录制、生成、回放、自愈串成一个 QA 能直接上手的 Claude Code 插件；以及在这个过程中，为了让 AI 操作得更快，我们探索出的另一条路——绕开 Appium，直接驱动 App。</p>
+</blockquote>
+<hr>
+<h2 id="%E4%B8%80%E3%80%81%E8%A3%B8%E5%86%99-appium-%E8%84%9A%E6%9C%AC%EF%BC%8C%E8%8B%A6%E5%9C%A8%E5%93%AA%E9%87%8C" tabindex="-1">一、裸写 Appium 脚本，苦在哪里 <a class="anchor" href="#%E4%B8%80%E3%80%81%E8%A3%B8%E5%86%99-appium-%E8%84%9A%E6%9C%AC%EF%BC%8C%E8%8B%A6%E5%9C%A8%E5%93%AA%E9%87%8C">#</a></h2>
+<p>Appium 选对了，但直接交给 QA 同事用，门槛并不低。要懂定位策略，知道什么时候用标识、什么时候用文本；要手写等待，处理页面加载和动画；界面一改版，定位失效，脚本就成片地断；失败了，只能对着一行 <code>element not found</code> 干瞪眼，不知道当时屏幕上是什么。</p>
+<p>这些恰恰是大模型擅长的事情：看懂界面、理解意图、判断&quot;这一步是不是做对了&quot;。所以我们的目标很明确：<strong>让 QA 用自然语言描述意图，由大模型借助 Appium 生成脚本；回放时快速给出结果；脚本因界面变化失效时，由大模型给出修复建议，交给人审核。</strong> QA 不需要了解 Appium 的任何内部细节。</p>
+<hr>
+<h2 id="%E4%BA%8C%E3%80%81%E6%95%B4%E4%BD%93%E6%B5%81%E6%B0%B4%E7%BA%BF%EF%BC%9A%E5%BD%95%E5%88%B6%E3%80%81%E7%94%9F%E6%88%90%E3%80%81%E5%9B%9E%E6%94%BE%E3%80%81%E8%87%AA%E6%84%88" tabindex="-1">二、整体流水线：录制、生成、回放、自愈 <a class="anchor" href="#%E4%BA%8C%E3%80%81%E6%95%B4%E4%BD%93%E6%B5%81%E6%B0%B4%E7%BA%BF%EF%BC%9A%E5%BD%95%E5%88%B6%E3%80%81%E7%94%9F%E6%88%90%E3%80%81%E5%9B%9E%E6%94%BE%E3%80%81%E8%87%AA%E6%84%88">#</a></h2>
+<p>整套方案是一条流水线，交付形态是一个 Claude Code 插件，QA 通过几个斜杠命令使用：</p>
+<div class="cb"><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code>/ios-case-record   QA 在真机上操作一遍，工具自动抓取每一步的界面
+        |
+        v
+/ios-case-build    大模型分析录制产物，推断操作步骤，在真机上逐步验证
+        |          产出可回放的用例（journey），验证通过后再固化成确定性脚本
+        v
+/ios-case-replay   回放用例，产出带每步截图的报告
+        |
+        v
+/ios-case-heal     回放失败时，重新观察现场，判断原因，给出修复建议供人审核
+</code></pre>
+</div><p>另外还有一个 <code>/ios-e2e-setup</code>，负责检查 Appium、设备、签名等环境，并交互式地生成配置文件。环境问题是 E2E 最常见的拦路虎，把它做成一个单独的入口，能省下大量排查时间。</p>
+<p>大模型接入设备，用的是 Appium 官方的 MCP 服务（Model Context Protocol，一种让大模型调用外部工具的标准协议）。它把读取页面结构、截图、查找元素、点击、输入这些能力直接暴露给 Claude Code，不需要我们自己造轮子。</p>
+<hr>
+<h2 id="%E4%B8%89%E3%80%81%E5%BD%95%E5%88%B6%EF%BC%9A%E8%AE%A9-qa-%E5%85%88%E6%93%8D%E4%BD%9C%E4%B8%80%E9%81%8D" tabindex="-1">三、录制：让 QA 先操作一遍 <a class="anchor" href="#%E4%B8%89%E3%80%81%E5%BD%95%E5%88%B6%EF%BC%9A%E8%AE%A9-qa-%E5%85%88%E6%93%8D%E4%BD%9C%E4%B8%80%E9%81%8D">#</a></h2>
+<p>最初的设想是让 QA 用自然语言描述任务，由大模型自己摸索着在 App 里完成。后来发现，让 QA 直接在真机上操作一遍，效率和准确度都高得多：人知道该怎么走，大模型只需要&quot;看懂人做了什么&quot;。</p>
+<p>录制工具在 QA 操作期间持续轮询，抓取屏幕截图和页面结构，并自动检测&quot;转场&quot;：页面结构发生明显变化的时刻，就是一次操作生效的时刻。录制结束后，产物是一组截图、页面结构快照，以及检测到的转场列表。</p>
+<p>接下来由大模型逐个分析转场：对比前后两帧，推断&quot;这一步是点了哪个按钮、输入了什么&quot;，再通过 Appium MCP 在真机上实际执行一遍，确认定位真的能找到元素、操作真的能产生预期的效果。验证通过的步骤，连同断言一起写成一份用例文件（journey）。</p>
+<p>第一条验证用例是 Chatbot 练习流程：录制得到 25 帧，检测到 4 次转场，大模型推断出 5 步操作；之后无人值守回放 5 步全部通过，总耗时约 18 秒。</p>
+<hr>
+<h2 id="%E5%9B%9B%E3%80%81%E5%9B%9E%E6%94%BE%EF%BC%9A%E4%B8%A4%E7%A7%8D%E6%A8%A1%E5%BC%8F%EF%BC%8C%E6%8C%89%E7%94%A8%E4%BE%8B%E6%80%A7%E8%B4%A8%E5%88%86%E6%B4%BE" tabindex="-1">四、回放：两种模式，按用例性质分派 <a class="anchor" href="#%E5%9B%9B%E3%80%81%E5%9B%9E%E6%94%BE%EF%BC%9A%E4%B8%A4%E7%A7%8D%E6%A8%A1%E5%BC%8F%EF%BC%8C%E6%8C%89%E7%94%A8%E4%BE%8B%E6%80%A7%E8%B4%A8%E5%88%86%E6%B4%BE">#</a></h2>
+<p>回放是整个方案里最需要想清楚的环节。录制和自愈一定要有大模型参与，分歧只在回放。</p>
+<h3 id="%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E8%83%BD%E5%85%A8%E7%94%A8%E5%A4%A7%E6%A8%A1%E5%9E%8B" tabindex="-1">为什么不能全用大模型 <a class="anchor" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E8%83%BD%E5%85%A8%E7%94%A8%E5%A4%A7%E6%A8%A1%E5%9E%8B">#</a></h3>
+<p>如果每次回放都让大模型来操作，看起来最智能，实际上有三个问题。一是<strong>贵和慢</strong>：每跑一次都要消耗 token。二是<strong>不可复现</strong>：同一条用例，今天和明天的执行路径可能不一样。三是最根本的一条：<strong>一个既&quot;开车&quot;又&quot;判分&quot;的大模型，会把本该抓住的回归悄悄绕过去。</strong> 按钮挪了位置，它会自己找到新位置点下去，然后报告&quot;通过&quot;，可这恰恰可能就是一个需要被发现的变化。</p>
+<h3 id="%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B9%9F%E4%B8%8D%E8%83%BD%E5%85%A8%E7%94%A8%E5%9B%BA%E5%AE%9A%E8%84%9A%E6%9C%AC" tabindex="-1">为什么也不能全用固定脚本 <a class="anchor" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B9%9F%E4%B8%8D%E8%83%BD%E5%85%A8%E7%94%A8%E5%9B%BA%E5%AE%9A%E8%84%9A%E6%9C%AC">#</a></h3>
+<p>反过来，有些用例天生是模糊的。比如 Chatbot 的多轮对话：AI 每次的回答都不一样，&quot;回答是否切题&quot;这种判断，固定的断言根本写不出来。</p>
+<h3 id="%E5%8F%8C%E6%A8%A1%E5%9B%9E%E6%94%BE" tabindex="-1">双模回放 <a class="anchor" href="#%E5%8F%8C%E6%A8%A1%E5%9B%9E%E6%94%BE">#</a></h3>
+<p>所以我们按用例的性质分成两种模式。</p>
+<p><strong>确定性回放</strong>是默认模式。已经验证通过的用例，会被固化成一个纯 Python 脚本，由回放引擎直接通过 Appium 执行，完全不调用大模型，零 token、速度快、结果可复现。它只有一层 5 秒的隐式等待来兜住界面抖动，找不到元素就判失败，回放期间绝不自作主张换定位、改断言。</p>
+<p><strong>大模型主导回放</strong>用于处理模糊或语义类的用例。用例脚本被当作&quot;软计划&quot;，由 Claude Code 经 Appium MCP 执行，并由大模型现场判定结果。为了防止它绕过回归，执行它的 skill 设有明确的门禁：它的角色是&quot;<strong>忠实执行、判定结果、上报偏离</strong>&quot;，而不是&quot;想办法让用例通过&quot;。偏离计划的次数有上限，每一步的过程、结果、截图和偏离都会记录下来。</p>
+<p>套件运行器在分派时遵循一条规则：用例有确定性脚本，就优先跑脚本；没有脚本，才交给大模型。<strong>脚本判定为失败时，直接采信结果，不再回落给大模型重试</strong>，因为大模型会&quot;想办法&quot;走通，反而掩盖了真正的回归。</p>
+<p>两种模式产出同一格式的结果文件和报告，报告里每一步都附有截图。登录用例和切换语言用例目前都已经稳定回放通过。</p>
+<hr>
+<h2 id="%E4%BA%94%E3%80%81%E5%A4%B1%E8%B4%A5%E4%BA%86%E6%80%8E%E4%B9%88%E5%8A%9E%EF%BC%9A%E5%85%88%E5%88%86%E7%B1%BB%EF%BC%8C%E5%86%8D%E5%A4%84%E7%BD%AE" tabindex="-1">五、失败了怎么办：先分类，再处置 <a class="anchor" href="#%E4%BA%94%E3%80%81%E5%A4%B1%E8%B4%A5%E4%BA%86%E6%80%8E%E4%B9%88%E5%8A%9E%EF%BC%9A%E5%85%88%E5%88%86%E7%B1%BB%EF%BC%8C%E5%86%8D%E5%A4%84%E7%BD%AE">#</a></h2>
+<p>无人值守的回放，最怕的是半夜跑挂了，第二天面对一堆红色不知道从何查起，更怕的是自动修复把真正的 Bug&quot;修&quot;没了。所以一次失败必须先分类，再决定怎么处理：</p>
+<div class="tw"><table><thead>
+<tr>
+<th>失败类型</th>
+<th>表象</th>
+<th>处置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>真回归</strong>（App 真坏了）</td>
+<td>元素都在，但结果和预期对不上</td>
+<td>判 FAIL 并告警，<strong>绝不自愈</strong></td>
+</tr>
+<tr>
+<td><strong>定位漂移</strong>（界面改版）</td>
+<td>找不到元素，页面结构变了</td>
+<td>交给自愈，生成修复建议等人审核</td>
+</tr>
+<tr>
+<td><strong>数据或环境不满足</strong></td>
+<td>接口报错、数据为空、前置条件不成立</td>
+<td>判 BLOCKED，不算 FAIL</td>
+</tr>
+<tr>
+<td><strong>偶发抖动</strong></td>
+<td>网络或时序问题，重试即过</td>
+<td>回放内的等待和重试兜住，不升级</td>
+</tr>
+</tbody>
+</table></div><p>这里引入了一个独立于 PASS、FAIL、WARN 之外的第四种结果：<strong>BLOCKED</strong>。它专门用来区分&quot;测试没能成立&quot;和&quot;测试发现了 Bug&quot;。比如登录用例失败了，依赖登录的后续用例都会被标为 BLOCKED，而不是一串 FAIL，这样一眼就能看出真正的问题出在哪一步。用例之间的依赖关系写在用例文件头里，运行器会自动排出执行顺序，依赖失败时 BLOCKED 会沿着依赖链传播。</p>
+<p>自愈有一条红线：<strong>它只处理&quot;找不到元素&quot;这类结构漂移，任何改动都以待审核的修改建议落地，由人合并，绝不在半夜自动改测试。</strong> 目前自愈环节还停留在骨架阶段，是下一步的重点。</p>
+<hr>
+<h2 id="%E5%85%AD%E3%80%81%E5%87%A0%E4%B8%AA%E5%80%BC%E5%BE%97%E4%B8%80%E6%8F%90%E7%9A%84%E5%B7%A5%E7%A8%8B%E7%BB%86%E8%8A%82" tabindex="-1">六、几个值得一提的工程细节 <a class="anchor" href="#%E5%85%AD%E3%80%81%E5%87%A0%E4%B8%AA%E5%80%BC%E5%BE%97%E4%B8%80%E6%8F%90%E7%9A%84%E5%B7%A5%E7%A8%8B%E7%BB%86%E8%8A%82">#</a></h2>
+<p><strong>凭据不进对话记录。</strong> 登录需要账号密码，但这些不能出现在大模型的对话里。用例里用占位符代替真实的账号密码，执行到输入那一步时，由一个辅助脚本自己从本地配置文件读取，再直接通过 Appium 填进输入框，真实的值既不经过大模型，也不回显。</p>
+<p><strong>每一步都截图。</strong> 不只在失败时截，而是每一步执行后都截图落盘。失败时可以从报告里逐帧回看，到底是从哪一步开始不对的。</p>
+<p><strong>断言用页面特征，不用具体文案。</strong> 比如判断&quot;登录成功&quot;，看的是底部 Tab 栏是否出现，而不是某个 Tab 叫什么名字。Tab 的名字是后台可配置的，用户数据也会变，绑定具体文案的断言很容易误报。</p>
+<p><strong>首次启动的弹窗。</strong> 每次重新安装 App 后，都会有一串系统权限弹窗和 App 自己的引导弹窗。回放开始前会先做一轮&quot;沉降&quot;，把这些弹窗清理掉；回放过程中，后台还会持续守护，及时处理突然冒出的系统弹窗。</p>
+<p><strong>模型的选择会影响结果。</strong> 我们曾用较小的模型跑登录用例，它在输入凭据那一步，跑去检查系统环境变量，没找到就判定&quot;凭据缺失&quot;直接退出了；换成更强的模型后，它能正确地调用辅助脚本完成输入。大模型主导回放默认使用能力最强的模型，确定性回放则完全不受模型影响，这也是我们尽量把用例固化成脚本的原因之一。</p>
+<p><strong>接入管理后台调度。</strong> E2E 的全量回放已经接入管理后台：QA 可以选择测试包、测试账号和设备，发起单次运行、定时运行或每天重复运行。设备的占用在稳定性测试和 E2E 之间互斥，避免两个任务抢同一台手机。</p>
+<hr>
+<h2 id="%E4%B8%83%E3%80%81%E5%8F%A6%E4%B8%80%E6%9D%A1%E8%B7%AF%EF%BC%9Astub-%E7%9B%B4%E9%A9%B1" tabindex="-1">七、另一条路：stub 直驱 <a class="anchor" href="#%E4%B8%83%E3%80%81%E5%8F%A6%E4%B8%80%E6%9D%A1%E8%B7%AF%EF%BC%9Astub-%E7%9B%B4%E9%A9%B1">#</a></h2>
+<h3 id="%E5%8A%A8%E6%9C%BA%EF%BC%9Aappium-%E7%9A%84%E5%8D%95%E6%AD%A5%E6%88%90%E6%9C%AC" tabindex="-1">动机：Appium 的单步成本 <a class="anchor" href="#%E5%8A%A8%E6%9C%BA%EF%BC%9Aappium-%E7%9A%84%E5%8D%95%E6%AD%A5%E6%88%90%E6%9C%AC">#</a></h3>
+<p>对 E2E 回放来说，Appium 一步半秒可以接受。但在探索性任务里就不行了：让大模型自己摸索&quot;进课程详情页把它收藏&quot;，十几步起步，每一步还要叠加一轮大模型推理。</p>
+<div class="tw"><table><thead>
+<tr>
+<th>操作</th>
+<th>Appium</th>
+<th>stub</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>取页面结构</td>
+<td>1-3 秒</td>
+<td>约 20ms</td>
+</tr>
+<tr>
+<td>点击</td>
+<td>约 500ms</td>
+<td>约 3ms</td>
+</tr>
+<tr>
+<td>截图</td>
+<td>约 800ms</td>
+<td>约 130ms</td>
+</tr>
+</tbody>
+</table></div><p>这里的 stub，就是稳定性测试里注入到 App 中、用来给 Fastbot 描述界面的那个组件。既然它已经在 App 进程里，能直接读视图树，为什么不让它也能直接&quot;动手&quot;？我们在它原本只读的基础上，补齐了点击、滚动、返回、长按、输入和截图。速度差距是 50 到 150 倍。</p>
+<h3 id="%E8%83%BD%E5%8A%9B%EF%BC%9A%E5%9C%A8-app-%E8%BF%9B%E7%A8%8B%E9%87%8C%E7%9B%B4%E6%8E%A5%22%E5%8A%A8%E6%89%8B%22" tabindex="-1">能力：在 App 进程里直接&quot;动手&quot; <a class="anchor" href="#%E8%83%BD%E5%8A%9B%EF%BC%9A%E5%9C%A8-app-%E8%BF%9B%E7%A8%8B%E9%87%8C%E7%9B%B4%E6%8E%A5%22%E5%8A%A8%E6%89%8B%22">#</a></h3>
+<p>点击是三级策略，依次尝试：是系统控件（UIControl），就直接触发它的响应事件；挂了点击手势，就直接调用手势的处理方法；是列表的一行，就调用列表的选中回调。返回补上了 iOS 最大的平台差异——它没有系统返回键，stub 通过导航栈的弹出或页面关闭来模拟。滚动则是沿着视图层级向上找到能滚动的容器，直接修改滚动位置，并通知业务侧，分页加载照常触发。</p>
+<p>取文本也做了增强。很多第三方的富文本控件不是系统 Label 的子类，按类型判断一律取不到文字，实测课程列表 179 个条目全部没有名字。改为运行时探测控件是否有文本属性之后，所有自定义文本控件都能读出内容了。</p>
+<h3 id="%E5%85%B3%E9%94%AE%E5%8E%9F%E5%88%99%EF%BC%9A%E5%9D%90%E6%A0%87%E4%B8%8D%E8%83%BD%E4%BA%A4%E7%BB%99%E6%A8%A1%E5%9E%8B%E7%AE%97" tabindex="-1">关键原则：坐标不能交给模型算 <a class="anchor" href="#%E5%85%B3%E9%94%AE%E5%8E%9F%E5%88%99%EF%BC%9A%E5%9D%90%E6%A0%87%E4%B8%8D%E8%83%BD%E4%BA%A4%E7%BB%99%E6%A8%A1%E5%9E%8B%E7%AE%97">#</a></h3>
+<p>这条思路沿用了开源项目 AppAgent：<strong>不让模型输出坐标。</strong> 代码从视图树里筛出可交互的元素，编号后交给模型，模型只回答&quot;点第几个&quot;或&quot;点写着什么的那个&quot;，坐标由代码计算。</p>
+<p>从树到&quot;可点元素列表&quot;这一步踩了不少坑，最危险的一个是&quot;静默点错&quot;：一个列表项的中心点恰好落在底部 Tab 栏下面，点击报告成功，页面也确实跳转了，只是跳到了另一个 Tab。工具和模型都不知道自己点错了。修法是计算点击位置时主动避开悬浮遮挡的区域。</p>
+<p>另一个反复出现的坑是<strong>序号漂移</strong>：列表多出一项，后面的序号就整体错位，按上一步的序号去点必然点错。所以工具优先按文案定位，序号只留给没有文案的图标按钮，并且每次操作后都要重新获取界面。</p>
+<h3 id="%E8%A7%86%E8%A7%89%EF%BC%9A%E4%B8%8D%E5%9C%A8%E4%B8%BB%E5%BE%AA%E7%8E%AF%EF%BC%8C%E8%80%8C%E5%9C%A8%E6%97%81%E8%B7%AF" tabindex="-1">视觉：不在主循环，而在旁路 <a class="anchor" href="#%E8%A7%86%E8%A7%89%EF%BC%9A%E4%B8%8D%E5%9C%A8%E4%B8%BB%E5%BE%AA%E7%8E%AF%EF%BC%8C%E8%80%8C%E5%9C%A8%E6%97%81%E8%B7%AF">#</a></h3>
+<p>纯图标按钮在视图树里没有任何文字。课程详情页导航栏的三个小按钮，类型、尺寸、各项属性完全一致，只有横坐标不同，文本方案理论上无法区分。所以视觉是必需的，关键是让它足够便宜：</p>
+<div class="tw"><table><thead>
+<tr>
+<th></th>
+<th>整屏截图</th>
+<th>只裁那一条图标带</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>体积</td>
+<td>248 KB</td>
+<td>4.9 KB</td>
+</tr>
+<tr>
+<td>编码 token</td>
+<td>3506</td>
+<td>79</td>
+</tr>
+<tr>
+<td>本地视觉模型耗时</td>
+<td>45 秒</td>
+<td>4-9 秒</td>
+</tr>
+</tbody>
+</table></div><p>所以截图接口支持裁剪，只在遇到无名图标时调用视觉模型，结果按元素和位置缓存，同一个图标只问一次。</p>
+<h3 id="%E8%BE%B9%E7%95%8C%EF%BC%9Astub-%E5%81%9A%E4%B8%8D%E5%88%B0%E7%9A%84%E4%BA%8B" tabindex="-1">边界：stub 做不到的事 <a class="anchor" href="#%E8%BE%B9%E7%95%8C%EF%BC%9Astub-%E5%81%9A%E4%B8%8D%E5%88%B0%E7%9A%84%E4%BA%8B">#</a></h3>
+<p>stub 的点击直接调用控件的响应方法，不经过系统的事件分发，这决定了它有三个边界。一是<strong>Flutter 和 WebView 内部点不了</strong>：它们没有原生子控件可调，stub 会明确返回&quot;自绘容器&quot;，不会静默失灵。二是<strong>自己重写了触摸处理的控件不响应</strong>，失败时会返回原因，调用方可以降级。三是<strong>输入框只能填、不能提交</strong>：很多 App 的提交按钮在系统键盘上，stub 点不到，所以搜索流程经常走不通，找列表项应该优先滚动查找。</p>
+<h3 id="%E8%87%AA%E5%B7%B1%E5%86%99%E5%BE%AA%E7%8E%AF%EF%BC%8C%E8%BF%98%E6%98%AF%E7%9B%B4%E6%8E%A5%E4%BA%A4%E7%BB%99-agent" tabindex="-1">自己写循环，还是直接交给 agent <a class="anchor" href="#%E8%87%AA%E5%B7%B1%E5%86%99%E5%BE%AA%E7%8E%AF%EF%BC%8C%E8%BF%98%E6%98%AF%E7%9B%B4%E6%8E%A5%E4%BA%A4%E7%BB%99-agent">#</a></h3>
+<p>探索的前半程，我们写了一套完整的驱动循环，搭配本地部署的开源模型。结论是：<strong>本地模型的能力不够，循环写得再周到也兜不住。</strong> 它会把多个参数塌缩成一个字符串、看到收藏按钮就报告完成而实际没点、在同一个 Tab 上反复点击。</p>
+<p>同样的任务交给 Claude 直接驱动，5 步完成，还会主动截图确认收藏星标变成了实心。差距不只是&quot;模型更聪明&quot;，有些手段是结构性的：按文案而不是序号定位、在代码里循环滚动查找而不是每滚一次问一轮、主动截图自我验证。前两条后来固化成了工具能力，即使换回较弱的模型也能受益。</p>
+<p>所以最终形态是一个 MCP 服务加一份使用说明（skill）：不再自己写循环，agent 本身就是循环。</p>
+<hr>
+<h2 id="%E5%85%AB%E3%80%81%E4%B8%A4%E6%9D%A1%E9%80%9A%E9%81%93%E6%80%8E%E4%B9%88%E9%80%89" tabindex="-1">八、两条通道怎么选 <a class="anchor" href="#%E5%85%AB%E3%80%81%E4%B8%A4%E6%9D%A1%E9%80%9A%E9%81%93%E6%80%8E%E4%B9%88%E9%80%89">#</a></h2>
+<div class="tw"><table><thead>
+<tr>
+<th></th>
+<th>Appium</th>
+<th>stub 直驱</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>速度</td>
+<td>秒级</td>
+<td>毫秒级</td>
+</tr>
+<tr>
+<td>保真回放</td>
+<td>走系统事件分发，保真</td>
+<td>直接调用响应方法，事件链不完整</td>
+</tr>
+<tr>
+<td>Flutter / WebView</td>
+<td>能操作</td>
+<td>能看见，点不进去</td>
+</tr>
+<tr>
+<td>前提</td>
+<td>Appium 加 WebDriverAgent</td>
+<td>注入了 stub 的测试包</td>
+</tr>
+<tr>
+<td>适合</td>
+<td>E2E 用例的录制、回放、自愈</td>
+<td>探索性任务、快速试探界面路径</td>
+</tr>
+</tbody>
+</table></div><p>两条通道在插件里并存。固定用例的录制和回放走 Appium，保证结果可信；需要 AI 快速摸索的场景走 stub，保证速度。stub 直驱的设计取舍和后来的进展，在下一篇单独展开。</p>
+<hr>
+<h2 id="%E4%B9%9D%E3%80%81%E7%8E%B0%E7%8A%B6%E4%B8%8E%E4%B8%8B%E4%B8%80%E6%AD%A5" tabindex="-1">九、现状与下一步 <a class="anchor" href="#%E4%B9%9D%E3%80%81%E7%8E%B0%E7%8A%B6%E4%B8%8E%E4%B8%8B%E4%B8%80%E6%AD%A5">#</a></h2>
+<p>目前已经完成的部分：工具选型和最小验证；录制、生成、回放的完整链路；确定性回放引擎和大模型主导回放的双模分派；带每步截图的报告；用例依赖排序和 BLOCKED 传播；管理后台的调度；以及 stub 直驱通道。</p>
+<p>接下来的重点有四件：把自愈环节从骨架做成可用的工具；和产品、QA 一起梳理 UMU 的 P0 用例清单；产出一份给开发同学的控件标识埋点约定，按 P0 流程逐步铺开；以及把冒烟用例接入代码合并流程。</p>
+<p>Android 侧，团队已有官方的 journey 测试方案，本系列的 E2E 方案目前只覆盖 iOS。</p>
+<hr>
+<h2 id="%E4%B8%8B%E4%B8%80%E7%AF%87%E9%A2%84%E5%91%8A" tabindex="-1">下一篇预告 <a class="anchor" href="#%E4%B8%8B%E4%B8%80%E7%AF%87%E9%A2%84%E5%91%8A">#</a></h2>
+<p>下一篇专门讲 stub 直驱这条路：业界同类工具为什么都偏爱模拟器、我们为什么走注入，怎么让 Fastbot 和 agent 都看见 Flutter 页面，以及接下来的规划。</p>
+<div class="pnav"><a class="l" href="/posts/app-testing-e2e-04-ai-drive-real-device/"><small>上一篇</small><b>APP自动化测试实践 E2E·04：让 AI 直接操作真机 App——注入式 stub 的思路与取舍</b></a><a class="r" href="/posts/app-testing-e2e-02-tool-selection/"><small>下一篇</small><b>APP自动化测试实践 E2E·02：工具选型——业界 E2E 方案对比与我们的选择</b></a></div></article></main>
+
+<div id="mascot" title="戳一下">
+  <div id="m-say"></div>
+  <button id="m-top" title="回到顶部" aria-label="回到顶部">↑</button>
+</div>
+<script type="module" src="/scene2d.js"></script>
+<script type="module" src="/mascot.js"></script>
+<script>
+addEventListener('keydown', function(e){
+  var P = {"prev":"/posts/app-testing-e2e-04-ai-drive-real-device/","next":"/posts/app-testing-e2e-02-tool-selection/"};
+  // 灯箱打开时 Esc 只关灯箱,方向键不翻页
+  var lb = document.querySelector('.lb');
+  if (lb) { if (e.key === 'Escape') lb.remove(); return; }
+  if (e.key === 'ArrowLeft'  && P.prev) location.href = P.prev;
+  if (e.key === 'ArrowRight' && P.next) location.href = P.next;
+  if (e.key === 'Escape') location.href = '/#writing';
+});
+</script>
+<script>
+// 大纲高亮:滚动容器是 #art(不是 window),直接按滚动位置算当前节最可靠
+(function(){
+  var toc = document.querySelector('.toc');
+  if (!toc) return;
+  var art = document.getElementById('art');
+  var links = [].slice.call(toc.querySelectorAll('a'));
+  var map = {};
+  // id 本身已是百分号编码,直接用原始 href 做 key,不要 decode
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var heads = [].slice.call(art.querySelectorAll('h2[id],h3[id]'));
+  if (!heads.length) return;
+  var cur = null;
+
+  function paint(){
+    var top = art.getBoundingClientRect().top + 100;   // 判定线:卡片顶部下方 100px
+    var found = heads[0];
+    for (var i = 0; i < heads.length; i++){
+      if (heads[i].getBoundingClientRect().top <= top) found = heads[i]; else break;
+    }
+    // 已滚到底时强制选中最后一节,否则末节永远高亮不到
+    if (art.scrollTop + art.clientHeight >= art.scrollHeight - 4) found = heads[heads.length - 1];
+    if (found === cur) return;
+    cur = found;
+    links.forEach(function(a){ a.classList.remove('on'); });
+    var a = map[found.id];
+    if (!a) return;
+    a.classList.add('on');
+    var box = a.getBoundingClientRect(), tb = toc.getBoundingClientRect();
+    if (box.top < tb.top || box.bottom > tb.bottom) a.scrollIntoView({block:'nearest'});
+  }
+
+  var tick = false;
+  art.addEventListener('scroll', function(){
+    if (tick) return;
+    tick = true;
+    requestAnimationFrame(function(){ tick = false; paint(); });
+  }, {passive:true});
+
+  toc.addEventListener('click', function(e){
+    var a = e.target.closest('a'); if (!a) return;
+    var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if (!t) return;
+    e.preventDefault();
+    art.scrollTo({ top: art.scrollTop + t.getBoundingClientRect().top - art.getBoundingClientRect().top - 24, behavior:'smooth' });
+    history.replaceState(null, '', a.getAttribute('href'));
+  });
+  paint();
+})();
+</script>
+<script>
+// 图片灯箱:点正文图片或 Mermaid 图放大,点击 / Esc / 滚轮关闭
+document.getElementById('art').addEventListener('click', function(e){
+  var t = e.target.closest('img,.mm svg');
+  if (!t || t.closest('a')) return;
+  var lb = document.createElement('div'), c = t.cloneNode(true);
+  lb.className = 'lb';
+  if (c.tagName !== 'IMG') {
+    // SVG 没有固有的"原图尺寸",按视口等比放大
+    var r = t.getBoundingClientRect();
+    var k = Math.min(innerWidth * .92 / r.width, innerHeight * .9 / r.height);
+    c.style.width = r.width * k + 'px';
+    c.style.height = r.height * k + 'px';
+  }
+  lb.appendChild(c);
+  lb.onclick = lb.onwheel = function(){ lb.remove(); };
+  document.body.appendChild(lb);
+});
+</script>
+<script>
+// 代码块复制
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('.cb-c');
+  if (!btn) return;
+  var pre = btn.parentElement.querySelector('pre');
+  if (!pre) return;
+  var text = pre.innerText;
+  var done = function(){
+    btn.textContent = '已复制'; btn.classList.add('ok');
+    setTimeout(function(){ btn.textContent = '复制'; btn.classList.remove('ok'); }, 1600);
+  };
+  // clipboard API 需要安全上下文(https 或 localhost),否则回退到 execCommand
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else fallback();
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (err) { btn.textContent = '复制失败'; }
+    document.body.removeChild(ta);
+  }
+});
+</script>
+</body></html>

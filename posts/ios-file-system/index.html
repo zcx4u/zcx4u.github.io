@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>iOS文件系统编程指南 — fatbruin</title>
+<meta name="description" content="iOS 文件系统编程指南精读:APFS、沙盒目录结构与文件存取规范。"><meta property="og:type" content="article"><meta property="og:site_name" content="fatbruin"><meta property="og:title" content="iOS文件系统编程指南"><meta property="og:description" content="iOS 文件系统编程指南精读:APFS、沙盒目录结构与文件存取规范。"><meta property="og:url" content="https://www.umuer.com/posts/ios-file-system/"><meta property="og:image" content="https://www.umuer.com/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://www.umuer.com/posts/ios-file-system/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="fatbruin" href="/rss.xml">
+<script>(function(){var n=null;try{n=localStorage.getItem('fatbruin-night')}catch(e){}var h=new Date().getHours();if(n?n==='1':(h>=19||h<6))document.documentElement.classList.add('night')})()</script>
+<link rel="stylesheet" href="/styles/base.0282236f.css">
+<link rel="stylesheet" href="/styles/post.0bb29940.css"></head>
+<body class="post">
+<div id="scene"></div>
+<div class="topbar"><div class="navl"><a class="back" href="/#writing">← 回到小屋</a><a class="back nav-fallback" href="/posts/">全部文章 →</a></div><div class="brand">fat<span>bruin</span></div></div>
+<main><nav class="toc" aria-label="目录"><p class="toc-h">目录</p><ol><li class="l2"><a href="#%E5%85%B3%E4%BA%8E-ios-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F">关于 iOS 文件系统</a></li><li class="l2"><a href="#ios-%E6%A0%87%E5%87%86%E7%9B%AE%E5%BD%95%EF%BC%9A%E6%96%87%E4%BB%B6%E6%89%80%E5%9C%A8%E7%9A%84%E4%BD%8D%E7%BD%AE">iOS 标准目录：文件所在的位置</a></li><li class="l2"><a href="#app-%E6%96%87%E4%BB%B6%E5%BA%94%E8%AF%A5%E5%AD%98%E6%94%BE%E7%9A%84%E4%BD%8D%E7%BD%AE">APP 文件应该存放的位置</a></li><li class="l2"><a href="#icloud-%E6%96%87%E4%BB%B6%E5%82%A8%E5%AD%98%E5%AE%B9%E5%99%A8">iCloud 文件储存容器</a></li><li class="l2"><a href="#%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%AF%86%E5%88%AB%E6%96%87%E4%BB%B6%E4%B8%AD%E7%9A%84%E5%86%85%E5%AE%B9%E7%B1%BB%E5%9E%8B">系统如何识别文件中的内容类型</a></li><li class="l2"><a href="#%E6%96%87%E4%BB%B6%E3%80%81%E5%B9%B6%E5%8F%91%E5%92%8C%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8">文件、并发和线程安全</a></li></ol><a class="toc-all" href="/posts/">全部文章 →</a></nav><article id="art"><p class="meta"><span>2023.03.12</span><span>iOS</span><span>11 分钟</span></p><h1>iOS文件系统编程指南</h1><p class="sum">iOS 文件系统编程指南精读:APFS、沙盒目录结构与文件存取规范。</p><p><a href="https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileSystemOverview/NaN">iOS文件系统编程指南</a></p>
+<blockquote>
+<p>文件系统处理数据文件、应用程序以及与操作系统本身关联的文件的持久存储。因此，文件系统是所有进程使用的基本资源之一。</p>
+<p>APFS 是 macOS、iOS、watchOS 和 tvOS 中的默认文件系统。APFS 取代 HFS+ 作为 iOS 10.3 及更高版本以及 macOS High Sierra 及更高版本的默认文件系统。</p>
+</blockquote>
+<h2 id="%E5%85%B3%E4%BA%8E-ios-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F" tabindex="-1">关于 iOS 文件系统 <a class="anchor" href="#%E5%85%B3%E4%BA%8E-ios-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F">#</a></h2>
+<p>iOS 文件系统面向独立运行的应用程序。为了保持系统简单，iOS 设备的用户无法直接访问文件系统，应用应遵循此约定。</p>
+<h2 id="ios-%E6%A0%87%E5%87%86%E7%9B%AE%E5%BD%95%EF%BC%9A%E6%96%87%E4%BB%B6%E6%89%80%E5%9C%A8%E7%9A%84%E4%BD%8D%E7%BD%AE" tabindex="-1">iOS 标准目录：文件所在的位置 <a class="anchor" href="#ios-%E6%A0%87%E5%87%86%E7%9B%AE%E5%BD%95%EF%BC%9A%E6%96%87%E4%BB%B6%E6%89%80%E5%9C%A8%E7%9A%84%E4%BD%8D%E7%BD%AE">#</a></h2>
+<div class="tw"><table><thead>
+<tr>
+<th style="text-align:left">目录</th>
+<th style="text-align:left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>AppName.app</code></td>
+<td style="text-align:left">这是应用程序的捆绑包。此目录包含应用程序及其所有资源。您不能写入此目录。为防止篡改，捆绑目录在安装时进行了签名。写入此目录会更改签名并阻止您的应用程序启动。但是，您可以获得对存储在应用程序包中的任何资源的只读访问权限。此目录的内容未由 iTunes 或 iCloud 备份。但是，iTunes 会对从 App Store 购买的任何应用程序执行初始同步。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Documents/</code></td>
+<td style="text-align:left">使用此目录存储用户生成的内容。该目录的内容可以通过文件共享提供给用户；因此，该目录应该只包含您可能希望向用户公开的文件。此目录的内容由 iTunes 和 iCloud 备份。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Documents/Inbox</code></td>
+<td style="text-align:left">使用此目录可访问外部实体要求您的应用程序打开的文件。具体来说，Mail 程序将与您的应用相关联的电子邮件附件放在该目录中。文档交互控制器也可以在其中放置文件。您的应用程序可以读取和删除此目录中的文件，但不能创建新文件或写入现有文件。如果用户试图编辑此目录中的文件，您的应用程序必须在进行任何更改之前静默将其移出目录。此目录的内容由 iTunes 和 iCloud 备份。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Library/</code></td>
+<td style="text-align:left">这是所有非用户数据文件的顶级目录。您通常将文件放在几个标准子目录之一中。iOS 应用通常使用 <code>Application Support</code>和 <code>Caches</code>子目录；但是，您可以创建自定义子目录。将 <code>Library</code>子目录用于您不想向用户公开的任何文件。您的应用不应将这些目录用于用户数据文件。目录的内容 <code>Library</code>（子目录除外 <code>Caches</code>）由 iTunes 和 iCloud 备份。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>tmp/</code></td>
+<td style="text-align:left">使用此目录写入不需要在应用程序启动之间保留的临时文件。当不再需要时，您的应用程序应从该目录中删除文件；但是，当您的应用程序未运行时，系统可能会清除此目录。此目录的内容未由 iTunes 或 iCloud 备份。</td>
+</tr>
+</tbody>
+</table></div><h2 id="app-%E6%96%87%E4%BB%B6%E5%BA%94%E8%AF%A5%E5%AD%98%E6%94%BE%E7%9A%84%E4%BD%8D%E7%BD%AE" tabindex="-1">APP 文件应该存放的位置 <a class="anchor" href="#app-%E6%96%87%E4%BB%B6%E5%BA%94%E8%AF%A5%E5%AD%98%E6%94%BE%E7%9A%84%E4%BD%8D%E7%BD%AE">#</a></h2>
+<p>为防止 iOS 设备上的同步和备份过程花费很长时间，请选择放置文件的位置。</p>
+<p>存储大文件的应用程序会减慢备份到 iTunes 或 iCloud 的过程。</p>
+<p>这些应用程序还会占用用户的大量可用存储空间，这可能会促使用户删除该应用程序或禁止将该应用程序的数据备份到 iCloud。</p>
+<p>考虑到这一点，您应该根据以下准则存储应用程序数据：</p>
+<ul>
+<li>将用户数据放入 <code>Documents/</code>. 用户数据通常包括您可能希望向用户公开的任何文件——您可能希望用户创建、导入、删除或编辑的任何文件。对于绘图应用程序，用户数据包括用户可能创建的任何图形文件。对于文本编辑器，它包括文本文件。视频和音频应用程序甚至可能包含用户下载以供稍后观看或收听的文件。</li>
+<li>将应用程序创建的支持文件放在该 <code>Library/Application support/</code>目录中。通常，此目录包含应用程序用来运行但应该对用户隐藏的文件。此目录还可以包含数据文件、配置文件、模板和从应用程序包加载的资源的修改版本。</li>
+<li>请记住，默认情况下会备份 <code>Documents/</code>和中的文件。您可以通过使用键 <code>Application Support/</code>调用从备份中排除文件。任何可以重新创建或下载的文件都必须从备份中排除。这对于大型媒体文件尤为重要。如果您的应用程序下载视频或音频文件，请确保它们不包含在备份中。<code> -[NSURL setResourceValue:forKey:error:]``NSURLIsExcludedFromBackupKey</code></li>
+<li>将临时数据放在 <code>tmp/</code>目录中。临时数据包括您不需要长时间保留的任何数据。请记住在完成这些文件后将其删除，以免它们继续占用用户设备上的空间。当您的应用程序未运行时，系统会定期清除这些文件；因此，您不能指望这些文件在您的应用程序终止后仍然存在。</li>
+<li>将数据缓存文件放在 <code>Library/Caches/</code>目录中。缓存数据可用于需要比临时数据保留更长时间但不如支持文件那么长的任何数据。一般而言，应用程序不需要缓存数据即可正常运行，但可以使用缓存数据来提高性能。缓存数据的示例包括（但不限于）数据库缓存文件和暂时的可下载内容。请注意，<strong>系统可能会删除该 <code>Caches/</code>目录以释放磁盘空间</strong>，因此您的应用必须能够根据需要重新创建或下载这些文件。</li>
+</ul>
+<h2 id="icloud-%E6%96%87%E4%BB%B6%E5%82%A8%E5%AD%98%E5%AE%B9%E5%99%A8" tabindex="-1">iCloud 文件储存容器 <a class="anchor" href="#icloud-%E6%96%87%E4%BB%B6%E5%82%A8%E5%AD%98%E5%AE%B9%E5%99%A8">#</a></h2>
+<p>iCloud 为使用 iCloud 的应用程序提供了一个结构化的文件存储系统：</p>
+<ul>
+<li>应用程序有一个主要的 iCloud 容器目录，用于存储它们的本机文件。他们还可以访问在其应用程序授权中列出的辅助 iCloud 容器目录。</li>
+<li>在每个容器目录中，文件被分为“文档”和数据。位于 <code>Documents</code>子目录（或其子目录之一）中的每个文件或文件包都作为可以单独删除的单独文档呈现给用户（通过 macOS 和 iOS 中的 iCloud UI）。任何不在 <code>Documents</code>其子目录中或其子目录之一的内容都被视为数据，并在 iCloud UI 中显示为单个条目。</li>
+</ul>
+<p>用户在应用程序的用户界面中创建和查看的文档（例如 Pages、Numbers 和 Keynote 中的文档浏览器）应存储在该 <code>Documents</code>目录中。</p>
+<p>另一个可能进入 <code>Documents</code>目录的文件示例是保存的游戏，同样是因为它们是应用程序可能提供某种选择方法的东西。</p>
+<p>应用程序不希望用户直接查看或修改的任何内容都应放在 <code>Documents</code>目录之外。应用程序可以在容器目录中创建任何子目录，因此它们可以根据需要排列私有文件。</p>
+<p>应用程序在 iCloud 容器目录中创建文件和目录的方式与它们创建本地文件和目录的方式完全相同。并且所有文件的属性都被保存，如果他们向文件添加扩展属性，这些属性也会被复制到 iCloud 和用户的其他设备上。</p>
+<p>iCloud 容器还允许存储无需创建文档格式即可轻松访问的键值对。</p>
+<h2 id="%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%AF%86%E5%88%AB%E6%96%87%E4%BB%B6%E4%B8%AD%E7%9A%84%E5%86%85%E5%AE%B9%E7%B1%BB%E5%9E%8B" tabindex="-1">系统如何识别文件中的内容类型 <a class="anchor" href="#%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%AF%86%E5%88%AB%E6%96%87%E4%BB%B6%E4%B8%AD%E7%9A%84%E5%86%85%E5%AE%B9%E7%B1%BB%E5%9E%8B">#</a></h2>
+<p>识别文件内容类型的主要技术有两种：</p>
+<ul>
+<li>统一类型标识符 (UTI)</li>
+<li>文件扩展名</li>
+</ul>
+<p><em>统一类型标识符</em>是一个字符串，它唯一地标识被认为具有“类型”的一类实体。UTI 为所有应用程序和服务可以识别和依赖的数据提供一致的标识符。它们也比大多数其他技术更灵活，因为您可以使用它们来表示任何类型的数据，而不仅仅是文件和目录。UTI 的例子包括：</p>
+<ul>
+<li><code>public.text</code>— 标识文本数据的公共类型。</li>
+<li><code>public.jpeg</code>— 标识 JPEG 图像数据的公共类型。</li>
+<li><code>com.apple.bundle</code>— 标识捆绑包目录的 Apple 类型。</li>
+<li><code>com.apple.application-bundle</code>— 标识捆绑应用程序的 Apple 类型。</li>
+</ul>
+<p>每当基于 UTI 的接口可用于指定文件类型时，您应该优先选择该接口而不是其他任何接口。</p>
+<p>许多 macOS 界面允许您指定与您要使用的文件或目录相对应的 UTI。</p>
+<p>例如，在“打开”面板中，您可以将 UTI 用作文件过滤器，并将用户选择的文件类型限制为您的应用可以处理的文件类型。</p>
+<p>几个 AppKit 类，包括 <code>NSDocument</code>、<code>NSPasteboard</code>和 <code>NSImage</code>，都支持 UTI。在 iOS 中，UTI 仅用于指定粘贴板类型。</p>
+<p>系统确定给定文件的 UTI 的一种方法是查看其文件扩展名。</p>
+<p><em>文件扩展名</em>是附加到文件末尾的一串字符，并用句点与主文件名分隔。每个唯一的字符串标识一个特定类型的文件。</p>
+<p>例如，<code>.strings</code>扩展名标识具有可本地化字符串数据的资源文件，而 <code>.png</code>扩展名标识具有便携式网络图形格式的图像数据的文件。</p>
+<blockquote>
+<p>**注意：**由于句点字符在 macOS 和 iOS 文件名中是有效字符，因此只有文件名中最后一个句点之后的字符才被视为文件扩展名的一部分。最后一个句点左侧的所有内容都被视为文件名本身的一部分。</p>
+</blockquote>
+<p>如果您的应用程序定义了自定义文件格式，您应该在您的应用程序文件中注册这些格式和任何关联的文件扩展名 <code>Info.plist</code>。</p>
+<p>该 <code>CFBundleDocumentTypes</code>密钥指定您的应用可识别并能够打开的文件格式。</p>
+<p>任何自定义文件格式的条目都应包括文件扩展名和与文件内容对应的 UTI。</p>
+<p>系统使用该信息将具有适当类型的文件定向到您的应用程序。</p>
+<h2 id="%E6%96%87%E4%BB%B6%E3%80%81%E5%B9%B6%E5%8F%91%E5%92%8C%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8" tabindex="-1">文件、并发和线程安全 <a class="anchor" href="#%E6%96%87%E4%BB%B6%E3%80%81%E5%B9%B6%E5%8F%91%E5%92%8C%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8">#</a></h2>
+<p>由于与文件相关的操作涉及与硬盘的交互，因此与大多数其他操作相比速度较慢，因此 iOS 和 macOS 中的大多数与文件相关的界面在设计时都考虑到了并发性。一些技术将异步操作结合到它们的设计中，大多数其他技术可以从调度队列或辅助线程安全地执行。</p>
+<div class="tw"><table><thead>
+<tr>
+<th style="text-align:left">类/技术</th>
+<th style="text-align:left">笔记</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>NSFileManager</code></td>
+<td style="text-align:left"><code>NSFileManager</code>对于大多数任务，从多个后台线程同时使用默认对象是安全的。此规则的唯一例外是与文件管理器的委托交互的任务。将文件管理器对象与委托一起使用时，建议您创建该类的唯一实例 <code>NSFileManager</code>并将委托与该实例一起使用。然后，您应该一次从一个线程使用您的唯一实例。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>GCD</code></td>
+<td style="text-align:left">GCD 本身可以安全地从任何线程使用。但是，您仍然有责任以线程安全的方式编写您的块。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>NSFileHandle</code>, <code>NSData</code>, <code>Cocoa streams</code></td>
+<td style="text-align:left">大多数用于读取和写入文件数据的 Foundation 对象都可以在任何单个线程中使用，但不应同时在多个线程中使用。</td>
+</tr>
+<tr>
+<td style="text-align:left">Open and Save panels</td>
+<td style="text-align:left">因为它们是用户界面的一部分，所以您应该始终从应用程序的主线程中显示和操作打开和保存面板。</td>
+</tr>
+<tr>
+<td style="text-align:left">POSIX 线程</td>
+<td style="text-align:left">用于操作文件的 POSIX 线程通常被设计为从任何线程安全地操作。有关详细信息，请参阅相应的手册页。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>NSURL</code>和 <code>NSString</code></td>
+<td style="text-align:left">用于指定路径的不可变对象可以安全地从任何线程使用。因为它们是不可变的，所以您也可以同时从多个线程引用它们。当然，这些对象的可变版本一次只能在一个线程中使用。</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>NSEnumerator</code>及其子类</td>
+<td style="text-align:left">枚举器对象可以安全地从任何单个线程使用，但不应同时从多个线程使用。</td>
+</tr>
+</tbody>
+</table></div><p>即使您使用线程安全接口来操作文件，当多个线程或多个进程试图对同一个文件进行操作时，问题仍然会出现。</p>
+<p>尽管有防止多个客户端同时修改文件的保护措施，但这些保护措施并不总是保证始终对文件进行独占访问。</p>
+<div class="pnav"><a class="l" href="/posts/ios-crash-types/"><small>上一篇</small><b>iOS Crash类型总结</b></a><a class="r" href="/posts/ios-code-signing/"><small>下一篇</small><b>iOS签名机制</b></a></div></article></main>
+
+<div id="mascot" title="戳一下">
+  <div id="m-say"></div>
+  <button id="m-top" title="回到顶部" aria-label="回到顶部">↑</button>
+</div>
+<script type="module" src="/scene2d.js"></script>
+<script type="module" src="/mascot.js"></script>
+<script>
+addEventListener('keydown', function(e){
+  var P = {"prev":"/posts/ios-crash-types/","next":"/posts/ios-code-signing/"};
+  // 灯箱打开时 Esc 只关灯箱,方向键不翻页
+  var lb = document.querySelector('.lb');
+  if (lb) { if (e.key === 'Escape') lb.remove(); return; }
+  if (e.key === 'ArrowLeft'  && P.prev) location.href = P.prev;
+  if (e.key === 'ArrowRight' && P.next) location.href = P.next;
+  if (e.key === 'Escape') location.href = '/#writing';
+});
+</script>
+<script>
+// 大纲高亮:滚动容器是 #art(不是 window),直接按滚动位置算当前节最可靠
+(function(){
+  var toc = document.querySelector('.toc');
+  if (!toc) return;
+  var art = document.getElementById('art');
+  var links = [].slice.call(toc.querySelectorAll('a'));
+  var map = {};
+  // id 本身已是百分号编码,直接用原始 href 做 key,不要 decode
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var heads = [].slice.call(art.querySelectorAll('h2[id],h3[id]'));
+  if (!heads.length) return;
+  var cur = null;
+
+  function paint(){
+    var top = art.getBoundingClientRect().top + 100;   // 判定线:卡片顶部下方 100px
+    var found = heads[0];
+    for (var i = 0; i < heads.length; i++){
+      if (heads[i].getBoundingClientRect().top <= top) found = heads[i]; else break;
+    }
+    // 已滚到底时强制选中最后一节,否则末节永远高亮不到
+    if (art.scrollTop + art.clientHeight >= art.scrollHeight - 4) found = heads[heads.length - 1];
+    if (found === cur) return;
+    cur = found;
+    links.forEach(function(a){ a.classList.remove('on'); });
+    var a = map[found.id];
+    if (!a) return;
+    a.classList.add('on');
+    var box = a.getBoundingClientRect(), tb = toc.getBoundingClientRect();
+    if (box.top < tb.top || box.bottom > tb.bottom) a.scrollIntoView({block:'nearest'});
+  }
+
+  var tick = false;
+  art.addEventListener('scroll', function(){
+    if (tick) return;
+    tick = true;
+    requestAnimationFrame(function(){ tick = false; paint(); });
+  }, {passive:true});
+
+  toc.addEventListener('click', function(e){
+    var a = e.target.closest('a'); if (!a) return;
+    var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if (!t) return;
+    e.preventDefault();
+    art.scrollTo({ top: art.scrollTop + t.getBoundingClientRect().top - art.getBoundingClientRect().top - 24, behavior:'smooth' });
+    history.replaceState(null, '', a.getAttribute('href'));
+  });
+  paint();
+})();
+</script>
+<script>
+// 图片灯箱:点正文图片或 Mermaid 图放大,点击 / Esc / 滚轮关闭
+document.getElementById('art').addEventListener('click', function(e){
+  var t = e.target.closest('img,.mm svg');
+  if (!t || t.closest('a')) return;
+  var lb = document.createElement('div'), c = t.cloneNode(true);
+  lb.className = 'lb';
+  if (c.tagName !== 'IMG') {
+    // SVG 没有固有的"原图尺寸",按视口等比放大
+    var r = t.getBoundingClientRect();
+    var k = Math.min(innerWidth * .92 / r.width, innerHeight * .9 / r.height);
+    c.style.width = r.width * k + 'px';
+    c.style.height = r.height * k + 'px';
+  }
+  lb.appendChild(c);
+  lb.onclick = lb.onwheel = function(){ lb.remove(); };
+  document.body.appendChild(lb);
+});
+</script>
+<script>
+// 代码块复制
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('.cb-c');
+  if (!btn) return;
+  var pre = btn.parentElement.querySelector('pre');
+  if (!pre) return;
+  var text = pre.innerText;
+  var done = function(){
+    btn.textContent = '已复制'; btn.classList.add('ok');
+    setTimeout(function(){ btn.textContent = '复制'; btn.classList.remove('ok'); }, 1600);
+  };
+  // clipboard API 需要安全上下文(https 或 localhost),否则回退到 execCommand
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else fallback();
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (err) { btn.textContent = '复制失败'; }
+    document.body.removeChild(ta);
+  }
+});
+</script>
+</body></html>

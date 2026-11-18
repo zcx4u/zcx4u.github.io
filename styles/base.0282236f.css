@@ -1,0 +1,154 @@
+/* 两个页面共享的基础层:设计变量、reset、链接、3D 场景容器 */
+:root{
+--moss:#6f8f52;--pine:#3f6640;--bark:#5a4130;--soil:#6b5033;--amber:#b07a35;--clay:#8a4f3c;
+--paper:#f3ead8;--line:#cdbb9c;--ink:#2a2118;--ink-2:#6a5946;
+--bg:#d9cbb0;--surface:#faf4e7;--surface-rgb:249,243,231;--link:#3f6640;
+--tint:rgba(138,101,64,.13);--tint-2:rgba(138,101,64,.07);--hover:rgba(111,143,82,.12);--row-line:rgba(205,187,156,.45);
+--sans:"Noto Sans SC",-apple-system,"Helvetica Neue",sans-serif;
+--disp:"Bricolage Grotesque","Noto Sans SC",sans-serif;
+--serif:"Noto Serif SC",Georgia,serif;
+--mono:"JetBrains Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.8;-webkit-font-smoothing:antialiased}
+a{color:var(--link);text-decoration:none;text-underline-offset:4px}
+a:hover{color:var(--amber);text-decoration:underline}
+#scene{position:fixed;inset:0;z-index:0;overflow:hidden;background:#eae3db;transition:background-color 1.2s}
+
+/* 晨昏:夜间配色(暖棕夜灯)。html.night 由各页开头的内联脚本在渲染前设置,避免闪白 */
+.night{--paper:#2b241f;--line:#4a3f35;--ink:#efe4cd;--ink-2:#b9a993;--bark:#d7b98f;--soil:#c9a77f;--clay:#d58c68;--link:#b5c78a;
+--bg:#1f1a16;--surface:#2b241f;--surface-rgb:43,36,31;--tint:rgba(239,228,205,.1);--tint-2:rgba(239,228,205,.05);--hover:rgba(181,199,138,.12);--row-line:rgba(239,228,205,.12)}
+/* 点「晨昏」切换时短暂加上,让界面颜色和房间画面一起淡变。
+   时长与房间图层一致;opacity / filter 必须带上,否则会覆盖房间、熊、便签自身的过渡导致瞬切 */
+.theme-anim,.theme-anim *{transition:background-color 1.2s,color 1.2s,border-color 1.2s,opacity 1.2s,filter 1.2s!important}
+.night #scene{background:#58617a}
+/* 2D 小屋:.room 按插画原始像素尺寸排版,由 scene2d.js 整体平移缩放 */
+.room{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+.room img{display:block;user-select:none;-webkit-user-drag:none}
+/* 屏蔽 iOS 长按物件 / 图片弹出的链接预览与「存储图像」菜单 */
+.room,.room *{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.room-img{width:100%;height:100%;
+ /* 插画四周渐隐融进背景色,避免边缘色差显出矩形;房间本体位于中部(宽 22%~78%、高 4%~96%),不受影响 */
+ -webkit-mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent),linear-gradient(180deg,transparent,#000 3%,#000 97%,transparent);
+ -webkit-mask-composite:source-in;
+ mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent),linear-gradient(180deg,transparent,#000 3%,#000 97%,transparent);
+ mask-composite:intersect}
+.fx,.bear,.chair,.hs{position:absolute}
+.chair{pointer-events:none}
+.fx{pointer-events:none}
+.fx-beam{background:linear-gradient(115deg,rgba(255,236,190,.34),rgba(255,236,190,.08) 55%,transparent 80%);clip-path:polygon(18% 0,42% 0,100% 100%,52% 100%);mix-blend-mode:screen;animation:beam 7s ease-in-out infinite}
+.fx-dust{position:absolute;inset:0}
+.fx-dust i{position:absolute;width:7px;height:7px;border-radius:50%;background:rgba(255,246,220,.9);filter:blur(1px);animation:mote linear infinite}
+.fx-glow{border-radius:50%;mix-blend-mode:screen}
+.fx-lamp{background:radial-gradient(closest-side,rgba(255,214,140,.55),rgba(255,214,140,.18) 55%,transparent);animation:glow 5s ease-in-out infinite}
+.fx-screen{background:radial-gradient(closest-side,rgba(255,250,225,.5),transparent);animation:glow 2.6s ease-in-out infinite}
+.fx-steam i{position:absolute;bottom:0;left:30%;width:40%;height:45%;border-radius:50%;background:rgba(255,255,255,.55);filter:blur(6px);opacity:0;animation:steam 3.6s ease-out infinite}
+.fx-steam i:nth-child(2){left:10%;animation-delay:1.2s}
+.fx-steam i:nth-child(3){left:45%;animation-delay:2.4s}
+.bear{transform-origin:50% 92%;animation:breathe 3.4s ease-in-out infinite}
+.bear img{position:absolute;inset:0;width:100%;height:100%}
+.bear-head{transform-origin:51.5% 41.7%;rotate:calc(var(--look,0) * 1deg);transition:rotate .4s ease-out;animation:sway 6s ease-in-out infinite}
+.bear-head.shake{animation:shake .7s ease-in-out,sway 6s ease-in-out .7s infinite}
+.room-night{position:absolute;left:0;top:0}
+.room-night,.chair-night{opacity:0;transition:opacity 1.2s}
+.night .room-night,.night .chair-night{opacity:1}
+/* 夜间隐去白天底图,否则夜景图边缘渐隐处会透出浅色 */
+.room-img:not(.room-night){transition:opacity 1.2s}
+.night .room-img:not(.room-night){opacity:0}
+.bear{transition:opacity .4s,filter 1.2s}
+.night .bear{filter:brightness(.58) saturate(1.15)}
+.fx-beam{transition:visibility 0s 1.2s}
+.night .fx-beam{visibility:hidden;transition:none}
+.cork{position:absolute;pointer-events:none}
+.cork>*{position:absolute;inset:0}
+.cork-patch{background:#a85a2a;transition:background-color 1.2s}
+.night .cork-patch{background:#6e2c14}
+.note img{position:absolute;inset:0;width:100%;height:100%}
+.note .n-night{opacity:0;transition:opacity 1.2s}
+.night .note .n-night{opacity:1}
+.note.flick{animation:flick .9s cubic-bezier(.3,.7,.4,1)}
+@keyframes flick{25%{transform:translateY(-1.2%) rotate(calc(var(--dir,1) * -5deg))}55%{transform:rotate(calc(var(--dir,1) * 2.5deg))}80%{transform:rotate(calc(var(--dir,1) * -1deg))}}
+.bear.hop{animation:hop .6s cubic-bezier(.3,1.6,.5,1),breathe 3.4s ease-in-out .6s infinite}
+.hs{display:block;border-radius:28px;cursor:pointer}
+.hs:hover{text-decoration:none}
+.hs::before{content:"";position:absolute;inset:0;border-radius:inherit;background:radial-gradient(closest-side,rgba(255,240,200,.38),transparent);opacity:0;transition:opacity .3s}
+.hs span{position:absolute;left:50%;bottom:100%;transform:translateX(-50%);white-space:nowrap;font-family:var(--mono);font-size:30px;letter-spacing:.06em;padding:10px 26px;border-radius:999px;background:rgba(var(--surface-rgb),.96);border:2px solid var(--line);color:var(--link);opacity:0;transition:opacity .3s}
+.hs:hover::before,.hs:focus-visible::before,.hs:hover span,.hs:focus-visible span{opacity:1}
+/* 可点提示:物件中心一颗缓慢呼吸的光点,打开抽屉后隐去 */
+/* 光圈用伪元素的 transform + opacity 做,只走合成线程;用 box-shadow 做动画会每帧重绘 */
+.hs .dot{position:absolute;left:50%;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px;transition:opacity .4s}
+.hs .dot::before,.hs .dot::after{content:"";position:absolute;inset:0;border-radius:50%}
+.hs .dot::before{background:rgba(255,236,190,.75);animation:dot 2.6s ease-out infinite}
+.hs .dot::after{background:rgba(255,248,226,.95)}
+.hs:hover .dot,body.open .hs .dot{opacity:0}
+.room.drift{animation:drift 62.8s ease-in-out -31.4s infinite alternate}
+@keyframes drift{from{translate:14px}to{translate:-14px}}
+@keyframes dot{70%,100%{transform:scale(3.3);opacity:0}}
+@keyframes beam{50%{opacity:.6}}
+@keyframes glow{50%{opacity:.7}}
+@keyframes mote{0%{transform:translate(0,0);opacity:0}15%,85%{opacity:.85}100%{transform:translate(60px,-140px);opacity:0}}
+@keyframes steam{0%{transform:translateY(0) scale(.6);opacity:0}30%{opacity:.7}100%{transform:translateY(-160%) scale(1.4);opacity:0}}
+@keyframes sway{25%{transform:rotate(-2deg) translateY(-.6%)}75%{transform:rotate(1.5deg)}}
+@keyframes shake{20%{transform:rotate(-7deg)}45%{transform:rotate(6deg)}70%{transform:rotate(-3deg)}}
+@keyframes breathe{50%{transform:scale(1.012,1.018)}}
+@keyframes hop{30%{transform:translateY(-6%) scale(.97,1.05)}60%{transform:translateY(0) scale(1.05,.95)}}
+/* --- 熊的作息:.room[data-mood] 由 scene2d.js 按本地时间设置(sleep / coffee / nap / work) --- */
+.fx-zzz{display:none}
+.room[data-mood=sleep] .fx-zzz,.room[data-mood=nap] .fx-zzz{display:block}
+.fx-zzz i{position:absolute;left:0;bottom:0;font:normal 700 44px var(--disp);color:#fff8e6;text-shadow:0 2px 10px rgba(60,40,20,.75);opacity:0;animation:zzz 4.5s ease-out infinite}
+.fx-zzz i:nth-child(2){animation-delay:1.5s}
+.fx-zzz i:nth-child(3){animation-delay:3s}
+.room[data-mood=nap] .fx-zzz i{font-size:32px}
+.room[data-mood=sleep] .bear,.room[data-mood=nap] .bear{animation-duration:5.6s}
+/* 睡姿补丁:白天 / 夜里各一张,盖住底图里的椅子(夜景还有底图自带的熊);被戳醒时淡出,露出坐着的熊 */
+.bear-sleep{position:absolute;pointer-events:none;opacity:0;transition:opacity .4s}
+.room[data-mood=sleep] .bear-sleep,.room[data-mood=nap] .bear-sleep{opacity:1}
+html:not(.night) .room .bear-sleep-night,.night .room .bear-sleep:not(.bear-sleep-night){opacity:0}
+.room[data-mood=sleep] .bear,.room[data-mood=nap] .bear,.room[data-mood=sleep] .chair,.room[data-mood=nap] .chair{opacity:0}
+.room[data-mood=sleep] .fx-screen{opacity:.15;animation:none}
+.room[data-mood=coffee] .fx-steam i,.room.refill .fx-steam i{height:70%;animation-duration:2.2s}
+.room[data-mood=work] .bear img:first-child{animation:typing 5s linear infinite}
+@keyframes zzz{0%{transform:translate(0,0) scale(.5);opacity:0}20%{opacity:.9}100%{transform:translate(90px,-120px) scale(1.25);opacity:0}}
+@keyframes typing{0%,58%,82%,100%{transform:none}62%,70%,78%{transform:translateX(-.5%)}66%,74%{transform:translateX(.5%)}}
+
+/* --- 笔记本屏幕:深色编辑器 + 滚动的代码条。按插画原始像素画一个矩形,再用 matrix 斜切贴合屏幕 --- */
+.fx-code{left:37.3%;top:44.45%;width:101px;height:73px;transform-origin:0 0;transform:matrix(.96,-.42,.257,1.014,0,0);overflow:hidden;border-radius:3px;background:#2b2420;transition:filter .6s,background-color .6s}
+.fx-code b{position:absolute;left:8%;right:6%;top:0;animation:code 9s linear infinite}
+.fx-code i{display:block;height:5px;margin-top:5px;border-radius:2px;background:#c9a06a}
+.fx-code i:nth-child(3n){background:#a8b979}
+.fx-code i:nth-child(4n+1){background:#8d7d63}
+.fx-code u{position:absolute;right:10%;bottom:8%;width:5px;height:8px;background:#efe4cd;animation:caret 1s steps(1) infinite}
+.room[data-mood=coffee] .fx-code b{animation-duration:18s}
+.room[data-mood=nap] .fx-code{filter:brightness(.6)}
+.room[data-mood=nap] .fx-code b{animation-play-state:paused}
+.room[data-mood=sleep] .fx-code{background:#14110f}
+.room[data-mood=sleep] .fx-code b,.room[data-mood=sleep] .fx-code u{display:none}
+@keyframes code{to{transform:translateY(-50%)}}
+@keyframes caret{50%{opacity:0}}
+
+/* --- 窗外天气:.room[data-wx](sun / rain / snow / cloud),粒子裁在窗玻璃范围内 --- */
+.fx-wx{clip-path:polygon(0 19.5%,100% 0,100% 70.7%,87.3% 72.7%,80% 90.2%,0 100%);transition:background-color 1.2s}
+.fx-wx i{position:absolute;display:none}
+/* 白天阴雨雪:把暖色的窗盖成灰蓝天色,并收起光束;夜里盖住底图的星星 */
+.room[data-wx=rain] .fx-wx,.room[data-wx=cloud] .fx-wx{background:rgba(132,146,166,.82)}
+.room[data-wx=snow] .fx-wx{background:rgba(150,164,186,.85)}
+.night .room:not([data-wx=sun]) .fx-wx{background:rgba(34,40,62,.6)}
+.room:not([data-wx=sun]) .fx-beam{display:none}
+.room[data-wx=rain] .fx-wx i{display:block;top:0!important;width:3px;height:38px;border-radius:2px;background:rgba(255,255,255,.75);rotate:12deg;animation:rain .7s linear infinite}
+.room[data-wx=snow] .fx-wx i{display:block;top:0!important;width:9px;height:9px;border-radius:50%;background:#fff;animation:snow 4.2s linear infinite}
+.night .room[data-wx=sun] .fx-wx i{display:block;width:5px;height:5px;border-radius:50%;background:#fff;animation:twinkle 3s ease-in-out infinite}
+/* 下落用 translate 而不是 top,避免每帧布局;窗高 315px */
+@keyframes rain{from{translate:0 -47px}to{translate:0 331px}}
+@keyframes snow{from{translate:0 -16px}50%{translate:14px 154px}to{translate:0 325px}}
+@keyframes twinkle{0%,100%{opacity:.15}50%{opacity:1}}
+
+/* --- 彩蛋物件:没有标签的隐藏热点,悬停只泛一点光 --- */
+.egg{position:absolute;padding:0;border:0;background:none;border-radius:40%;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.egg::before{content:"";position:absolute;inset:-8%;border-radius:inherit;background:radial-gradient(closest-side,rgba(255,240,200,.32),transparent);opacity:0;transition:opacity .3s}
+.egg:hover::before,.egg:focus-visible::before{opacity:1}
+/* 关台灯:光晕熄灭,夜里整间屋子再暗一层 */
+.fx-lamp{transition:opacity .25s}
+.room.lamp-off .fx-lamp{opacity:0;animation:none}
+.fx-dark{inset:0;background:radial-gradient(closest-side,rgba(8,10,26,.5) 55%,transparent);opacity:0;transition:opacity .25s}
+.night .room.lamp-off .fx-dark{opacity:1}
+@media (prefers-reduced-motion:reduce){.room *{animation:none!important}}

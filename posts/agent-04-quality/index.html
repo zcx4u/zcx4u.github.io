@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>AI-Agent 白皮书 4 - Agent Quality — fatbruin</title>
+<meta name="description" content="Agent 白皮书第四篇:智能体质量,评估与可观测性如何建立可信度。"><meta property="og:type" content="article"><meta property="og:site_name" content="fatbruin"><meta property="og:title" content="AI-Agent 白皮书 4 - Agent Quality"><meta property="og:description" content="Agent 白皮书第四篇:智能体质量,评估与可观测性如何建立可信度。"><meta property="og:url" content="https://www.umuer.com/posts/agent-04-quality/"><meta property="og:image" content="https://www.umuer.com/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://www.umuer.com/posts/agent-04-quality/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="fatbruin" href="/rss.xml">
+<script>(function(){var n=null;try{n=localStorage.getItem('fatbruin-night')}catch(e){}var h=new Date().getHours();if(n?n==='1':(h>=19||h<6))document.documentElement.classList.add('night')})()</script>
+<link rel="stylesheet" href="/styles/base.0282236f.css">
+<link rel="stylesheet" href="/styles/post.0bb29940.css"></head>
+<body class="post">
+<div id="scene"></div>
+<div class="topbar"><div class="navl"><a class="back" href="/#writing">← 回到小屋</a><a class="back nav-fallback" href="/posts/">全部文章 →</a></div><div class="brand">fat<span>bruin</span></div></div>
+<main><nav class="toc" aria-label="目录"><p class="toc-h">目录</p><ol><li class="l2"><a href="#%E7%AE%80%E4%BB%8B">简介</a></li><li class="l2"><a href="#%E6%99%BA%E8%83%BD%E4%BD%93%E8%B4%A8%E9%87%8F%E6%98%AF%E6%9E%B6%E6%9E%84%E7%9A%84%E6%94%AF%E6%9F%B1%EF%BC%8C%E8%80%8C%E4%B8%8D%E6%98%AF%E6%9C%80%E5%90%8E%E7%9A%84%E6%B5%8B%E8%AF%95%E7%8E%AF%E8%8A%82%E3%80%82">智能体质量是架构的支柱，而不是最后的测试环节。</a></li><li class="l2"><a href="#%E5%A6%82%E4%BD%95%E9%98%85%E8%AF%BB%E6%9C%AC%E7%99%BD%E7%9A%AE%E4%B9%A6">如何阅读本白皮书</a></li><li class="l2"><a href="#%E9%9D%9E%E7%A1%AE%E5%AE%9A%E6%80%A7%E4%B8%96%E7%95%8C%E4%B8%AD%E7%9A%84%E6%99%BA%E8%83%BD%E4%BD%93%E8%B4%A8%E9%87%8F">非确定性世界中的智能体质量</a></li><li class="l2"><a href="#%E6%99%BA%E8%83%BD%E4%BD%93%E8%B4%A8%E9%87%8F%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E6%96%B0%E6%96%B9%E6%B3%95">智能体质量为什么需要新方法</a></li><li class="l2"><a href="#%E8%8C%83%E5%BC%8F%E8%BD%AC%E5%8F%98%EF%BC%9A%E4%BB%8E%E5%8F%AF%E9%A2%84%E6%B5%8B%E4%BB%A3%E7%A0%81%E5%88%B0%E4%B8%8D%E5%8F%AF%E9%A2%84%E6%B5%8B%E6%99%BA%E8%83%BD%E4%BD%93">范式转变：从可预测代码到不可预测智能体</a></li><li class="l2"><a href="#%E6%99%BA%E8%83%BD%E4%BD%93%E8%B4%A8%E9%87%8F%E7%9A%84%E6%94%AF%E6%9F%B1%EF%BC%9A%E8%AF%84%E4%BC%B0%E6%A1%86%E6%9E%B6">智能体质量的支柱：评估框架</a></li><li class="l2"><a href="#%E6%80%BB%E7%BB%93%E4%B8%8E%E5%B1%95%E6%9C%9B">总结与展望</a></li><li class="l2"><a href="#%E6%99%BA%E8%83%BD%E4%BD%93%E8%AF%84%E4%BC%B0%E7%9A%84%E8%89%BA%E6%9C%AF%EF%BC%9A%E8%AF%84%E5%88%A4%E8%BF%87%E7%A8%8B">智能体评估的艺术：评判过程</a></li><li class="l2"><a href="#%E7%AD%96%E7%95%A5%E6%A1%86%E6%9E%B6%EF%BC%9A%E3%80%8C%E7%94%B1%E5%A4%96%E8%80%8C%E5%86%85%E3%80%8D%E8%AF%84%E4%BC%B0%E5%B1%82%E6%AC%A1">策略框架：「由外而内」评估层次</a></li><li class="l2"><a href="#%E3%80%8C%E7%94%B1%E5%86%85%E8%80%8C%E5%A4%96%E3%80%8D%E8%A7%86%E8%A7%92%EF%BC%9A%E8%BD%A8%E8%BF%B9%E8%AF%84%E4%BC%B0%EF%BC%88%E7%8E%BB%E7%92%83%E7%9B%92%EF%BC%89">「由内而外」视角：轨迹评估（玻璃盒）</a></li><li class="l2"><a href="#%E8%AF%84%E4%BC%B0%E8%80%85%EF%BC%9A%E7%94%B1%E8%B0%81%E8%AF%84%E5%88%A4%E3%80%81%E8%AF%84%E5%88%A4%E4%BB%80%E4%B9%88">评估者：由谁评判、评判什么</a></li><li class="l2"><a href="#%E8%87%AA%E5%8A%A8%E5%8C%96%E6%8C%87%E6%A0%87">自动化指标</a></li><li class="l2"><a href="#llm-%E5%8D%B3%E8%AF%84%E5%88%A4%E8%80%85%EF%BC%88llm-as-a-judge%EF%BC%89%E8%8C%83%E5%BC%8F">LLM 即评判者（LLM-as-a-Judge）范式</a></li><li class="l2"><a href="#%E6%99%BA%E8%83%BD%E4%BD%93%E5%8D%B3%E8%AF%84%E5%88%A4%E8%80%85%EF%BC%88agent-as-a-judge%EF%BC%89">智能体即评判者（Agent-as-a-Judge）</a></li><li class="l2"><a href="#%E4%BA%BA%E6%9C%BA%E5%8D%8F%E5%90%8C%EF%BC%88hitl%EF%BC%89%E8%AF%84%E4%BC%B0">人机协同（HITL）评估</a></li><li class="l2"><a href="#%E7%94%A8%E6%88%B7%E5%8F%8D%E9%A6%88%E4%B8%8E%E5%AE%A1%E6%A0%B8%E7%95%8C%E9%9D%A2">用户反馈与审核界面</a></li><li class="l2"><a href="#%E8%B6%85%E8%B6%8A%E6%80%A7%E8%83%BD%EF%BC%9A%E8%B4%9F%E8%B4%A3%E4%BB%BB-ai%EF%BC%88rai%EF%BC%89%E4%B8%8E%E5%AE%89%E5%85%A8%E8%AF%84%E4%BC%B0">超越性能：负责任 AI（RAI）与安全评估</a></li><li class="l2"><a href="#%E6%80%BB%E7%BB%93%E4%B8%8E%E5%B1%95%E6%9C%9B-1">总结与展望</a></li><li class="l2"><a href="#%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%EF%BC%9A%E7%9C%8B%E6%B8%85%E6%99%BA%E8%83%BD%E4%BD%93%E5%9C%A8%E6%83%B3%E4%BB%80%E4%B9%88">可观测性：看清智能体在想什么</a></li><li class="l2"><a href="#%E4%BB%8E%E7%9B%91%E6%8E%A7%E5%88%B0%E7%9C%9F%E6%AD%A3%E7%9A%84%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7">从监控到真正的可观测性</a></li><li class="l2"><a href="#%E5%8E%A8%E6%88%BF%E7%B1%BB%E6%AF%94%EF%BC%9A%E6%B5%81%E6%B0%B4%E7%BA%BF%E5%8E%A8%E5%B8%88-vs.-%E4%B8%BB%E5%8E%A8">厨房类比：流水线厨师 vs. 主厨</a></li><li class="l2"><a href="#%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%E7%9A%84%E4%B8%89%E5%A4%A7%E6%94%AF%E6%9F%B1">可观测性的三大支柱</a></li><li class="l2"><a href="#%E6%94%AF%E6%9F%B1%E4%B8%80%EF%BC%9A%E6%97%A5%E5%BF%97%E2%80%94%E2%80%94%E6%99%BA%E8%83%BD%E4%BD%93%E7%9A%84%E6%97%A5%E8%AE%B0">支柱一：日志——智能体的日记</a></li><li class="l2"><a href="#%E5%89%96%E6%9E%90%E4%B8%80%E6%9D%A1%E5%85%B3%E9%94%AE%E6%97%A5%E5%BF%97">剖析一条关键日志</a></li><li class="l2"><a href="#%E6%94%AF%E6%9F%B1%E4%BA%8C%EF%BC%9A%E8%BF%BD%E8%B8%AA%E2%80%94%E2%80%94%E8%B7%9F%E9%9A%8F%E6%99%BA%E8%83%BD%E4%BD%93%E7%9A%84%E8%B6%B3%E8%BF%B9">支柱二：追踪——跟随智能体的足迹</a></li><li class="l2"><a href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E7%A6%BB%E4%B8%8D%E5%BC%80%E8%BF%BD%E8%B8%AA">为什么离不开追踪</a></li><li class="l2"><a href="#%E6%99%BA%E8%83%BD%E4%BD%93%E8%BF%BD%E8%B8%AA%E7%9A%84%E5%85%B3%E9%94%AE%E8%A6%81%E7%B4%A0">智能体追踪的关键要素</a></li><li class="l2"><a href="#%E6%94%AF%E6%9F%B1%E4%B8%89%EF%BC%9A%E6%8C%87%E6%A0%87%E2%80%94%E2%80%94%E6%99%BA%E8%83%BD%E4%BD%93%E7%9A%84%E5%81%A5%E5%BA%B7%E6%8A%A5%E5%91%8A">支柱三：指标——智能体的健康报告</a></li><li class="l2"><a href="#%E7%B3%BB%E7%BB%9F%E6%8C%87%E6%A0%87%EF%BC%9A%E7%94%9F%E5%91%BD%E4%BD%93%E5%BE%81">系统指标：生命体征</a></li><li class="l2"><a href="#%E6%80%A7%E8%83%BD">性能</a></li><li class="l2"><a href="#%E6%88%90%E6%9C%AC">成本</a></li><li class="l2"><a href="#%E6%9C%89%E6%95%88%E6%80%A7">有效性</a></li><li class="l2"><a href="#%E8%B4%A8%E9%87%8F%E6%8C%87%E6%A0%87%EF%BC%9A%E8%AF%84%E5%88%A4%E5%86%B3%E7%AD%96">质量指标：评判决策</a></li><li class="l2"><a href="#%E8%9E%8D%E4%BC%9A%E8%B4%AF%E9%80%9A%EF%BC%9A%E4%BB%8E%E5%8E%9F%E5%A7%8B%E6%95%B0%E6%8D%AE%E5%88%B0%E5%8F%AF%E6%89%A7%E8%A1%8C%E7%9A%84%E6%B4%9E%E5%AF%9F">融会贯通：从原始数据到可执行的洞察</a></li><li class="l2"><a href="#2.-%E5%AE%89%E5%85%A8%E4%B8%8E-pii%EF%BC%9A%E4%BF%9D%E6%8A%A4%E6%95%B0%E6%8D%AE">2. 安全与 PII：保护数据</a></li><li class="l2"><a href="#3.-%E6%A0%B8%E5%BF%83%E6%9D%83%E8%A1%A1%EF%BC%9A%E7%B2%92%E5%BA%A6-vs.-%E5%BC%80%E9%94%80">3. 核心权衡：粒度 vs. 开销</a></li><li class="l2"><a href="#%E6%80%BB%E7%BB%93%E4%B8%8E%E5%B1%95%E6%9C%9B-2">总结与展望</a></li><li class="l2"><a href="#%E7%BB%93%E8%AE%BA%EF%BC%9A%E5%9C%A8%E8%87%AA%E4%B8%BB%E4%B8%96%E7%95%8C%E4%B8%AD%E5%BB%BA%E7%AB%8B%E4%BF%A1%E4%BB%BB">结论：在自主世界中建立信任</a></li><li class="l2"><a href="#%E5%BC%95%E8%A8%80%EF%BC%9A%E4%BB%8E%E8%87%AA%E4%B8%BB%E8%83%BD%E5%8A%9B%E5%88%B0%E4%BC%81%E4%B8%9A%E4%BF%A1%E4%BB%BB">引言：从自主能力到企业信任</a></li><li class="l2"><a href="#%E6%99%BA%E8%83%BD%E4%BD%93%E8%B4%A8%E9%87%8F%E9%A3%9E%E8%BD%AE%EF%BC%9A%E6%95%B4%E4%B8%AA%E6%A1%86%E6%9E%B6%E7%9A%84%E9%9B%86%E6%88%90">智能体质量飞轮：整个框架的集成</a></li><li class="l2"><a href="#%E6%9E%84%E5%BB%BA%E5%8F%AF%E4%BF%A1%E6%99%BA%E8%83%BD%E4%BD%93%E7%9A%84%E4%B8%89%E5%A4%A7%E6%A0%B8%E5%BF%83%E5%8E%9F%E5%88%99">构建可信智能体的三大核心原则</a></li><li class="l2"><a href="#%E6%9C%AA%E6%9D%A5%E5%B1%9E%E4%BA%8E%E6%99%BA%E8%83%BD%E4%BD%93%EF%BC%8C%E4%B9%9F%E5%BF%85%E9%A1%BB%E5%8F%AF%E9%9D%A0">未来属于智能体，也必须可靠</a></li><li class="l2"><a href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE">参考文献</a></li></ol><a class="toc-all" href="/posts/">全部文章 →</a></nav><article id="art"><p class="meta"><span>2025.12.21</span><span>Agent</span><span>49 分钟</span></p><h1>AI-Agent 白皮书 4 - Agent Quality</h1><p class="sum">Agent 白皮书第四篇:智能体质量,评估与可观测性如何建立可信度。</p><details class="series"><summary><small>系列</small><b>AI-Agent 白皮书</b><span>第 4 / 5 篇</span></summary><ol><li><a href="/posts/agent-01-introduction/">AI-Agent 白皮书 1 - Introduction to Agents whitepaper</a></li><li><a href="/posts/agent-02-tools-mcp/">AI-Agent 白皮书 2 - Agent Tools &amp; Interoperability with MCP</a></li><li><a href="/posts/agent-03-context-engineering/">AI-Agent 白皮书 3 - Context Engineering: Sessions &amp; Memory</a></li><li class="on">AI-Agent 白皮书 4 - Agent Quality</li><li><a href="/posts/agent-05-prototype-to-production/">AI-Agent 白皮书 5 - Prototype to Production</a></li></ol></details><p>AI 的未来属于智能体，而成败取决于质量。</p>
+<h2 id="%E7%AE%80%E4%BB%8B" tabindex="-1">简介 <a class="anchor" href="#%E7%AE%80%E4%BB%8B">#</a></h2>
+<p>智能体时代刚刚开启。软件从可预测、按指令执行的工具，走向自主、以目标为导向的 AI 智能体，这是几十年来软件工程最深刻的变革之一。智能体带来了惊人的能力，但它天生的非确定性让行为难以预测，也打破了传统的质量保证模式。</p>
+<p>本白皮书是应对这一新现实的实用指南，它基于一条简单而激进的原则：</p>
+<h2 id="%E6%99%BA%E8%83%BD%E4%BD%93%E8%B4%A8%E9%87%8F%E6%98%AF%E6%9E%B6%E6%9E%84%E7%9A%84%E6%94%AF%E6%9F%B1%EF%BC%8C%E8%80%8C%E4%B8%8D%E6%98%AF%E6%9C%80%E5%90%8E%E7%9A%84%E6%B5%8B%E8%AF%95%E7%8E%AF%E8%8A%82%E3%80%82" tabindex="-1">智能体质量是架构的支柱，而不是最后的测试环节。 <a class="anchor" href="#%E6%99%BA%E8%83%BD%E4%BD%93%E8%B4%A8%E9%87%8F%E6%98%AF%E6%9E%B6%E6%9E%84%E7%9A%84%E6%94%AF%E6%9F%B1%EF%BC%8C%E8%80%8C%E4%B8%8D%E6%98%AF%E6%9C%80%E5%90%8E%E7%9A%84%E6%B5%8B%E8%AF%95%E7%8E%AF%E8%8A%82%E3%80%82">#</a></h2>
+<p>本指南围绕三个核心观点展开：</p>
+<p><strong>• 轨迹即真相：</strong> 只评估最终输出已经不够。衡量智能体质量与安全性的真正标准，是它的整个决策过程。</p>
+<p><strong>• 可观测性是基础：</strong> 看不见的过程，就无从评判。我们会详细介绍可观测性的「三大支柱」：日志、追踪和指标。它们是记录智能体「思考过程」不可或缺的技术基础。</p>
+<p><strong>• 评估是持续循环：</strong> 我们把这些概念整合成**「智能体质量飞轮」**，一套把数据转化为可执行洞察的实操手册。它结合可扩展的 AI 评估器与不可替代的人机协同（HITL）判断，推动质量不断提升。</p>
+<p>本白皮书写给正在构建这一未来的架构师、工程师和产品负责人。它提供一套框架，帮助你从做出「能干」的智能体，迈向做出<em>可靠</em>、<em>可信</em>的智能体。</p>
+<h2 id="%E5%A6%82%E4%BD%95%E9%98%85%E8%AF%BB%E6%9C%AC%E7%99%BD%E7%9A%AE%E4%B9%A6" tabindex="-1">如何阅读本白皮书 <a class="anchor" href="#%E5%A6%82%E4%BD%95%E9%98%85%E8%AF%BB%E6%9C%AC%E7%99%BD%E7%9A%AE%E4%B9%A6">#</a></h2>
+<p>本指南按「<em>为什么</em>」「<em>是什么</em>」「<em>怎么做</em>」的顺序展开。你可以借助本节，直接跳到与自己角色最相关的章节。</p>
+<p><strong>• 所有读者：</strong> 从<strong>第 1 章：非确定性世界中的智能体质量</strong>读起。这一章提出核心问题，说明传统 QA 为什么不适用于 AI 智能体，并介绍界定目标的<strong>智能体质量四大支柱</strong>：有效性、效率、鲁棒性和安全性。</p>
+<p><strong>• 产品经理、数据科学家和 QA 负责人：</strong> 如果你负责决定衡量什么、如何判断质量，请重点阅读<strong>第 2 章：智能体评估的艺术</strong>。这一章是你的策略指南：详细介绍「由外而内」的评估层次，讲解可扩展的**「LLM 即评判者（LLM-as-a-Judge）」<strong>范式，并说明</strong>人机协同（HITL）**评估的关键作用。</p>
+<p><strong>• 工程师、架构师和 SRE：</strong> 如果你负责搭建系统，技术蓝图在<strong>第 3 章：可观测性</strong>。这一章从理论落到实现，用「厨房类比」（流水线厨师 vs. 主厨）讲清监控与可观测性的区别，并详细介绍<strong>可观测性的三大支柱：日志、追踪和指标</strong>，也就是打造「可评估」智能体所需的工具。</p>
+<p><strong>• 团队负责人和战略规划者：</strong> 想了解这些部分如何组成一个自我改进的系统，请读<strong>第 4 章：结论</strong>。这一章把前面的概念整合成实操手册，提出**「智能体质量飞轮」**这一持续改进模型，并总结构建可信 AI 的三条核心原则。</p>
+<h2 id="%E9%9D%9E%E7%A1%AE%E5%AE%9A%E6%80%A7%E4%B8%96%E7%95%8C%E4%B8%AD%E7%9A%84%E6%99%BA%E8%83%BD%E4%BD%93%E8%B4%A8%E9%87%8F" tabindex="-1">非确定性世界中的智能体质量 <a class="anchor" href="#%E9%9D%9E%E7%A1%AE%E5%AE%9A%E6%80%A7%E4%B8%96%E7%95%8C%E4%B8%AD%E7%9A%84%E6%99%BA%E8%83%BD%E4%BD%93%E8%B4%A8%E9%87%8F">#</a></h2>
+<p>人工智能正在飞速变革。我们不再只是构建按指令执行、行为可预测的工具，而是在设计能理解意图、制定计划、执行复杂多步操作的自主智能体。对在前沿领域开发、竞争和部署的数据科学家和工程师来说，这是一项深刻的挑战：让 AI 智能体强大的机制，恰恰也让它难以预测。</p>
+<p>打个比方：传统软件像送货卡车，AI 智能体像 F1 赛车。卡车只需做基本检查（<em>「发动机打着了吗？按固定路线走了吗？」</em>）。赛车则和 AI 智能体一样，是复杂的自主系统，成败取决于临场判断。评估它不能靠一张简单的检查清单，而要靠持续的遥测数据，判断每个决策的质量，从油耗到刹车策略都不放过。</p>
+<p>这种演进从根本上改变了我们对待软件质量的方式。传统的质量保证（QA）实践用在确定性系统上很可靠，但面对现代 AI 微妙的涌现行为就力不从心了。一个智能体可能通过全部 100 个单元测试，上线后却一败涂地。因为它的问题不是代码里的 bug，而是判断上的缺陷。</p>
+<p>传统软件验证（verification）问的是：<em>「产品做得对不对？」</em> 它对照固定规范检查逻辑。现代 AI 评估必须回答一个复杂得多的问题：<em>「我们做的是不是<strong>对的</strong>产品？」</em> 这是确认（validation）的过程：在动态、不确定的环境中评估质量、鲁棒性和可信度。</p>
+<p>本章审视这一新范式：探讨智能体质量为什么需要新方法，分析让旧方法过时的技术变化，并建立一套「由外而内」的策略框架，用来评估「会思考」的系统。</p>
+<h2 id="%E6%99%BA%E8%83%BD%E4%BD%93%E8%B4%A8%E9%87%8F%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E6%96%B0%E6%96%B9%E6%B3%95" tabindex="-1">智能体质量为什么需要新方法 <a class="anchor" href="#%E6%99%BA%E8%83%BD%E4%BD%93%E8%B4%A8%E9%87%8F%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E6%96%B0%E6%96%B9%E6%B3%95">#</a></h2>
+<p>在工程师眼里，风险就是要识别并化解的东西。传统软件的失败一目了然：系统崩溃、抛出 <code>NullPointerException</code>，或者算出明显错误的结果。这类失败显而易见、可以复现，也能追溯到具体的逻辑错误。</p>
+<p>AI 智能体的失败方式不一样。它往往不是系统崩溃，而是<strong>质量悄无声息地下滑</strong>，根源在于模型权重、训练数据和环境交互之间复杂的相互作用。这种失败很隐蔽：系统照常运行，API 返回 200 OK，输出<em>看上去</em>也说得通。但结果其实错得离谱，在业务上很危险，还在悄悄消磨用户的信任。</p>
+<p>没有意识到这一转变的组织，会遭遇重大事故、运营低效和声誉受损。算法偏见、概念漂移这类失败模式在被动模型时代就有，但智能体的自主性和复杂性放大了这些风险，让它们更难追查和化解。来看表 1 列出的几种真实失败模式：</p>
+<p>失败模式 | 描述 | 示例</p>
+<div class="tw"><table><thead>
+<tr>
+<th style="text-align:left">An agent operationalizes and potentially  amplifies systemic biases present in  its training data, leading to unfair or  discriminatory outcomes.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">The agent produces plausible-sounding  but factually incorrect or invented  information with high confidence, often  when it cannot find a valid source.</td>
+</tr>
+<tr>
+<td style="text-align:left">The agent's performance degrades over  time as the real-world data it interacts  with (&quot;concept&quot;) changes, making its  original training obsolete.</td>
+</tr>
+</tbody>
+</table></div><p>算法偏见：智能体把训练数据里的系统性偏见带进实际决策，甚至加以放大，造成不公平或歧视性的结果。示例：负责风险摘要的金融智能体受有偏训练数据影响，按邮政编码对贷款申请过度扣分。</p>
+<p>事实幻觉：智能体信心十足地给出听上去合理、实际错误或凭空捏造的信息，常见于找不到可靠来源时。示例：研究工具在学术报告里写出非常具体却完全虚假的历史日期或地点，损害学术诚信。</p>
+<p>性能与概念漂移：智能体接触的真实数据（「概念」）不断变化，原有训练逐渐过时，性能随之下降。示例：欺诈检测智能体识别不出新的攻击模式。</p>
+<p>涌现的意外行为：智能体为达成目标，自己摸索出新奇或出乎意料的策略，这些策略可能低效、无益，甚至钻空子。示例：寻找并利用系统规则的漏洞；和其他机器人打「代理战」（比如反复覆盖对方的编辑）。</p>
+<p>表 1：智能体失败模式</p>
+<p>面对这些失败，传统的调试和测试手段都失灵了。你没法用断点调试幻觉，也没法写个单元测试防住涌现的偏见。根因分析需要深入的数据分析、模型重训和系统级评估，这完全是一门新学问。</p>
+<h2 id="%E8%8C%83%E5%BC%8F%E8%BD%AC%E5%8F%98%EF%BC%9A%E4%BB%8E%E5%8F%AF%E9%A2%84%E6%B5%8B%E4%BB%A3%E7%A0%81%E5%88%B0%E4%B8%8D%E5%8F%AF%E9%A2%84%E6%B5%8B%E6%99%BA%E8%83%BD%E4%BD%93" tabindex="-1">范式转变：从可预测代码到不可预测智能体 <a class="anchor" href="#%E8%8C%83%E5%BC%8F%E8%BD%AC%E5%8F%98%EF%BC%9A%E4%BB%8E%E5%8F%AF%E9%A2%84%E6%B5%8B%E4%BB%A3%E7%A0%81%E5%88%B0%E4%B8%8D%E5%8F%AF%E9%A2%84%E6%B5%8B%E6%99%BA%E8%83%BD%E4%BD%93">#</a></h2>
+<p>核心的技术挑战来自 AI 从<strong>以模型为中心</strong>走向<strong>以系统为中心</strong>。智能体是一个系统，所以评估智能体和评估算法有本质不同。这一演进是分阶段层层叠加的，每个阶段都给评估多加了一层复杂度。</p>
+<p>![][image1]Figure 1: From Traditional ML to Multi-Agent Systems</p>
+<p>图 1：从传统机器学习到多智能体系统</p>
+<p><strong>1. 传统机器学习：</strong> 评估回归或分类模型并不简单，但问题定义清楚。我们在留出的测试集上计算精确率、召回率、F1 分数、RMSE 等统计指标。问题虽复杂，「正确」的标准却很明确。</p>
+<p><strong>2. 被动式 LLM：</strong> 生成模型兴起后，简单指标不再适用。一段生成文字的「准确率」该怎么算？输出是概率性的，同样的输入也可能得到不同的输出。评估变得更复杂，要依靠人工评分和模型间的对比基准。不过，这类系统大体上仍是被动的：文本进，文本出。</p>
+<p><strong>3. LLM+RAG（检索增强生成）：</strong> 下一次飞跃引入了多组件流水线，最早由 Lewis 等人（2020）在论文《面向知识密集型 NLP 任务的检索增强生成》中提出。这时，问题既可能出在 LLM，也可能出在检索系统。智能体答错了，是 LLM 推理有误，还是向量数据库检索到了无关片段？评估范围也从模型本身，扩展到分块策略、嵌入和检索器的表现。</p>
+<p><strong>4. 主动式 AI 智能体：</strong> 如今，架构正发生深刻变化。LLM 不再只是文本生成器，而是复杂系统里负责推理的「大脑」，嵌在一个能自主行动的循环中。智能体系统带来了三项核心技术能力，也让原有的评估模式失效：</p>
+<p><strong>• 规划与多步推理：</strong> 智能体把复杂目标（「帮我规划行程」）拆成多个子任务，形成一条轨迹（思考 → 行动 → 观察 → 思考……）。LLM 的非确定性会在每一步不断累积。第 1 步里一个随机的措辞差异，到第 4 步就可能让智能体走上一条完全不同、无法挽回的推理路径。</p>
+<p><strong>• 工具使用与函数调用：</strong> 智能体通过 API 和外部工具（代码解释器、搜索引擎、预订 API）与现实世界打交道，由此引入了与环境的动态交互。它下一步怎么做，完全取决于外部世界的状态，而这是无法控制的。</p>
+<p><strong>• 记忆：</strong> 智能体是有状态的。短期的「草稿本」记忆跟踪当前任务，长期记忆让它能从过往交互中学习。这意味着智能体的行为会变化：昨天好用的输入，今天可能因为它「学到」了新东西而得到不同结果。</p>
+<p><strong>5. 多智能体系统：</strong> 多个主动智能体共处同一环境时，架构复杂度达到顶点。评估对象不再是单条轨迹，而是系统层面的涌现现象，由此带来新的根本性挑战：</p>
+<p><strong>• 涌现的系统性失败：</strong> 系统能否成功，取决于智能体之间没有预设脚本的交互。资源争用、通信瓶颈、系统死锁这类问题，都无法归咎于某一个智能体。</p>
+<p><strong>• 协作型 vs. 竞争型评估：</strong> 目标函数本身可能变得含糊。在协作型 MAS（如供应链优化）中，成功看的是全局指标；在竞争型 MAS（如博弈场景或拍卖系统）中，往往既要跟踪单个智能体的表现，<em>也</em>要关注整个市场或环境是否稳定。</p>
+<p>这些能力叠加在一起，意味着评估的基本单位不再是模型，而是<strong>整个系统的轨迹</strong>。智能体的涌现行为，来自规划模块、工具、记忆与动态环境之间错综复杂的相互作用。</p>
+<h2 id="%E6%99%BA%E8%83%BD%E4%BD%93%E8%B4%A8%E9%87%8F%E7%9A%84%E6%94%AF%E6%9F%B1%EF%BC%9A%E8%AF%84%E4%BC%B0%E6%A1%86%E6%9E%B6" tabindex="-1">智能体质量的支柱：评估框架 <a class="anchor" href="#%E6%99%BA%E8%83%BD%E4%BD%93%E8%B4%A8%E9%87%8F%E7%9A%84%E6%94%AF%E6%9F%B1%EF%BC%9A%E8%AF%84%E4%BC%B0%E6%A1%86%E6%9E%B6">#</a></h2>
+<p>既然不能再依赖简单的准确率指标，又必须评估整个系统，那该从哪里入手？答案是一种策略上的转变：<strong>「由外而内」方法</strong>。</p>
+<p>这种方法让 AI 评估以用户为中心的指标和整体业务目标为锚点，不再只盯着内部组件级的技术分数。我们不能只问*「模型的 F1 分数是多少？」<em>，而要开始问</em>「这个智能体有没有带来可衡量的价值，是否符合用户意图？」*</p>
+<p>这需要一个整体框架，把高层业务目标和技术表现连起来。我们用四个相互关联的支柱来定义智能体质量：</p>
+<p>![][image2]Figure 2: The four pillars of Agent Quality</p>
+<p>图 2：智能体质量的四大支柱</p>
+<p><strong>有效性（目标达成）：</strong> 这是终极的「黑盒」问题：智能体有没有成功、准确地实现用户的<em>真实意图</em>？这一支柱直接对应以用户为中心的指标和业务 KPI。对零售智能体来说，问题不只是*「找到商品了吗？」<em>，而是</em>「促成转化了吗？」<em>；对数据分析智能体来说，不是</em>「写出代码了吗？」<em>，而是</em>「代码得出正确结论了吗？」*有效性是衡量任务成败的最终标准。</p>
+<p><strong>效率（运营成本）：</strong> 智能体解决问题的方式<em>好不好</em>？订一张普通机票，却要走 25 步、失败 5 次工具调用、绕 3 轮自我纠正，这样的智能体即便最终成功，也算不上高质量。效率用消耗的资源来衡量：总 token 数（成本）、实际耗时（延迟）和轨迹复杂度（总步数）。</p>
+<p><strong>鲁棒性（可靠性）：</strong> 遇到意外和现实世界的各种混乱，智能体怎么应对？API 超时、网站改版、数据缺失、用户提示含糊时，它能否体面地失败？鲁棒的智能体会重试失败的调用，必要时请用户澄清，并说明自己<em>哪些事没做成</em>、<em>为什么</em>，而不是直接崩溃或胡编乱造。</p>
+<p><strong>安全与对齐（可信度）：</strong> 这是没有商量余地的门槛。智能体是否始终在既定的伦理边界和约束内行事？这一支柱涵盖面很广，从衡量公平性与偏见的负责任 AI 指标，到防范提示注入和数据泄露的安全措施。它确保智能体不偏离任务、拒绝有害指令，成为组织值得信赖的代理。</p>
+<p>这个框架说明了一点：只看最终答案，哪个支柱都衡量不了。不数步数，就衡量不了<strong>效率</strong>；不知道哪次 API 调用失败，就诊断不了<strong>鲁棒性</strong>问题；看不到智能体的内部推理，就验证不了<strong>安全性</strong>。</p>
+<p>要全面衡量智能体质量，<em>就必须</em>有一套全面看清智能体的架构。</p>
+<h2 id="%E6%80%BB%E7%BB%93%E4%B8%8E%E5%B1%95%E6%9C%9B" tabindex="-1">总结与展望 <a class="anchor" href="#%E6%80%BB%E7%BB%93%E4%B8%8E%E5%B1%95%E6%9C%9B">#</a></h2>
+<p>智能体与生俱来的非确定性，让传统质量保证失效。AI 从被动模型演进为能规划、会用工具、以系统为中心的主动智能体，风险也随之变成偏见、幻觉、漂移这类隐蔽问题。我们必须把重心从验证（对照规范）转向确认（判断价值）。</p>
+<p>为此需要一个「由外而内」的框架，从四个支柱衡量智能体质量：<strong>有效性</strong>、<strong>效率</strong>、<strong>鲁棒性</strong>和<strong>安全性</strong>。而衡量这些支柱，需要深入看清智能体内部的决策轨迹。</p>
+<p>在动手解决<em>怎么做</em>（可观测性架构）之前，先要明确<em>是什么</em>：<strong>好的评估长什么样？</strong></p>
+<p><strong>第 2 章</strong>会给出评估复杂智能体行为的策略和评判方式。<strong>第 3 章</strong>接着搭建采集这些数据所需的技术基础（<strong>日志、追踪和指标</strong>）。</p>
+<h2 id="%E6%99%BA%E8%83%BD%E4%BD%93%E8%AF%84%E4%BC%B0%E7%9A%84%E8%89%BA%E6%9C%AF%EF%BC%9A%E8%AF%84%E5%88%A4%E8%BF%87%E7%A8%8B" tabindex="-1">智能体评估的艺术：评判过程 <a class="anchor" href="#%E6%99%BA%E8%83%BD%E4%BD%93%E8%AF%84%E4%BC%B0%E7%9A%84%E8%89%BA%E6%9C%AF%EF%BC%9A%E8%AF%84%E5%88%A4%E8%BF%87%E7%A8%8B">#</a></h2>
+<p>第 1 章讲了从传统软件测试到现代 AI 评估的根本转变。传统测试是确定性的<strong>验证</strong>过程，对照固定规范追问*「产品做得对不对？」*一旦系统的核心逻辑是概率性的，这种方法就不灵了。非确定性的输出更容易带来隐蔽的质量下滑，既不会引发明显崩溃，也未必能复现。</p>
+<p>智能体评估则是整体性的<strong>确认</strong>过程。它提出一个更复杂、也更根本的策略问题：*「我们做的是不是<strong>对的</strong>产品？」*这个问题是「由外而内」评估框架的策略锚点，标志着一次必要的转变：从检查内部是否合规，转向判断系统的外部价值以及是否契合用户意图。这要求我们评估智能体在动态世界中运行时的整体质量、鲁棒性和用户价值。</p>
+<p>AI 智能体能规划、会用工具、能与复杂环境交互，它的兴起让评估变得复杂得多。我们不能只「测试」输出，而要学会「评估」过程。本章给出的正是这样一套策略框架：评判智能体从最初意图到最终结果的整条决策轨迹。</p>
+<h2 id="%E7%AD%96%E7%95%A5%E6%A1%86%E6%9E%B6%EF%BC%9A%E3%80%8C%E7%94%B1%E5%A4%96%E8%80%8C%E5%86%85%E3%80%8D%E8%AF%84%E4%BC%B0%E5%B1%82%E6%AC%A1" tabindex="-1">策略框架：「由外而内」评估层次 <a class="anchor" href="#%E7%AD%96%E7%95%A5%E6%A1%86%E6%9E%B6%EF%BC%9A%E3%80%8C%E7%94%B1%E5%A4%96%E8%80%8C%E5%86%85%E3%80%8D%E8%AF%84%E4%BC%B0%E5%B1%82%E6%AC%A1">#</a></h2>
+<p>为了不迷失在海量组件级指标里，评估必须自上而下、有策略地进行。我们称之为「由外而内」层次。它先关注唯一真正要紧的指标：现实中是否成功；然后才深入技术细节，弄清为什么成功或失败。整个模型分两个阶段：先看黑盒，再打开它。</p>
+<p><strong>「由外而内」视角：端到端评估（黑盒）</strong></p>
+<p>图 3：整体智能体评估框架</p>
+<p>首先要问、也最重要的问题是：<em><strong>「智能体有没有有效达成用户的目标？」</strong></em></p>
+<p>这就是「由外而内」视角。在分析任何一步内部思考或工具调用之前，先要对照既定目标，评估智能体的最终表现。</p>
+<p>这一阶段的指标关注任务的整体完成情况，主要衡量：</p>
+<p><strong>• 任务成功率：</strong> 用二元（或分级）评分判断最终输出是否正确、完整，是否解决了用户的实际问题。例如编码智能体的 PR 采纳率、金融智能体的数据库事务成功率、客服机器人的会话完成率。</p>
+<p><strong>• 用户满意度：</strong> 对交互式智能体来说，可以是用户的直接反馈（如点赞/点踩），也可以是客户满意度评分（CSAT）。</p>
+<p><strong>• 整体质量：</strong> 如果目标是定量的（如「总结这 10 篇文章」），指标可以是准确性或完整性（如「10 篇都总结了吗？」）。</p>
+<p>如果智能体在这一阶段拿到 100 分，工作也许就结束了。但在复杂系统里，这种情况很少见。当智能体给出有缺陷的输出、半途放弃任务或迟迟得不出方案时，「由外而内」视角能告诉我们哪里出了问题。接下来就要打开盒子，看看<em>为什么</em>。</p>
+<p>![][image4] <strong>Applied Tip:</strong></p>
+<p><strong>应用提示：</strong></p>
+<p>用 Agent Development Kit（ADK）做输出回归测试：先启动 ADK Web UI（<code>adk web</code>），和智能体对话。拿到一个想作为基准的理想回答后，切到 Eval 标签页，点击「Add current session」。整段交互会保存为一个 <code>Eval Case</code>（存在 <code>.test.json</code> 文件里），智能体当前的回答则被锁定为标准答案 <code>final_response</code>。之后可以用 CLI（<code>adk eval</code>）或 <code>pytest</code> 运行这个评估集，自动对照保存的答案检查后续版本，及时发现输出质量的回退。</p>
+<h2 id="%E3%80%8C%E7%94%B1%E5%86%85%E8%80%8C%E5%A4%96%E3%80%8D%E8%A7%86%E8%A7%92%EF%BC%9A%E8%BD%A8%E8%BF%B9%E8%AF%84%E4%BC%B0%EF%BC%88%E7%8E%BB%E7%92%83%E7%9B%92%EF%BC%89" tabindex="-1">「由内而外」视角：轨迹评估（玻璃盒） <a class="anchor" href="#%E3%80%8C%E7%94%B1%E5%86%85%E8%80%8C%E5%A4%96%E3%80%8D%E8%A7%86%E8%A7%92%EF%BC%9A%E8%BD%A8%E8%BF%B9%E8%AF%84%E4%BC%B0%EF%BC%88%E7%8E%BB%E7%92%83%E7%9B%92%EF%BC%89">#</a></h2>
+<p>发现失败后，就切换到「由内而外」视角，逐一评估执行轨迹（Trajectory）中的每个环节，分析智能体是怎么做的：</p>
+<p><strong>1. LLM 规划（「思考」）：</strong> 先检查核心推理：问题是不是出在 LLM 本身？这一环的失败包括幻觉、答非所问或毫无意义的回复、上下文污染，以及反复输出同样内容的死循环。</p>
+<p><strong>2. 工具使用（选择与传参）：</strong> 智能体的上限取决于它的工具。要分析它是否调错了工具、该调的没调、编造了工具名或参数名/类型，或者调了不必要的工具。即使选<em>对</em>了工具，也可能因为漏传参数、数据类型错误或 API 调用的 JSON 格式有误而失败。</p>
+<p><strong>3. 工具结果解读（「观察」）：</strong> 工具正确执行后，智能体还得<em>读懂</em>结果。这里很容易出错：误读数值、没能从返回中提取关键实体，最要命的是没认出工具返回的错误状态（比如 API 的 404），还当作调用成功继续往下走。</p>
+<p><strong>4. RAG 表现：</strong> 如果智能体用了检索增强生成（RAG），轨迹好坏就取决于检索到的信息质量。常见失败有：检索到无关文档、拿到过时或错误的信息，或者 LLM 完全无视检索到的上下文，照样编出一个答案。</p>
+<p><strong>5. 轨迹效率与鲁棒性：</strong> 除了正确与否，还要评估过程本身：找出资源浪费，比如 API 调用过多、延迟过高或重复劳动；也能发现鲁棒性问题，比如未处理的异常。</p>
+<p><strong>6. 多智能体协作：</strong> 在更复杂的系统中，一条轨迹会涉及多个智能体。这时评估还要纳入智能体之间的通信日志，检查有没有误解或通信死循环，确保每个智能体各守其职、互不冲突。</p>
+<p>分析追踪数据后，我们就能从「最终答案错了」（黑盒）推进到「最终答案错了，因为……」（玻璃盒）。达到这种诊断深度，正是智能体评估的全部目标。</p>
+<p>![][image5] <strong>Applied Tip:</strong></p>
+<p><strong>应用提示：</strong></p>
+<p>在 ADK 中保存 <code>Eval Case</code>（见上一条提示）时，整个工具调用序列也会一并保存为标准轨迹。之后自动运行 <code>pytest</code> 或 <code>adk eval</code>，默认会检查轨迹是否完全一致。</p>
+<p>如果要手动做过程评估（也就是排查失败），可以用 <code>adk web</code> 里的 <strong>Trace 标签页</strong>。它以交互式图形展示智能体的执行过程：你可以直观查看它的计划、调用的每个工具和具体参数，再把实际路径和预期路径对比，精确定位逻辑出错的那一步。</p>
+<h2 id="%E8%AF%84%E4%BC%B0%E8%80%85%EF%BC%9A%E7%94%B1%E8%B0%81%E8%AF%84%E5%88%A4%E3%80%81%E8%AF%84%E5%88%A4%E4%BB%80%E4%B9%88" tabindex="-1">评估者：由谁评判、评判什么 <a class="anchor" href="#%E8%AF%84%E4%BC%B0%E8%80%85%EF%BC%9A%E7%94%B1%E8%B0%81%E8%AF%84%E5%88%A4%E3%80%81%E8%AF%84%E5%88%A4%E4%BB%80%E4%B9%88">#</a></h2>
+<p>知道评估什么（轨迹）只是成功了一半，另一半是<em>怎么</em>评判。质量、安全性、可解释性这类微妙的维度，需要一套精细的混合方法。自动化系统负责规模，但质量的最终裁决仍离不开人的判断。</p>
+<h2 id="%E8%87%AA%E5%8A%A8%E5%8C%96%E6%8C%87%E6%A0%87" tabindex="-1">自动化指标 <a class="anchor" href="#%E8%87%AA%E5%8A%A8%E5%8C%96%E6%8C%87%E6%A0%87">#</a></h2>
+<p>自动化指标快速、可复现，适合做回归测试和输出基准对比。例如：</p>
+<p><strong>• 基于字符串的相似度</strong>（ROUGE、BLEU）：把生成文本和参考文本做比对。</p>
+<p><strong>• 基于嵌入的相似度</strong>（BERTScore、余弦相似度）：衡量语义上的接近程度。</p>
+<p><strong>• 特定任务的基准</strong>，例如 TruthfulQA</p>
+<p>这些指标高效却流于表面：只能反映表层的相似，看不出更深的推理质量或用户价值。</p>
+<p>![][image6] <strong>Applied Tip:</strong></p>
+<p><strong>应用提示：</strong></p>
+<p>把自动化指标设为 CI/CD 流水线的第一道质量关卡。关键在于把它们当作趋势信号，而不是质量的绝对标准。比如 BERTScore 达到 0.8，并不能断定答案就是「好」的。</p>
+<p>它们真正的价值在于跟踪变化：如果主分支在「黄金集」上的 BERTScore 一直稳定在 0.8 左右，某次提交后均值掉到 0.6，你就自动发现了一次明显的回退。因此，指标是理想的低成本「第一道过滤网」，能在动用更昂贵的 LLM 即评判者或人工评估之前，大规模拦下明显的失败。</p>
+<h2 id="llm-%E5%8D%B3%E8%AF%84%E5%88%A4%E8%80%85%EF%BC%88llm-as-a-judge%EF%BC%89%E8%8C%83%E5%BC%8F" tabindex="-1">LLM 即评判者（LLM-as-a-Judge）范式 <a class="anchor" href="#llm-%E5%8D%B3%E8%AF%84%E5%88%A4%E8%80%85%EF%BC%88llm-as-a-judge%EF%BC%89%E8%8C%83%E5%BC%8F">#</a></h2>
+<p><em>「这份摘要好不好？」</em>、*「这个计划合不合理？」*这类定性问题，怎样自动评估？答案是用我们正在评估的同一种技术。LLM 即评判者范式，就是用一个强大的前沿模型（如 Google 的 Gemini Advanced）来评估另一个智能体的输出。</p>
+<p>我们把智能体的输出、原始提示、「黄金」答案或参考答案（如果有的话），连同一份详细的评分准则，一起交给「评判者」LLM（例如：「按 1–5 分评价这条回复的有用性、正确性和安全性，并说明理由。」）。这种方法反馈快、可扩展，而且细致得出人意料，尤其适合评估中间步骤，比如智能体「思考」的质量，或它对工具返回结果的解读。它不能取代人的判断，但能让数据科学团队快速评估成千上万个场景，让迭代式评估真正可行。</p>
+<p>![][image7] <strong>Applied Tip:</strong></p>
+<p><strong>应用提示：</strong></p>
+<p>落地时，优先用成对比较而不是单独打分，以减轻上面提到的偏差。先用同一套评估提示分别跑两个智能体版本（比如线上旧版和新的实验版），为每条提示生成「答案 A」和「答案 B」。</p>
+<p>然后搭建 LLM 评判者：给一个强大的 LLM（如 Gemini Pro）一份清晰的评分准则，再配一条必须二选一的提示：「针对这条用户问题，A 和 B 哪个回答更有帮助？请说明理由。」把这一流程自动化，就能大规模统计新智能体的胜/负/平比例。比起 1–5 分绝对分数（通常噪声很大）的细微变化，较高的「胜率」是更可靠的改进信号。一条用于 LLM 即评判者、尤其是稳健成对比较的提示，大致如下：</p>
+<div class="cb"><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code>You are an expert evaluator for a customer support chatbot. Your goal is to
+assess which of two responses is more helpful, polite, and correct.
+
+[User Query]
+&quot;Hi, my order #12345 hasn't arrived yet.&quot;
+
+[Answer A]
+&quot;I can see that order #12345 is currently out for delivery and should
+arrive by 5 PM today.&quot;
+
+[Answer B]
+&quot;Order #12345 is on the truck. It will be there by 5.&quot;
+
+Please evaluate which answer is better. Compare them on correctness,
+helpfulness, and tone. Provide your reasoning and then output your final
+decision in a JSON object with a &quot;winner&quot; key (either &quot;A&quot;, &quot;B&quot;, or &quot;tie&quot;)
+and a &quot;rationale&quot; key.
+</code></pre>
+</div><h2 id="%E6%99%BA%E8%83%BD%E4%BD%93%E5%8D%B3%E8%AF%84%E5%88%A4%E8%80%85%EF%BC%88agent-as-a-judge%EF%BC%89" tabindex="-1">智能体即评判者（Agent-as-a-Judge） <a class="anchor" href="#%E6%99%BA%E8%83%BD%E4%BD%93%E5%8D%B3%E8%AF%84%E5%88%A4%E8%80%85%EF%BC%88agent-as-a-judge%EF%BC%89">#</a></h2>
+<p>LLM 可以给最终回复打分，但智能体的推理和行动需要更深入的评估。新兴的智能体即评判者范式，用一个智能体去评估另一个智能体的完整执行追踪。它评的不只是输出，而是过程本身。关键评估维度包括：</p>
+<p><strong>• 计划质量：</strong> 计划结构是否合乎逻辑、切实可行？</p>
+<p><strong>• 工具使用：</strong> 工具选得对不对，用得对不对？</p>
+<p><strong>• 上下文处理：</strong> 智能体是否有效利用了之前的信息？</p>
+<p>这种方法特别适合过程评估，因为问题往往出在中间步骤，而不是最终输出。</p>
+<p>![][image8] <strong>Applied Tip:</strong></p>
+<p><strong>应用提示：</strong></p>
+<p>实现智能体即评判者时，可以把执行追踪对象中的相关部分交给评判者。第一步，配置智能体框架，记录并导出追踪数据，包括内部计划、选用的工具列表和传入的具体参数。</p>
+<p>第二步，创建一个专门的「评审智能体」（Critic Agent），用提示（评分准则）要求它直接评估这个<em>追踪对象</em>。提示里要问具体的过程问题：「1. 根据追踪，初始计划是否合理？2. 第一步选 {<code>tool_A</code>} 对不对，还是该用别的工具？3. 参数是否正确、格式是否规范？」这样，即使智能体给出的最终答案看起来没问题，也能自动发现<em>过程</em>上的失败（比如计划低效）。</p>
+<h2 id="%E4%BA%BA%E6%9C%BA%E5%8D%8F%E5%90%8C%EF%BC%88hitl%EF%BC%89%E8%AF%84%E4%BC%B0" tabindex="-1">人机协同（HITL）评估 <a class="anchor" href="#%E4%BA%BA%E6%9C%BA%E5%8D%8F%E5%90%8C%EF%BC%88hitl%EF%BC%89%E8%AF%84%E4%BC%B0">#</a></h2>
+<p>自动化带来了规模，却难以应对高度主观的判断和复杂的领域知识。自动化系统漏掉的关键定性信号和细微判断，要靠人机协同（Human-in-the-Loop，HITL）评估来补上。</p>
+<p>不过，别指望人工评分能给出完美的「客观标准答案」。对高度主观的任务（比如评判创意质量或语气分寸），标注者之间很难完全一致。HITL 的意义在于建立<strong>经人工校准的基准</strong>，这是不可或缺的方法，用来确保智能体的行为符合复杂的人类价值观、具体情境的需要和领域内的准确性要求。</p>
+<p>HITL 主要承担以下几项职能：</p>
+<p><strong>• 领域专业知识：</strong> 对医疗、法律、金融等专业智能体，必须请领域专家评估事实是否正确、是否符合行业标准。</p>
+<p><strong>• 把握细微之处：</strong> 语气、创意、用户意图、复杂的伦理对齐，这些决定交互质量高低的微妙特质，离不开人的判断。</p>
+<p><strong>• 建立「黄金集」：</strong> 自动化要发挥作用，先得由人建立「黄金标准」基准：整理一套全面的评估集，定义成功的目标，并设计一组覆盖典型、边界和对抗场景的可靠测试用例。</p>
+<p>![][image9] <strong>Applied Tip:</strong></p>
+<p><strong>应用提示：</strong></p>
+<p>为保障运行时安全，可以加一个中断流程。在 ADK 这类框架里，可以让智能体在执行高风险工具调用（如 <code>execute_payment</code> 或 <code>delete_database_entry</code>）前先暂停，把当前状态和拟执行的操作展示在审核界面上。只有人工操作员手动批准或拒绝这一步之后，智能体才能继续。</p>
+<h2 id="%E7%94%A8%E6%88%B7%E5%8F%8D%E9%A6%88%E4%B8%8E%E5%AE%A1%E6%A0%B8%E7%95%8C%E9%9D%A2" tabindex="-1">用户反馈与审核界面 <a class="anchor" href="#%E7%94%A8%E6%88%B7%E5%8F%8D%E9%A6%88%E4%B8%8E%E5%AE%A1%E6%A0%B8%E7%95%8C%E9%9D%A2">#</a></h2>
+<p>评估还要收集真实用户的反馈。每一次交互，都在反映产品是否有用、清晰、可信。反馈既包括定性信号（如点赞/点踩），也包括产品内的定量成功指标，比如编码智能体的拉取请求（PR）采纳率、旅行智能体的预订完成率。最佳实践包括：</p>
+<p><strong>• 低摩擦反馈：</strong> 点赞/点踩、快速滑块或简短评论。</p>
+<p><strong>• 带完整上下文的审核：</strong> 反馈要和完整对话及智能体的推理追踪放在一起看。</p>
+<p><strong>• 审核界面（UI）：</strong> 左右分栏，左边是对话，右边是推理步骤，可以就地标注「计划不佳」「工具误用」等问题。</p>
+<p><strong>• 治理看板：</strong> 汇总反馈，突显反复出现的问题和风险。</p>
+<p>没有好用的界面，评估框架在实践中就落不了地。好的 UI 能让用户和审核者的反馈看得见、来得快、用得上。</p>
+<p>![][image10] <strong>Applied Tip:</strong></p>
+<p><strong>应用提示：</strong></p>
+<p>把用户反馈系统做成事件驱动的流水线，而不只是一份静态日志。用户一点「踩」，系统就要自动抓取带完整上下文的对话追踪，放进开发者审核界面中的专用审核队列。</p>
+<h2 id="%E8%B6%85%E8%B6%8A%E6%80%A7%E8%83%BD%EF%BC%9A%E8%B4%9F%E8%B4%A3%E4%BB%BB-ai%EF%BC%88rai%EF%BC%89%E4%B8%8E%E5%AE%89%E5%85%A8%E8%AF%84%E4%BC%B0" tabindex="-1">超越性能：负责任 AI（RAI）与安全评估 <a class="anchor" href="#%E8%B6%85%E8%B6%8A%E6%80%A7%E8%83%BD%EF%BC%9A%E8%B4%9F%E8%B4%A3%E4%BB%BB-ai%EF%BC%88rai%EF%BC%89%E4%B8%8E%E5%AE%89%E5%85%A8%E8%AF%84%E4%BC%B0">#</a></h2>
+<p>评估还有最后一个维度。它不是某个组件，而是所有生产环境智能体都必须通过、没有商量余地的关卡：负责任 AI 与安全。一个智能体哪怕 100% 有效，只要造成伤害，就是彻底的失败。</p>
+<p>安全评估是一门专门的学问，必须贯穿整个开发生命周期，包括：</p>
+<p><strong>• 系统化红队测试：</strong> 用对抗场景主动攻击智能体，比如诱导它生成仇恨言论、泄露隐私信息、传播有害的刻板印象，或参与恶意行为。</p>
+<p><strong>• 自动过滤与人工审核：</strong> 用技术过滤器拦截违反策略的内容，再辅以人工审核，因为单靠自动化可能发现不了隐晦的偏见或有害内容。</p>
+<p><strong>• 遵循准则：</strong> 对照预先制定的伦理准则和原则，明确评估智能体的输出，确保对齐，避免意外后果。</p>
+<p>说到底，性能指标回答的是智能体<em>能不能</em>做这件事，安全评估回答的是它<em>该不该</em>做。</p>
+<p>![][image11] <strong>Applied Tip:</strong></p>
+<p><strong>应用提示：</strong></p>
+<p>把护栏做成结构化的插件，而不是零散的函数。在这种模式下，回调是机制（ADK 提供的钩子），插件则是你自己构建的<em>可复用模块</em>。</p>
+<p>比如，只写一个 <code>SafetyPlugin</code> 类，再把它的内部方法注册到框架提供的回调上：</p>
+<ol>
+<li>
+<p>插件的 <code>check_input_safety()</code> 方法注册到 <code>before_model_callback</code>，负责运行提示注入分类器。</p>
+</li>
+<li>
+<p>插件的 <code>check_output_pii()</code> 方法注册到 <code>after_model_callback</code>，负责运行 PII 扫描器。</p>
+</li>
+</ol>
+<p>采用插件架构，护栏就能复用、能单独测试，还能清晰地叠加在基础模型自带的安全设置（如 Gemini 的安全设置）之上。</p>
+<h2 id="%E6%80%BB%E7%BB%93%E4%B8%8E%E5%B1%95%E6%9C%9B-1" tabindex="-1">总结与展望 <a class="anchor" href="#%E6%80%BB%E7%BB%93%E4%B8%8E%E5%B1%95%E6%9C%9B-1">#</a></h2>
+<p>有效的智能体评估不能止于简单测试，而要采用有策略的分层框架。「由外而内」方法先确认端到端的任务完成情况（黑盒），再进入「玻璃盒」分析完整轨迹，评估推理质量、工具使用、鲁棒性和效率。</p>
+<p>评判这一过程需要混合方法：既有 LLM 即评判者这类可扩展的自动化手段，也有人机协同（HITL）评估者不可替代的细致判断。整个框架之上，还有一层没有商量余地的负责任 AI 与安全评估作为保障，最终构建出可信的系统。</p>
+<p>我们已经明白要评判整条轨迹，但没有数据，这个框架只是纸上谈兵。要做「玻璃盒」评估，系统首先得是可观测的。<strong>第 3 章</strong>将给出架构蓝图，从评估的<em>理论</em>走向可观测性的<em>实践</em>，掌握三大支柱：日志、追踪和指标。</p>
+<h2 id="%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%EF%BC%9A%E7%9C%8B%E6%B8%85%E6%99%BA%E8%83%BD%E4%BD%93%E5%9C%A8%E6%83%B3%E4%BB%80%E4%B9%88" tabindex="-1">可观测性：看清智能体在想什么 <a class="anchor" href="#%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%EF%BC%9A%E7%9C%8B%E6%B8%85%E6%99%BA%E8%83%BD%E4%BD%93%E5%9C%A8%E6%83%B3%E4%BB%80%E4%B9%88">#</a></h2>
+<h2 id="%E4%BB%8E%E7%9B%91%E6%8E%A7%E5%88%B0%E7%9C%9F%E6%AD%A3%E7%9A%84%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7" tabindex="-1">从监控到真正的可观测性 <a class="anchor" href="#%E4%BB%8E%E7%9B%91%E6%8E%A7%E5%88%B0%E7%9C%9F%E6%AD%A3%E7%9A%84%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7">#</a></h2>
+<p>上一章说过，AI 智能体是一种新型软件。它不只是执行指令，还会自己做决策。这一根本差异要求新的质量保证方法，让我们从传统的软件监控，走向更深层的<strong>可观测性（Observability）</strong>。</p>
+<p>要理解两者的区别，不妨走出机房，进厨房看看。</p>
+<h2 id="%E5%8E%A8%E6%88%BF%E7%B1%BB%E6%AF%94%EF%BC%9A%E6%B5%81%E6%B0%B4%E7%BA%BF%E5%8E%A8%E5%B8%88-vs.-%E4%B8%BB%E5%8E%A8" tabindex="-1">厨房类比：流水线厨师 vs. 主厨 <a class="anchor" href="#%E5%8E%A8%E6%88%BF%E7%B1%BB%E6%AF%94%EF%BC%9A%E6%B5%81%E6%B0%B4%E7%BA%BF%E5%8E%A8%E5%B8%88-vs.-%E4%B8%BB%E5%8E%A8">#</a></h2>
+<p><strong>传统软件是流水线厨师：</strong> 想象一家快餐店的后厨。流水线厨师手里有一张过了塑的汉堡配方卡，步骤固定、毫无变数：面包烤 30 秒，肉饼煎 90 秒，加一片芝士、两片酸黄瓜、挤一下番茄酱。</p>
+<p>在这里，<strong>监控</strong>就是一张检查清单：烤炉温度对不对？厨师每一步都照做了吗？订单按时出餐了吗？我们验证的是一个已知、可预测的流程。</p>
+<p><strong>AI 智能体是参加「神秘食材盒」挑战的主厨：</strong> 主厨拿到一个目标（「做一道惊艳的甜点」）和一篮食材（用户的提示、数据和可用工具）。这里没有唯一正确的菜谱。他可能做出熔岩巧克力蛋糕、解构版提拉米苏，或者藏红花意式奶冻。每一种都可能是合格、甚至出彩的答案。</p>
+<p><strong>可观测性</strong>则像美食评论家评判主厨的方式。评论家不只尝最后那道菜，还想弄清过程和思路：为什么把覆盆子和罗勒搭在一起？姜糖是用什么手法做出来的？发现糖用完了，又是怎么随机应变的？只有看清他的「思考过程」，才能真正评价这份工作的质量。</p>
+<p>对 AI 智能体而言，这是一次根本转变：从简单监控走向真正的可观测性。重点不再只是确认智能体是否在工作，而是理解它的认知过程质量如何。关键问题从*「智能体在运行吗？」<em>变成了</em>「智能体的思考<strong>有效</strong>吗？」*</p>
+<h2 id="%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%E7%9A%84%E4%B8%89%E5%A4%A7%E6%94%AF%E6%9F%B1" tabindex="-1">可观测性的三大支柱 <a class="anchor" href="#%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%E7%9A%84%E4%B8%89%E5%A4%A7%E6%94%AF%E6%9F%B1">#</a></h2>
+<p>那么，怎样才能看到智能体的「思考过程」？我们没法直接读它的心思，但可以分析它留下的痕迹。为此，可观测性实践建立在三大基础支柱上：<strong>日志</strong>、<strong>追踪</strong>和<strong>指标</strong>。有了它们，我们就能从只尝最后一道菜，进步到点评整场烹饪表现。</p>
+<p>![][image12]</p>
+<p>图 4：智能体可观测性的三大基础支柱</p>
+<p>下面逐一拆解这三大支柱，看看它们如何配合，让我们以评论家的眼光审视智能体的表现。</p>
+<h2 id="%E6%94%AF%E6%9F%B1%E4%B8%80%EF%BC%9A%E6%97%A5%E5%BF%97%E2%80%94%E2%80%94%E6%99%BA%E8%83%BD%E4%BD%93%E7%9A%84%E6%97%A5%E8%AE%B0" tabindex="-1">支柱一：日志——智能体的日记 <a class="anchor" href="#%E6%94%AF%E6%9F%B1%E4%B8%80%EF%BC%9A%E6%97%A5%E5%BF%97%E2%80%94%E2%80%94%E6%99%BA%E8%83%BD%E4%BD%93%E7%9A%84%E6%97%A5%E8%AE%B0">#</a></h2>
+<p>什么是日志？日志是可观测性的最小单元，可以把它看作智能体日记里一条条带时间戳的记录。每条记录都是关于某个独立事件的原始事实，写下就不再改变：「10:01:32，有人问了我一个问题。10:01:33，我决定调用 get_weather 工具。」日志告诉我们发生了什么。</p>
+<p><strong>不止</strong> <code>print()</code><strong>：好日志的标准是什么？</strong></p>
+<p>借助 Google Cloud Logging 这类全托管服务，可以大规模存储、搜索和分析日志。它能自动收集 Google Cloud 各项服务的日志，其 Log Analytics 功能还支持用 SQL 查询，挖掘智能体行为的趋势。</p>
+<p>好的框架能让这件事变得简单。比如 Agent Development Kit（ADK）基于 Python 标准的 <code>logging</code> 模块，开发者无需改动智能体代码，就能调整日志详细程度：生产环境用概要的 <code>INFO</code>，开发时用细粒度的 <code>DEBUG</code>。</p>
+<h2 id="%E5%89%96%E6%9E%90%E4%B8%80%E6%9D%A1%E5%85%B3%E9%94%AE%E6%97%A5%E5%BF%97" tabindex="-1">剖析一条关键日志 <a class="anchor" href="#%E5%89%96%E6%9E%90%E4%B8%80%E6%9D%A1%E5%85%B3%E9%94%AE%E6%97%A5%E5%BF%97">#</a></h2>
+<p>要还原智能体的「思考过程」，日志必须带足上下文。结构化的 JSON 格式是公认的最佳做法。</p>
+<p><strong>• 核心信息：</strong> 好的日志会记录完整上下文：提示与回复、中间推理步骤（即智能体的「思维链」，Wei 等人（2022）对此做过研究）、结构化的工具调用（输入、输出、错误），以及智能体内部状态的所有变化。</p>
+<p><strong>• 权衡：</strong> 详细程度 vs. 性能：极其详尽的 <code>DEBUG</code> 日志是开发者排查问题的好帮手，但放到生产环境可能太「吵」，还会带来性能开销。这正是结构化日志的强大之处：既能采集详细数据，又能高效过滤。</p>
+<p>下面这个实际示例改编自 ADK 的 <code>DEBUG</code> 输出，可以看出结构化日志的威力：</p>
+<div class="cb"><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code>// A structured log entry capturing a single LLM request
+// 捕获单个 LLM 请求的结构化日志条目
+...
+2025-07-10 15:26:13,778 - DEBUG - google_adk.google.adk.models.google_llm - Sending out
+request, model: gemini-2.0-flash, backend: GoogleLLMVariant.GEMINI_API, stream: False
+2025-07-10 15:26:13,778 - DEBUG - google_adk.google.adk.models.google_llm -
+LLM Request:
+-----------------------------------------------------------
+System Instruction:
+ You roll dice and answer questions about the outcome of the dice rolls.....
+The description about you is &quot;hello world agent that can roll a dice of 8 sides and check
+prime numbers.&quot;
+-----------------------------------------------------------
+Contents:
+{&quot;parts&quot;:[{&quot;text&quot;:&quot;Roll a 6 sided dice&quot;}],&quot;role&quot;:&quot;user&quot;}
+{&quot;parts&quot;:[{&quot;function_call&quot;:{&quot;args&quot;:{&quot;sides&quot;:6},&quot;name&quot;:&quot;roll_die&quot;}}],&quot;role&quot;:&quot;model&quot;}
+{&quot;parts&quot;:[{&quot;function_response&quot;:{&quot;name&quot;:&quot;roll_die&quot;,&quot;response&quot;:{&quot;result&quot;:2}}}],&quot;role&quot;:&quot;user&quot;}
+-----------------------------------------------------------
+Functions:
+roll_die: {'sides': {'type': &lt;Type.INTEGER: 'INTEGER'&gt;}}
+check_prime: {'nums': {'items': {'type': &lt;Type.INTEGER: 'INTEGER'&gt;}, 'type': &lt;Type.ARRAY:
+'ARRAY'&gt;}}
+-----------------------------------------------------------
+2025-07-10 15:26:13,779 - INFO - google_genai.models - AFC is enabled with max remote
+calls: 10.
+2025-07-10 15:26:14,309 - INFO - google_adk.google.adk.models.google_llm -
+LLM Response:
+-----------------------------------------------------------
+Text:
+I have rolled a 6 sided die, and the result is 2.
+...
+</code></pre>
+</div><p>代码片段 1：记录单次 LLM 请求的结构化日志</p>
+<p>![][image13] <strong>Applied Tip:</strong></p>
+<p><strong>应用提示：</strong></p>
+<p>一个很实用的日志模式：行动前记录智能体的意图，行动后记录结果。这样一眼就能分清，是尝试失败了，还是它有意选择不行动。</p>
+<h2 id="%E6%94%AF%E6%9F%B1%E4%BA%8C%EF%BC%9A%E8%BF%BD%E8%B8%AA%E2%80%94%E2%80%94%E8%B7%9F%E9%9A%8F%E6%99%BA%E8%83%BD%E4%BD%93%E7%9A%84%E8%B6%B3%E8%BF%B9" tabindex="-1">支柱二：追踪——跟随智能体的足迹 <a class="anchor" href="#%E6%94%AF%E6%9F%B1%E4%BA%8C%EF%BC%9A%E8%BF%BD%E8%B8%AA%E2%80%94%E2%80%94%E8%B7%9F%E9%9A%8F%E6%99%BA%E8%83%BD%E4%BD%93%E7%9A%84%E8%B6%B3%E8%BF%B9">#</a></h2>
+<p><strong>什么是追踪？</strong> 如果说日志是一篇篇日记，<strong>追踪</strong>就是把它们串成完整故事的主线。追踪跟随单个任务，从用户最初的提问一直到最终答案，把一条条日志（称为 <strong>span</strong>）拼成完整的端到端视图。它展示事件之间的因果关系，从而揭示最关键的「为什么」。</p>
+<p>想象侦探的线索板：日志是一条条单独的线索，一张照片、一张票根；追踪则是把它们连起来的红线，还原出事件的完整经过。</p>
+<h2 id="%E4%B8%BA%E4%BB%80%E4%B9%88%E7%A6%BB%E4%B8%8D%E5%BC%80%E8%BF%BD%E8%B8%AA" tabindex="-1">为什么离不开追踪 <a class="anchor" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E7%A6%BB%E4%B8%8D%E5%BC%80%E8%BF%BD%E8%B8%AA">#</a></h2>
+<p>设想一个复杂的失败场景：用户提了个问题，智能体却答得莫名其妙。</p>
+<p><strong>• 孤立的日志可能只显示：</strong> <code>ERROR: RAG search failed</code> 和 <code>ERROR: LLM response failed validation</code>。错误看到了，根因却不清楚。</p>
+<p><strong>• 追踪揭示完整的因果链：</strong> <code>用户查询</code> → <code>RAG 搜索（失败）</code> → <code>错误的工具调用（收到空输入）</code> → <code>LLM 错误（被错误的工具输出混淆）</code> → <code>错误的最终答案</code></p>
+<p>有了追踪，根因一目了然。调试复杂的多步智能体行为，离不开它。</p>
+<h2 id="%E6%99%BA%E8%83%BD%E4%BD%93%E8%BF%BD%E8%B8%AA%E7%9A%84%E5%85%B3%E9%94%AE%E8%A6%81%E7%B4%A0" tabindex="-1">智能体追踪的关键要素 <a class="anchor" href="#%E6%99%BA%E8%83%BD%E4%BD%93%E8%BF%BD%E8%B8%AA%E7%9A%84%E5%85%B3%E9%94%AE%E8%A6%81%E7%B4%A0">#</a></h2>
+<p>现代追踪基于 <strong>OpenTelemetry</strong> 等开放标准，核心组件有：</p>
+<p><strong>• Span（跨度）：</strong> 追踪中一个个具名的操作，例如 <code>llm_call</code> span、<code>tool_execution</code> span。</p>
+<p><strong>• 属性（Attributes）：</strong> 附在每个 span 上的丰富元数据，如 <code>prompt_id</code>、<code>latency_ms</code>、<code>token_count</code>、<code>user_id</code> 等。</p>
+<p><strong>• 上下文传播（Context Propagation）：</strong> 靠唯一的 <code>trace_id</code> 把各个 span 串起来的「魔法」，让 Google Cloud Trace 这类后端能拼出全貌。Cloud Trace 是一套分布式追踪系统，帮你了解应用处理请求要花多长时间。如果智能体部署在 Vertex AI Agent Engine 这类托管运行时上，集成会更省事：Agent Engine 负责生产环境中智能体扩缩容所需的基础设施，并自动接入 Cloud Trace，提供端到端可观测性，把智能体调用和后续所有模型调用、工具调用关联起来。</p>
+<p>![][image14]Figure 5: OpenTelemetry view lets you inspect attributes, logs, events, and other details</p>
+<p>图 5：在 OpenTelemetry 视图中查看属性、日志、事件等详细信息</p>
+<h2 id="%E6%94%AF%E6%9F%B1%E4%B8%89%EF%BC%9A%E6%8C%87%E6%A0%87%E2%80%94%E2%80%94%E6%99%BA%E8%83%BD%E4%BD%93%E7%9A%84%E5%81%A5%E5%BA%B7%E6%8A%A5%E5%91%8A" tabindex="-1">支柱三：指标——智能体的健康报告 <a class="anchor" href="#%E6%94%AF%E6%9F%B1%E4%B8%89%EF%BC%9A%E6%8C%87%E6%A0%87%E2%80%94%E2%80%94%E6%99%BA%E8%83%BD%E4%BD%93%E7%9A%84%E5%81%A5%E5%BA%B7%E6%8A%A5%E5%91%8A">#</a></h2>
+<p><strong>什么是指标？</strong> 如果说<strong>日志</strong>是主厨的备菜笔记，<strong>追踪</strong>是评论家一步步看着菜谱落地，那么<strong>指标</strong>就是评论家最后公布的评分卡。它们是经过汇总的量化健康分，让你一眼看清智能体的整体表现。</p>
+<p>关键在于，美食评论家不会只尝一口成品就凭空打分，他的判断来自观察到的一切。指标也一样，它不是新的数据来源，而是<strong>对日志和追踪数据长期汇总</strong>的结果。它回答的问题是：<em>「平均来看，表现<strong>有多好</strong>？」</em></p>
+<p>对 AI 智能体来说，指标可以分成两类：可直接测量的系统指标，以及更复杂、需要评估得出的质量指标。</p>
+<h2 id="%E7%B3%BB%E7%BB%9F%E6%8C%87%E6%A0%87%EF%BC%9A%E7%94%9F%E5%91%BD%E4%BD%93%E5%BE%81" tabindex="-1">系统指标：生命体征 <a class="anchor" href="#%E7%B3%BB%E7%BB%9F%E6%8C%87%E6%A0%87%EF%BC%9A%E7%94%9F%E5%91%BD%E4%BD%93%E5%BE%81">#</a></h2>
+<p>系统指标是衡量运行健康度的基础量化指标，用聚合函数（如平均值、求和、百分位数）直接从日志和追踪的属性中算出。可以把它们看作智能体的生命体征：脉搏、体温和血压。</p>
+<p>需要跟踪的关键系统指标有：</p>
+<h2 id="%E6%80%A7%E8%83%BD" tabindex="-1">性能 <a class="anchor" href="#%E6%80%A7%E8%83%BD">#</a></h2>
+<p><strong>• 延迟（P50/P99）：</strong> 聚合追踪中的 duration_ms 属性，算出响应时间的中位数和 99 分位值，分别反映常规情况和最差情况下的用户体验。</p>
+<p><strong>• 错误率：</strong> 含有 <code>error=true</code> 属性 span 的追踪所占的百分比。</p>
+<h2 id="%E6%88%90%E6%9C%AC" tabindex="-1">成本 <a class="anchor" href="#%E6%88%90%E6%9C%AC">#</a></h2>
+<p><strong>• 单任务 token 数：</strong> 所有追踪中 token_count 属性的平均值，是控制 LLM 成本的关键。</p>
+<p><strong>• 单次运行 API 成本：</strong> 把 token 数和模型价格结合起来，就能跟踪每个任务的平均花费。</p>
+<h2 id="%E6%9C%89%E6%95%88%E6%80%A7" tabindex="-1">有效性 <a class="anchor" href="#%E6%9C%89%E6%95%88%E6%80%A7">#</a></h2>
+<p><strong>• 任务完成率：</strong> 成功抵达指定「成功」span 的追踪所占百分比。</p>
+<p><strong>• 工具使用频率：</strong> 统计每个工具（如 get_weather）作为 span 名称出现的次数，看出哪些工具最有价值。</p>
+<p>日常运维、设置告警、管理整批智能体的成本和性能，都离不开这些指标。</p>
+<h2 id="%E8%B4%A8%E9%87%8F%E6%8C%87%E6%A0%87%EF%BC%9A%E8%AF%84%E5%88%A4%E5%86%B3%E7%AD%96" tabindex="-1">质量指标：评判决策 <a class="anchor" href="#%E8%B4%A8%E9%87%8F%E6%8C%87%E6%A0%87%EF%BC%9A%E8%AF%84%E5%88%A4%E5%86%B3%E7%AD%96">#</a></h2>
+<p>质量指标是<strong>二阶指标</strong>：在原始可观测性数据之上，套用第 2 章介绍的评判框架得出。它们不只看效率，而是直接评估智能体的推理和最终输出的质量。</p>
+<p>它们不是简单的计数或平均值，而是在原始可观测性数据之上加一层评判后得出的二阶指标，用来评估智能体推理和最终输出的质量。</p>
+<p>关键的质量指标举例如下：</p>
+<p><strong>• 正确性与准确性：</strong> 智能体给出的答案在事实上对不对？如果是总结文档，总结是否忠于原文？</p>
+<p><strong>• 轨迹遵循度：</strong> 智能体是否按任务的预期路径或「理想菜谱」执行？是否按正确顺序调用了正确的工具？</p>
+<p><strong>• 安全与责任：</strong> 智能体的回复是否避开了有害、带偏见或不恰当的内容？</p>
+<p><strong>• 有用性与相关性：</strong> 智能体的最终回复是否真正帮到了用户、切合用户的问题？</p>
+<p>这些指标光靠一条数据库查询算不出来。通常要把智能体的输出和「黄金」数据集做对比，或者借助精心设计的 <strong>LLM 即评判者</strong>，按评分准则给回复打分。</p>
+<p>日志和追踪提供的可观测性数据，是计算这些分数的必要依据；但评判过程本身，是另一门独立且关键的学问。</p>
+<h2 id="%E8%9E%8D%E4%BC%9A%E8%B4%AF%E9%80%9A%EF%BC%9A%E4%BB%8E%E5%8E%9F%E5%A7%8B%E6%95%B0%E6%8D%AE%E5%88%B0%E5%8F%AF%E6%89%A7%E8%A1%8C%E7%9A%84%E6%B4%9E%E5%AF%9F" tabindex="-1">融会贯通：从原始数据到可执行的洞察 <a class="anchor" href="#%E8%9E%8D%E4%BC%9A%E8%B4%AF%E9%80%9A%EF%BC%9A%E4%BB%8E%E5%8E%9F%E5%A7%8B%E6%95%B0%E6%8D%AE%E5%88%B0%E5%8F%AF%E6%89%A7%E8%A1%8C%E7%9A%84%E6%B4%9E%E5%AF%9F">#</a></h2>
+<p>有了日志、追踪和指标，就好比有了一位天才主厨、一间备货充足的储藏室和一份评分准则。但这些还只是零件。要把餐厅开好，得把它们组装成一套能扛住晚高峰的运转体系。本节讲的就是这种落地组装：在线上运行时，把可观测性数据实时转化为行动和洞察。</p>
+<p>这包括三项关键的运维实践：</p>
+<p><strong>1. 看板与告警：把系统健康和模型质量分开</strong> 只有一块看板是不够的。系统指标和质量指标用途不同、服务的团队也不同，要管好 AI 智能体，就得为两者分别建立视图。</p>
+<p><strong>• 运维看板（看系统指标）：</strong> 这类看板关注实时的运行健康度，跟踪智能体的核心生命体征，主要给负责系统可用性和性能的站点可靠性工程师（SRE）、DevOps 和运维团队使用。</p>
+<p><strong>• 跟踪内容：</strong> P99 延迟、错误率、API 成本、token 消耗。</p>
+<p><strong>• 目的：</strong> 第一时间发现系统故障、性能下滑或预算超支。</p>
+<p><strong>• 告警示例：</strong> <code>ALERT: P99 latency &gt; 3s for 5 minutes</code>。说明系统出现瓶颈，工程团队需要马上处理。</p>
+<p><strong>• 质量看板（看质量指标）：</strong> 这类看板跟踪衡量智能体有效性和正确性的指标，它们更微妙，变化也更慢。对负责智能体决策和输出质量的产品负责人、数据科学家和 AgentOps 团队来说，这块看板必不可少。</p>
+<p><strong>• 跟踪内容：</strong> 事实正确性分数、轨迹遵循度、有用性评分、幻觉率。</p>
+<p><strong>• 目的：</strong> 发现智能体质量的细微漂移，尤其是在上线新模型或新提示之后。</p>
+<p><strong>• 告警示例：</strong> <code>'Helpfulness Score' has dropped by 10% over the last 24 hours</code>。这说明系统本身也许运行正常（系统指标没问题），但智能体的输出质量在下滑，需要排查它的逻辑或数据。</p>
+<h2 id="2.-%E5%AE%89%E5%85%A8%E4%B8%8E-pii%EF%BC%9A%E4%BF%9D%E6%8A%A4%E6%95%B0%E6%8D%AE" tabindex="-1">2. 安全与 PII：保护数据 <a class="anchor" href="#2.-%E5%AE%89%E5%85%A8%E4%B8%8E-pii%EF%BC%9A%E4%BF%9D%E6%8A%A4%E6%95%B0%E6%8D%AE">#</a></h2>
+<p>这是生产运维中没有商量余地的一环。日志和追踪记录下的用户输入，常常包含个人身份信息（PII）。必须在日志流水线中内置可靠的 PII 脱敏机制，在数据长期存储之前完成处理，以符合隐私法规、保护用户。</p>
+<h2 id="3.-%E6%A0%B8%E5%BF%83%E6%9D%83%E8%A1%A1%EF%BC%9A%E7%B2%92%E5%BA%A6-vs.-%E5%BC%80%E9%94%80" tabindex="-1">3. 核心权衡：粒度 vs. 开销 <a class="anchor" href="#3.-%E6%A0%B8%E5%BF%83%E6%9D%83%E8%A1%A1%EF%BC%9A%E7%B2%92%E5%BA%A6-vs.-%E5%BC%80%E9%94%80">#</a></h2>
+<p>在生产环境中给每个请求都记录极其详细的日志和追踪，成本可能高得难以承受，还会拖慢系统。关键是找到合理的平衡点。</p>
+<p><strong>• 最佳实践：动态采样。</strong> 开发环境用细粒度日志（<code>DEBUG</code> 级别）；生产环境把默认日志级别调低（<code>INFO</code>），同时做动态采样。比如成功请求只追踪 10%，错误则 100% 全量追踪。这样既能为指标提供足够广的性能数据，又不会压垮系统，还能保留排查每次失败所需的丰富诊断细节。</p>
+<h2 id="%E6%80%BB%E7%BB%93%E4%B8%8E%E5%B1%95%E6%9C%9B-2" tabindex="-1">总结与展望 <a class="anchor" href="#%E6%80%BB%E7%BB%93%E4%B8%8E%E5%B1%95%E6%9C%9B-2">#</a></h2>
+<p>要信任一个自主智能体，首先得看懂它的过程。评判主厨的成品菜之前，你总要对他的菜谱、手法和一路上的决策有所了解。本章说明，<strong>可观测性</strong>正是让我们看清智能体的框架，它就是安插在厨房里的「眼睛和耳朵」。</p>
+<p>我们看到，扎实的可观测性实践建立在三大基础支柱之上，它们相互配合，把原始数据拼成一幅完整的图景：</p>
+<p><strong>• 日志：</strong> 结构化的日记，细致如实地记下每一步发生了什么。</p>
+<p><strong>• 追踪：</strong> 把零散日志串成故事的主线，展示因果路径，揭示事情为什么会发生。</p>
+<p><strong>• 指标：</strong> 汇总后的成绩单，大规模地概括表现，告诉我们做得有多好。我们又把它细分为关乎生命体征的<strong>系统指标</strong>（如延迟和成本）和同样关键的<strong>质量指标</strong>（如正确性和有用性）。</p>
+<p>把这些支柱组装成一套连贯的运维体系，我们就不再盲飞，而能用数据清楚地看到智能体的行为、效率和有效性。</p>
+<p>至此，拼图已经齐全：<strong>为什么</strong>（第 1 章的非确定性问题）、<strong>是什么</strong>（第 2 章的评估框架）和<strong>怎么做</strong>（第 3 章的可观测性架构）。</p>
+<p><strong>第 4 章</strong>会把这些内容整合成一本实操手册，展示各个组件如何构成「智能体质量飞轮」：一个持续改进的循环，用来打造不仅能干、而且真正可信的智能体。</p>
+<h2 id="%E7%BB%93%E8%AE%BA%EF%BC%9A%E5%9C%A8%E8%87%AA%E4%B8%BB%E4%B8%96%E7%95%8C%E4%B8%AD%E5%BB%BA%E7%AB%8B%E4%BF%A1%E4%BB%BB" tabindex="-1">结论：在自主世界中建立信任 <a class="anchor" href="#%E7%BB%93%E8%AE%BA%EF%BC%9A%E5%9C%A8%E8%87%AA%E4%B8%BB%E4%B8%96%E7%95%8C%E4%B8%AD%E5%BB%BA%E7%AB%8B%E4%BF%A1%E4%BB%BB">#</a></h2>
+<h2 id="%E5%BC%95%E8%A8%80%EF%BC%9A%E4%BB%8E%E8%87%AA%E4%B8%BB%E8%83%BD%E5%8A%9B%E5%88%B0%E4%BC%81%E4%B8%9A%E4%BF%A1%E4%BB%BB" tabindex="-1">引言：从自主能力到企业信任 <a class="anchor" href="#%E5%BC%95%E8%A8%80%EF%BC%9A%E4%BB%8E%E8%87%AA%E4%B8%BB%E8%83%BD%E5%8A%9B%E5%88%B0%E4%BC%81%E4%B8%9A%E4%BF%A1%E4%BB%BB">#</a></h2>
+<p>本白皮书开篇提出了一个根本挑战：AI 智能体具有非确定性和自主性，打破了传统的软件质量模式。我们把评估智能体比作考核一名新员工：不光要问任务完成没有，还要问是怎么完成的。效率高吗？安全吗？体验好吗？既然代价是业务风险，就不能盲飞。</p>
+<p>从那以后，我们一直在为这一新范式绘制信任的蓝图。我们定义了智能体质量的四大支柱：有效性、成本效率、安全性和用户信任，以此说明为什么需要一门新学问。接着，我们展示了如何借助可观测性（<strong>第 3 章</strong>）在智能体内部装上「眼睛和耳朵」，以及如何用整体评估框架（<strong>第 2 章</strong>）评判它的表现。本文打下了「衡量什么、如何看见」的基础。关键的下一步是把这些原则落地，这部分由后续白皮书**「第 5 天：从原型到生产」**讲解：通过可靠的 CI/CD 流水线、安全的发布策略和可扩展的基础设施，让评估过的智能体在生产环境中顺利运行。</p>
+<p>现在，我们把这一切串起来。这不只是一份总结，更是一本实操手册：把抽象原则变成可靠、能自我改进的系统，打通评估与生产之间的鸿沟。</p>
+<h2 id="%E6%99%BA%E8%83%BD%E4%BD%93%E8%B4%A8%E9%87%8F%E9%A3%9E%E8%BD%AE%EF%BC%9A%E6%95%B4%E4%B8%AA%E6%A1%86%E6%9E%B6%E7%9A%84%E9%9B%86%E6%88%90" tabindex="-1">智能体质量飞轮：整个框架的集成 <a class="anchor" href="#%E6%99%BA%E8%83%BD%E4%BD%93%E8%B4%A8%E9%87%8F%E9%A3%9E%E8%BD%AE%EF%BC%9A%E6%95%B4%E4%B8%AA%E6%A1%86%E6%9E%B6%E7%9A%84%E9%9B%86%E6%88%90">#</a></h2>
+<p>优秀的智能体不只会干活，还会不断进步。正是持续评估这项基本功，把精巧的演示和企业级系统区分开来。这种实践会形成一个强大的自我强化系统，我们称之为<strong>智能体质量飞轮</strong>。</p>
+<p>想象推动一个巨大而沉重的飞轮。第一下最费劲，但结构化的评估实践会持续不断地接着推。每推一次，动量就多一分，直到飞轮势不可挡地转起来，形成质量与信任的良性循环。这个飞轮，就是前面整个框架在实际运作中的样子。</p>
+<p>![][image15]</p>
+<p>图 6：智能体质量飞轮</p>
+<p>下面看看各章的组件如何配合，积蓄这股动量：</p>
+<p><strong>• 第 1 步：定义质量（目标）：</strong> 飞轮需要方向。正如第 1 章所定义的，一切从质量的四大支柱开始：有效性、成本效率、安全性和用户信任。它们不是抽象的理想，而是具体的目标，让评估工作有意义，也让飞轮朝着真正的业务价值转动。</p>
+<p><strong>• 第 2 步：埋点，让过程可见（基础）：</strong> 看不见的东西就管不了。正如可观测性一章所述，我们要让智能体输出结构化日志（智能体的日记）和端到端追踪（故事主线）。可观测性是一项基础实践，它产出衡量四大支柱所需的丰富证据，是驱动飞轮的燃料。</p>
+<p><strong>• 第 3 步：评估过程（引擎）：</strong> 过程可见之后，就能评判表现了。正如评估一章所讨论的，这需要有策略地「由外而内」评估，既评判最终输出，也评判整个推理过程。这是让飞轮转起来的主要推力，一台混合引擎：可扩展的 LLM 即评判者系统负责速度，人机协同（HITL）的「黄金标准」负责提供标准答案。</p>
+<p><strong>• 第 4 步：搭建反馈闭环（动量）：</strong> 第 1 章提出的「设计即可评估」架构，在这里真正落地。有了这条关键的反馈闭环，每一次线上失败经过捕获和标注后，都会被自动转成「黄金」评估集里的一条永久回归测试。每次失败都让系统更聪明，让飞轮转得更快，推动质量持续提升。</p>
+<h2 id="%E6%9E%84%E5%BB%BA%E5%8F%AF%E4%BF%A1%E6%99%BA%E8%83%BD%E4%BD%93%E7%9A%84%E4%B8%89%E5%A4%A7%E6%A0%B8%E5%BF%83%E5%8E%9F%E5%88%99" tabindex="-1">构建可信智能体的三大核心原则 <a class="anchor" href="#%E6%9E%84%E5%BB%BA%E5%8F%AF%E4%BF%A1%E6%99%BA%E8%83%BD%E4%BD%93%E7%9A%84%E4%B8%89%E5%A4%A7%E6%A0%B8%E5%BF%83%E5%8E%9F%E5%88%99">#</a></h2>
+<p>如果这份白皮书你只记住一件事，那就记住这三条原则。在智能体这个新的技术前沿，任何想打造真正可靠的自主系统的负责人，都应以它们为基本思维方式。</p>
+<p><strong>• 原则 1：把评估当作架构支柱，而不是最后一步：</strong> 还记得第 1 章的赛车比喻吗？没人会先造好 F1 赛车再往上拧传感器，遥测接口从一开始就设计在里面。智能体工作负载也需要同样的 DevOps 思路。可靠的智能体是「设计即可评估」的，从第一行代码起就埋好点，输出评判所需的日志和追踪。质量是架构上的选择，而不是最后的 QA 环节。</p>
+<p><strong>• 原则 2：轨迹即真相：</strong> 对智能体来说，最终答案只是长篇故事的最后一句。正如评估一章所述，衡量智能体逻辑、安全性和效率的真正标准，是它端到端的「思考过程」，也就是轨迹。这就是过程评估。要真正弄懂智能体为什么成功或失败，就必须分析这条路径，而这只能依靠第 3 章介绍的深度可观测性实践。</p>
+<p><strong>• 原则 3：人是最终裁判：</strong> 自动化是扩大规模的工具，人才是标准的来源。从 LLM 即评判者到安全分类器，自动化必不可少。但正如人机协同（HITL）评估一节深入讨论的那样，什么算「好」、微妙的输出是否合格、安全与公平的最终裁定，都必须以人类价值观为准。AI 可以帮忙批卷，但评分标准由人来写，「A+」到底意味着什么也由人来定。</p>
+<h2 id="%E6%9C%AA%E6%9D%A5%E5%B1%9E%E4%BA%8E%E6%99%BA%E8%83%BD%E4%BD%93%EF%BC%8C%E4%B9%9F%E5%BF%85%E9%A1%BB%E5%8F%AF%E9%9D%A0" tabindex="-1">未来属于智能体，也必须可靠 <a class="anchor" href="#%E6%9C%AA%E6%9D%A5%E5%B1%9E%E4%BA%8E%E6%99%BA%E8%83%BD%E4%BD%93%EF%BC%8C%E4%B9%9F%E5%BF%85%E9%A1%BB%E5%8F%AF%E9%9D%A0">#</a></h2>
+<p>智能体时代刚刚开启。能够推理、规划和行动的 AI，将是这个时代最具变革性的技术之一。但能力越大，责任越大：我们必须构建出值得信任的系统。</p>
+<p>掌握本白皮书中的这些理念（不妨称之为**「评估工程」**），将是下一波 AI 浪潮中拉开差距的关键。仍把智能体质量当作事后补救的组织，会困在「演示很惊艳、</p>
+<p>上线就失败」的循环里。反之，那些愿意投入这种严谨的、与架构融为一体的评估方法的组织，才能穿越炒作，部署真正具有变革性的企业级 AI 系统。</p>
+<p>最终目标不只是做出能用的智能体，而是做出让人信任的智能体。正如本文所展示的，这种信任不靠期望，也不靠运气，而是在持续、全面、架构扎实的评估中千锤百炼出来的。</p>
+<h2 id="%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE" tabindex="-1">参考文献 <a class="anchor" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE">#</a></h2>
+<p>学术论文、书籍与正式报告</p>
+<p>网络文章、博客帖子与一般网页</p>
+<p>Bunnyshell. (n.d.). LLM-as-a-Judge: How AI Can Evaluate AI Faster and Smarter. Retrieved September 16, 2025, from <a href="https://www.bunnyshell.com/blog/when-ai-becomes-the-judge-understanding-llm-as-a-j/">https://www.bunnyshell.com/blog/when-ai-becomes-the-judge-understanding-llm-as-a-j/</a>.</p>
+<p>Coralogix. (n.d.). OpenTelemetry for AI: Tracing Prompts, Tools, and Inferences. Retrieved September 16, 2025, from <a href="https://coralogix.com/ai-blog/opentelemetry-for-ai-tracing-prompts-tools-and-inferences/">https://coralogix.com/ai-blog/opentelemetry-for-ai-tracing-prompts-tools-and-inferences/</a>.</p>
+<p>Drapkin, A. (2025, September 2). AI Gone Wrong: The Errors, Mistakes, and Hallucinations of AI (2023 – 2025). Tech.co. Retrieved September 16, 2025, from <a href="https://tech.co/news/list-ai-failures-mistakes-errors">https://tech.co/news/list-ai-failures-mistakes-errors</a>.</p>
+<p>Dynatrace. (n.d.). What is OpenTelemetry? An open-source standard for logs, metrics, and traces. Retrieved September 16, 2025, from <a href="https://www.dynatrace.com/news/blog/what-is-opentelemetry/">https://www.dynatrace.com/news/blog/what-is-opentelemetry/</a>.</p>
+<p>Galileo. (n.d.). Comprehensive Guide to LLM-as-a-Judge Evaluation. Retrieved September 16, 2025, from <a href="https://galileo.ai/blog/llm-as-a-judge-guide-evaluation">https://galileo.ai/blog/llm-as-a-judge-guide-evaluation</a>.</p>
+<p>Gofast.ai. (n.d.). Agent Hallucinations in the Real World: When AI Tools Go Wrong. Retrieved September 16, 2025, from <a href="https://www.gofast.ai/blog/ai-bias-fairness-agent-hallucinations-validation-drift-2025">https://www.gofast.ai/blog/ai-bias-fairness-agent-hallucinations-validation-drift-2025</a>.</p>
+<p>IBM. (2025, February 25). What is LLM Observability? Retrieved September 16, 2025, from <a href="https://www.ibm.com/think/topics/llm-observability">https://www.ibm.com/think/topics/llm-observability</a>.</p>
+<p>MIT Sloan Teaching &amp; Learning Technologies. (n.d.). When AI Gets It Wrong:</p>
+<p>Addressing AI Hallucinations and Bias. Retrieved September 16, 2025,</p>
+<p>from <a href="https://mitsloanedtech.mit.edu/ai/basics/addressing-ai-hallucinations-and-bias/">https://mitsloanedtech.mit.edu/ai/basics/addressing-ai-hallucinations-and-bias/</a>.</p>
+<p>ResearchGate. (n.d.). (PDF) A Survey on LLM-as-a-Judge. Retrieved September 16, 2025, from <a href="https://www.researchgate.net/publication/386112851%5C_A%5C_Survey%5C_on%5C_LLM-as-a-Judge">https://www.researchgate.net/publication/386112851\_A\_Survey\_on\_LLM-as-a-Judge</a>.</p>
+<p>TrustArc. (n.d.). The National Institute of Standards and Technology (NIST) Artificial Intelligence Risk Management. Retrieved September 16, 2025, from <a href="https://trustarc.com/regulations/nist-ai-rmf/">https://trustarc.com/regulations/nist-ai-rmf/</a>.</p>
+<hr>
+<p><a href="../agent-04-quality-en/">English version →</a></p>
+<div class="pnav"><a class="l" href="/posts/agent-05-prototype-to-production/"><small>上一篇</small><b>AI-Agent 白皮书 5 - Prototype to Production</b></a><a class="r" href="/posts/agent-03-context-engineering/"><small>下一篇</small><b>AI-Agent 白皮书 3 - Context Engineering: Sessions &amp; Memory</b></a></div></article></main>
+
+<div id="mascot" title="戳一下">
+  <div id="m-say"></div>
+  <button id="m-top" title="回到顶部" aria-label="回到顶部">↑</button>
+</div>
+<script type="module" src="/scene2d.js"></script>
+<script type="module" src="/mascot.js"></script>
+<script>
+addEventListener('keydown', function(e){
+  var P = {"prev":"/posts/agent-05-prototype-to-production/","next":"/posts/agent-03-context-engineering/"};
+  // 灯箱打开时 Esc 只关灯箱,方向键不翻页
+  var lb = document.querySelector('.lb');
+  if (lb) { if (e.key === 'Escape') lb.remove(); return; }
+  if (e.key === 'ArrowLeft'  && P.prev) location.href = P.prev;
+  if (e.key === 'ArrowRight' && P.next) location.href = P.next;
+  if (e.key === 'Escape') location.href = '/#writing';
+});
+</script>
+<script>
+// 大纲高亮:滚动容器是 #art(不是 window),直接按滚动位置算当前节最可靠
+(function(){
+  var toc = document.querySelector('.toc');
+  if (!toc) return;
+  var art = document.getElementById('art');
+  var links = [].slice.call(toc.querySelectorAll('a'));
+  var map = {};
+  // id 本身已是百分号编码,直接用原始 href 做 key,不要 decode
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var heads = [].slice.call(art.querySelectorAll('h2[id],h3[id]'));
+  if (!heads.length) return;
+  var cur = null;
+
+  function paint(){
+    var top = art.getBoundingClientRect().top + 100;   // 判定线:卡片顶部下方 100px
+    var found = heads[0];
+    for (var i = 0; i < heads.length; i++){
+      if (heads[i].getBoundingClientRect().top <= top) found = heads[i]; else break;
+    }
+    // 已滚到底时强制选中最后一节,否则末节永远高亮不到
+    if (art.scrollTop + art.clientHeight >= art.scrollHeight - 4) found = heads[heads.length - 1];
+    if (found === cur) return;
+    cur = found;
+    links.forEach(function(a){ a.classList.remove('on'); });
+    var a = map[found.id];
+    if (!a) return;
+    a.classList.add('on');
+    var box = a.getBoundingClientRect(), tb = toc.getBoundingClientRect();
+    if (box.top < tb.top || box.bottom > tb.bottom) a.scrollIntoView({block:'nearest'});
+  }
+
+  var tick = false;
+  art.addEventListener('scroll', function(){
+    if (tick) return;
+    tick = true;
+    requestAnimationFrame(function(){ tick = false; paint(); });
+  }, {passive:true});
+
+  toc.addEventListener('click', function(e){
+    var a = e.target.closest('a'); if (!a) return;
+    var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if (!t) return;
+    e.preventDefault();
+    art.scrollTo({ top: art.scrollTop + t.getBoundingClientRect().top - art.getBoundingClientRect().top - 24, behavior:'smooth' });
+    history.replaceState(null, '', a.getAttribute('href'));
+  });
+  paint();
+})();
+</script>
+<script>
+// 图片灯箱:点正文图片或 Mermaid 图放大,点击 / Esc / 滚轮关闭
+document.getElementById('art').addEventListener('click', function(e){
+  var t = e.target.closest('img,.mm svg');
+  if (!t || t.closest('a')) return;
+  var lb = document.createElement('div'), c = t.cloneNode(true);
+  lb.className = 'lb';
+  if (c.tagName !== 'IMG') {
+    // SVG 没有固有的"原图尺寸",按视口等比放大
+    var r = t.getBoundingClientRect();
+    var k = Math.min(innerWidth * .92 / r.width, innerHeight * .9 / r.height);
+    c.style.width = r.width * k + 'px';
+    c.style.height = r.height * k + 'px';
+  }
+  lb.appendChild(c);
+  lb.onclick = lb.onwheel = function(){ lb.remove(); };
+  document.body.appendChild(lb);
+});
+</script>
+<script>
+// 代码块复制
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('.cb-c');
+  if (!btn) return;
+  var pre = btn.parentElement.querySelector('pre');
+  if (!pre) return;
+  var text = pre.innerText;
+  var done = function(){
+    btn.textContent = '已复制'; btn.classList.add('ok');
+    setTimeout(function(){ btn.textContent = '复制'; btn.classList.remove('ok'); }, 1600);
+  };
+  // clipboard API 需要安全上下文(https 或 localhost),否则回退到 execCommand
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else fallback();
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (err) { btn.textContent = '复制失败'; }
+    document.body.removeChild(ta);
+  }
+});
+</script>
+</body></html>

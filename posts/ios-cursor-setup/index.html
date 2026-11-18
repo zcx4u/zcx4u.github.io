@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>iOS使用Cursor开发配置指南 — fatbruin</title>
+<meta name="description" content="从 Xcode 迁到 Cursor:Swift、SweetPad 等插件与编译运行配置全流程。"><meta property="og:type" content="article"><meta property="og:site_name" content="fatbruin"><meta property="og:title" content="iOS使用Cursor开发配置指南"><meta property="og:description" content="从 Xcode 迁到 Cursor:Swift、SweetPad 等插件与编译运行配置全流程。"><meta property="og:url" content="https://www.umuer.com/posts/ios-cursor-setup/"><meta property="og:image" content="https://www.umuer.com/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://www.umuer.com/posts/ios-cursor-setup/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="fatbruin" href="/rss.xml">
+<script>(function(){var n=null;try{n=localStorage.getItem('fatbruin-night')}catch(e){}var h=new Date().getHours();if(n?n==='1':(h>=19||h<6))document.documentElement.classList.add('night')})()</script>
+<link rel="stylesheet" href="/styles/base.0282236f.css">
+<link rel="stylesheet" href="/styles/post.0bb29940.css"></head>
+<body class="post">
+<div id="scene"></div>
+<div class="topbar"><div class="navl"><a class="back" href="/#writing">← 回到小屋</a><a class="back nav-fallback" href="/posts/">全部文章 →</a></div><div class="brand">fat<span>bruin</span></div></div>
+<main><nav class="toc" aria-label="目录"><p class="toc-h">目录</p><ol><li class="l2"><a href="#%E4%B8%80%E3%80%81%E8%83%8C%E6%99%AF%E4%BB%8B%E7%BB%8D">一、背景介绍</a></li><li class="l2"><a href="#%E4%BA%8C%E3%80%81%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C">二、准备工作</a></li><li class="l3"><a href="#2.1-%E5%BF%85%E8%A6%81%E6%8F%92%E4%BB%B6%E5%AE%89%E8%A3%85">2.1 必要插件安装</a></li><li class="l3"><a href="#2.2-%E5%8F%AF%E9%80%89%E6%8F%92%E4%BB%B6%E5%AE%89%E8%A3%85">2.2 可选插件安装</a></li><li class="l3"><a href="#2.3-%E7%95%8C%E9%9D%A2%E4%BC%98%E5%8C%96">2.3 界面优化</a></li><li class="l2"><a href="#%E4%B8%89%E3%80%81%E7%BC%96%E8%AF%91%E4%B8%8E%E8%BF%90%E8%A1%8C">三、编译与运行</a></li><li class="l3"><a href="#3.1-%E8%AE%BE%E5%A4%87%E9%80%89%E6%8B%A9">3.1 设备选择</a></li><li class="l3"><a href="#3.2-%E6%9E%84%E5%BB%BA%E9%A1%B9%E7%9B%AE">3.2 构建项目</a></li><li class="l2"><a href="#%E5%9B%9B%E3%80%81%E4%BB%A3%E7%A0%81%E7%B4%A2%E5%BC%95%E9%85%8D%E7%BD%AE">四、代码索引配置</a></li><li class="l3"><a href="#4.1-%E7%94%9F%E6%88%90%E4%BB%A3%E7%A0%81%E6%A0%91">4.1 生成代码树</a></li><li class="l2"><a href="#%E4%BA%94%E3%80%81%E8%B0%83%E8%AF%95%E9%85%8D%E7%BD%AE">五、调试配置</a></li><li class="l3"><a href="#5.1-%E8%AE%BE%E7%BD%AE%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83">5.1 设置调试环境</a></li><li class="l3"><a href="#5.2-%E5%90%AF%E5%8A%A8%E8%B0%83%E8%AF%95">5.2 启动调试</a></li><li class="l2"><a href="#%E5%85%AD%E3%80%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9">六、注意事项</a></li><li class="l3"><a href="#6.1-%E7%B4%A2%E5%BC%95%E4%BE%9D%E8%B5%96">6.1 索引依赖</a></li><li class="l3"><a href="#6.2-%E5%B7%A5%E5%85%B7%E4%BE%9D%E8%B5%96">6.2 工具依赖</a></li><li class="l2"><a href="#%E4%B8%83%E3%80%81%E5%BE%85%E8%A7%A3%E5%86%B3%E9%97%AE%E9%A2%98">七、待解决问题</a></li><li class="l3"><a href="#7.1-%E7%B3%BB%E7%BB%9F%E5%85%BC%E5%AE%B9%E6%80%A7">7.1 系统兼容性</a></li><li class="l3"><a href="#7.2-%E9%A1%B9%E7%9B%AE%E9%85%8D%E7%BD%AE">7.2 项目配置</a></li><li class="l3"><a href="#7.3-%E6%96%87%E4%BB%B6%E7%BB%84%E7%BB%87%E6%96%B9%E5%BC%8F">7.3 文件组织方式</a></li></ol><a class="toc-all" href="/posts/">全部文章 →</a></nav><article id="art"><p class="meta"><span>2025.04.02</span><span>Tools</span><span>3 分钟</span></p><h1>iOS使用Cursor开发配置指南</h1><p class="sum">从 Xcode 迁到 Cursor:Swift、SweetPad 等插件与编译运行配置全流程。</p><h2 id="%E4%B8%80%E3%80%81%E8%83%8C%E6%99%AF%E4%BB%8B%E7%BB%8D" tabindex="-1">一、背景介绍 <a class="anchor" href="#%E4%B8%80%E3%80%81%E8%83%8C%E6%99%AF%E4%BB%8B%E7%BB%8D">#</a></h2>
+<p>公司采购了Cursor IDE，其中的Composer功能十分强大。目前Xcode缺乏对应的AI功能，尝试迁移到Cursor。</p>
+<h2 id="%E4%BA%8C%E3%80%81%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C" tabindex="-1">二、准备工作 <a class="anchor" href="#%E4%BA%8C%E3%80%81%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C">#</a></h2>
+<h3 id="2.1-%E5%BF%85%E8%A6%81%E6%8F%92%E4%BB%B6%E5%AE%89%E8%A3%85" tabindex="-1">2.1 必要插件安装 <a class="anchor" href="#2.1-%E5%BF%85%E8%A6%81%E6%8F%92%E4%BB%B6%E5%AE%89%E8%A3%85">#</a></h3>
+<ul>
+<li>安装Swift扩展插件
+<img src="https://gcore.jsdelivr.net/gh/zcx4u/images/images/iShot_2025-04-01_10.53.03.png" alt="iShot_2025-04-01_10.53.03"></li>
+<li>安装SweetPad扩展插件
+<img src="https://gcore.jsdelivr.net/gh/zcx4u/images/images/iShot_2025-04-01_10.28.35.png" alt="iShot_2025-04-01_10.28.35"></li>
+<li>在SweetPad插件中安装TOOLS
+<img src="https://gcore.jsdelivr.net/gh/zcx4u/images/images/iShot_2025-04-01_10.27.36.png" alt="iShot_2025-04-01_10.27.36"></li>
+<li>xcode-build-server 必须安装 别的按需安装即可</li>
+</ul>
+<h3 id="2.2-%E5%8F%AF%E9%80%89%E6%8F%92%E4%BB%B6%E5%AE%89%E8%A3%85" tabindex="-1">2.2 可选插件安装 <a class="anchor" href="#2.2-%E5%8F%AF%E9%80%89%E6%8F%92%E4%BB%B6%E5%AE%89%E8%A3%85">#</a></h3>
+<ul>
+<li>安装Chinese简体中文插件将Cursor语言改成中文</li>
+<li>安装Xcode Keymap扩展插件将Xcode的快捷键映射到Cursor</li>
+</ul>
+<h3 id="2.3-%E7%95%8C%E9%9D%A2%E4%BC%98%E5%8C%96" tabindex="-1">2.3 界面优化 <a class="anchor" href="#2.3-%E7%95%8C%E9%9D%A2%E4%BC%98%E5%8C%96">#</a></h3>
+<p>新下载的Cursor功能菜单默认布局是横向的，空间很小，建议改成纵向布局：</p>
+<ol>
+<li>Cursor - 首选项 - 设置 - 工作台 - 外观</li>
+<li>搜索 workbench.activityBar.orientation，改为vertical</li>
+<li>重启即可<img src="https://gcore.jsdelivr.net/gh/zcx4u/images/images/iShot_2025-04-01_11.14.20.png" alt="iShot_2025-04-01_11.14.20"></li>
+</ol>
+<h2 id="%E4%B8%89%E3%80%81%E7%BC%96%E8%AF%91%E4%B8%8E%E8%BF%90%E8%A1%8C" tabindex="-1">三、编译与运行 <a class="anchor" href="#%E4%B8%89%E3%80%81%E7%BC%96%E8%AF%91%E4%B8%8E%E8%BF%90%E8%A1%8C">#</a></h2>
+<h3 id="3.1-%E8%AE%BE%E5%A4%87%E9%80%89%E6%8B%A9" tabindex="-1">3.1 设备选择 <a class="anchor" href="#3.1-%E8%AE%BE%E5%A4%87%E9%80%89%E6%8B%A9">#</a></h3>
+<p>在SweetPad插件中找到DESTINATIONS(设备列表)项：</p>
+<ul>
+<li>只能找到iOS17以上的设备，最好使用模拟器</li>
+<li>此插件不支持真机Debug</li>
+<li>右键点击模拟器后弹出选择设备</li>
+</ul>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/images/iShot_2025-04-01_10.28.03.png" alt="iShot_2025-04-01_10.28.03"></p>
+<h3 id="3.2-%E6%9E%84%E5%BB%BA%E9%A1%B9%E7%9B%AE" tabindex="-1">3.2 构建项目 <a class="anchor" href="#3.2-%E6%9E%84%E5%BB%BA%E9%A1%B9%E7%9B%AE">#</a></h3>
+<p>找到BUILD项，找到需要编译的target：</p>
+<ul>
+<li>右键点击弹出菜单选择Build</li>
+<li>或者点击右侧快捷按钮</li>
+</ul>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/images/iShot_2025-04-01_10.56.48.png" alt="iShot_2025-04-01_10.56.48"></p>
+<h2 id="%E5%9B%9B%E3%80%81%E4%BB%A3%E7%A0%81%E7%B4%A2%E5%BC%95%E9%85%8D%E7%BD%AE" tabindex="-1">四、代码索引配置 <a class="anchor" href="#%E5%9B%9B%E3%80%81%E4%BB%A3%E7%A0%81%E7%B4%A2%E5%BC%95%E9%85%8D%E7%BD%AE">#</a></h2>
+<h3 id="4.1-%E7%94%9F%E6%88%90%E4%BB%A3%E7%A0%81%E6%A0%91" tabindex="-1">4.1 生成代码树 <a class="anchor" href="#4.1-%E7%94%9F%E6%88%90%E4%BB%A3%E7%A0%81%E6%A0%91">#</a></h3>
+<ol>
+<li>Cursor顶部快捷栏搜索 &gt;Build Server Config
+<img src="https://gcore.jsdelivr.net/gh/zcx4u/images/images/iShot_2025-04-01_10.32.42.png" alt="iShot_2025-04-01_10.32.42"></li>
+<li>通过SweetPad生成代码索引树</li>
+<li>注意这一步一定要在全量编译之后执行</li>
+</ol>
+<p>完成后在Cursor中可以点按command进行代码调用回溯。</p>
+<h2 id="%E4%BA%94%E3%80%81%E8%B0%83%E8%AF%95%E9%85%8D%E7%BD%AE" tabindex="-1">五、调试配置 <a class="anchor" href="#%E4%BA%94%E3%80%81%E8%B0%83%E8%AF%95%E9%85%8D%E7%BD%AE">#</a></h2>
+<h3 id="5.1-%E8%AE%BE%E7%BD%AE%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83" tabindex="-1">5.1 设置调试环境 <a class="anchor" href="#5.1-%E8%AE%BE%E7%BD%AE%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83">#</a></h3>
+<ol>
+<li>打开Cursor和SweetPad在同一级的Debug项目</li>
+<li>点击绿色按钮创建launch.json</li>
+<li>选择中间顶部弹出的菜单通过SweetPad创建LLDB</li>
+</ol>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/images/iShot_2025-04-01_10.30.46.png" alt="iShot_2025-04-01_10.30.46"></p>
+<h3 id="5.2-%E5%90%AF%E5%8A%A8%E8%B0%83%E8%AF%95" tabindex="-1">5.2 启动调试 <a class="anchor" href="#5.2-%E5%90%AF%E5%8A%A8%E8%B0%83%E8%AF%95">#</a></h3>
+<ol>
+<li>手动点击Attach to running app (SweetPad)或者F5快捷键启动Debug</li>
+<li>注意只能选择模拟器，目前还不支持真机调试</li>
+<li>等待模拟器启动APP后，LLDB会命中断点</li>
+<li>在Debug项目下可以看到各种Debug信息，在调试控制台可以使用LLDB命令</li>
+</ol>
+<p><img src="https://gcore.jsdelivr.net/gh/zcx4u/images/images/iShot_2025-04-01_10.26.12.png" alt="iShot_2025-04-01_10.26.25">
+<img src="https://gcore.jsdelivr.net/gh/zcx4u/images/images/iShot_2025-04-01_10.26.25.png" alt="iShot_2025-04-01_10.26.25"></p>
+<h2 id="%E5%85%AD%E3%80%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9" tabindex="-1">六、注意事项 <a class="anchor" href="#%E5%85%AD%E3%80%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9">#</a></h2>
+<h3 id="6.1-%E7%B4%A2%E5%BC%95%E4%BE%9D%E8%B5%96" tabindex="-1">6.1 索引依赖 <a class="anchor" href="#6.1-%E7%B4%A2%E5%BC%95%E4%BE%9D%E8%B5%96">#</a></h3>
+<p>相比与Xcode常驻的代码索引来说，此插件的索引强依赖一次成功的全量编译，如果发现不能定位方法调用栈时可能是编译缓存失效了，需要再次全量编译。</p>
+<h3 id="6.2-%E5%B7%A5%E5%85%B7%E4%BE%9D%E8%B5%96" tabindex="-1">6.2 工具依赖 <a class="anchor" href="#6.2-%E5%B7%A5%E5%85%B7%E4%BE%9D%E8%B5%96">#</a></h3>
+<ul>
+<li>此插件强依赖Xcode提供的Xcode Command Line工具</li>
+<li>所有的编译&amp;运行工作其实都是在终端中调用Xcode命令行工具</li>
+<li>debug会有任务依赖，需要等待前置lunch任务执行</li>
+</ul>
+<h2 id="%E4%B8%83%E3%80%81%E5%BE%85%E8%A7%A3%E5%86%B3%E9%97%AE%E9%A2%98" tabindex="-1">七、待解决问题 <a class="anchor" href="#%E4%B8%83%E3%80%81%E5%BE%85%E8%A7%A3%E5%86%B3%E9%97%AE%E9%A2%98">#</a></h2>
+<h3 id="7.1-%E7%B3%BB%E7%BB%9F%E5%85%BC%E5%AE%B9%E6%80%A7" tabindex="-1">7.1 系统兼容性 <a class="anchor" href="#7.1-%E7%B3%BB%E7%BB%9F%E5%85%BC%E5%AE%B9%E6%80%A7">#</a></h3>
+<p>目前这种方式只支持iOS17以上的系统设备，且只支持模拟器调试。我们的项目有些三方库去掉了模拟器架构，需要调整三方库架构。</p>
+<h3 id="7.2-%E9%A1%B9%E7%9B%AE%E9%85%8D%E7%BD%AE" tabindex="-1">7.2 项目配置 <a class="anchor" href="#7.2-%E9%A1%B9%E7%9B%AE%E9%85%8D%E7%BD%AE">#</a></h3>
+<p>.xcodeproj、BuildSetting等项目配置还依赖Xcode进行编辑，需使用XcodeGen进行改造，有一些成本。</p>
+<h3 id="7.3-%E6%96%87%E4%BB%B6%E7%BB%84%E7%BB%87%E6%96%B9%E5%BC%8F" tabindex="-1">7.3 文件组织方式 <a class="anchor" href="#7.3-%E6%96%87%E4%BB%B6%E7%BB%84%E7%BB%87%E6%96%B9%E5%BC%8F">#</a></h3>
+<p>目前Xcode组织文件使用Group格式，通过Cursor创建的文件是Folder格式，需要将当前的组织方式从Group全部转成Folder，成本也比较高。</p>
+<div class="pnav"><a class="l" href="/posts/web-vitals-fast-open/"><small>上一篇</small><b>基于Web Vitals的秒开优化调研</b></a><a class="r" href="/posts/ios-i18n-dynamic/"><small>下一篇</small><b>iOS-i18n动态化思考</b></a></div></article></main>
+
+<div id="mascot" title="戳一下">
+  <div id="m-say"></div>
+  <button id="m-top" title="回到顶部" aria-label="回到顶部">↑</button>
+</div>
+<script type="module" src="/scene2d.js"></script>
+<script type="module" src="/mascot.js"></script>
+<script>
+addEventListener('keydown', function(e){
+  var P = {"prev":"/posts/web-vitals-fast-open/","next":"/posts/ios-i18n-dynamic/"};
+  // 灯箱打开时 Esc 只关灯箱,方向键不翻页
+  var lb = document.querySelector('.lb');
+  if (lb) { if (e.key === 'Escape') lb.remove(); return; }
+  if (e.key === 'ArrowLeft'  && P.prev) location.href = P.prev;
+  if (e.key === 'ArrowRight' && P.next) location.href = P.next;
+  if (e.key === 'Escape') location.href = '/#writing';
+});
+</script>
+<script>
+// 大纲高亮:滚动容器是 #art(不是 window),直接按滚动位置算当前节最可靠
+(function(){
+  var toc = document.querySelector('.toc');
+  if (!toc) return;
+  var art = document.getElementById('art');
+  var links = [].slice.call(toc.querySelectorAll('a'));
+  var map = {};
+  // id 本身已是百分号编码,直接用原始 href 做 key,不要 decode
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var heads = [].slice.call(art.querySelectorAll('h2[id],h3[id]'));
+  if (!heads.length) return;
+  var cur = null;
+
+  function paint(){
+    var top = art.getBoundingClientRect().top + 100;   // 判定线:卡片顶部下方 100px
+    var found = heads[0];
+    for (var i = 0; i < heads.length; i++){
+      if (heads[i].getBoundingClientRect().top <= top) found = heads[i]; else break;
+    }
+    // 已滚到底时强制选中最后一节,否则末节永远高亮不到
+    if (art.scrollTop + art.clientHeight >= art.scrollHeight - 4) found = heads[heads.length - 1];
+    if (found === cur) return;
+    cur = found;
+    links.forEach(function(a){ a.classList.remove('on'); });
+    var a = map[found.id];
+    if (!a) return;
+    a.classList.add('on');
+    var box = a.getBoundingClientRect(), tb = toc.getBoundingClientRect();
+    if (box.top < tb.top || box.bottom > tb.bottom) a.scrollIntoView({block:'nearest'});
+  }
+
+  var tick = false;
+  art.addEventListener('scroll', function(){
+    if (tick) return;
+    tick = true;
+    requestAnimationFrame(function(){ tick = false; paint(); });
+  }, {passive:true});
+
+  toc.addEventListener('click', function(e){
+    var a = e.target.closest('a'); if (!a) return;
+    var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if (!t) return;
+    e.preventDefault();
+    art.scrollTo({ top: art.scrollTop + t.getBoundingClientRect().top - art.getBoundingClientRect().top - 24, behavior:'smooth' });
+    history.replaceState(null, '', a.getAttribute('href'));
+  });
+  paint();
+})();
+</script>
+<script>
+// 图片灯箱:点正文图片或 Mermaid 图放大,点击 / Esc / 滚轮关闭
+document.getElementById('art').addEventListener('click', function(e){
+  var t = e.target.closest('img,.mm svg');
+  if (!t || t.closest('a')) return;
+  var lb = document.createElement('div'), c = t.cloneNode(true);
+  lb.className = 'lb';
+  if (c.tagName !== 'IMG') {
+    // SVG 没有固有的"原图尺寸",按视口等比放大
+    var r = t.getBoundingClientRect();
+    var k = Math.min(innerWidth * .92 / r.width, innerHeight * .9 / r.height);
+    c.style.width = r.width * k + 'px';
+    c.style.height = r.height * k + 'px';
+  }
+  lb.appendChild(c);
+  lb.onclick = lb.onwheel = function(){ lb.remove(); };
+  document.body.appendChild(lb);
+});
+</script>
+<script>
+// 代码块复制
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('.cb-c');
+  if (!btn) return;
+  var pre = btn.parentElement.querySelector('pre');
+  if (!pre) return;
+  var text = pre.innerText;
+  var done = function(){
+    btn.textContent = '已复制'; btn.classList.add('ok');
+    setTimeout(function(){ btn.textContent = '复制'; btn.classList.remove('ok'); }, 1600);
+  };
+  // clipboard API 需要安全上下文(https 或 localhost),否则回退到 execCommand
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else fallback();
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (err) { btn.textContent = '复制失败'; }
+    document.body.removeChild(ta);
+  }
+});
+</script>
+</body></html>

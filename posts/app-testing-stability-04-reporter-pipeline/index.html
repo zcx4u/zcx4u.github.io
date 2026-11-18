@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>APP自动化测试实践 稳定性·04：从数据到结论——报告、判定与页面覆盖率 — fatbruin</title>
+<meta name="description" content="原始数据到报告、PASS/WARN/FAIL 判定、每晚自动跑，以及页面覆盖率从 13% 提上来的过程。"><meta property="og:type" content="article"><meta property="og:site_name" content="fatbruin"><meta property="og:title" content="APP自动化测试实践 稳定性·04：从数据到结论——报告、判定与页面覆盖率"><meta property="og:description" content="原始数据到报告、PASS/WARN/FAIL 判定、每晚自动跑，以及页面覆盖率从 13% 提上来的过程。"><meta property="og:url" content="https://www.umuer.com/posts/app-testing-stability-04-reporter-pipeline/"><meta property="og:image" content="https://www.umuer.com/og.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta name="twitter:card" content="summary_large_image"><link rel="canonical" href="https://www.umuer.com/posts/app-testing-stability-04-reporter-pipeline/">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Noto+Serif+SC:wght@400;600&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="fatbruin" href="/rss.xml">
+<script>(function(){var n=null;try{n=localStorage.getItem('fatbruin-night')}catch(e){}var h=new Date().getHours();if(n?n==='1':(h>=19||h<6))document.documentElement.classList.add('night')})()</script>
+<link rel="stylesheet" href="/styles/base.0282236f.css">
+<link rel="stylesheet" href="/styles/post.0bb29940.css"></head>
+<body class="post">
+<div id="scene"></div>
+<div class="topbar"><div class="navl"><a class="back" href="/#writing">← 回到小屋</a><a class="back nav-fallback" href="/posts/">全部文章 →</a></div><div class="brand">fat<span>bruin</span></div></div>
+<main><nav class="toc" aria-label="目录"><p class="toc-h">目录</p><ol><li class="l2"><a href="#%E4%B8%80%E3%80%81%E6%8A%A5%E5%91%8A%E6%A8%A1%E5%9D%97%EF%BC%9A%E5%94%AF%E4%B8%80%E7%9A%84%E8%B7%A8%E5%B9%B3%E5%8F%B0%E6%B1%87%E8%81%9A%E7%82%B9">一、报告模块：唯一的跨平台汇聚点</a></li><li class="l2"><a href="#%E4%BA%8C%E3%80%81%E5%86%85%E5%AD%98%EF%BC%9A%E7%9C%8B%E6%B0%B4%E4%BD%8D%EF%BC%8C%E6%9B%B4%E8%A6%81%E7%9C%8B%E8%B6%8B%E5%8A%BF">二、内存：看水位，更要看趋势</a></li><li class="l3"><a href="#%E6%B3%84%E6%BC%8F%E8%A6%81%E7%9C%8B%E8%B6%8B%E5%8A%BF">泄漏要看趋势</a></li><li class="l3"><a href="#oom-%E9%A3%8E%E9%99%A9%E4%B8%8E%E8%AE%BE%E5%A4%87%E6%A1%A3%E4%BD%8D">OOM 风险与设备档位</a></li><li class="l3"><a href="#%E6%95%B0%E6%8D%AE%E6%9C%AC%E8%BA%AB%E5%8F%AF%E4%B8%8D%E5%8F%AF%E4%BF%A1">数据本身可不可信</a></li><li class="l2"><a href="#%E4%B8%89%E3%80%81cpu%EF%BC%9A%E5%8F%AA%E5%B1%95%E7%A4%BA%EF%BC%8C%E4%B8%8D%E5%88%A4%E5%AE%9A">三、CPU：只展示，不判定</a></li><li class="l2"><a href="#%E5%9B%9B%E3%80%81%E5%B4%A9%E6%BA%83%EF%BC%9A%E5%8E%BB%E9%87%8D%E4%B9%8B%E5%90%8E%E6%89%8D%E6%9C%89%E4%BF%A1%E6%81%AF%E9%87%8F">四、崩溃：去重之后才有信息量</a></li><li class="l3"><a href="#%E6%8C%87%E7%BA%B9%E5%8E%BB%E9%87%8D">指纹去重</a></li><li class="l3"><a href="#%E5%88%A4%E5%AE%9A%EF%BC%9A%E9%9B%B6%E5%AE%B9%E5%BF%8D%EF%BC%8C%E4%BD%86%E8%A6%81%E5%88%86%E6%B8%85%E6%98%AF%E8%B0%81%E7%9A%84%E9%94%99">判定：零容忍，但要分清是谁的错</a></li><li class="l3"><a href="#%E6%80%BB%E4%BD%93%E7%BB%93%E8%AE%BA">总体结论</a></li><li class="l2"><a href="#%E4%BA%94%E3%80%81%E6%8A%A5%E5%91%8A%E9%95%BF%E4%BB%80%E4%B9%88%E6%A0%B7">五、报告长什么样</a></li><li class="l2"><a href="#%E5%85%AD%E3%80%81%E9%A1%B5%E9%9D%A2%E8%A6%86%E7%9B%96%E7%8E%87%EF%BC%9A%E4%B8%80%E4%B8%AA%E6%8C%87%E6%A0%87%E5%BC%95%E5%87%BA%E7%9A%84%E4%B8%93%E9%A1%B9">六、页面覆盖率：一个指标引出的专项</a></li><li class="l3"><a href="#%E8%B5%B7%E7%82%B9%EF%BC%9A10-%E5%B0%8F%E6%97%B6%E5%8F%AA%E6%9C%89-13%25">起点：10 小时只有 13%</a></li><li class="l3"><a href="#%E6%A0%B9%E5%9B%A0%E4%B8%80%EF%BC%9A%E6%97%B6%E9%97%B4%E5%88%86%E9%85%8D%E4%B8%A5%E9%87%8D%E4%B8%8D%E5%9D%87">根因一：时间分配严重不均</a></li><li class="l3"><a href="#%E6%A0%B9%E5%9B%A0%E4%BA%8C%EF%BC%9Aflutter-%E9%A1%B5%E9%9D%A2%E4%B8%8D%E9%80%8F%E6%98%8E">根因二：Flutter 页面不透明</a></li><li class="l3"><a href="#%E8%A7%A3%E6%B3%95%E4%B8%80%EF%BC%9A%E5%A4%9A%E8%B4%A6%E5%8F%B7%E5%88%86%E5%8C%BA%E9%87%87%E9%9B%86">解法一：多账号分区采集</a></li><li class="l3"><a href="#%E8%A7%A3%E6%B3%95%E4%BA%8C%EF%BC%9A%E5%B9%B6%E9%9B%86%E8%81%9A%E5%90%88">解法二：并集聚合</a></li><li class="l3"><a href="#%E8%A7%A3%E6%B3%95%E4%B8%89%EF%BC%9A%E8%AE%A9-flutter-%E9%A1%B5%E9%9D%A2%E5%8F%AF%E8%A7%81">解法三：让 Flutter 页面可见</a></li><li class="l2"><a href="#%E4%B8%83%E3%80%81%E8%AE%A9%E6%B5%8B%E8%AF%95%E6%AF%8F%E6%99%9A%E8%87%AA%E5%8A%A8%E8%B7%91%E8%B5%B7%E6%9D%A5">七、让测试每晚自动跑起来</a></li><li class="l3"><a href="#%E4%B8%80%E6%9D%A1%E5%91%BD%E4%BB%A4%EF%BC%8C%E5%85%A8%E8%87%AA%E5%8A%A8">一条命令，全自动</a></li><li class="l3"><a href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E7%94%A8%E4%BA%91%E7%AB%AF-ci">为什么不用云端 CI</a></li><li class="l3"><a href="#%E7%BB%93%E8%AE%BA%E6%80%8E%E4%B9%88%E9%80%81%E5%88%B0%E4%BA%BA%E6%89%8B%E9%87%8C">结论怎么送到人手里</a></li><li class="l2"><a href="#%E5%85%AB%E3%80%81%E8%BF%99%E4%B8%80%E7%AF%87%E7%9A%84%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA">八、这一篇的核心结论</a></li><li class="l2"><a href="#%E4%B8%8B%E4%B8%80%E7%AF%87%E9%A2%84%E5%91%8A">下一篇预告</a></li></ol><a class="toc-all" href="/posts/">全部文章 →</a></nav><article id="art"><p class="meta"><span>2026.10.05</span><span>Testing</span><span>15 分钟</span></p><h1>APP自动化测试实践 稳定性·04：从数据到结论——报告、判定与页面覆盖率</h1><p class="sum">原始数据到报告、PASS/WARN/FAIL 判定、每晚自动跑，以及页面覆盖率从 13% 提上来的过程。</p><details class="series"><summary><small>系列</small><b>AI背景下的APP端自动化测试实践</b><span>第 5 / 9 篇</span></summary><ol><li><a href="/posts/app-testing-00-map/">APP自动化测试实践·00：APP 测试这件事——完整地图</a></li><li><a href="/posts/app-testing-stability-01-concepts/">APP自动化测试实践 稳定性·01：稳定性测试——概念与核心机制</a></li><li><a href="/posts/app-testing-stability-02-ios-toolchain/">APP自动化测试实践 稳定性·02：iOS 工具链——从 tidevice 到 CoreDevice 的工具演进</a></li><li><a href="/posts/app-testing-stability-03-android-toolchain/">APP自动化测试实践 稳定性·03：Android 工具链——adb 怎么采集数据，Fastbot 怎么驱动 App</a></li><li class="on">APP自动化测试实践 稳定性·04：从数据到结论——报告、判定与页面覆盖率</li><li><a href="/posts/app-testing-e2e-01-concepts/">APP自动化测试实践 E2E·01：E2E 测试——从零讲透概念与核心机制</a></li><li><a href="/posts/app-testing-e2e-02-tool-selection/">APP自动化测试实践 E2E·02：工具选型——业界 E2E 方案对比与我们的选择</a></li><li><a href="/posts/app-testing-e2e-03-llm-appium-plugin/">APP自动化测试实践 E2E·03：让大模型来写用例、跑用例——Appium 插件与 stub 直驱</a></li><li><a href="/posts/app-testing-e2e-04-ai-drive-real-device/">APP自动化测试实践 E2E·04：让 AI 直接操作真机 App——注入式 stub 的思路与取舍</a></li></ol></details><blockquote>
+<p>本文是系列《AI背景下的APP端自动化测试实践》稳定性测试部分的第四篇。</p>
+<p>前三篇讲的都是&quot;怎么把数据采上来&quot;。这一篇讲采完之后的事：原始数据怎么变成一份人能读懂的报告，PASS、WARN、FAIL 是怎么判出来的，测试怎么每晚自动跑起来；以及我们花了最多心思的一个指标——页面覆盖率，它为什么一开始只有 13%，又是怎么一步步提上来的。</p>
+</blockquote>
+<hr>
+<h2 id="%E4%B8%80%E3%80%81%E6%8A%A5%E5%91%8A%E6%A8%A1%E5%9D%97%EF%BC%9A%E5%94%AF%E4%B8%80%E7%9A%84%E8%B7%A8%E5%B9%B3%E5%8F%B0%E6%B1%87%E8%81%9A%E7%82%B9" tabindex="-1">一、报告模块：唯一的跨平台汇聚点 <a class="anchor" href="#%E4%B8%80%E3%80%81%E6%8A%A5%E5%91%8A%E6%A8%A1%E5%9D%97%EF%BC%9A%E5%94%AF%E4%B8%80%E7%9A%84%E8%B7%A8%E5%B9%B3%E5%8F%B0%E6%B1%87%E8%81%9A%E7%82%B9">#</a></h2>
+<p>回顾整个框架的数据流，iOS 和 Android 的采集方式几乎没有一处相同，但它们最终都汇入同一个出口：</p>
+<div class="cb"><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code>iOS 采集                       Android 采集
+  perf_raw.jsonl  ──┐            perf_raw.jsonl  ──┐
+  crashes.jsonl   ──┤            crashes.jsonl   ──┤
+  coverage.json   ──┤            coverage.json   ──┤
+                    v                              v
+              reporter.py（两端共用）
+                    │
+       report.json · report.html · Slack 告警
+</code></pre>
+</div><p>两端的采集脚本在写文件时就把格式统一了：<code>perf_raw.jsonl</code> 每行是一个时间点的性能快照，<code>crashes.jsonl</code> 每行是一条崩溃记录，<code>coverage.json</code> 记录本次访问过的页面。报告模块只认这三个文件，不关心数据是怎么来的。</p>
+<p>这个设计的好处是，<strong>将来接入一个新平台（比如鸿蒙），只需要写新平台的采集脚本，报告部分一行都不用改。</strong> 报告的判定逻辑、HTML 模板、告警推送也因此只维护一份，两端的报告长得一模一样，方便对比。</p>
+<hr>
+<h2 id="%E4%BA%8C%E3%80%81%E5%86%85%E5%AD%98%EF%BC%9A%E7%9C%8B%E6%B0%B4%E4%BD%8D%EF%BC%8C%E6%9B%B4%E8%A6%81%E7%9C%8B%E8%B6%8B%E5%8A%BF" tabindex="-1">二、内存：看水位，更要看趋势 <a class="anchor" href="#%E4%BA%8C%E3%80%81%E5%86%85%E5%AD%98%EF%BC%9A%E7%9C%8B%E6%B0%B4%E4%BD%8D%EF%BC%8C%E6%9B%B4%E8%A6%81%E7%9C%8B%E8%B6%8B%E5%8A%BF">#</a></h2>
+<p>报告模块读取全部内存采样点，先算出几个基本指标：均值、峰值和 P95。</p>
+<p>为什么在峰值之外还要看 P95？因为峰值很容易被一次瞬间的毛刺拉高，比如加载一张大图的那一刹那，它不代表 App 长期处在这个水位。P95 去掉了最高的 5% 采样点，回答的是&quot;除了偶发的极端情况，App 的内存高水位大概在哪&quot;，更能代表用户的真实体验。</p>
+<h3 id="%E6%B3%84%E6%BC%8F%E8%A6%81%E7%9C%8B%E8%B6%8B%E5%8A%BF" tabindex="-1">泄漏要看趋势 <a class="anchor" href="#%E6%B3%84%E6%BC%8F%E8%A6%81%E7%9C%8B%E8%B6%8B%E5%8A%BF">#</a></h3>
+<p>内存泄漏不能靠峰值判断，要看<strong>趋势</strong>。我们的做法很朴素：比较测试后 20% 时间段的内存均值和前 20% 的均值，差值超过 50MB 就标记为&quot;疑似泄漏&quot;。</p>
+<p>正常的 App 内存会随着页面进出起起落落，但总体围绕一条基线波动；泄漏的 App 则是一路上涨、从不回落。前后两段均值一比，趋势就出来了。</p>
+<p>需要说明的是，&quot;疑似泄漏&quot;目前只在报告里展示，<strong>不参与判定</strong>。Monkey 测试的操作路径是随机的，后半段恰好走进了图片、视频密集的页面，均值自然会高，单凭这一个信号直接判 WARN 会产生太多误报。它更适合作为人工复查时的线索。</p>
+<h3 id="oom-%E9%A3%8E%E9%99%A9%E4%B8%8E%E8%AE%BE%E5%A4%87%E6%A1%A3%E4%BD%8D" tabindex="-1">OOM 风险与设备档位 <a class="anchor" href="#oom-%E9%A3%8E%E9%99%A9%E4%B8%8E%E8%AE%BE%E5%A4%87%E6%A1%A3%E4%BD%8D">#</a></h3>
+<p>判定看的是峰值。我们按设备的物理内存大小分了几个档位，每档设置不同的警戒线：</p>
+<div class="tw"><table><thead>
+<tr>
+<th>设备内存</th>
+<th>峰值超过此值判 WARN</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4GB</td>
+<td>1200MB</td>
+</tr>
+<tr>
+<td>6GB</td>
+<td>1500MB</td>
+</tr>
+<tr>
+<td>8GB</td>
+<td>2000MB</td>
+</tr>
+</tbody>
+</table></div><p>此外，如果峰值超过设备总内存的 70%，就认为有被系统强杀的风险，直接判 FAIL。</p>
+<p>设备的总内存无法通过命令动态查询，所以每台测试设备在注册时都必须手动填写这个值（查设备规格表），否则报告无法计算 OOM 阈值。</p>
+<h3 id="%E6%95%B0%E6%8D%AE%E6%9C%AC%E8%BA%AB%E5%8F%AF%E4%B8%8D%E5%8F%AF%E4%BF%A1" tabindex="-1">数据本身可不可信 <a class="anchor" href="#%E6%95%B0%E6%8D%AE%E6%9C%AC%E8%BA%AB%E5%8F%AF%E4%B8%8D%E5%8F%AF%E4%BF%A1">#</a></h3>
+<p>还有一种情况容易被忽略：采集本身出了问题。比如性能采集进程中途挂掉，或者长时间挂载不上，结果整份报告的内存数据只有寥寥几个点，算出来的峰值低得漂亮，报告却静默地判了 PASS。</p>
+<p>为此，报告模块会读取采集器记录的&quot;采集覆盖度&quot;：实际采到数据的时长占计划时长的比例。低于 80% 时，认为内存数据不可信，判为 WARN；内存数据完全为空时也一样。<strong>宁可让人看一眼，也不能让数据丢失伪装成一切正常。</strong></p>
+<hr>
+<h2 id="%E4%B8%89%E3%80%81cpu%EF%BC%9A%E5%8F%AA%E5%B1%95%E7%A4%BA%EF%BC%8C%E4%B8%8D%E5%88%A4%E5%AE%9A" tabindex="-1">三、CPU：只展示，不判定 <a class="anchor" href="#%E4%B8%89%E3%80%81cpu%EF%BC%9A%E5%8F%AA%E5%B1%95%E7%A4%BA%EF%BC%8C%E4%B8%8D%E5%88%A4%E5%AE%9A">#</a></h2>
+<p>CPU 使用率同样会计算均值和 P95，并在报告里画出折线图，但它不参与判定。</p>
+<p>原因在于 Monkey 场景下的 CPU 高低很难定义&quot;正常&quot;：Fastbot 每 300 毫秒就操作一次，App 一直在加载页面、渲染列表，CPU 本来就不会低；不同页面之间差异也很大。在没有稳定基线之前强行设阈值，只会制造噪音。CPU 数据目前主要用于人工排查和版本间的对比。</p>
+<p>FPS 两端目前都没有采集，阈值配置里虽然预留了卡顿和冻屏的参数，但还没有启用。</p>
+<hr>
+<h2 id="%E5%9B%9B%E3%80%81%E5%B4%A9%E6%BA%83%EF%BC%9A%E5%8E%BB%E9%87%8D%E4%B9%8B%E5%90%8E%E6%89%8D%E6%9C%89%E4%BF%A1%E6%81%AF%E9%87%8F" tabindex="-1">四、崩溃：去重之后才有信息量 <a class="anchor" href="#%E5%9B%9B%E3%80%81%E5%B4%A9%E6%BA%83%EF%BC%9A%E5%8E%BB%E9%87%8D%E4%B9%8B%E5%90%8E%E6%89%8D%E6%9C%89%E4%BF%A1%E6%81%AF%E9%87%8F">#</a></h2>
+<h3 id="%E6%8C%87%E7%BA%B9%E5%8E%BB%E9%87%8D" tabindex="-1">指纹去重 <a class="anchor" href="#%E6%8C%87%E7%BA%B9%E5%8E%BB%E9%87%8D">#</a></h3>
+<p>同一个 Bug 在几个小时的测试里可能被触发几十次。如果报告只说&quot;崩溃了 30 次&quot;，读者无法判断这是一个问题反复出现，还是 30 个不同的问题。</p>
+<p>所以每条崩溃记录都会生成一个<strong>指纹</strong>：由异常类型加崩溃线程最顶层的函数组成，比如 <code>EXC_BAD_ACCESS|-[XXXViewController dealloc]</code>。指纹相同就视为同一个问题。报告展示的是&quot;<strong>N 种崩溃，共触发 M 次</strong>&quot;，这比单纯的次数有信息量得多：1 种崩溃触发 100 次，和 100 种崩溃各触发 1 次，是完全不同的严重程度。</p>
+<p>iOS 上，系统因内存过高强杀 App 时会留下 Jetsam 记录，这类事件同样会被识别出来，归入单独的指纹。</p>
+<h3 id="%E5%88%A4%E5%AE%9A%EF%BC%9A%E9%9B%B6%E5%AE%B9%E5%BF%8D%EF%BC%8C%E4%BD%86%E8%A6%81%E5%88%86%E6%B8%85%E6%98%AF%E8%B0%81%E7%9A%84%E9%94%99" tabindex="-1">判定：零容忍，但要分清是谁的错 <a class="anchor" href="#%E5%88%A4%E5%AE%9A%EF%BC%9A%E9%9B%B6%E5%AE%B9%E5%BF%8D%EF%BC%8C%E4%BD%86%E8%A6%81%E5%88%86%E6%B8%85%E6%98%AF%E8%B0%81%E7%9A%84%E9%94%99">#</a></h3>
+<p>崩溃的判定规则很简单：只要出现一次 App 自身的崩溃，就判 FAIL。内存有&quot;勉强可接受&quot;的灰色地带，崩溃没有，用户体验是零容忍的。</p>
+<p>但&quot;App 自身&quot;这几个字很重要。长期运行下来，我们发现有两类&quot;崩溃&quot;并不是 App 的问题：一类是测试工具（注入的 stub）自己引起的崩溃，另一类是 Android 上的 ANR。它们都单独计数，只判 WARN，不判 FAIL。如果不做这层区分，测试工具的 Bug 会被当成 App 的 Bug 报出去，整套告警的可信度也就没了。</p>
+<h3 id="%E6%80%BB%E4%BD%93%E7%BB%93%E8%AE%BA" tabindex="-1">总体结论 <a class="anchor" href="#%E6%80%BB%E4%BD%93%E7%BB%93%E8%AE%BA">#</a></h3>
+<p>最终结论取各项中最严重的那个：任何一项 FAIL，整体就是 FAIL；没有 FAIL 但有 WARN，整体就是 WARN；全部通过才是 PASS。参与判定的是内存水位、内存数据可信度、崩溃、ANR 这四项。</p>
+<hr>
+<h2 id="%E4%BA%94%E3%80%81%E6%8A%A5%E5%91%8A%E9%95%BF%E4%BB%80%E4%B9%88%E6%A0%B7" tabindex="-1">五、报告长什么样 <a class="anchor" href="#%E4%BA%94%E3%80%81%E6%8A%A5%E5%91%8A%E9%95%BF%E4%BB%80%E4%B9%88%E6%A0%B7">#</a></h2>
+<p>每次运行产出两份文件。</p>
+<p><strong><code>report.json</code> 给机器读。</strong> 它包含结论、各项指标和元信息，管理后台、批次汇总、告警推送都从这里取数据：</p>
+<div class="cb"><span class="cb-l">json</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-json"><span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;result&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;WARN&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;meta&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span> <span class="hljs-attr">&quot;device&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span> <span class="hljs-attr">&quot;model&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;iPhone 14 Pro Max&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;total_ram_mb&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">6144</span> <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;duration&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">18000</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;account&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;bruin&quot;</span> <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;memory&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span> <span class="hljs-attr">&quot;avg_mb&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">318.4</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;peak_mb&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">681.7</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;p95_mb&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">512.0</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;growth_mb&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">37.3</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;leak_suspected&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">false</span></span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;oom_risk&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">false</span></span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;status&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;PASS&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;completeness&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0.97</span> <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;cpu&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span> <span class="hljs-attr">&quot;cpu_avg&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">12.1</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;cpu_p95&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">24.3</span> <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;crash&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span> <span class="hljs-attr">&quot;total_count&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;unique_count&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;anr_count&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;stub_crash_count&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;status&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;WARN&quot;</span> <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;coverage&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span> <span class="hljs-attr">&quot;native_rate&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">35.5</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;flutter_rate&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">18.7</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;overall_rate&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">27.9</span> <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span>
+</code></pre>
+</div><p>写这个文件时用的是&quot;先写临时文件再改名&quot;的原子写法：长时间任务随时可能被中断，绝不能留下一份写了一半的 JSON，让下游读到半截数据。</p>
+<p><strong><code>report.html</code> 给人读。</strong> 打开就能看到结论徽章、内存和 CPU 的趋势折线图、崩溃列表（附可下载的原始崩溃日志）以及访问过的页面清单。</p>
+<p>折线图有一个细节值得一提。5 小时的长跑单账号就有上万个采样点，全部画出来，线又密又抖，真正重要的峰值反而淹没在噪声里。我们在渲染前用 LTTB 算法把点抽稀到 300 个左右。它和滑动平均不同，挑代表点时会专门保留极值，所以内存峰值和 CPU 尖峰不会被抹平。在稳定性报告里，峰值本身就是信号。</p>
+<hr>
+<h2 id="%E5%85%AD%E3%80%81%E9%A1%B5%E9%9D%A2%E8%A6%86%E7%9B%96%E7%8E%87%EF%BC%9A%E4%B8%80%E4%B8%AA%E6%8C%87%E6%A0%87%E5%BC%95%E5%87%BA%E7%9A%84%E4%B8%93%E9%A1%B9" tabindex="-1">六、页面覆盖率：一个指标引出的专项 <a class="anchor" href="#%E5%85%AD%E3%80%81%E9%A1%B5%E9%9D%A2%E8%A6%86%E7%9B%96%E7%8E%87%EF%BC%9A%E4%B8%80%E4%B8%AA%E6%8C%87%E6%A0%87%E5%BC%95%E5%87%BA%E7%9A%84%E4%B8%93%E9%A1%B9">#</a></h2>
+<p>前面的指标回答的是&quot;App 稳不稳&quot;。但还有一个问题同样重要：<strong>测试到底测到了多少？</strong> 如果 Fastbot 跑了 10 个小时都在同一个页面里打转，报告再干净也说明不了什么。页面覆盖率就是回答这个问题的：访问过的业务页面数，除以 App 里的业务页面总数。</p>
+<p>分母来自对安装包的静态扫描（见第二、三篇），分子来自测试过程中记录的页面访问日志。覆盖率会在报告里展示，但<strong>不参与总判定</strong>：短时任务或单账号任务的覆盖率天然偏低，用它卡结论并不公平。</p>
+<h3 id="%E8%B5%B7%E7%82%B9%EF%BC%9A10-%E5%B0%8F%E6%97%B6%E5%8F%AA%E6%9C%89-13%25" tabindex="-1">起点：10 小时只有 13% <a class="anchor" href="#%E8%B5%B7%E7%82%B9%EF%BC%9A10-%E5%B0%8F%E6%97%B6%E5%8F%AA%E6%9C%89-13%25">#</a></h3>
+<p>第一次认真看这个数字时，我们吓了一跳：iOS 一轮 10 小时的遍历，总覆盖率只有 13.3%，其中原生页面 17.7%，Flutter 页面只有 7.9%。可同一轮里，Fastbot 走出了 1596 个不同的界面状态，执行了 9395 次操作，它显然没有卡住不动。低覆盖不是&quot;跑得不够&quot;，而是结构性的问题。</p>
+<p>最初的两个猜测都被实测推翻了。一是怀疑探索深度设得太浅，但日志显示新页面一直在零星增加，深层页面也能到达，只是到得慢。二是怀疑底部的 Tab 按钮看不见，但真机上逐个检查，五个 Tab 都能看见、都能点。</p>
+<h3 id="%E6%A0%B9%E5%9B%A0%E4%B8%80%EF%BC%9A%E6%97%B6%E9%97%B4%E5%88%86%E9%85%8D%E4%B8%A5%E9%87%8D%E4%B8%8D%E5%9D%87" tabindex="-1">根因一：时间分配严重不均 <a class="anchor" href="#%E6%A0%B9%E5%9B%A0%E4%B8%80%EF%BC%9A%E6%97%B6%E9%97%B4%E5%88%86%E9%85%8D%E4%B8%A5%E9%87%8D%E4%B8%8D%E5%9D%87">#</a></h3>
+<p>把 10 小时里的所有点击按底部 Tab 归类，问题一目了然：</p>
+<div class="tw"><table><thead>
+<tr>
+<th>Tab</th>
+<th>Fastbot 点击次数</th>
+<th>探索情况</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>课程（最左）</td>
+<td>888</td>
+<td>充分</td>
+</tr>
+<tr>
+<td>首页</td>
+<td>约 0</td>
+<td>几乎没进</td>
+</tr>
+<tr>
+<td>个人中心</td>
+<td>约 0</td>
+<td>几乎没进</td>
+</tr>
+<tr>
+<td>我的工作台</td>
+<td>约 0</td>
+<td>几乎没进</td>
+</tr>
+<tr>
+<td>部门看板（最右）</td>
+<td>895</td>
+<td>充分</td>
+</tr>
+</tbody>
+</table></div><p>Fastbot 的探索策略天然偏爱能不断产出新状态的&quot;大子树&quot;。App 启动后落在课程 Tab，它一头扎进课程和部门看板这两棵最深最富的子树，就再也出不来了，中间三个 Tab 的整块业务从头到尾几乎没碰过。问题不在于点不到，而在于有限的时间没有被摊开。</p>
+<h3 id="%E6%A0%B9%E5%9B%A0%E4%BA%8C%EF%BC%9Aflutter-%E9%A1%B5%E9%9D%A2%E4%B8%8D%E9%80%8F%E6%98%8E" tabindex="-1">根因二：Flutter 页面不透明 <a class="anchor" href="#%E6%A0%B9%E5%9B%A0%E4%BA%8C%EF%BC%9Aflutter-%E9%A1%B5%E9%9D%A2%E4%B8%8D%E9%80%8F%E6%98%8E">#</a></h3>
+<p>点击热点里有一个覆盖整个屏幕的元素，被点了整整 2854 次，占全部点击的三分之一。这正是 Flutter 页面在 Fastbot 眼里的样子：整页坍缩成一个大块，里面几十个按钮、列表一个都看不见。Fastbot 点几次发现没收获，就会降低它的权重、彻底放弃，因为里面的控件自始至终就没有可点的入口。这是给再多时间也解决不了的硬天花板。</p>
+<h3 id="%E8%A7%A3%E6%B3%95%E4%B8%80%EF%BC%9A%E5%A4%9A%E8%B4%A6%E5%8F%B7%E5%88%86%E5%8C%BA%E9%87%87%E9%9B%86" tabindex="-1">解法一：多账号分区采集 <a class="anchor" href="#%E8%A7%A3%E6%B3%95%E4%B8%80%EF%BC%9A%E5%A4%9A%E8%B4%A6%E5%8F%B7%E5%88%86%E5%8C%BA%E9%87%87%E9%9B%86">#</a></h3>
+<p>针对时间分配不均，我们借助了 UMU 的一个现成特性：底部 Tab 的显示与隐藏，由后台按账号配置。只要登录不同的账号，Fastbot 能看到的 Tab 就不同，它会被&quot;天然聚焦&quot;在这个账号可见的几个 Tab 上，Fastbot 本身一行代码都不用改。</p>
+<p>难点在于登录。Fastbot 是随机操作，不可能输对账号密码。我们的做法是在注入的 stub 里加一个&quot;自动登录&quot;能力：App 启动时，如果启动参数里带了登录令牌，stub 就调用 App 自带的令牌登录接口静默完成登录；换账号时先清掉旧的登录态。这段逻辑只存在于注入了 stub 的测试包里，正式包没有，不会外泄。令牌只保存在本机的配置文件里，不进代码仓库，也不写进任何报告。</p>
+<p>这里还踩过一个坑：传给 App 的多个启动参数要用冒号分隔，一开始误用了空格，登录参数被并进了端口参数里，从未生效。偏偏端口参数取整数时仍能解析出正确的端口，服务照常启动，把失败完全掩盖了。</p>
+<p>实际运行时，夜间任务会依次用两个专用测试账号各跑 5 小时。专用账号很重要：Fastbot 会随机创建、修改、删除数据，绝不能用真人账号或共享账号去跑。</p>
+<h3 id="%E8%A7%A3%E6%B3%95%E4%BA%8C%EF%BC%9A%E5%B9%B6%E9%9B%86%E8%81%9A%E5%90%88" tabindex="-1">解法二：并集聚合 <a class="anchor" href="#%E8%A7%A3%E6%B3%95%E4%BA%8C%EF%BC%9A%E5%B9%B6%E9%9B%86%E8%81%9A%E5%90%88">#</a></h3>
+<p>多个账号各自跑完后，单看每一份报告，覆盖率都不高。必须把它们访问过的页面<strong>求并集</strong>，再对同一个分母计算，才是这一轮测试真实的总覆盖。</p>
+<p>我们用目录结构本身来表达&quot;批次&quot;：一次多账号运行就是一个批次文件夹，每个账号各占一个子目录，存放自己的完整报告；全部跑完后，汇总脚本扫描这些子目录，把访问过的页面按原生和 Flutter 分别去重求并集，生成批次级的汇总数据和一份富报告。汇总报告复用了单次报告的同一个模板，内存曲线也会把各账号的数据拼成一条连续的长线。同时还会算出每个账号的&quot;独占贡献&quot;，也就是只有它到过、其他账号都没到过的页面数，用来评估每个账号的 Tab 配置是否合理。</p>
+<p>第一晚的实测结果验证了这个思路：</p>
+<div class="tw"><table><thead>
+<tr>
+<th></th>
+<th>账号 A 单跑</th>
+<th>账号 B 单跑</th>
+<th><strong>并集</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>总覆盖率</td>
+<td>14.3%</td>
+<td>12.2%</td>
+<td><strong>21.4%</strong></td>
+</tr>
+<tr>
+<td>独占页面数</td>
+<td>47</td>
+<td>36</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div><p>两个账号各自的覆盖率和过去单账号的水平差不多，但并集一下跳到了 21.4%。两个账号各自独占了几十个对方到不了的页面，说明分区确实把探索时间摊开了。</p>
+<h3 id="%E8%A7%A3%E6%B3%95%E4%B8%89%EF%BC%9A%E8%AE%A9-flutter-%E9%A1%B5%E9%9D%A2%E5%8F%AF%E8%A7%81" tabindex="-1">解法三：让 Flutter 页面可见 <a class="anchor" href="#%E8%A7%A3%E6%B3%95%E4%B8%89%EF%BC%9A%E8%AE%A9-flutter-%E9%A1%B5%E9%9D%A2%E5%8F%AF%E8%A7%81">#</a></h3>
+<p>Flutter 的天花板，靠调度是解决不了的。我们后来从 Dart 侧补了一条通道，把 Flutter 页面里可点、可滚动的节点作为虚拟子节点交给 Fastbot，同时修正了 stub 里一处可点判定的坐标换算错误。这组改动上线后的第一晚，总覆盖率达到 27.9%，其中 Flutter 页面从 8% 左右提升到 18.7%。具体做法在 E2E 系列第四篇《让 AI 直接操作真机 App》中有详细说明。</p>
+<p>回头看，覆盖率从 13% 到 28% 的提升，没有一项来自&quot;让 Fastbot 更聪明&quot;，而都来自&quot;让它看得见、让它的时间花得更均匀&quot;。</p>
+<hr>
+<h2 id="%E4%B8%83%E3%80%81%E8%AE%A9%E6%B5%8B%E8%AF%95%E6%AF%8F%E6%99%9A%E8%87%AA%E5%8A%A8%E8%B7%91%E8%B5%B7%E6%9D%A5" tabindex="-1">七、让测试每晚自动跑起来 <a class="anchor" href="#%E4%B8%83%E3%80%81%E8%AE%A9%E6%B5%8B%E8%AF%95%E6%AF%8F%E6%99%9A%E8%87%AA%E5%8A%A8%E8%B7%91%E8%B5%B7%E6%9D%A5">#</a></h2>
+<h3 id="%E4%B8%80%E6%9D%A1%E5%91%BD%E4%BB%A4%EF%BC%8C%E5%85%A8%E8%87%AA%E5%8A%A8" tabindex="-1">一条命令，全自动 <a class="anchor" href="#%E4%B8%80%E6%9D%A1%E5%91%BD%E4%BB%A4%EF%BC%8C%E5%85%A8%E8%87%AA%E5%8A%A8">#</a></h3>
+<p>整个框架的入口只有一个：</p>
+<div class="cb"><span class="cb-l">bash</span><button class="cb-c" type="button" aria-label="复制代码">复制</button><pre><code class="language-bash">python3 project/stability/iOS/src/run.py --config &lt;运行配置&gt;
+</code></pre>
+</div><p>运行配置里声明了设备、被测包、时长、要用哪些账号。主控脚本据此安装测试包、启动 Fastbot 和各个采集器、逐个账号运行、最后生成报告和批次汇总，全程不需要人参与。</p>
+<h3 id="%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E7%94%A8%E4%BA%91%E7%AB%AF-ci" tabindex="-1">为什么不用云端 CI <a class="anchor" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E7%94%A8%E4%BA%91%E7%AB%AF-ci">#</a></h3>
+<p>最初的设计是接入 GitHub Actions 这类 CI 流水线。但 iOS 测试必须在 USB 连接的真机上跑，云端的 Linux 主机连不了设备，只能用一台实体 Mac 作为自托管的执行机。既然无论如何都需要这台常驻的 Mac，最终我们选择了更简单直接的方式：在一台 Mac mini 上用 macOS 自带的定时任务（launchd）每晚 23:00 触发，iOS 和 Android 测试机都连在这台机器上。</p>
+<h3 id="%E7%BB%93%E8%AE%BA%E6%80%8E%E4%B9%88%E9%80%81%E5%88%B0%E4%BA%BA%E6%89%8B%E9%87%8C" tabindex="-1">结论怎么送到人手里 <a class="anchor" href="#%E7%BB%93%E8%AE%BA%E6%80%8E%E4%B9%88%E9%80%81%E5%88%B0%E4%BA%BA%E6%89%8B%E9%87%8C">#</a></h3>
+<p>测试跑完，结论有三个去处。</p>
+<p>第一个是 <strong>Slack 告警</strong>。只有结果为 FAIL 时才推送，并 @ 频道里的所有人；PASS 和 WARN 都保持静默。这是刻意的取舍：如果每晚都推一条消息，大家很快就会习惯性忽略，等真正出问题时反而没人看。</p>
+<p>第二个是<strong>报告索引页</strong>。每次运行结束都会刷新一个汇总页面，按日期列出所有历史运行，多账号批次折叠成一行，展示并集覆盖率，点开可以看各账号的单独报告。</p>
+<p>第三个是<strong>管理后台</strong>。它部署在内网，QA 同事可以在网页上查看报告、发起任务、管理设备和测试账号，不再需要登录那台 Mac 敲命令。管理后台的设计思路，会在管理后台系列中单独介绍。</p>
+<hr>
+<h2 id="%E5%85%AB%E3%80%81%E8%BF%99%E4%B8%80%E7%AF%87%E7%9A%84%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA" tabindex="-1">八、这一篇的核心结论 <a class="anchor" href="#%E5%85%AB%E3%80%81%E8%BF%99%E4%B8%80%E7%AF%87%E7%9A%84%E6%A0%B8%E5%BF%83%E7%BB%93%E8%AE%BA">#</a></h2>
+<div class="tw"><table><thead>
+<tr>
+<th>问题</th>
+<th>答案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>报告模块为什么能跨平台？</td>
+<td>两端采集脚本统一了中间文件的格式，报告只认格式，不认平台</td>
+</tr>
+<tr>
+<td>P95 比峰值好在哪？</td>
+<td>去掉瞬间毛刺，反映持续的高水位</td>
+</tr>
+<tr>
+<td>疑似泄漏为什么不参与判定？</td>
+<td>随机操作的路径差异会造成大量误报，目前作为人工复查线索</td>
+</tr>
+<tr>
+<td>采集出问题怎么办？</td>
+<td>采集覆盖度低于 80% 或内存数据为空时判 WARN，不让数据丢失伪装成 PASS</td>
+</tr>
+<tr>
+<td>崩溃为什么没有 WARN 档？</td>
+<td>App 自身的崩溃零容忍；测试工具引起的崩溃和 ANR 单独计数，只判 WARN</td>
+</tr>
+<tr>
+<td>覆盖率为什么一开始只有 13%？</td>
+<td>探索时间集中在两个 Tab，加上 Flutter 页面在 Fastbot 眼里是一整块</td>
+</tr>
+<tr>
+<td>覆盖率是怎么提上来的？</td>
+<td>多账号分区摊开时间，并集聚合正确度量，Flutter 节点并入破除天花板</td>
+</tr>
+<tr>
+<td>为什么没用云端 CI？</td>
+<td>真机必须 USB 连接，最终用一台常驻 Mac mini 定时运行</td>
+</tr>
+<tr>
+<td>为什么只在 FAIL 时告警？</td>
+<td>告警太频繁会被习惯性忽略</td>
+</tr>
+</tbody>
+</table></div><hr>
+<h2 id="%E4%B8%8B%E4%B8%80%E7%AF%87%E9%A2%84%E5%91%8A" tabindex="-1">下一篇预告 <a class="anchor" href="#%E4%B8%8B%E4%B8%80%E7%AF%87%E9%A2%84%E5%91%8A">#</a></h2>
+<p>稳定性测试系列到这里告一段落。下一个系列进入 E2E 自动化：Monkey 测试负责发现未知的崩溃，却保证不了&quot;登录、上课、交作业&quot;这些核心流程每个版本都能走通。E2E 系列会从概念讲起，记录我们怎么借助大模型，把用例的录制、回放和维护成本降下来。</p>
+<div class="pnav"><a class="l" href="/posts/app-testing-e2e-01-concepts/"><small>上一篇</small><b>APP自动化测试实践 E2E·01：E2E 测试——从零讲透概念与核心机制</b></a><a class="r" href="/posts/app-testing-stability-03-android-toolchain/"><small>下一篇</small><b>APP自动化测试实践 稳定性·03：Android 工具链——adb 怎么采集数据，Fastbot 怎么驱动 App</b></a></div></article></main>
+
+<div id="mascot" title="戳一下">
+  <div id="m-say"></div>
+  <button id="m-top" title="回到顶部" aria-label="回到顶部">↑</button>
+</div>
+<script type="module" src="/scene2d.js"></script>
+<script type="module" src="/mascot.js"></script>
+<script>
+addEventListener('keydown', function(e){
+  var P = {"prev":"/posts/app-testing-e2e-01-concepts/","next":"/posts/app-testing-stability-03-android-toolchain/"};
+  // 灯箱打开时 Esc 只关灯箱,方向键不翻页
+  var lb = document.querySelector('.lb');
+  if (lb) { if (e.key === 'Escape') lb.remove(); return; }
+  if (e.key === 'ArrowLeft'  && P.prev) location.href = P.prev;
+  if (e.key === 'ArrowRight' && P.next) location.href = P.next;
+  if (e.key === 'Escape') location.href = '/#writing';
+});
+</script>
+<script>
+// 大纲高亮:滚动容器是 #art(不是 window),直接按滚动位置算当前节最可靠
+(function(){
+  var toc = document.querySelector('.toc');
+  if (!toc) return;
+  var art = document.getElementById('art');
+  var links = [].slice.call(toc.querySelectorAll('a'));
+  var map = {};
+  // id 本身已是百分号编码,直接用原始 href 做 key,不要 decode
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  var heads = [].slice.call(art.querySelectorAll('h2[id],h3[id]'));
+  if (!heads.length) return;
+  var cur = null;
+
+  function paint(){
+    var top = art.getBoundingClientRect().top + 100;   // 判定线:卡片顶部下方 100px
+    var found = heads[0];
+    for (var i = 0; i < heads.length; i++){
+      if (heads[i].getBoundingClientRect().top <= top) found = heads[i]; else break;
+    }
+    // 已滚到底时强制选中最后一节,否则末节永远高亮不到
+    if (art.scrollTop + art.clientHeight >= art.scrollHeight - 4) found = heads[heads.length - 1];
+    if (found === cur) return;
+    cur = found;
+    links.forEach(function(a){ a.classList.remove('on'); });
+    var a = map[found.id];
+    if (!a) return;
+    a.classList.add('on');
+    var box = a.getBoundingClientRect(), tb = toc.getBoundingClientRect();
+    if (box.top < tb.top || box.bottom > tb.bottom) a.scrollIntoView({block:'nearest'});
+  }
+
+  var tick = false;
+  art.addEventListener('scroll', function(){
+    if (tick) return;
+    tick = true;
+    requestAnimationFrame(function(){ tick = false; paint(); });
+  }, {passive:true});
+
+  toc.addEventListener('click', function(e){
+    var a = e.target.closest('a'); if (!a) return;
+    var t = document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1)));
+    if (!t) return;
+    e.preventDefault();
+    art.scrollTo({ top: art.scrollTop + t.getBoundingClientRect().top - art.getBoundingClientRect().top - 24, behavior:'smooth' });
+    history.replaceState(null, '', a.getAttribute('href'));
+  });
+  paint();
+})();
+</script>
+<script>
+// 图片灯箱:点正文图片或 Mermaid 图放大,点击 / Esc / 滚轮关闭
+document.getElementById('art').addEventListener('click', function(e){
+  var t = e.target.closest('img,.mm svg');
+  if (!t || t.closest('a')) return;
+  var lb = document.createElement('div'), c = t.cloneNode(true);
+  lb.className = 'lb';
+  if (c.tagName !== 'IMG') {
+    // SVG 没有固有的"原图尺寸",按视口等比放大
+    var r = t.getBoundingClientRect();
+    var k = Math.min(innerWidth * .92 / r.width, innerHeight * .9 / r.height);
+    c.style.width = r.width * k + 'px';
+    c.style.height = r.height * k + 'px';
+  }
+  lb.appendChild(c);
+  lb.onclick = lb.onwheel = function(){ lb.remove(); };
+  document.body.appendChild(lb);
+});
+</script>
+<script>
+// 代码块复制
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('.cb-c');
+  if (!btn) return;
+  var pre = btn.parentElement.querySelector('pre');
+  if (!pre) return;
+  var text = pre.innerText;
+  var done = function(){
+    btn.textContent = '已复制'; btn.classList.add('ok');
+    setTimeout(function(){ btn.textContent = '复制'; btn.classList.remove('ok'); }, 1600);
+  };
+  // clipboard API 需要安全上下文(https 或 localhost),否则回退到 execCommand
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done, fallback);
+  } else fallback();
+  function fallback(){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (err) { btn.textContent = '复制失败'; }
+    document.body.removeChild(ta);
+  }
+});
+</script>
+</body></html>
